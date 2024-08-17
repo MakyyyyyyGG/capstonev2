@@ -63,7 +63,6 @@ function Signup() {
   return (
     <div className="flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
       <div className="min-w-[60%] h-screen overflow-hidden  hidden sm:block">
-        <h1>hotdog</h1>
         <img
           src="noteeee.svg"
           alt=""
