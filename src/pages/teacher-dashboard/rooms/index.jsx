@@ -1,7 +1,30 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
-const Rooms = ({ rooms }) => {
+
+const Rooms = ({ rooms, onRoomDeleted }) => {
+  async function deleteRoom(roomCode) {
+    const delRoomData = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ room_code: roomCode }),
+    };
+    try {
+      const res = await fetch(
+        "/api/accounts_teacher/room/create_room",
+        delRoomData
+      );
+      const data = await res.json();
+      console.log(data);
+      onRoomDeleted();
+      console.log("Room deleted successfully");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <div>
       <div>
@@ -19,6 +42,9 @@ const Rooms = ({ rooms }) => {
               <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
                 <Button>View Room</Button>
               </Link>
+              <Button color="danger" onClick={() => deleteRoom(room.room_code)}>
+                Delete Room
+              </Button>
             </li>
           ))}
         </ul>

@@ -31,4 +31,12 @@ export default async function handler(req, res) {
     });
     res.status(200).json({ roomsData });
   }
+  if (req.method === "DELETE") {
+    const { room_code } = req.body;
+    const roomsData = await query({
+      query: "DELETE FROM rooms WHERE room_code = ?",
+      values: [room_code],
+    });
+    res.status(200).json({ roomsData });
+  }
 }
