@@ -33,9 +33,7 @@ const Dashboard = () => {
           <CreateRoom onRoomCreated={fetchRooms} />
           <Sidebar />
         </div>
-
-        <div>
-          <h1 className="border-2">Teacher Dashboard</h1>
+        <div className="p-4 w-full">
           <div>
             <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />
           </div>
