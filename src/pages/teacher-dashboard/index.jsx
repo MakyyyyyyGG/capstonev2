@@ -33,7 +33,6 @@ const Dashboard = () => {
           <CreateRoom onRoomCreated={fetchRooms} />
           <Sidebar />
         </div>
-
         <div className="p-4 w-full">
           <div>
             <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />

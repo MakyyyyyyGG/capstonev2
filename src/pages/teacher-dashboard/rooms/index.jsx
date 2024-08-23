@@ -31,7 +31,6 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
       console.log(error);
     }
   }
-
   return (
     <div>
       <div>
