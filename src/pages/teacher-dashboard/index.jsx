@@ -37,7 +37,7 @@ const Dashboard = () => {
         <div>
           <h1 className="border-2">Teacher Dashboard</h1>
           <div>
-            <Rooms rooms={rooms} />
+            <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />
           </div>
         </div>
       </div>
