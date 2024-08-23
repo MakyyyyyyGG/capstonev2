@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Button } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 
 const JoinedRoom = ({ rooms, onUnenroll }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredRooms = rooms.filter((room) =>
+    room.room_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   async function unEnroll(joined_room_id) {
     const unEnrollData = {
       method: "DELETE",
@@ -26,20 +32,26 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
   }
 
   return (
-    <div className="">
+    <div>
       <div>
         <h1>Joined Rooms</h1>
+        <input
+          clearable
+          placeholder="Search by room name"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-4 w-full p-2"
+        />
         <div className="flex flex-wrap gap-5">
-          {rooms.map((room) => (
+          {filteredRooms.map((room) => (
             <div
               key={room.room_code}
               className="border-2 w-[30%] h-[300px] flex flex-col"
             >
-              <h2>Stundent Room ID: {room.student_room_id}</h2>
-              <h2 className="">Room Name: {room.room_name}</h2>
+              <h2>Student Room ID: {room.student_room_id}</h2>
+              <h2>Room Name: {room.room_name}</h2>
               <h2>Room Difficulty: {room.room_difficulty}</h2>
               <h2>Room Code: {room.room_code}</h2>
-              <h2>Taecher: {room.email}</h2>
+              <h2>Teacher: {room.email}</h2>
               <Link href={`/homepage/joined_rooms/${room.room_code}`}>
                 <Button>View Room</Button>
               </Link>
