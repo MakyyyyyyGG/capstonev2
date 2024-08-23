@@ -41,7 +41,7 @@ const Index = () => {
         <div className="border-2 -black w-full">
           <h1 className="border-2">Student dashboard</h1>
           <div>
-            <JoinedRoom rooms={rooms} />
+            <JoinedRoom rooms={rooms} onUnenroll={fetchJoinedRoom} />
           </div>
         </div>
       </div>

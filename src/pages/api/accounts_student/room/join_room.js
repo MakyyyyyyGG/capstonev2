@@ -47,17 +47,29 @@ export default async function handler(req, res) {
     const { student_id } = req.query;
     const roomData = await query({
       query: `select 
+     student_room.student_room_id,
 	rooms.room_name,
 	rooms.room_difficulty,
     rooms.room_code,
-    student_room.student_id
+    student_room.student_id,
+    teachers.email
 from student_room
 join
 	rooms on student_room.room_id = rooms.room_id
+join 
+	teachers on rooms.account_id = teachers.account_id
 join
 	students on student_room.student_id = students.account_id	
 where students.account_id = ?`,
       values: [student_id],
+    });
+    res.status(200).json({ roomData });
+  } else if (req.method === "DELETE") {
+    const { student_room_id } = req.query;
+    console.log("Styudent_room_id: ", student_room_id);
+    const roomData = await query({
+      query: `DELETE FROM student_room WHERE student_room_id = ?`,
+      values: [student_room_id],
     });
     res.status(200).json({ roomData });
   } else {
