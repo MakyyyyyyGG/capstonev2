@@ -21,7 +21,6 @@ const CreateRoom = ({ onRoomCreated }) => {
   const [roomName, setRoomName] = useState("");
   const [difficulty, setDifficulty] = useState("");
 
-
   // Function to generate a unique 4-digit room code
   const generateRoomCode = async () => {
     let code;
