@@ -9,7 +9,6 @@ const fetchStudents = async (room_code, setStudents) => {
     );
     const data = await res.json();
     setStudents(data.studentsData);
-    console.log(data);
   } catch (error) {
     console.error("Error fetching students:", error);
   }
