@@ -39,4 +39,14 @@ export default async function handler(req, res) {
     });
     res.status(200).json({ roomsData });
   }
+  if (req.method === "PUT") {
+    const { room_code } = req.query;
+    const { room_name, room_difficulty } = req.body;
+    const roomsData = await query({
+      query:
+        "UPDATE rooms SET room_name = ?, room_difficulty = ? WHERE room_code = ?",
+      values: [room_name, room_difficulty, room_code],
+    });
+    res.status(200).json({ roomsData });
+  }
 }

@@ -78,9 +78,43 @@ const IndividualRoom = () => {
     setDifficulty(key);
   };
 
-  const handlUpdateRoom = (e) => {
+  const handlUpdateRoom = async (e) => {
     e.preventDefault();
-    console.log(roomName, difficulty);
+    if (difficulty === "" && roomName === "") {
+      alert("Input at least one field");
+      return;
+    }
+
+    const roomData = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        room_name: roomName,
+        room_difficulty: difficulty,
+      }),
+    };
+
+    try {
+      const response = await fetch(
+        `/api/accounts_teacher/room/create_room?room_code=${room_code}`,
+        roomData
+      );
+      const result = await response.json();
+      if (response.ok) {
+        console.log("Room updated successfully", result);
+      } else {
+        console.error("Error updating room:", result.error);
+      }
+    } catch (error) {
+      console.error("Error updating room:", error);
+    }
+    setDifficulty("");
+    setRoomName("");
+    onOpenChange(false);
+
+    fetchRoomDetails(room_code, setRoomData);
   };
 
   return (
@@ -113,17 +147,8 @@ const IndividualRoom = () => {
                 {(onClose) => (
                   <>
                     <ModalHeader className="flex flex-col gap-1">
-                      <div className="flex justify-between items-center">
-                        <h1>Room settings</h1>
-                        <Button
-                          className="mr-4"
-                          color="secondary"
-                          size="lg"
-                          onClick={handlUpdateRoom}
-                        >
-                          Update
-                        </Button>
-                      </div>
+                      <h1>Room settings</h1>
+
                       <Divider />
                     </ModalHeader>
                     <ModalBody>
@@ -132,7 +157,6 @@ const IndividualRoom = () => {
                           <CardBody>
                             <h1 className="my-4">Room Details</h1>
                             <Input
-                              isRequired
                               placeholder={roomData[0]?.room_name}
                               label="Room Name"
                               onChange={(e) => updatedRoomName(e.target.value)}
@@ -140,7 +164,6 @@ const IndividualRoom = () => {
 
                             <Autocomplete
                               className="mt-4"
-                              isRequired
                               label="Select a difficulty"
                               placeholder={roomData[0].room_difficulty}
                               onSelectionChange={handleDifficultyChange}
@@ -167,59 +190,26 @@ const IndividualRoom = () => {
                                 Hard
                               </AutocompleteItem>
                             </Autocomplete>
-
-                            <Dropdown>
-                              <DropdownTrigger className="m-4">
-                                {roomData ? (
-                                  <Button variant="bordered">
-                                    {roomData[0].room_difficulty}
-                                  </Button>
-                                ) : (
-                                  <Button variant="bordered">
-                                    Choose Difficulty
-                                  </Button>
-                                )}
-                              </DropdownTrigger>
-                              <DropdownMenu
-                                aria-label="Static Actions"
-                                onAction={handleDifficultyChange}
-                                // onAction={handleDifficultyChange}
-                              >
-                                <DropdownItem
-                                  key="Easy"
-                                  color="success"
-                                  className="text-success"
-                                >
-                                  Easy
-                                </DropdownItem>
-                                <DropdownItem
-                                  key="Moderate"
-                                  color="warning"
-                                  className="text-warning"
-                                >
-                                  Moderate
-                                </DropdownItem>
-                                <DropdownItem
-                                  key="Hard"
-                                  color="danger"
-                                  className="text-danger"
-                                >
-                                  Hard
-                                </DropdownItem>
-                              </DropdownMenu>
-                            </Dropdown>
+                            <Button
+                              className="mt-4"
+                              color="secondary"
+                              size="lg"
+                              onClick={handlUpdateRoom}
+                            >
+                              Update
+                            </Button>
+                            <Button
+                              color="danger"
+                              className="mt-2"
+                              size="lg"
+                              onPress={onClose}
+                            >
+                              Cancel
+                            </Button>
                           </CardBody>
                         </Card>
                       </div>
                     </ModalBody>
-                    <ModalFooter>
-                      <Button color="danger" variant="light" onPress={onClose}>
-                        Close
-                      </Button>
-                      <Button color="primary" onPress={onClose}>
-                        Action
-                      </Button>
-                    </ModalFooter>
                   </>
                 )}
               </ModalContent>
