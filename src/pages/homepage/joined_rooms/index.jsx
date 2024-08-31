@@ -35,7 +35,7 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
     <div>
       <div>
         <h1>Joined Rooms</h1>
-        <input
+        <Input
           clearable
           placeholder="Search by room name"
           onChange={(e) => setSearchTerm(e.target.value)}

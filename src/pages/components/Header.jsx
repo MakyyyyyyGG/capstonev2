@@ -19,6 +19,7 @@ const Header = () => {
   const [province, setProvince] = useState("");
   const [municipality, setMunicipality] = useState("");
   const [barangay, setBarangay] = useState("");
+  const [profileImage, setProfileImage] = useState("");
 
   const [customBarangays, setCustomBarangays] = useState([]);
   const [regions, setRegions] = useState([]);
@@ -43,9 +44,9 @@ const Header = () => {
     fetchRegions();
   }, []);
 
-  useEffect(() => {
-    console.log(gender, bday, region, province, municipality, barangay);
-  }, [gender, bday, region, province, municipality, barangay]);
+  // useEffect(() => {
+  //   console.log(gender, bday, region, province, municipality, barangay);
+  // }, [gender, bday, region, province, municipality, barangay]);
 
   const fetchRegions = async () => {
     try {
@@ -77,7 +78,18 @@ const Header = () => {
       console.error("Error fetching provinces:", error);
     }
   };
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
 
+    reader.onloadend = () => {
+      setProfileImage(reader.result); // Base64 string
+    };
+
+    if (file) {
+      reader.readAsDataURL(file); // Convert to Base64
+    }
+  };
   const fetchCities = async (provinceCode) => {
     try {
       const response = await fetch(
@@ -140,11 +152,6 @@ const Header = () => {
     fetchCities(e.target.value);
     fetchMunicipalities(e.target.value);
   };
-
-  // const handleCityChange = (e) => {
-  //   setSelectedCity(e.target.value);
-  //   fetchBarangays(e.target.value);
-  // };
 
   const handleMunicipalityChange = (e) => {
     const selectedText = e.target.options[e.target.selectedIndex].text;
@@ -276,6 +283,7 @@ const Header = () => {
           province: finalProvince,
           municipality: finalMunicipality,
           barangay: finalBarangay,
+          profileImage: profileImage,
         }),
       };
 
@@ -283,14 +291,16 @@ const Header = () => {
 
       // Log the response
       const text = await response.text(); // Get response as text
-      console.log(text);
+      // console.log(text);
 
       // Try to parse the JSON
       const data = JSON.parse(text);
-      console.log(data);
-      console.log("User data updated successfully");
+      // console.log(data);
       setUserData(data); // Update the userData state with the new data
       getUserData(); // Re-fetch user data to reflect the updates
+
+      // Update profileImage to force refresh
+      setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
     } catch (error) {
       console.error("Error updating user data:", error);
     }
@@ -338,11 +348,11 @@ const Header = () => {
 
       // Log the response
       const text = await response.text(); // Get response as text
-      console.log(text);
+      // console.log(text);
 
       // Try to parse the JSON
       const data = JSON.parse(text);
-      console.log(data);
+      // console.log(data);
       console.log("User data updated successfully");
       setIsLocationEditing(false);
       setUserData(data); // Update the userData state with the new data
@@ -387,6 +397,7 @@ const Header = () => {
         setProvince(user.province || "");
         setMunicipality(user.municipality || "");
         setBarangay(user.barangay || "");
+        setProfileImage(user.profile_image || "");
       }
       setUserData(user);
     } catch (error) {
@@ -452,6 +463,7 @@ const Header = () => {
               <option value="Female">Female</option>
               <option value="Other">Other</option>
             </select>
+            <input type="file" accept="image/*" onChange={handleImageChange} />
 
             <Button color="primary" onClick={handleSaveClick}>
               Save
@@ -467,7 +479,11 @@ const Header = () => {
             <p>Age: {age}</p>
             <p>Gender: {gender}</p>
             <p>Birthday: {bday}</p>
-
+            <img
+              src={`${profileImage}?${new Date().getTime()}`}
+              alt="User Profile"
+              style={{ width: "100px", height: "100px", borderRadius: "50%" }}
+            />
             <Button color="secondary" onClick={handleUpdateClick}>
               Update
             </Button>
@@ -558,7 +574,6 @@ const Header = () => {
           </>
         )}
       </form>
-
       <Button
         color="danger"
         onPress={() =>
@@ -567,7 +582,6 @@ const Header = () => {
       >
         Signout
       </Button>
-
       <div className="flex flex-col">
         <p>age {age}</p>
         <p>gender {userData?.gender}</p>
