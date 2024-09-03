@@ -141,7 +141,12 @@ function Signup() {
                 "Sign In"
               )}
             </Button>
-            <div className="w-full flex justify-center"></div>
+            <Link
+              href="/reset_password"
+              className=" text-[#7469b6] font-bold text-right"
+            >
+              Forgot Password?
+            </Link>
             <div className="or flex justify-center items-center">
               <Divider className="sm:w-1/2 w-32" />
               <p className="mx-2  my-4 text-sm">OR</p>
