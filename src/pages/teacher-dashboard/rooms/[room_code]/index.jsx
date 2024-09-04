@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import DeleteRoom from "@/pages/components/DeleteRoom";
 import { Settings } from "lucide-react";
+import CreateClassWork from "@/pages/components/CreateClassWork";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -131,7 +132,7 @@ const IndividualRoom = () => {
               Classroom
             </Tab>
             <Tab key="classworks" title="Classworks">
-              Classworks
+              <CreateClassWork room_code={room_code} />
             </Tab>
             <Tab key="students" title="Students">
               <StudentList room_code={room_code} />
