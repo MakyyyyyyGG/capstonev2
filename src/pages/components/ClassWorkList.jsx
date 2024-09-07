@@ -22,11 +22,7 @@ const ClassWorkList = ({ room_code }) => {
         {games.map((game) => (
           <li key={game.game_id}>
             <div className="flex flex-col m-4">
-              <Card
-                onClick={() => {
-                  router.push(`/games/${game.game_id}`);
-                }}
-              >
+              <Card>
                 <CardBody>
                   <div className="flex gap-4">
                     <p>{game.title}</p>
