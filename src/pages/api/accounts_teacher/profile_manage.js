@@ -3,20 +3,20 @@ import path from "path";
 import { query } from "@/lib/db";
 
 // Helper function to delete an existing image file
-const deleteImageFile = (fileName) => {
-  const filePath = path.join(process.cwd(), "public", "images", fileName);
-  return new Promise((resolve, reject) => {
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error(`Failed to delete file: ${filePath}`, err);
-        reject(err);
-      } else {
-        console.log(`Deleted file: ${filePath}`);
-        resolve();
-      }
-    });
-  });
-};
+// const deleteImageFile = (fileName) => {
+//   const filePath = path.join(process.cwd(), "public", "images", fileName);
+//   return new Promise((resolve, reject) => {
+//     fs.unlink(filePath, (err) => {
+//       if (err) {
+//         console.error(`Failed to delete file: ${filePath}`, err);
+//         reject(err);
+//       } else {
+//         console.log(`Deleted file: ${filePath}`);
+//         resolve();
+//       }
+//     });
+//   });
+// };
 
 // Helper function to write Base64 image data to a file
 const saveImageToFile = async (base64String, fileName) => {
@@ -92,10 +92,10 @@ export default async function handler(req, res) {
         const fileName = `profile_${account_id}.png`;
 
         // Delete existing image file if it exists
-        if (existingImageUrl) {
-          const existingFileName = path.basename(existingImageUrl);
-          await deleteImageFile(existingFileName);
-        }
+        // if (existingImageUrl) {
+        //   const existingFileName = path.basename(existingImageUrl);
+        //   await deleteImageFile(existingFileName);
+        // }
 
         // Save the new image to the public/images folder
         imageUrl = await saveImageToFile(profileImage, fileName);
