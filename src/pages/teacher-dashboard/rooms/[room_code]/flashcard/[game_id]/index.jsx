@@ -1,0 +1,43 @@
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { Button } from "@nextui-org/react";
+import Flashcards from "@/pages/components/Flashcards";
+const index = () => {
+  const router = useRouter();
+  const { game_id } = router.query;
+  const [flashcards, setFlashcards] = useState([]);
+  const fetchFlashcards = async () => {
+    try {
+      const res = await fetch(`/api/flashcard/flashcard?game_id=${game_id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      setFlashcards(data);
+      if (res.ok) {
+        console.log("Flashcards fetched successfully");
+        console.log(data);
+      } else {
+        console.error("Error fetching flashcards:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching flashcards:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (game_id) {
+      fetchFlashcards();
+    }
+  }, [game_id]);
+
+  return (
+    <div>
+      <Flashcards flashcards={flashcards} />
+    </div>
+  );
+};
+
+export default index;
