@@ -98,8 +98,49 @@ export default async function handler(req, res) {
       console.error("Error creating flashcards:", error);
       res.status(500).json({ error: "Error creating flashcards" });
     }
-  } else {
-    res.setHeader("Allow", ["POST"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+  if (req.method === "GET") {
+    console.log("GET request received");
+    const { game_id } = req.query;
+    console.log("Game ID:", game_id);
+
+    // Get flashcard set
+    try {
+      const gameResults = await query({
+        query:
+          "SELECT * FROM flashcard_sets JOIN games ON flashcard_sets.game_id = games.game_id WHERE flashcard_sets.game_id = ?",
+        values: [game_id],
+      });
+
+      if (!gameResults.length) {
+        res.status(404).json({ error: "Game not found" });
+        return;
+      }
+
+      const flashcardSetId = gameResults[0].flashcard_set_id;
+
+      try {
+        // Selecting all flashcards in a flashcard set
+        const flashcardsResults = await query({
+          query:
+            "SELECT * FROM flashcards JOIN flashcard_sets ON flashcards.flashcard_set_id = flashcard_sets.flashcard_set_id WHERE flashcards.flashcard_set_id = ?",
+          values: [flashcardSetId],
+        });
+
+        if (!flashcardsResults.length) {
+          res.status(404).json({ error: "Flashcards not found" });
+          return;
+        }
+
+        // Return the array of flashcards directly
+        res.status(200).json(flashcardsResults);
+      } catch (error) {
+        console.error("Error fetching flashcards:", error);
+        res.status(500).json({ error: "Error fetching flashcards" });
+      }
+    } catch (error) {
+      console.error("Error fetching game:", error);
+      res.status(500).json({ error: "Error fetching game" });
+    }
   }
 }
