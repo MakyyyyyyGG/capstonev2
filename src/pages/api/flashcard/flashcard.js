@@ -6,9 +6,7 @@ const saveFileToPublic = async (base64String, fileName, folder) => {
   const dataUriRegex =
     /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav));base64,/;
   const match = base64String.toString().match(dataUriRegex);
-  if (!match) throw new Error("Invalid Base64 data");
 
-  const fileType = match[1]; // e.g., 'image/png', 'audio/mpeg'
   const base64Data = base64String.replace(dataUriRegex, "");
   const filePath = path.join(process.cwd(), "public", folder, fileName);
 
@@ -141,6 +139,95 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error("Error fetching game:", error);
       res.status(500).json({ error: "Error fetching game" });
+    }
+  }
+  if (req.method === "PUT") {
+    const { flashcard_id } = req.query;
+    const { flashcards } = req.body;
+
+    try {
+      // Get the current flashcard data
+      const currentFlashcardResults = await query({
+        query: "SELECT * FROM flashcards WHERE flashcard_id = ?",
+        values: [flashcard_id],
+      });
+
+      if (!currentFlashcardResults.length) {
+        res.status(404).json({ error: "Flashcard not found" });
+        return;
+      }
+
+      const currentFlashcard = currentFlashcardResults[0];
+
+      let imageFileName = null;
+      let audioFileName = null;
+
+      if (flashcards.image && flashcards.image !== currentFlashcard.image) {
+        imageFileName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .substr(2, 9)}.png`;
+        flashcards.image = await saveFileToPublic(
+          flashcards.image,
+          imageFileName,
+          "flashcards/images"
+        );
+        console.log(`Image URI: ${flashcards.image}`);
+      } else {
+        flashcards.image = currentFlashcard.image;
+      }
+
+      if (flashcards.audio && flashcards.audio !== currentFlashcard.audio) {
+        audioFileName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .substr(2, 9)}.mp3`;
+        flashcards.audio = await saveFileToPublic(
+          flashcards.audio,
+          audioFileName,
+          "flashcards/audio"
+        );
+        console.log(`Audio URI: ${flashcards.audio}`);
+      } else {
+        flashcards.audio = currentFlashcard.audio;
+      }
+
+      const flashcardResults = await query({
+        query:
+          "UPDATE flashcards SET term = ?, description = ?, image = ?, audio = ? WHERE flashcard_id = ?",
+        values: [
+          flashcards.term,
+          flashcards.description,
+          flashcards.image,
+          flashcards.audio,
+          flashcard_id,
+        ],
+      });
+      if (flashcardResults.affectedRows > 0) {
+        res.status(200).json({ message: "Flashcard updated successfully" });
+      } else {
+        res.status(404).json({ error: "Flashcard not found" });
+      }
+    } catch (error) {
+      console.error("Error updating flashcard:", error);
+      res.status(500).json({ error: "Error updating flashcard" });
+    }
+  }
+  if (req.method === "DELETE") {
+    const { game_id } = req.query;
+    console.log("Game ID:", game_id);
+
+    try {
+      const flashcardResults = await query({
+        query: "DELETE FROM games WHERE game_id = ?",
+        values: [game_id],
+      });
+      if (flashcardResults.affectedRows > 0) {
+        res.status(200).json({ message: "Flashcards deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Flashcards not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting flashcards:", error);
+      res.status(500).json({ error: "Error deleting flashcards" });
     }
   }
 }
