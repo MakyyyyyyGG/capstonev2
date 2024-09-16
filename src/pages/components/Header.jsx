@@ -655,24 +655,30 @@ const Header = () => {
                                   Update Profile Picture
                                 </Button>
                                 {profilePictureEditing && (
-                                  <div className="flex flex-col">
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={handleImageChange}
-                                    />
-                                    <Button
-                                      onClick={handleProfilePicture}
-                                      color="primary"
-                                    >
-                                      Save
-                                    </Button>
-                                    <Button
-                                      onClick={cancelProfilePicture}
-                                      color="danger"
-                                    >
-                                      Cancel
-                                    </Button>
+                                  <div className="flex flex-col gap-3 mt-3">
+                                    <div className="">
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                      />
+                                    </div>
+                                    <div className="flex justify-end gap-3">
+                                      <Button
+                                        size="sm"
+                                        onClick={cancelProfilePicture}
+                                        color="danger"
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        onClick={handleProfilePicture}
+                                        color="primary"
+                                      >
+                                        Save
+                                      </Button>
+                                    </div>
                                   </div>
                                 )}
                               </div>
