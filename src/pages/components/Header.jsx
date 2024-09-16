@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { Button, Chip, user } from "@nextui-org/react";
 import { Button, ButtonGroup, Chip } from "@nextui-org/react";
 import {
   Navbar,
@@ -54,6 +55,8 @@ const Header = () => {
   const [municipality, setMunicipality] = useState("");
   const [barangay, setBarangay] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const [profilePictureEditing, setProfilePictureEditing] = useState(false);
+  const [isImageChanged, setIsImageChanged] = useState(false);
 
   const [customBarangays, setCustomBarangays] = useState([]);
   const [regions, setRegions] = useState([]);
@@ -112,18 +115,22 @@ const Header = () => {
       console.error("Error fetching provinces:", error);
     }
   };
+
   const handleImageChange = (event) => {
+    setIsImageChanged(true);
     const file = event.target.files[0];
     const reader = new FileReader();
 
     reader.onloadend = () => {
       setProfileImage(reader.result); // Base64 string
     };
+    // console.log(profileImage);
 
     if (file) {
       reader.readAsDataURL(file); // Convert to Base64
     }
   };
+
   const fetchCities = async (provinceCode) => {
     try {
       const response = await fetch(
@@ -286,6 +293,9 @@ const Header = () => {
   const handleLocUpdateClick = () => {
     setIsLocationEditing(true);
   };
+  const handleLocCancelClick = () => {
+    setIsLocationEditing(false);
+  };
 
   const handleSaveClick = async (e) => {
     e.preventDefault();
@@ -317,7 +327,7 @@ const Header = () => {
           province: finalProvince,
           municipality: finalMunicipality,
           barangay: finalBarangay,
-          profileImage: profileImage,
+          // profileImage: profileImage,
         }),
       };
 
@@ -340,6 +350,52 @@ const Header = () => {
     }
 
     setIsEditing(false);
+  };
+
+  const editProfilePicture = () => {
+    setProfilePictureEditing(true);
+  };
+  const cancelProfilePicture = () => {
+    setProfilePictureEditing(false);
+  };
+
+  const handleProfilePicture = async (e) => {
+    e.preventDefault();
+    if (!isImageChanged) {
+      alert("Please select an image before saving.");
+      return;
+    }
+    const apiEndpoint =
+      session.user.role === "student"
+        ? `/api/accounts_student/profile_picture?account_id=${session.user.id}`
+        : `/api/accounts_teacher/profile_picture?account_id=${session.user.id}`;
+
+    try {
+      const updateProfilePicture = {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          account_id: session.user.id,
+          profile_image: profileImage,
+        }),
+      };
+
+      const response = await fetch(apiEndpoint, updateProfilePicture);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Ensure that the image URL in the response is used
+      setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
+      await getUserData(); // Re-fetch user data to reflect the updates
+      setProfilePictureEditing(false);
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+    }
   };
 
   const handleLocationSaveClick = async (e) => {
@@ -431,9 +487,14 @@ const Header = () => {
         setProvince(user.province || "");
         setMunicipality(user.municipality || "");
         setBarangay(user.barangay || "");
-        setProfileImage(user.profile_image || "");
+        setProfileImage(
+          user.profile_image
+            ? `${user.profile_image}?${new Date().getTime()}`
+            : ""
+        );
       }
       setUserData(user);
+      console.log("User data:", user);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -862,6 +923,20 @@ const Header = () => {
       <p>Your name is {session.user.name}</p>
       <p>Your user ID is: {session.user.id}</p>
       <p>Your role is: {session.user.role}</p>
+      <Button onClick={editProfilePicture} color="secondary">
+        Update Profile Picture
+      </Button>
+      {profilePictureEditing && (
+        <div className="flex flex-col">
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <Button onClick={handleProfilePicture} color="primary">
+            Save
+          </Button>
+          <Button onClick={cancelProfilePicture} color="danger">
+            Cancel
+          </Button>
+        </div>
+      )}
       <form className="flex flex-col">
         {isEditing ? (
           <>
@@ -899,7 +974,6 @@ const Header = () => {
               <option value="Female">Female</option>
               <option value="Other">Other</option>
             </select>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
 
             <Button color="primary" onClick={handleSaveClick}>
               Save
@@ -916,7 +990,7 @@ const Header = () => {
             <p>Gender: {gender}</p>
             <p>Birthday: {bday}</p>
             <img
-              src={`${profileImage}?${new Date().getTime()}`}
+              src={profileImage}
               alt="User Profile"
               style={{ width: "100px", height: "100px", borderRadius: "50%" }}
             />
@@ -994,7 +1068,7 @@ const Header = () => {
             <Button color="primary" onClick={handleLocationSaveClick}>
               Save
             </Button>
-            <Button color="danger" onClick={handleCancelClick}>
+            <Button color="danger" onClick={handleLocCancelClick}>
               Cancel
             </Button>
           </>

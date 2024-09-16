@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import DeleteRoom from "@/pages/components/DeleteRoom";
 import { Settings } from "lucide-react";
 import CreateClassWork from "@/pages/components/CreateClassWork";
+import ClassWorkList from "@/pages/components/ClassWorkList";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -121,18 +122,18 @@ const IndividualRoom = () => {
   return (
     <div>
       <div className="header flex justify-between">
-        <div>
-          <Tabs
-            aria-label="Options"
-            size="lg"
-            color="secondary"
-            className="m-2"
-          >
+        <div className="w-full">
+          <Tabs aria-label="Options" color="secondary" className="m-2">
             <Tab key="classroom" title="Classroom">
               Classroom
             </Tab>
             <Tab key="classworks" title="Classworks">
-              <CreateClassWork room_code={room_code} />
+              <div className="flex items-center gap-4 border-2 border-gray-300 p-4 w-full">
+                <CreateClassWork room_code={room_code} />
+                <div className="flex flex-col ">
+                  <ClassWorkList room_code={room_code} />
+                </div>
+              </div>
             </Tab>
             <Tab key="students" title="Students">
               <StudentList room_code={room_code} />
