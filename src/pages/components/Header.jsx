@@ -455,8 +455,12 @@ const Header = () => {
   };
 
   const handleCancelClick = () => {
-    setFirstName(session.user.first_name);
-    setLastName(session.user.last_name);
+    // console.log("session.user.first_name", session.user.first_name);
+    // console.log("session.user.last_name", session.user.last_name);
+    // console.log("userData.first_name", userData.first_name);
+    // console.log("userData.last_name", userData.last_name);
+    setFirstName(userData.first_name);
+    setLastName(userData.last_name);
     setIsLocationEditing(false);
     setIsEditing(false);
   };
@@ -720,11 +724,11 @@ const Header = () => {
                                 value={gender || ""}
                                 onChange={(e) => setGender(e.target.value)}
                               >
-                                <SelectItem value="Male">Male</SelectItem>
-                                <SelectItem value="Female">Female</SelectItem>
-                                <SelectItem value="Other">Other</SelectItem>
+                                <SelectItem key="Male">Male</SelectItem>
+                                <SelectItem key="Female">Female</SelectItem>
+                                <SelectItem key="Other">Other</SelectItem>
                               </Select>
-                              <label>Choose a gender:</label>
+                              {/* <label>Choose a gender:</label>
                               <select
                                 name="gender"
                                 id="gender"
@@ -735,7 +739,7 @@ const Header = () => {
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                                 <option value="Other">Other</option>
-                              </select>
+                              </select> */}
                               <Input //DatePicker has some problems
                                 className="col-span-2"
                                 type="date"
@@ -768,16 +772,15 @@ const Header = () => {
                     ) : (
                       <>
                         <div className="min-w-[400px] flex flex-row items-center justify-between gap-5 text-sm">
-                          <div className="flex flex-col items-center gap-3">
+                          <div className="flex flex-col gap-3">
                             <div className="flex flex-row items-center gap-3">
                               <Avatar
                                 src={profileImage}
                                 alt="User Profile"
                                 className="w-[70px] h-[70px] text-large"
                               />
-                              <p>
-                                {firstName} {lastName}
-                              </p>
+                              <p> {firstName}</p>
+                              <p>{lastName}</p>
                             </div>
                             <div>
                               <p>Age: {age}</p>
