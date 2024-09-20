@@ -1,6 +1,13 @@
 import { query } from "@/lib/db";
 import fs from "fs";
 import path from "path";
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb", // Increase the size limit to 10MB
+    },
+  },
+};
 
 const saveFileToPublic = async (base64String, fileName, folder) => {
   const dataUriRegex =

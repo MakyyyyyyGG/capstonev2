@@ -39,9 +39,21 @@ const CreateClassWork = ({ room_code }) => {
                   </CardBody>
                 </Card>
               </Link>
+              <Link href={`/create_4pics1word?room_code=${room_code}`}>
+                <Card className="py-4 hover:bg-gray-200" isPressable>
+                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
+                    <Book />
+                    <p className="uppercase font-bold">4 Pics One Word </p>
+                  </CardHeader>
+                  <CardBody className="overflow-visible py-2">
+                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                    Iure, libero?
+                  </CardBody>
+                </Card>
+              </Link>
               <Card className="py-4 hover:bg-gray-200" isPressable>
                 <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
-                  <img src="/images/profile_3.png" alt="discussion_icon" />
+                  <Book />
                   <p className="uppercase font-bold">Discussion</p>
                 </CardHeader>
                 <CardBody className="overflow-visible py-2">
@@ -51,17 +63,7 @@ const CreateClassWork = ({ room_code }) => {
               </Card>
               <Card className="py-4 hover:bg-gray-200" isPressable>
                 <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
-                  <img src="/images/profile_3.png" alt="discussion_icon" />
-                  <p className="uppercase font-bold">Discussion</p>
-                </CardHeader>
-                <CardBody className="overflow-visible py-2">
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                  Iure, libero?
-                </CardBody>
-              </Card>
-              <Card className="py-4 hover:bg-gray-200" isPressable>
-                <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
-                  <img src="/images/profile_3.png" alt="discussion_icon" />
+                  <Book />
                   <p className="uppercase font-bold">Discussion</p>
                 </CardHeader>
                 <CardBody className="overflow-visible py-2">
