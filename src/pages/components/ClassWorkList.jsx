@@ -5,8 +5,9 @@ import { Trash, Edit } from "lucide-react";
 
 const ClassWorkList = ({ room_code }) => {
   const [games, setGames] = useState([]);
-  // const [gameType, setGameType] = useState("");
   const [redirectGameType, setRedirectGameType] = useState("");
+  const [gameType, setGameType] = useState("");
+
   useEffect(() => {
     fetchGames();
   }, [room_code]);
@@ -17,20 +18,9 @@ const ClassWorkList = ({ room_code }) => {
     );
     const data = await response.json();
     setGames(data);
-    if (data.length > 0) {
-      handleGameType(...data);
-    }
   };
 
-  const handleGameType = (game) => {
-    console.log(game.game_type);
-    if (game.game_type === "flashcard") {
-      setRedirectGameType(`/teacher-dashboard/rooms/${room_code}/flashcard`);
-    }
-  };
-
-  const handleDeleteGame = async (game_id) => {
-    console.log(game_id);
+  const handleDeleteGame = async (game_id, game_type) => {
     const delWorkData = {
       method: "DELETE",
       headers: {
@@ -38,16 +28,31 @@ const ClassWorkList = ({ room_code }) => {
       },
       body: JSON.stringify({ game_id: game_id }),
     };
-    try {
-      const res = await fetch(
-        `/api/flashcard/flashcard?game_id=${game_id}`,
-        delWorkData
-      );
-      const data = await res.json();
-      console.log(data);
-      fetchGames();
-    } catch (error) {
-      console.log("Error deleting game:", error);
+    if (game_type === "flashcard") {
+      try {
+        const res = await fetch(
+          `/api/flashcard/flashcard?game_id=${game_id}`,
+          delWorkData
+        );
+        const data = await res.json();
+        console.log(data);
+        fetchGames();
+      } catch (error) {
+        console.log("Error deleting game:", error);
+      }
+    } else if (game_type === "four_pics_one_word") {
+      console.log("deleting four pics one word game", game_id);
+      try {
+        const res = await fetch(
+          `/api/4pics1word/4pics1word?game_id=${game_id}`,
+          delWorkData
+        );
+        const data = await res.json();
+        console.log(data);
+        fetchGames();
+      } catch (error) {
+        console.log("Error deleting game:", error);
+      }
     }
   };
 
@@ -57,13 +62,22 @@ const ClassWorkList = ({ room_code }) => {
     });
   }, [games]);
 
+  const getRedirectUrl = (game) => {
+    if (game.game_type === "flashcard") {
+      return `/teacher-dashboard/rooms/${room_code}/flashcard/${game.game_id}`;
+    } else if (game.game_type === "four_pics_one_word") {
+      return `/teacher-dashboard/rooms/${room_code}/4pics1word/${game.game_id}`;
+    }
+    return "#";
+  };
+
   return (
     <div>
       <ul>
         {games.map((game) => (
           <li key={game.game_id} className="flex items-center">
             <div className="flex flex-col m-4">
-              <Link href={`${redirectGameType}/${game.game_id}`}>
+              <Link href={getRedirectUrl(game)}>
                 <Card className="py-4 hover:bg-gray-200" isPressable>
                   <CardBody>
                     <div className="flex gap-4">
@@ -79,7 +93,7 @@ const ClassWorkList = ({ room_code }) => {
             <Button
               color="danger"
               className="mr-4"
-              onPress={() => handleDeleteGame(game.game_id)}
+              onPress={() => handleDeleteGame(game.game_id, game.game_type)}
             >
               <Trash />
             </Button>

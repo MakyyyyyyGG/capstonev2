@@ -89,7 +89,7 @@ const CreateRoom = ({ onRoomCreated }) => {
 
   return (
     <div>
-      <Button onPress={onOpen} color="secondary">
+      <Button onPress={onOpen} color="primary">
         Create Room
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
