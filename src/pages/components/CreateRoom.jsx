@@ -114,6 +114,7 @@ const CreateRoom = ({ onRoomCreated }) => {
         classNames={{
           body: "pb-6 px-8",
           header: "text-[#F3F3F3] text-3xl p-8",
+          footer: "px-8 pb-8",
           base: "bg-[#7469B6] dark:bg-[#19172c] text-[#a8b0d3]",
           closeButton:
             "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
