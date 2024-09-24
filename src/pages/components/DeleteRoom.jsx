@@ -28,11 +28,11 @@ const DeleteRoom = ({ room, onRoomDeleted }) => {
   return (
     <div>
       <Button
+        isIconOnly
         color="danger"
-        className="mt-2"
         onClick={() => deleteRoom(room.room_code)}
       >
-        Delete Room
+        Del
       </Button>
     </div>
   );

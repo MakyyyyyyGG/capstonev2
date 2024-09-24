@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { Button } from "@nextui-org/react";
+import { Button, Input, Card, Chip } from "@nextui-org/react";
 import DeleteRoom from "@/pages/components/DeleteRoom";
 
 const Rooms = ({ rooms, onRoomDeleted }) => {
@@ -13,29 +13,51 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
 
   return (
     <div>
-      <h2>Your Rooms</h2>
-      <input
+      <Input
         type="text"
-        placeholder="Search by room name"
+        placeholder="Search Room"
+        radius="sm"
+        size="lg"
+        color="secondary"
+        variant="faded"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="border p-2 mb-4 w-full"
       />
+      <h2 className="text-4xl my-6 font-bold">Your Rooms</h2>
       <ul className="flex flex-wrap gap-5">
         {filteredRooms.map((room) => (
-          <li
+          <Card
             key={room.room_id}
-            className="border-2 min-w-[30%] h-[300px] flex flex-col"
+            className="border-1 min-w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-3"
           >
-            <p>Room name: {room.room_name}</p>
-            <p>Room Difficulty: {room.room_difficulty}</p>
-            <p>Room Code: {room.room_code}</p>
-
-            <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
-              <Button>View Room</Button>
-            </Link>
-            <DeleteRoom room={room} onRoomDeleted={onRoomDeleted} />
-          </li>
+            <div className="p-5 row-span-2 grid content-center">
+              <div className="absolute">
+                <Chip
+                  color="success"
+                  radius="sm"
+                  className="text-base text-white py-4"
+                >
+                  {room.room_difficulty}
+                </Chip>
+              </div>
+              <div className="content-center">
+                <h1 className="text-2xl text-bold text-white text-center content-center">
+                  {room.room_name}
+                </h1>
+              </div>
+            </div>
+            <div className="row-span-1 grid grid-cols-2 justify-between border-t border-white">
+              <div className="p-5 text-white flex items-center">
+                <p>Code: {room.room_code}</p>
+              </div>
+              <div className="flex justify-center gap-1 items-center">
+                <DeleteRoom room={room} onRoomDeleted={onRoomDeleted} />
+                <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
+                  <Button>View Room</Button>
+                </Link>
+              </div>
+            </div>
+          </Card>
         ))}
       </ul>
     </div>

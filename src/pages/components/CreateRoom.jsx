@@ -92,66 +92,95 @@ const CreateRoom = ({ onRoomCreated }) => {
       <Button onPress={onOpen} color="primary">
         Create Room
       </Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="3xl"
+        radius="sm"
+        classNames={{
+          body: "pb-6 px-8",
+          header: "text-[#F3F3F3] text-3xl p-8",
+          base: "bg-[#7469B6] dark:bg-[#19172c] text-[#a8b0d3]",
+          closeButton:
+            "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
+        }}
+      >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
-                Create Room
+              <ModalHeader className="flex flex-col gap-1 ">
+                <div>
+                  <h1>Create Room</h1>
+                </div>
               </ModalHeader>
 
               <ModalBody>
-                <form action="">
-                  <Input
-                    placeholder="Room Name"
-                    value={roomName}
-                    onChange={(e) => setRoomName(e.target.value)}
-                  />
-                  <Dropdown>
-                    <DropdownTrigger>
-                      {difficulty ? (
-                        <Button variant="bordered">{difficulty}</Button>
-                      ) : (
-                        <Button variant="bordered">Choose Difficulty</Button>
-                      )}
-                    </DropdownTrigger>
-                    <DropdownMenu
-                      aria-label="Static Actions"
-                      onAction={handleDifficultyChange}
-                    >
-                      <DropdownItem
-                        key="Easy"
-                        color="success"
-                        className="text-success"
+                <form action="" className="grid grid-cols-4 grid-rows-2 gap-4">
+                  <div className="col-span-4 row-span-1">
+                    <Input
+                      placeholder="Room Name"
+                      radius="sm"
+                      size="lg"
+                      value={roomName}
+                      onChange={(e) => setRoomName(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid col-span-2 col-start-3 justify-items-end">
+                    <Dropdown placement="left-start">
+                      <DropdownTrigger>
+                        {difficulty ? (
+                          <Button variant="flat">{difficulty}</Button>
+                        ) : (
+                          <Button
+                            radius="sm"
+                            size="lg"
+                            variant="flat"
+                            className="bg-white"
+                          >
+                            Choose Difficulty
+                          </Button>
+                        )}
+                      </DropdownTrigger>
+                      <DropdownMenu
+                        aria-label="Static Actions"
+                        onAction={handleDifficultyChange}
                       >
-                        Easy
-                      </DropdownItem>
-                      <DropdownItem
-                        key="Moderate"
-                        color="warning"
-                        className="text-warning"
-                      >
-                        Moderate
-                      </DropdownItem>
-                      <DropdownItem
-                        key="Hard"
-                        color="danger"
-                        className="text-danger"
-                      >
-                        Hard
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
+                        <DropdownItem
+                          key="Easy"
+                          color="success"
+                          className="text-success"
+                        >
+                          Easy
+                        </DropdownItem>
+                        <DropdownItem
+                          key="Moderate"
+                          color="warning"
+                          className="text-warning"
+                        >
+                          Moderate
+                        </DropdownItem>
+                        <DropdownItem
+                          key="Hard"
+                          color="danger"
+                          className="text-danger"
+                        >
+                          Hard
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
                 </form>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" radius="sm" onPress={onClose}>
                   Close
                 </Button>
                 <Button
-                  color="primary"
+                  color="success"
+                  radius="sm"
                   onPress={onClose}
                   onClick={handleCreateRoom}
+                  className="text-white"
                 >
                   Create
                 </Button>
