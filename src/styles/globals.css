@@ -106,6 +106,30 @@ Button[disabled=""][type="submit"] {
   cursor: not-allowed;
 }
 
+.sidebar__wrapper {
+  position: relative;
+}
+
+.sidebar__menuBtn {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background-color: #fff;
+  border: 1px solid #d9dddf;
+  border-radius: 5px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+}
+
+[data-collapse="true"] {
+  width: 5rem;
+}
+[data-collapse="true"] #sidebar__name {
+  display: none;
+}
+
 /* @layer base {
   :root {
     --background: 0 0% 100%;

@@ -28,12 +28,10 @@ const Dashboard = () => {
     <div>
       <Header />
       <div className="flex border-2">
-        <div className="flex flex-col  m-4 p-4 border-2 w-[200px]">
+        <Sidebar />
+        <div className="p-4 w-full">
           {/* Pass the fetchRooms function to CreateRoom */}
           <CreateRoom onRoomCreated={fetchRooms} />
-          <Sidebar />
-        </div>
-        <div className="p-4 w-full">
           <div>
             <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />
           </div>
