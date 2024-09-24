@@ -87,6 +87,20 @@ const CreateRoom = ({ onRoomCreated }) => {
     setDifficulty(key);
   };
 
+  // Function to dynamically set dropdown color based on room difficulty
+  const getDropdownBtnColor = (difficulty) => {
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return "success";
+      case "moderate":
+        return "warning";
+      case "hard":
+        return "danger";
+      default:
+        return "default"; // fallback if the difficulty is not recognized
+    }
+  };
+
   return (
     <div>
       <Button onPress={onOpen} color="primary">
@@ -100,6 +114,7 @@ const CreateRoom = ({ onRoomCreated }) => {
         classNames={{
           body: "pb-6 px-8",
           header: "text-[#F3F3F3] text-3xl p-8",
+          footer: "px-8 pb-8",
           base: "bg-[#7469B6] dark:bg-[#19172c] text-[#a8b0d3]",
           closeButton:
             "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
@@ -129,7 +144,15 @@ const CreateRoom = ({ onRoomCreated }) => {
                     <Dropdown placement="left-start">
                       <DropdownTrigger>
                         {difficulty ? (
-                          <Button variant="flat">{difficulty}</Button>
+                          <Button
+                            radius="sm"
+                            color={getDropdownBtnColor(difficulty)}
+                            size="lg"
+                            variant="flat"
+                            className="bg-white"
+                          >
+                            {difficulty}
+                          </Button>
                         ) : (
                           <Button
                             radius="sm"

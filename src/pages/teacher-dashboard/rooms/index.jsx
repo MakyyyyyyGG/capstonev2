@@ -11,6 +11,20 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
     room.room_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Function to dynamically set Chip color based on room difficulty
+  const getChipColor = (difficulty) => {
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return "success";
+      case "moderate":
+        return "warning";
+      case "hard":
+        return "danger";
+      default:
+        return "default"; // fallback if the difficulty is not recognized
+    }
+  };
+
   return (
     <div>
       <Input
@@ -33,7 +47,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
             <div className="p-5 row-span-2 grid content-center">
               <div className="absolute">
                 <Chip
-                  color="success"
+                  color={getChipColor(room.room_difficulty)}
                   radius="sm"
                   className="text-base text-white py-4"
                 >
