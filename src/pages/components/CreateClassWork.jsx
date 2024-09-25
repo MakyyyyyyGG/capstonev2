@@ -51,16 +51,20 @@ const CreateClassWork = ({ room_code }) => {
                   </CardBody>
                 </Card>
               </Link>
-              <Card className="py-4 hover:bg-gray-200" isPressable>
-                <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
-                  <Book />
-                  <p className="uppercase font-bold">Discussion</p>
-                </CardHeader>
-                <CardBody className="overflow-visible py-2">
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                  Iure, libero?
-                </CardBody>
-              </Card>
+              <Link href={`/create_4pics1word_advanced?room_code=${room_code}`}>
+                <Card className="py-4 hover:bg-gray-200" isPressable>
+                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
+                    <Book />
+                    <p className="uppercase font-bold">
+                      4 Pics One Word Advanced
+                    </p>
+                  </CardHeader>
+                  <CardBody className="overflow-visible py-2">
+                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                    Iure, libero?
+                  </CardBody>
+                </Card>
+              </Link>
               <Card className="py-4 hover:bg-gray-200" isPressable>
                 <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
                   <Book />

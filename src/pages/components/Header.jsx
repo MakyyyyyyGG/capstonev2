@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button, Chip, user } from "@nextui-org/react";
+import { Menu, X } from "lucide-react";
 import {
   Navbar,
   NavbarBrand,
@@ -28,7 +29,7 @@ import {
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import JoinRoom from "./JoinRoom";
-const Header = () => {
+const Header = ({ isCollapsed, toggleCollapse }) => {
   const router = useRouter();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -523,6 +524,9 @@ const Header = () => {
       <Navbar isBordered>
         <NavbarContent justify="start">
           <NavbarBrand className="mr-4">
+            <button onClick={toggleCollapse}>
+              {isCollapsed ? <Menu /> : <X />}
+            </button>
             <p className="hidden sm:block font-bold text-inherit">LNK</p>
           </NavbarBrand>
         </NavbarContent>

@@ -67,6 +67,8 @@ const ClassWorkList = ({ room_code }) => {
       return `/teacher-dashboard/rooms/${room_code}/flashcard/${game.game_id}`;
     } else if (game.game_type === "four_pics_one_word") {
       return `/teacher-dashboard/rooms/${room_code}/4pics1word/${game.game_id}`;
+    } else if (game.game_type === "four_pics_one_word_advanced") {
+      return `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${game.game_id}`;
     }
     return "#";
   };
