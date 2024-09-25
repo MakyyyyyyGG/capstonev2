@@ -8,6 +8,11 @@ import Rooms from "./rooms";
 const Dashboard = () => {
   const { data: session } = useSession();
   const [rooms, setRooms] = useState([]);
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(false);
+
+  function toggleSidebarCollapseHandler() {
+    setIsCollapsedSidebar((prev) => !prev);
+  }
 
   // Function to fetch rooms
   const fetchRooms = async () => {
@@ -26,9 +31,15 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Header />
+      <Header
+        isCollapsed={isCollapsedSidebar}
+        toggleCollapse={toggleSidebarCollapseHandler}
+      />
       <div className="flex border-2">
-        <Sidebar />
+        <Sidebar
+          isCollapsed={isCollapsedSidebar}
+          toggleCollapse={toggleSidebarCollapseHandler}
+        />
         <div className="p-4 w-full">
           {/* Pass the fetchRooms function to CreateRoom */}
           <CreateRoom onRoomCreated={fetchRooms} />

@@ -33,13 +33,7 @@ const sidebarItems2 = [
   },
 ];
 
-const Sidebar = () => {
-  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(false);
-
-  function toggleSidebarCollapseHandler() {
-    setIsCollapsedSidebar((prev) => !prev);
-  }
-
+const Sidebar = ({ isCollapsed, toggleCollapse }) => {
   return (
     <div className="sidebar__wrapper">
       {/* <div className="flex flex-col gap-2 my-4 w-[500px]">
@@ -47,15 +41,10 @@ const Sidebar = () => {
         <h1>menu 1</h1>
         <h1>menu 2</h1>
       </div> */}
-      <button
-        className="sidebar__menuBtn"
-        onClick={toggleSidebarCollapseHandler}
-      >
-        ☰
-      </button>
+
       <aside
         className="w-72 h-screen bg-white p-1 transition-all border-r-2 border-gray-300 sticky top-0"
-        data-collapse={isCollapsedSidebar}
+        data-collapse={isCollapsed}
       >
         <ul className="mb-10">
           {sidebarItems1.map(({ name, href, icon }) => (

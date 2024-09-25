@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     const { room_code, account_id, cards, title } = req.body;
 
     try {
-      const gameType = "four_pics_one_word";
+      const gameType = "four_pics_one_word_advanced";
       const gameResult = await query({
         query: `INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)`,
         values: [title, room_code, account_id, gameType],
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
 
       try {
         const groupResult = await query({
-          query: `INSERT INTO four_pics_one_word_sets (title, room_code, account_id, game_id) VALUES (?, ?, ?, ?)`,
+          query: `INSERT INTO four_pics_advanced_sets (title, room_code, account_id, game_id) VALUES (?, ?, ?, ?)`,
           values: [title, room_code, account_id, gameId],
         });
         const groupId = groupResult.insertId;
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
                 const fullPath = await saveFileToPublic(
                   image,
                   imageFileName,
-                  "four_pics_one_word/images"
+                  "four_pics_advanced/images"
                 );
                 return fullPath;
               }
@@ -69,8 +69,13 @@ export default async function handler(req, res) {
           );
 
           return query({
-            query: `INSERT INTO four_pics_one_word (four_pics_one_word_set_id, image1, image2, image3, image4, word) VALUES (?, ?, ?, ?, ?, ?)`,
-            values: [groupId, ...imageFileNames, card.word],
+            query: `INSERT INTO four_pics_advanced (four_pics_advanced_set_id, image1, image2, image3, image4, word, correct_answer) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            values: [
+              groupId,
+              ...imageFileNames,
+              card.word,
+              card.correct_answer,
+            ],
           });
         });
         await Promise.all(cardPromises);
@@ -79,12 +84,12 @@ export default async function handler(req, res) {
           .json({ message: "Game and group created successfully" });
       } catch (groupError) {
         console.error(
-          "Error inserting into four_pics_one_word_sets:",
+          "Error inserting into four_pics_advanced_sets:",
           groupError
         );
         res
           .status(500)
-          .json({ error: "Error inserting into four_pics_one_word_sets" });
+          .json({ error: "Error inserting into four_pics_advanced_sets" });
       }
     } catch (gameError) {
       console.error("Error creating game:", gameError);
@@ -96,7 +101,7 @@ export default async function handler(req, res) {
     //get4pic1word set
     try {
       const gameResults = await query({
-        query: `SELECT * FROM four_pics_one_word_sets JOIN games ON four_pics_one_word_sets.game_id = games.game_id WHERE four_pics_one_word_sets.game_id = ?`,
+        query: `SELECT * FROM four_pics_advanced_sets JOIN games ON four_pics_advanced_sets.game_id = games.game_id WHERE four_pics_advanced_sets.game_id = ?`,
         values: [game_id],
       });
 
@@ -105,16 +110,16 @@ export default async function handler(req, res) {
         return;
       }
 
-      const groupId = gameResults[0].four_pics_one_word_set_id;
+      const groupId = gameResults[0].four_pics_advanced_set_id;
       console.log("groupId", groupId);
 
       try {
         const cardsResults = await query({
-          query: `SELECT four_pics_one_word.*, four_pics_one_word_sets.title
-FROM four_pics_one_word 
-JOIN four_pics_one_word_sets
-ON four_pics_one_word.four_pics_one_word_set_id = four_pics_one_word_sets.four_pics_one_word_set_id 
-WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
+          query: `SELECT four_pics_advanced.*, four_pics_advanced_sets.title
+FROM four_pics_advanced 
+JOIN four_pics_advanced_sets
+ON four_pics_advanced.four_pics_advanced_set_id = four_pics_advanced_sets.four_pics_advanced_set_id 
+WHERE four_pics_advanced.four_pics_advanced_set_id = ?`,
           values: [groupId],
         });
 
@@ -149,15 +154,15 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
       res.status(500).json({ error: "Error deleting game" });
     }
   } else if (req.method === "PUT") {
-    const { four_pics_one_word_id } = req.query;
+    const { four_pics_advanced_id } = req.query;
     const { cards, title } = req.body;
 
     try {
       // Get the current card data
       const currentCardResults = await query({
         query:
-          "SELECT * FROM four_pics_one_word WHERE four_pics_one_word_id = ?",
-        values: [four_pics_one_word_id],
+          "SELECT * FROM four_pics_advanced WHERE four_pics_advanced_id = ?",
+        values: [four_pics_advanced_id],
       });
 
       if (!currentCardResults.length) {
@@ -179,7 +184,7 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
           const savedImagePath = await saveFileToPublic(
             newImage,
             imageFileName,
-            "four_pics_one_word/images"
+            "four_pics_advanced/images"
           );
           imageFileNames.push(savedImagePath);
           console.log(`New image saved: ${savedImagePath}`);
@@ -191,16 +196,21 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
       // Update the images and word in the four_pics_one_word table
       const updateCardResult = await query({
         query:
-          "UPDATE four_pics_one_word SET image1 = ?, image2 = ?, image3 = ?, image4 = ?, word = ? WHERE four_pics_one_word_id = ?",
-        values: [...imageFileNames, cards.word, four_pics_one_word_id],
+          "UPDATE four_pics_advanced SET image1 = ?, image2 = ?, image3 = ?, image4 = ?, word = ?, correct_answer = ? WHERE four_pics_advanced_id = ?",
+        values: [
+          ...imageFileNames,
+          cards.word,
+          cards.correct_answer,
+          four_pics_advanced_id,
+        ],
       });
 
       if (updateCardResult.affectedRows > 0) {
         // Also update the title in the four_pics_one_word_sets table
         const updateTitleResult = await query({
           query:
-            "UPDATE four_pics_one_word_sets SET title = ? WHERE four_pics_one_word_set_id = (SELECT four_pics_one_word_set_id FROM four_pics_one_word WHERE four_pics_one_word_id = ?)",
-          values: [title, four_pics_one_word_id],
+            "UPDATE four_pics_advanced_sets SET title = ? WHERE four_pics_advanced_set_id = (SELECT four_pics_advanced_set_id FROM four_pics_advanced WHERE four_pics_advanced_id = ?)",
+          values: [title, four_pics_advanced_id],
         });
 
         if (updateTitleResult.affectedRows > 0) {
