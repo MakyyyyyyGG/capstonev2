@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import { Plus } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -103,7 +104,11 @@ const CreateRoom = ({ onRoomCreated }) => {
 
   return (
     <div>
-      <Button onPress={onOpen} color="primary">
+      <Button
+        onPress={onOpen}
+        color="secondary"
+        startContent={<Plus size={20} />}
+      >
         Create Room
       </Button>
       <Modal
@@ -141,7 +146,7 @@ const CreateRoom = ({ onRoomCreated }) => {
                     />
                   </div>
                   <div className="grid col-span-2 col-start-3 justify-items-end">
-                    <Dropdown placement="left-start">
+                    <Dropdown showArrow placement="left-start">
                       <DropdownTrigger>
                         {difficulty ? (
                           <Button

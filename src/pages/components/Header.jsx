@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button, Chip, user } from "@nextui-org/react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Settings, LogOut } from "lucide-react";
 import {
   Navbar,
   NavbarBrand,
@@ -520,14 +520,14 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   }
 
   return (
-    <div className="flex justify-between">
-      <Navbar isBordered>
+    <div>
+      <Navbar isBordered maxWidth={"full"}>
         <NavbarContent justify="start">
           <NavbarBrand className="mr-4">
             <button onClick={toggleCollapse}>
               {isCollapsed ? <Menu /> : <X />}
             </button>
-            <p className="hidden sm:block font-bold text-inherit">LNK</p>
+            <p className="ml-8 hidden sm:block font-bold text-inherit">LNK</p>
           </NavbarBrand>
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
@@ -589,17 +589,19 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                   <div className="flex flex-row gap-2">
                     <Button
                       onPress={handleOpenModal}
-                      radius="full"
-                      size="sm"
-                      className="w-full"
+                      radius="sm"
+                      size="md"
+                      className="w-full text-sm"
+                      startContent={<Settings size={20} />}
                     >
                       Manage Account
                     </Button>
                     <Button
                       color="danger"
-                      radius="full"
-                      size="sm"
-                      className="w-full"
+                      radius="sm"
+                      size="md"
+                      className="w-full text-sm"
+                      startContent={<LogOut size={20} />}
                       onPress={() =>
                         signOut({ redirect: false }).then(() =>
                           router.push("/")
@@ -776,20 +778,30 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                     ) : (
                       <>
                         <div className="min-w-[400px] flex flex-row items-center justify-between gap-5 text-sm">
-                          <div className="flex flex-col gap-3">
+                          <div className="flex flex-col gap-5">
                             <div className="flex flex-row items-center gap-3">
                               <Avatar
                                 src={profileImage}
                                 alt="User Profile"
                                 className="w-[70px] h-[70px] text-large"
                               />
-                              <p> {firstName}</p>
-                              <p>{lastName}</p>
+                              <p>
+                                {firstName} {lastName}
+                              </p>
                             </div>
-                            <div>
-                              <p>Age: {age}</p>
-                              <p>Gender: {gender}</p>
-                              <p>Birthday: {bday}</p>
+                            <div className="min-w-[300px]">
+                              <div className="grid grid-cols-2">
+                                <p className="font-bold">Age</p>
+                                <p>{age}</p>
+                              </div>
+                              <div className="grid grid-cols-2">
+                                <p className="font-bold">Gender</p>
+                                <p>{gender}</p>
+                              </div>
+                              <div className="grid grid-cols-2">
+                                <p className="font-bold">Birthday</p>
+                                <p>{bday}</p>
+                              </div>
                             </div>
                           </div>
 
@@ -929,10 +941,22 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                       <>
                         <div className="min-w-[400px] flex flex-row items-center justify-between gap-5 text-sm">
                           <div>
-                            <p>Region: {userData?.region}</p>
-                            <p>Province: {userData?.province}</p>
-                            <p>Municipality: {userData?.municipality}</p>
-                            <p>Barangay: {userData?.barangay}</p>
+                            <div className="grid grid-cols-2">
+                              <p className="font-bold">Region</p>
+                              <p>{userData?.region}</p>
+                            </div>
+                            <div className="grid grid-cols-2">
+                              <p className="font-bold">Province</p>
+                              <p>{userData?.province}</p>
+                            </div>
+                            <div className="grid grid-cols-2">
+                              <p className="font-bold">Municipality</p>
+                              <p>{userData?.municipality}</p>
+                            </div>
+                            <div className="grid grid-cols-2">
+                              <p className="font-bold">Barangay</p>
+                              <p>{userData?.barangay}</p>
+                            </div>
                           </div>
                           <Button
                             color="secondary"

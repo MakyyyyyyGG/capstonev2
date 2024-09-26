@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@nextui-org/react";
+import { Trash2 } from "lucide-react";
 
 const DeleteRoom = ({ room, onRoomDeleted }) => {
   const deleteRoom = async (roomCode) => {
@@ -32,7 +33,7 @@ const DeleteRoom = ({ room, onRoomDeleted }) => {
         color="danger"
         onClick={() => deleteRoom(room.room_code)}
       >
-        Del
+        <Trash2 size={22} />
       </Button>
     </div>
   );
