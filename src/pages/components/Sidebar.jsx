@@ -1,22 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import CreateRoom from "./CreateRoom";
-import { Link } from "@nextui-org/react";
+import { Link, Divider, Accordion, AccordionItem } from "@nextui-org/react";
+import { House, Phone, BookA, School } from "lucide-react";
 
 const sidebarItems1 = [
   {
     name: "SidebarLink1",
     href: "/",
-    icon: "i1",
+    icon: House,
   },
   {
     name: "SidebarLink2",
     href: "/",
-    icon: "i2",
+    icon: Phone,
   },
   {
     name: "SidebarLink3",
     href: "/",
-    icon: "i3",
+    icon: BookA,
   },
 ];
 
@@ -24,53 +25,56 @@ const sidebarItems2 = [
   {
     name: "SidebarLink3",
     href: "/",
-    icon: "i3",
+    icon: School,
   },
   {
     name: "SidebarLink4",
     href: "/",
-    icon: "i4",
+    icon: School,
+  },
+  {
+    name: "SidebarLink5",
+    href: "/",
+    icon: School,
   },
 ];
 
 const Sidebar = ({ isCollapsed, toggleCollapse }) => {
   return (
     <div className="sidebar__wrapper">
-      {/* <div className="flex flex-col gap-2 my-4 w-[500px]">
-        <h1>Sidebar Links</h1>
-        <h1>menu 1</h1>
-        <h1>menu 2</h1>
-      </div> */}
-
       <aside
         className="w-72 h-screen bg-white p-1 transition-all border-r-2 border-gray-300 sticky top-0"
         data-collapse={isCollapsed}
       >
-        <ul className="mb-10">
-          {sidebarItems1.map(({ name, href, icon }) => (
+        <ul>
+          {sidebarItems1.map(({ name, href, icon: Icon }) => (
             <li key={name}>
               <Link
-                href="###"
-                className="inline-block text-base no-underline text-black flex px-1 py-2 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
+                href={href}
+                className="inline-block text-base no-underline text-black flex px-3 py-3 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
               >
-                <span className="ml-2">{icon}</span>
-                <span className="ml-1" id="sidebar__name">
+                <span className="ml-2">
+                  <Icon /> {/* Properly render the icon component */}
+                </span>
+                <span className="ml-4" id="sidebar__name">
                   {name}
                 </span>
               </Link>
             </li>
           ))}
         </ul>
-        <hr className="h-px my-8 bg-gray-300 border-0"></hr>
-        <ul className="mb-10">
-          {sidebarItems2.map(({ name, href, icon }) => (
+        <Divider className="my-4" />
+        <ul>
+          {sidebarItems2.map(({ name, href, icon: Icon }) => (
             <li key={name}>
               <Link
-                href="###"
-                className="inline-block text-base no-underline text-black flex px-1 py-2 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
+                href={href}
+                className="inline-block text-base no-underline text-black flex px-3 py-3 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
               >
-                <span className="ml-2">{icon}</span>
-                <span className="ml-1" id="sidebar__name">
+                <span className="ml-2">
+                  <Icon /> {/* Properly render the icon component */}
+                </span>
+                <span className="ml-4" id="sidebar__name">
                   {name}
                 </span>
               </Link>

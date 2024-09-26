@@ -4,6 +4,14 @@ import Sidebar from "../components/Sidebar";
 import { useSession } from "next-auth/react";
 import CreateRoom from "../components/CreateRoom";
 import Rooms from "./rooms";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  Link,
+  Button,
+} from "@nextui-org/react";
 
 const Dashboard = () => {
   const { data: session } = useSession();
