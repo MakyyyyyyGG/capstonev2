@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
 import FourPicsOneWordAdvanced from "@/pages/components/FourPicsOneWordAdvanced";
+import FourPicsOneWordAdvancedStudent from "@/pages/components/FourPicsOneWordAdvancedStudent";
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -42,16 +43,7 @@ const index = () => {
       <h1>4 Pics 1 Word Advanced</h1>
       <p>game_id: {game_id}</p>
       <p>room_code: {room_code}</p>
-      <Button color="primary">
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${game_id}/edit`,
-          }}
-        >
-          Edit 4 Pics 1 Word Advanced
-        </Link>
-      </Button>
-      <FourPicsOneWordAdvanced cards={cards} />
+      <FourPicsOneWordAdvancedStudent cards={cards} />
     </div>
   );
 };
