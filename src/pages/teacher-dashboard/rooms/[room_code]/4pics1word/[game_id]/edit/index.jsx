@@ -288,12 +288,12 @@ const index = () => {
     }
 
     // Ensure each card has 4 images
-    // for (const card of cards) {
-    //   if (card.images.filter((image) => image !== null).length < 4) {
-    //     alert("Please upload 4 images for each card.");
-    //     return;
-    //   }
-    // }
+    for (const card of cards) {
+      if (card.images.filter((image) => image !== null).length < 4) {
+        alert("Please upload 4 images for each card.");
+        return;
+      }
+    }
 
     try {
       await setupNewCards(cards); // Handle new cards creation if necessary
