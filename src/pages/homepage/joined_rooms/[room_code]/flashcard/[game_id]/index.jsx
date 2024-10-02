@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Flashcards from "@/pages/components/Flashcards";
+import FlashcardsStudent from "@/pages/components/FlashcardsStudent";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
 
@@ -39,17 +40,7 @@ const Index = () => {
 
   return (
     <div>
-      {/* <Button color="primary">
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/flashcard/${game_id}/edit`,
-          }}
-        >
-          Edit Flashcards
-        </Link>
-      </Button> */}
-
-      <Flashcards flashcards={flashcards} />
+      <FlashcardsStudent flashcards={flashcards} />
     </div>
   );
 };
