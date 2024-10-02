@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
 import StudentList from "@/pages/components/StudentList";
+import ClassWorkList from "@/pages/components/ClassWorkList";
 
 const fetchRoomDetails = async (room_code, setRoomData) => {
   try {
@@ -47,6 +48,7 @@ const IndividualRoom = () => {
         </Tab>
         <Tab key="classworks" title="Classworks">
           Classworks
+          <ClassWorkList room_code={room_code} />
         </Tab>
         <Tab key="classmates" title="Classmates">
           <StudentList room_code={room_code} />
