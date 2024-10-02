@@ -2,14 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Card, CardBody, Button } from "@nextui-org/react";
 import Link from "next/link";
 import { Trash, Edit } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const ClassWorkList = ({ room_code }) => {
   const [games, setGames] = useState([]);
+  const [roleRedirect, setRoleRedirect] = useState("");
   const [redirectGameType, setRedirectGameType] = useState("");
   const [gameType, setGameType] = useState("");
+  const { data: session } = useSession();
 
   useEffect(() => {
     fetchGames();
+    console.log(session);
   }, [room_code]);
 
   const fetchGames = async () => {
@@ -88,15 +92,27 @@ const ClassWorkList = ({ room_code }) => {
     });
   }, [games]);
 
+  const isTeacher = () => {
+    if (session.user.role === "teacher") {
+      setRoleRedirect("/teacher-dashboard/rooms");
+    } else if (session.user.role === "student") {
+      setRoleRedirect("/homepage/joined_rooms");
+    }
+  };
+
+  useEffect(() => {
+    isTeacher();
+  }, [session]);
+
   const getRedirectUrl = (game) => {
     if (game.game_type === "flashcard") {
-      return `/teacher-dashboard/rooms/${room_code}/flashcard/${game.game_id}`;
+      return `${roleRedirect}/${room_code}/flashcard/${game.game_id}`;
     } else if (game.game_type === "four_pics_one_word") {
-      return `/teacher-dashboard/rooms/${room_code}/4pics1word/${game.game_id}`;
+      return `${roleRedirect}/${room_code}/4pics1word/${game.game_id}`;
     } else if (game.game_type === "four_pics_one_word_advanced") {
-      return `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${game.game_id}`;
+      return `${roleRedirect}/${room_code}/4pics1word_advanced/${game.game_id}`;
     } else if (game.game_type === "color_game") {
-      return `/teacher-dashboard/rooms/${room_code}/color_game/${game.game_id}`;
+      return `${roleRedirect}/${room_code}/color_game/${game.game_id}`;
     }
     return "#";
   };

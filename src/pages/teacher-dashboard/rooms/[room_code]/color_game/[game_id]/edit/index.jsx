@@ -409,7 +409,7 @@ const index = () => {
                     {card.images.map((image, imageIndex) => (
                       <div
                         key={imageIndex}
-                        className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 flex items-center justify-center cursor-pointer group`}
+                        className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer group`}
                       >
                         {image ? (
                           <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden w-full h-full">
