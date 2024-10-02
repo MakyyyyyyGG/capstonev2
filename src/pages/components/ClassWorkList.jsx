@@ -53,6 +53,32 @@ const ClassWorkList = ({ room_code }) => {
       } catch (error) {
         console.log("Error deleting game:", error);
       }
+    } else if (game_type === "four_pics_one_word_advanced") {
+      console.log("deleting four pics one word advanced game", game_id);
+      try {
+        const res = await fetch(
+          `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}`,
+          delWorkData
+        );
+        const data = await res.json();
+        console.log(data);
+        fetchGames();
+      } catch (error) {
+        console.log("Error deleting game:", error);
+      }
+    } else if (game_type === "color_game") {
+      console.log("deleting color game", game_id);
+      try {
+        const res = await fetch(
+          `/api/color_game/color_game?game_id=${game_id}`,
+          delWorkData
+        );
+        const data = await res.json();
+        console.log(data);
+        fetchGames();
+      } catch (error) {
+        console.log("Error deleting game:", error);
+      }
     }
   };
 
@@ -69,6 +95,8 @@ const ClassWorkList = ({ room_code }) => {
       return `/teacher-dashboard/rooms/${room_code}/4pics1word/${game.game_id}`;
     } else if (game.game_type === "four_pics_one_word_advanced") {
       return `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${game.game_id}`;
+    } else if (game.game_type === "color_game") {
+      return `/teacher-dashboard/rooms/${room_code}/color_game/${game.game_id}`;
     }
     return "#";
   };
@@ -98,9 +126,6 @@ const ClassWorkList = ({ room_code }) => {
               onPress={() => handleDeleteGame(game.game_id, game.game_type)}
             >
               <Trash />
-            </Button>
-            <Button color="warning">
-              <Edit />
             </Button>
           </li>
         ))}
