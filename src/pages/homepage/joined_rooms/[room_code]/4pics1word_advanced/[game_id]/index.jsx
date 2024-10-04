@@ -40,9 +40,9 @@ const index = () => {
 
   return (
     <div>
-      <h1>4 Pics 1 Word Advanced</h1>
+      {/* <h1>4 Pics 1 Word Advanced</h1>
       <p>game_id: {game_id}</p>
-      <p>room_code: {room_code}</p>
+      <p>room_code: {room_code}</p> */}
       <FourPicsOneWordAdvancedStudent cards={cards} />
     </div>
   );

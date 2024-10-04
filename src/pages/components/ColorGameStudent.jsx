@@ -67,7 +67,12 @@ const ColorGames = ({ cards }) => {
           selectedCardImages.includes(index)
       );
       newCorrectSelections[card.color_game_id] =
-        allSelectedImagesCorrect && allCorrectImagesSelected;
+        allSelectedImagesCorrect &&
+        allCorrectImagesSelected &&
+        selectedCardImages.length ===
+          cardImages.filter(
+            (image) => getColorFromImageUrl(image) === card.color
+          ).length;
     });
     setCorrectSelections(newCorrectSelections);
   }, [selectedImages, shuffledCards]);
@@ -85,7 +90,10 @@ const ColorGames = ({ cards }) => {
     ).length;
 
     let resultMessage = "";
-    if (correctSelectionsCount === correctImageCount) {
+    if (
+      correctSelectionsCount === correctImageCount &&
+      selectedCardImages.length === correctImageCount
+    ) {
       resultMessage = "Correct!";
     } else if (correctSelectionsCount > 0) {
       resultMessage = "Almost there!";

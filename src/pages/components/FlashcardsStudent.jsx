@@ -10,7 +10,14 @@ import {
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Volume2 } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectCards } from "swiper/modules";
+import "swiper/css/effect-cards";
 
+import "swiper/swiper-bundle.css";
+// import "swiper/css/navigation";
+// import "swiper/css/pagination";
+// import "swiper/css/scrollbar";
 const handleTextToSpeech = (text) => {
   const utterance = new SpeechSynthesisUtterance(text);
   const synth = window.speechSynthesis;
@@ -45,34 +52,48 @@ const FlashcardsStudent = ({ flashcards }) => {
     <div>
       <h1>Flashcard Type Game</h1>
 
-      <div className="flex flex-wrap gap-4">
+      <Swiper
+        className="mySwiper"
+        effect={"cards"}
+        grabCursor={true}
+        modules={[EffectCards]}
+        spaceBetween={50}
+        slidesPerView={1}
+        // navigation
+        // pagination={{ clickable: true }}
+        // scrollbar={{ draggable: true }}
+        onSwiper={(swiper) => console.log(swiper)}
+        onSlideChange={() => console.log("slide change")}
+      >
         {randomizedFlashcards.map((flashcard) => (
-          <div key={flashcard.flashcard_id} className="w-[500px]">
-            <Card className="w-full">
-              <CardBody className="flex flex-col gap-4">
-                {flashcard.image && (
-                  <img
-                    src={flashcard.image}
-                    alt={flashcard.term}
-                    className="w-full h-auto"
-                  />
-                )}
-                <p>Term: {flashcard.term}</p>
-                <Button
-                  onClick={() => handleTextToSpeech(flashcard.term)}
-                  color="secondary"
-                >
-                  <Volume2 />
-                </Button>
-                <p>Description: {flashcard.description}</p>
-                {flashcard.audio && (
-                  <audio src={flashcard.audio} controls className="w-full" />
-                )}
-              </CardBody>
-            </Card>
-          </div>
+          <SwiperSlide key={flashcard.flashcard_id}>
+            <div className="w-[500px] m-auto">
+              <Card className="w-full">
+                <CardBody className="flex flex-col gap-4">
+                  {flashcard.image && (
+                    <img
+                      src={flashcard.image}
+                      alt={flashcard.term}
+                      className="w-full h-auto"
+                    />
+                  )}
+                  <p>Term: {flashcard.term}</p>
+                  <Button
+                    onClick={() => handleTextToSpeech(flashcard.term)}
+                    color="secondary"
+                  >
+                    <Volume2 />
+                  </Button>
+                  <p>Description: {flashcard.description}</p>
+                  {flashcard.audio && (
+                    <audio src={flashcard.audio} controls className="w-full" />
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+          </SwiperSlide>
         ))}
-      </div>
+      </Swiper>
     </div>
   );
 };
