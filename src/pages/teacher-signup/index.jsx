@@ -111,15 +111,15 @@ function Signup() {
     passwordLength && passwordUpper && passwordNumber && passwordSpecial;
 
   return (
-    <div className="flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
-      <div className="min-w-[60%] h-screen overflow-hidden  hidden sm:block">
+    <div className=" flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
+      <div className="sticky top-0 min-w-[60%] h-screen overflow-hidden  hidden sm:block">
         <img
           src="noteeee.svg"
           alt=""
           className="w-full h-full m-auto object-cover"
         />
       </div>
-      <div className="w-full bg-[#f5f5f5]  h-screen">
+      <div className="w-full py-7 bg-[#f5f5f5] overflow-auto">
         <div className="logo absolute top-0">
           <img
             src="logo.svg"
@@ -127,8 +127,8 @@ function Signup() {
             className="w-[200px] h-[100px] object-cover"
           />
         </div>
-        <div className="card flex flex-col justify-center items-center h-full w-full">
-          <div className="greet flex flex-col sm:w-6/12 gap-4 ">
+        <div className="card flex flex-col justify-center items-center h-full w-full ">
+          <div className="greet flex flex-col min-w-[80%] sm:w-6/12 gap-4 ">
             <h1 className="sm:text-5xl font-bold text-[#7469b6]  text-[35px]">
               Sign Up
             </h1>
@@ -150,7 +150,7 @@ function Signup() {
           <form
             action=""
             autoComplete="off"
-            className="flex flex-col gap-2  sm:w-6/12 w-11/12"
+            className="flex flex-col gap-2 min-w-[80%] sm:w-6/12 w-11/12"
             onSubmit={handleSubmit}
           >
             <div className="flex gap-2">
@@ -266,7 +266,7 @@ function Signup() {
             </div>
           </form>
           <button
-            className="sm:w-6/12  mt-2  w-11/12 p-3 bg-blue-600 rounded-xl border border-[#7469b6] bg-transparent text-slate-700  font-bold hover:bg-[#7469b6] hover:text-white transition ease relative inline-flex items-center justify-center"
+            className="min-w-[80%] sm:w-6/12  mt-2  w-11/12 p-3 bg-blue-600 rounded-xl border border-[#7469b6] bg-transparent text-slate-700  font-bold hover:bg-[#7469b6] hover:text-white transition ease relative inline-flex items-center justify-center"
             onClick={handleGoogleSignIn}
           >
             <svg
@@ -310,7 +310,7 @@ function Signup() {
             <span className="mx-autofont-bold">Continue with Google</span>
           </button>
           <button
-            className="w-11/12 sm:w-6/12 mt-2 p-3 rounded-xl border  bg-[#1f7bf2]  font-bold hover:bg-[#4762b1] text-white transition ease relative inline-flex items-center justify-center"
+            className="min-w-[80%] w-11/12 sm:w-6/12 mt-2 p-3 rounded-xl border  bg-[#1f7bf2]  font-bold hover:bg-[#4762b1] text-white transition ease relative inline-flex items-center justify-center"
             onClick={handleFacebookSignIn}
           >
             <svg
@@ -331,7 +331,7 @@ function Signup() {
             </svg>
             <span className="mx-auto">Continue with Facebook</span>
           </button>
-          <div className="footer flex mt-4">
+          <div className="min-w-[80%] footer flex justify-center mt-4">
             <p>Already have an account? </p>
             <Link href="/" className="ml-1 text-[#7469b6] font-bold">
               Sign In
