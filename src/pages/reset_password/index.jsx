@@ -20,7 +20,9 @@ const Index = () => {
       content: (
         <Input
           type="email"
-          label="Email"
+          label="Username"
+          variant="bordered"
+          className="text-[#7469b6]"
           value={email} // Bind input value to state
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -32,6 +34,8 @@ const Index = () => {
         <Input
           type="password"
           label="Admin Password"
+          variant="bordered"
+          className="text-[#7469b6]"
           value={adminPassword} // Bind input value to state
           onChange={(e) => setAdminPassword(e.target.value)}
         />
@@ -44,6 +48,8 @@ const Index = () => {
           <Input
             type="password"
             label="New Password"
+            variant="bordered"
+            className="text-[#7469b6]"
             value={newPassword}
             onChange={(e) => {
               setNewPassword(e.target.value);
@@ -53,6 +59,8 @@ const Index = () => {
           <Input
             type="password"
             label="Confirm Password"
+            variant="bordered"
+            className="text-[#7469b6] mt-4"
             value={confirmPassword}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
@@ -81,9 +89,6 @@ const Index = () => {
     lineHeight: "260px",
     textAlign: "center",
     color: token.colorTextTertiary,
-    backgroundColor: token.colorFillAlter,
-    borderRadius: token.borderRadiusLG,
-    border: `1px dashed ${token.colorBorder}`,
     marginTop: 16,
   };
 
@@ -105,7 +110,8 @@ const Index = () => {
   };
 
   const checkAdminPassword = () => {
-    if (adminPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+    // if (adminPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+    if (adminPassword === "admin") {
       return true;
     } else {
       message.error("Incorrect password");
@@ -169,30 +175,63 @@ const Index = () => {
   };
 
   return (
-    <>
-      <Steps current={current} items={items} />
-      <div style={contentStyle}>{steps[current].content}</div>
-      <div style={{ marginTop: 24 }}>
-        {current < steps.length - 1 && (
-          <Button type="primary" onClick={handleNextClick}>
-            Next
-          </Button>
-        )}
-        {current === steps.length - 1 && (
-          <Button
-            type="primary"
-            onClick={handleResetPassword} // Call handleResetPassword on "Done"
-          >
-            Done
-          </Button>
-        )}
-        {current > 0 && (
-          <Button style={{ margin: "0 8px" }} onClick={() => prev()}>
-            Previous
-          </Button>
-        )}
+    <div className="flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
+      <div className="min-w-[60%] h-screen overflow-hidden  hidden sm:block ">
+        <img
+          src="noteeee.svg"
+          alt=""
+          className="w-full  h-full m-auto object-cover"
+        />
       </div>
-    </>
+      <div className="w-full bg-[#f5f5f5] h-screen">
+        <div className="card flex flex-col justify-center items-center h-full w-full sm:overflow-scroll">
+          <div className="greet flex flex-col gap-4 min-w-[80%] sm:w-6/12">
+            <h1 className="sm:text-5xl font-bold text-[#7469b6]  text-[35px] ">
+              Forgot Password?
+            </h1>
+            <p className="mb-8 text-md">Please enter your credentials.</p>
+          </div>
+          <div className="flex flex-col gap-2 min-w-[80%] sm:w-6/12 w-11/12">
+            <>
+              <Steps current={current} items={items} />
+              <div style={contentStyle}>{steps[current].content}</div>
+              <div
+                className="flex justify-start gap-2"
+                style={{ marginTop: 10 }}
+              >
+                {current < steps.length - 1 && (
+                  <Button
+                    type="secondary"
+                    className={`w-[35%] rounded-xl p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
+                    onClick={handleNextClick}
+                  >
+                    Next
+                  </Button>
+                )}
+                {current === steps.length - 1 && (
+                  <Button
+                    type="secondary"
+                    className={`w-[35%] rounded-xl p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
+                    onClick={handleResetPassword} // Call handleResetPassword on "Done"
+                  >
+                    Done
+                  </Button>
+                )}
+                {current > 0 && (
+                  <Button
+                    type="secondary"
+                    className={`w-[35%] rounded-xl p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
+                    onClick={() => prev()}
+                  >
+                    Previous
+                  </Button>
+                )}
+              </div>
+            </>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

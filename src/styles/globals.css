@@ -130,6 +130,16 @@ Button[disabled=""][type="submit"] {
   display: none;
 }
 
+.ant-steps-item-process .ant-steps-item-icon {
+  background: #7469b6 !important;
+  border-color: #7469b6 !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon {
+  background-color: #7569b61a !important;
+  border-color: #7569b61a !important;
+}
+
 /* @layer base {
   :root {
     --background: 0 0% 100%;

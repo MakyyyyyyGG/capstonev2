@@ -118,14 +118,14 @@ function Signup() {
 
   return (
     <div className="flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
-      <div className="min-w-[60%] h-screen overflow-hidden  hidden sm:block">
+      <div className="sticky top-0 min-w-[60%] h-screen overflow-hidden  hidden sm:block">
         <img
           src="noteeee.svg"
           alt=""
           className="w-full h-full m-auto object-cover"
         />
       </div>
-      <div className="w-full bg-[#f5f5f5]  h-screen">
+      <div className="w-full py-7 bg-[#f5f5f5] overflow-auto">
         <div className="logo absolute top-0">
           <img
             src="logo.svg"
@@ -134,8 +134,8 @@ function Signup() {
           />
         </div>
         <div className="card flex flex-col justify-center items-center h-full w-full">
-          <div className="greet flex flex-col sm:w-6/12 gap-4 ">
-            <h1 className="sm:text-5xl font-bold text-[#7469b6]  text-[35px]">
+          <div className="greet flex flex-col min-w-[80%] sm:w-6/12 gap-4">
+            <h1 className="sm:text-5xl font-bold text-[#7469b6] text-[35px]">
               Sign Up
             </h1>
             <p className="mb-5 text-md">
@@ -156,7 +156,7 @@ function Signup() {
           <form
             action=""
             autoComplete="off"
-            className="flex flex-col gap-2  sm:w-6/12 w-11/12"
+            className="flex flex-col gap-2 min-w-[80%] sm:w-6/12 w-11/12"
             onSubmit={handleSubmit}
           >
             <div className="flex gap-2">
@@ -337,7 +337,7 @@ function Signup() {
             </svg>
             <span className="mx-auto">Continue with Facebook</span>
           </button> */}
-          <div className="footer flex mt-4">
+          <div className="min-w-[80%] footer flex justify-center mt-4">
             <p>Already have an account? </p>
             <Link href="/" className="ml-1 text-[#7469b6] font-bold">
               Sign In
