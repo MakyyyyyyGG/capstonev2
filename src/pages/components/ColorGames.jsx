@@ -53,7 +53,12 @@ const ColorGames = ({ cards }) => {
           selectedCardImages.includes(index)
       );
       newCorrectSelections[card.color_game_id] =
-        allSelectedImagesCorrect && allCorrectImagesSelected;
+        allSelectedImagesCorrect &&
+        allCorrectImagesSelected &&
+        selectedCardImages.length ===
+          cardImages.filter(
+            (image) => getColorFromImageUrl(image) === card.color
+          ).length;
     });
     setCorrectSelections(newCorrectSelections);
   }, [selectedImages, cards]);
@@ -61,16 +66,30 @@ const ColorGames = ({ cards }) => {
   const handleSubmit = (color_game_id) => {
     const card = cards.find((c) => c.color_game_id === color_game_id);
     const selectedCardImages = selectedImages[color_game_id] || [];
-    const allSelectedImagesCorrect = selectedCardImages.every(
+    const correctImageCount = [card.image1, card.image2, card.image3].filter(
+      (image) => getColorFromImageUrl(image) === card.color
+    ).length;
+    const correctSelectionsCount = selectedCardImages.filter(
       (index) =>
         getColorFromImageUrl([card.image1, card.image2, card.image3][index]) ===
         card.color
-    );
+    ).length;
+
+    let resultMessage = "";
+    if (
+      correctSelectionsCount === correctImageCount &&
+      selectedCardImages.length === correctImageCount
+    ) {
+      resultMessage = "Correct!";
+    } else if (correctSelectionsCount > 0) {
+      resultMessage = "Almost there!";
+    } else {
+      resultMessage = "Incorrect. Try again.";
+    }
+
     setSubmissionResults((prev) => ({
       ...prev,
-      [color_game_id]: allSelectedImagesCorrect
-        ? "Correct!"
-        : "Incorrect. Try again.",
+      [color_game_id]: resultMessage,
     }));
   };
 
@@ -131,6 +150,9 @@ const ColorGames = ({ cards }) => {
                     className={
                       submissionResults[card.color_game_id] === "Correct!"
                         ? "text-green-500"
+                        : submissionResults[card.color_game_id] ===
+                          "Almost there!"
+                        ? "text-yellow-500"
                         : "text-red-500"
                     }
                   >

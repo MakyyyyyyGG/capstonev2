@@ -70,6 +70,13 @@ const IndividualRoom = () => {
     }
   }, [room_code]);
 
+  useEffect(() => {
+    if (roomData) {
+      setRoomName(roomData[0]?.room_name || "");
+      setDifficulty(roomData[0]?.room_difficulty || "");
+    }
+  }, [roomData]);
+
   if (!roomData) return <p>Loading...</p>;
 
   const updatedRoomName = (key) => {
@@ -84,24 +91,29 @@ const IndividualRoom = () => {
     e.preventDefault();
     if (difficulty === "" && roomName === "") {
       alert("Input at least one field");
-      return;
+      if (difficulty === "") {
+        setDifficulty(roomData[0]?.room_difficulty);
+      }
+      if (roomName === "") {
+        setRoomName(roomData[0]?.room_name);
+      }
     }
 
-    const roomData = {
+    const updatedRoomData = {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        room_name: roomName,
-        room_difficulty: difficulty,
+        room_name: roomName || roomData[0]?.room_name,
+        room_difficulty: difficulty || roomData[0]?.room_difficulty,
       }),
     };
 
     try {
       const response = await fetch(
         `/api/accounts_teacher/room/create_room?room_code=${room_code}`,
-        roomData
+        updatedRoomData
       );
       const result = await response.json();
       if (response.ok) {
