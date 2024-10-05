@@ -19,7 +19,7 @@ const CreateClassWork = ({ room_code }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
     <div>
-      <Button color="secondary" onPress={onOpen}>
+      <Button color="secondary" onPress={onOpen} className="m-2">
         Create +
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="xl">

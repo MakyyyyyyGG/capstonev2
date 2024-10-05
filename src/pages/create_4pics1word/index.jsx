@@ -13,6 +13,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 
 const Index = () => {
@@ -20,6 +22,7 @@ const Index = () => {
   const router = useRouter();
   const { room_code } = router.query;
   const [title, setTitle] = useState("");
+  const [difficulty, setDifficulty] = useState("");
 
   const [cards, setCards] = useState([
     { word: "", images: [null, null, null, null] },
@@ -198,9 +201,13 @@ const Index = () => {
       alert("Please enter a title.");
       return;
     }
+    const requiredImages =
+      difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4;
     for (const card of cards) {
-      if (card.images.filter((image) => image !== null).length < 4) {
-        alert("Please upload 4 images for each card.");
+      if (
+        card.images.filter((image) => image !== null).length < requiredImages
+      ) {
+        alert(`Please upload ${requiredImages} images for each card.`);
         return;
       }
     }
@@ -223,6 +230,7 @@ const Index = () => {
           room_code: room_code,
           account_id: session?.user?.id,
           cards: cards,
+          difficulty: difficulty,
         }),
       });
       const data = await response.json();
@@ -245,8 +253,20 @@ const Index = () => {
         <Input
           label="Title"
           onChange={(e) => setTitle(e.target.value)}
+          isRequired
           className="mb-4 w-80"
         />
+        <Select
+          label="Difficulty"
+          onChange={(e) => {
+            setDifficulty(e.target.value);
+          }}
+          isRequired
+        >
+          <SelectItem key="easy">Easy (2 images)</SelectItem>
+          <SelectItem key="medium">Medium (3 images)</SelectItem>
+          <SelectItem key="hard">Hard (4 images)</SelectItem>
+        </Select>
       </div>
       <div className="p-4">
         <div className="grid grid-cols-3 gap-4">
@@ -266,6 +286,7 @@ const Index = () => {
 
                 <form action="">
                   <Input
+                    isRequired
                     label="Word"
                     className="mb-4"
                     color="secondary"
@@ -277,77 +298,88 @@ const Index = () => {
                     }}
                   />
                   <div className="grid grid-cols-2 gap-4">
-                    {card.images.map((image, imageIndex) => (
-                      <div
-                        key={imageIndex}
-                        className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 ${
-                          draggingIndex?.cardIndex === cardIndex &&
-                          draggingIndex?.imageIndex === imageIndex
-                            ? "border-green-500"
-                            : "border-dashed border-gray-300"
-                        } flex items-center justify-center cursor-pointer`}
-                        onDragEnter={(e) =>
-                          handleDragEnter(e, cardIndex, imageIndex)
-                        }
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, cardIndex, imageIndex)}
-                        onDragOver={(e) => e.preventDefault()}
-                      >
-                        {image ? (
-                          <>
-                            <img
-                              src={image}
-                              alt={`Uploaded ${imageIndex + 1}`}
-                              className="h-full w-full object-cover rounded-lg"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
+                    {card.images
+                      .slice(
+                        0,
+                        difficulty === "easy"
+                          ? 2
+                          : difficulty === "medium"
+                          ? 3
+                          : 4
+                      )
+                      .map((image, imageIndex) => (
+                        <div
+                          key={imageIndex}
+                          className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 ${
+                            draggingIndex?.cardIndex === cardIndex &&
+                            draggingIndex?.imageIndex === imageIndex
+                              ? "border-green-500"
+                              : "border-dashed border-gray-300"
+                          } flex items-center justify-center cursor-pointer`}
+                          onDragEnter={(e) =>
+                            handleDragEnter(e, cardIndex, imageIndex)
+                          }
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, cardIndex, imageIndex)}
+                          onDragOver={(e) => e.preventDefault()}
+                        >
+                          {image ? (
+                            <>
+                              <img
+                                src={image}
+                                alt={`Uploaded ${imageIndex + 1}`}
+                                className="h-full w-full object-cover rounded-lg"
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
+                                <Button
+                                  onClick={() =>
+                                    handleEdit(cardIndex, imageIndex)
+                                  }
+                                  color="secondary"
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    const updatedCards = [...cards];
+                                    updatedCards[cardIndex].images[imageIndex] =
+                                      null;
+                                    setCards(updatedCards);
+                                  }}
+                                  color="danger"
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex flex-col items-center space-y-2">
+                              <span className="text-gray-400">
+                                Drag & Drop Image
+                              </span>
                               <Button
+                                color="secondary"
                                 onClick={() =>
                                   handleEdit(cardIndex, imageIndex)
                                 }
-                                color="secondary"
                               >
-                                Edit
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  const updatedCards = [...cards];
-                                  updatedCards[cardIndex].images[imageIndex] =
-                                    null;
-                                  setCards(updatedCards);
-                                }}
-                                color="danger"
-                              >
-                                Delete
+                                Upload Image
                               </Button>
                             </div>
-                          </>
-                        ) : (
-                          <div className="flex flex-col items-center space-y-2">
-                            <span className="text-gray-400">
-                              Drag & Drop Image
-                            </span>
-                            <Button
-                              color="secondary"
-                              onClick={() => handleEdit(cardIndex, imageIndex)}
-                            >
-                              Upload Image
-                            </Button>
-                          </div>
-                        )}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          ref={
-                            fileInputRefs.current[cardIndex * 4 + imageIndex]
-                          }
-                          className="hidden"
-                          onChange={(e) =>
-                            handleFileChange(e, cardIndex, imageIndex)
-                          }
-                        />
-                      </div>
-                    ))}
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={
+                              fileInputRefs.current[cardIndex * 4 + imageIndex]
+                            }
+                            className="hidden"
+                            onChange={(e) =>
+                              handleFileChange(e, cardIndex, imageIndex)
+                            }
+                          />
+                        </div>
+                      ))}
                   </div>
                 </form>
               </CardBody>

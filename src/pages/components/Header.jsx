@@ -181,27 +181,44 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   };
 
   const handleRegionChange = (e) => {
-    const selectedText = e.target.options[e.target.selectedIndex].text;
+    const selectedValue = e.target.value;
+    const selectedOption = regions.find(
+      (region) => region.code === selectedValue
+    );
+    const selectedText = selectedOption ? selectedOption.name : "";
+
     setSelectedRegionText(selectedText);
-    setSelectedRegion(e.target.value);
-    fetchProvinces(e.target.value);
+    setSelectedRegion(selectedValue);
+    fetchProvinces(selectedValue);
   };
 
   const handleProvinceChange = (e) => {
-    const selectedText = e.target.options[e.target.selectedIndex].text;
+    const selectedValue = e.target.value;
+    const selectedOption = provinces.find(
+      (province) => province.code === selectedValue
+    );
+    const selectedText = selectedOption ? selectedOption.name : "";
+
     setSelectedProvinceText(selectedText);
-    setSelectedProvince(e.target.value);
-    fetchCities(e.target.value);
-    fetchMunicipalities(e.target.value);
+    setSelectedProvince(selectedValue);
+    fetchCities(selectedValue);
+    fetchMunicipalities(selectedValue);
   };
 
   const handleMunicipalityChange = (e) => {
-    const selectedText = e.target.options[e.target.selectedIndex].text;
-    setSelectedMunicipalityText(selectedText);
-    const value = e.target.value;
-    setSelectedMunicipality(value);
+    const selectedValue = e.target.value;
+    const selectedOption = municipalities.find(
+      (municipality) => municipality.code === selectedValue
+    );
+    const selectedText = selectedOption ? selectedOption.name : "";
 
-    if (value === "Legazpi") {
+    setSelectedMunicipalityText(selectedText);
+    setSelectedMunicipality(selectedValue);
+    fetchBarangays(selectedValue);
+    console.log(selectedValue);
+
+    if (selectedValue == "Legazpi") {
+      setSelectedMunicipalityText("Legazpi");
       const barangays = [
         "Barangay 67 - Bariis",
         "Bgy. 1 - Em's Barrio",
@@ -277,13 +294,25 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       setCustomBarangays(barangays);
       setBarangays([]);
     } else {
-      fetchBarangays(value);
+      fetchBarangays(selectedValue);
       setCustomBarangays([]);
     }
   };
 
   const handleBarangayChange = (e) => {
-    const selectedText = e.target.options[e.target.selectedIndex].text;
+    const selectedValue = e.target.value;
+    if (selectedMunicipality == "Legazpi") {
+      const customBarangay = customBarangays[selectedValue];
+      console.log(customBarangay);
+      setSelectedBarangayText(customBarangay);
+      setSelectedBarangay(e.target.value);
+      return;
+    }
+
+    const selectedOption = barangays.find(
+      (barangay) => barangay.code === selectedValue
+    );
+    const selectedText = selectedOption ? selectedOption.name : "";
     setSelectedBarangayText(selectedText);
     setSelectedBarangay(e.target.value);
   };
@@ -304,12 +333,15 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     const finalProvince = userData?.province || selectedProvinceText;
     const finalMunicipality =
       userData?.municipality || selectedMunicipalityText;
-    const finalBarangay = userData?.barangay || selectedBarangayText;
+    const finalBarangay =
+      userData?.barangay || selectedBarangayText || selectedBarangay;
 
     const apiEndpoint =
       session.user.role === "student"
         ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
         : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
+
+    console.log("apiEndpoint", apiEndpoint);
 
     try {
       const updateData = {
@@ -331,7 +363,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
           // profileImage: profileImage,
         }),
       };
-
+      console.log("body sent: ", updateData);
       const response = await fetch(apiEndpoint, updateData);
 
       // Log the response
@@ -415,6 +447,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
         : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
 
+    console.log("apiEndpoint", apiEndpoint);
     try {
       const updateData = {
         method: "PUT",
@@ -442,7 +475,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       // console.log(text);
 
       // Try to parse the JSON
-      const data = JSON.parse(text);
+      // const data = JSON.parse(text);
       // console.log(data);
       console.log("User data updated successfully");
       setIsLocationEditing(false);
@@ -554,7 +587,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
               <DropdownSection showDivider>
                 <DropdownItem
                   isReadOnly
-                  key="profile"
+                  // key="profile"
                   className="h-14 gap-2 text-center cursor-default"
                 >
                   <p className="font-semibold">Signed in as</p>
@@ -562,7 +595,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 </DropdownItem>
                 <DropdownItem
                   isReadOnly
-                  key="profile"
+                  // key="profile"
                   className="h-30 gap-2 cursor-default flex justify-center"
                 >
                   <div className="flex justify-center w-full">
@@ -574,7 +607,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 </DropdownItem>
                 <DropdownItem
                   isReadOnly
-                  key="profile"
+                  // key="profile"
                   className="h-30 gap-2 cursor-default"
                 >
                   <p className=" text-center text-2xl">Hi, {firstName}!</p>
@@ -883,7 +916,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               onChange={handleMunicipalityChange}
                             >
                               {selectedProvinceText === "Albay" && (
-                                <option value="Legazpi">Legazpi</option>
+                                <SelectItem value="Legazpi" key="Legazpi">
+                                  Legazpi
+                                </SelectItem>
                               )}
                               {municipalities.map((municipality) => (
                                 <SelectItem
@@ -903,11 +938,11 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               value={selectedBarangay || ""}
                               onChange={handleBarangayChange}
                             >
-                              {selectedMunicipality === "Legazpi"
+                              {selectedMunicipality == "Legazpi"
                                 ? customBarangays.map((barangay, index) => (
-                                    <option key={index} value={barangay}>
+                                    <SelectItem key={index} value={barangay}>
                                       {barangay}
-                                    </option>
+                                    </SelectItem>
                                   ))
                                 : barangays.map((barangay) => (
                                     <SelectItem
@@ -982,190 +1017,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
           )}
         </ModalContent>
       </Modal>
-
-      {/* <p>username {userData?.first_name}</p>
-      <p>Welcome, {session.user.email}!</p>
-      <p>Your name is {session.user.name}</p>
-      <p>Your user ID is: {session.user.id}</p>
-      <p>Your role is: {session.user.role}</p>
-      <Button onClick={editProfilePicture} color="secondary">
-        Update Profile Picture
-      </Button>
-      {profilePictureEditing && (
-        <div className="flex flex-col">
-          <input type="file" accept="image/*" onChange={handleImageChange} />
-          <Button onClick={handleProfilePicture} color="primary">
-            Save
-          </Button>
-          <Button onClick={cancelProfilePicture} color="danger">
-            Cancel
-          </Button>
-        </div>
-      )}
-      <form className="flex flex-col">
-        {isEditing ? (
-          <>
-            <input
-              type="text"
-              value={firstName || ""}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <input
-              type="text"
-              value={lastName || ""}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Age"
-              value={age || ""}
-              onChange={(e) => setAge(e.target.value)}
-            />
-            <input
-              type="date"
-              value={bday || ""}
-              onChange={(e) => setBday(e.target.value)}
-            />
-
-            <label>Choose a gender:</label>
-            <select
-              name="gender"
-              id="gender"
-              value={gender || ""}
-              onChange={(e) => setGender(e.target.value)}
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-
-            <Button color="primary" onClick={handleSaveClick}>
-              Save
-            </Button>
-            <Button color="danger" onClick={handleCancelClick}>
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <>
-            <p>First Name: {firstName}</p>
-            <p>Last Name: {lastName}</p>
-            <p>Age: {age}</p>
-            <p>Gender: {gender}</p>
-            <p>Birthday: {bday}</p>
-            <img
-              src={profileImage}
-              alt="User Profile"
-              style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-            />
-            <Button color="secondary" onClick={handleUpdateClick}>
-              Update
-            </Button>
-          </>
-        )}
-      </form>
-      <form action="" className="flex flex-col">
-        {isLocationEditing ? (
-          <>
-            <label>Region:</label>
-            <select
-              name="region"
-              id="region"
-              value={selectedRegion || ""}
-              onChange={handleRegionChange}
-            >
-              <option value="">Select Region</option>
-              {regions.map((region) => (
-                <option key={region.code} value={region.code}>
-                  {region.name}
-                </option>
-              ))}
-            </select>
-
-            <label>Province:</label>
-            <select
-              value={selectedProvince || ""}
-              onChange={handleProvinceChange}
-            >
-              <option value="">Select Province</option>
-              {provinces.map((province) => (
-                <option key={province.code} value={province.code}>
-                  {province.name}
-                </option>
-              ))}
-            </select>
-
-            <label>Municipality:</label>
-            <select
-              value={selectedMunicipality || ""}
-              onChange={handleMunicipalityChange}
-            >
-              <option value="">Select Municipality</option>
-              {selectedProvinceText === "Albay" && (
-                <option value="Legazpi">Legazpi</option>
-              )}
-              {municipalities.map((municipality) => (
-                <option key={municipality.code} value={municipality.code}>
-                  {municipality.name}
-                </option>
-              ))}
-            </select>
-
-            <label>Barangay:</label>
-            <select
-              value={selectedBarangay || ""}
-              onChange={handleBarangayChange}
-            >
-              <option value="">Select Barangay</option>
-              {selectedMunicipality === "Legazpi"
-                ? customBarangays.map((barangay, index) => (
-                    <option key={index} value={barangay}>
-                      {barangay}
-                    </option>
-                  ))
-                : barangays.map((barangay) => (
-                    <option key={barangay.code} value={barangay.code}>
-                      {barangay.name}
-                    </option>
-                  ))}
-            </select>
-            <Button color="primary" onClick={handleLocationSaveClick}>
-              Save
-            </Button>
-            <Button color="danger" onClick={handleLocCancelClick}>
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <>
-            <p>Region: {userData?.region}</p>
-            <p>Province: {userData?.province}</p>
-            <p>Municipality: {userData?.municipality}</p>
-            <p>Barangay: {userData?.barangay}</p>
-            <Button color="secondary" onClick={handleLocUpdateClick}>
-              Update
-            </Button>
-          </>
-        )}
-      </form>
-      <Button
-        color="danger"
-        onPress={() =>
-          signOut({ redirect: false }).then(() => router.push("/"))
-        }
-      >
-        Signout
-      </Button>
-      <div className="flex flex-col">
-        <p>age {age}</p>
-        <p>gender {userData?.gender}</p>
-        <p>bday {userData?.bday}</p>
-        <p>region {userData?.region}</p>
-        <p>province {userData?.province}</p>
-        <p>municipality {userData?.municipality}</p>
-        <p>barangay {userData?.barangay}</p>
-      </div> */}
     </div>
   );
 };

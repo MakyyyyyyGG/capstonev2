@@ -33,13 +33,13 @@ export const config = {
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { room_code, account_id, cards, title } = req.body;
+    const { room_code, account_id, cards, title, difficulty } = req.body;
 
     try {
-      const gameType = "four_pics_one_word";
+      const gameType = "4 Pics 1 Word";
       const gameResult = await query({
-        query: `INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)`,
-        values: [title, room_code, account_id, gameType],
+        query: `INSERT INTO games (title, room_code, account_id, game_type, difficulty) VALUES (?, ?, ?, ?, ?)`,
+        values: [title, room_code, account_id, gameType, difficulty],
       });
       const gameId = gameResult.insertId;
 
@@ -110,10 +110,12 @@ export default async function handler(req, res) {
 
       try {
         const cardsResults = await query({
-          query: `SELECT four_pics_one_word.*, four_pics_one_word_sets.title
+          query: `SELECT four_pics_one_word.*, games.title, games.difficulty, games.game_id
 FROM four_pics_one_word 
 JOIN four_pics_one_word_sets
 ON four_pics_one_word.four_pics_one_word_set_id = four_pics_one_word_sets.four_pics_one_word_set_id 
+JOIN games 
+ON four_pics_one_word_sets.game_id = games.game_id
 WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
           values: [groupId],
         });
@@ -150,7 +152,8 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
     }
   } else if (req.method === "PUT") {
     const { four_pics_one_word_id } = req.query;
-    const { cards, title } = req.body;
+    const { cards, title, difficulty, game_id } = req.body;
+    console.log("cards", cards);
 
     try {
       // Get the current card data
@@ -172,7 +175,9 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
         const imageKey = `image${i}`;
         const newImage = cards.images[i - 1]; // Adjust indexing for images array
 
-        if (newImage && newImage.startsWith("data:image")) {
+        if (newImage === null) {
+          imageFileNames.push(null); // Make it null if image index is null
+        } else if (newImage && newImage.startsWith("data:image")) {
           const imageFileName = `${Date.now()}-${Math.random()
             .toString(36)
             .substr(2, 9)}.png`;
@@ -195,12 +200,18 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
         values: [...imageFileNames, cards.word, four_pics_one_word_id],
       });
 
+      const getGameId = await query({
+        query:
+          "select * from four_pics_one_word_sets join games on four_pics_one_word_sets.game_id = games.game_id where four_pics_one_word_sets.game_id = ?",
+        values: [game_id],
+      });
+
       if (updateCardResult.affectedRows > 0) {
         // Also update the title in the four_pics_one_word_sets table
         const updateTitleResult = await query({
           query:
-            "UPDATE four_pics_one_word_sets SET title = ? WHERE four_pics_one_word_set_id = (SELECT four_pics_one_word_set_id FROM four_pics_one_word WHERE four_pics_one_word_id = ?)",
-          values: [title, four_pics_one_word_id],
+            "UPDATE games SET title = ?, difficulty = ? WHERE game_id = ? ",
+          values: [title, difficulty, game_id],
         });
 
         if (updateTitleResult.affectedRows > 0) {
