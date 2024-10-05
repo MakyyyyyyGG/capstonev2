@@ -61,6 +61,7 @@ export default async function handler(req, res) {
             imageFileNames.push(null);
           }
         }
+        const correctAnswers = card.correct_answers.join(",");
 
         const result = await query({
           query:
@@ -69,7 +70,7 @@ export default async function handler(req, res) {
             four_pics_advanced_set_id,
             word,
             ...imageFileNames,
-            correct_answer,
+            correctAnswers,
           ],
         });
 

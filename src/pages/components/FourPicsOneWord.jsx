@@ -42,6 +42,7 @@ const FourPicsOneWord = ({ cards }) => {
   return (
     <div>
       <h1>4 Pics 1 Word Game</h1>
+      {cards.length > 0 && <h1>difficulty {cards[0].difficulty}</h1>}
       <div className="flex flex-wrap gap-4">
         {cards.map((card, index) => (
           <div key={index} className="w-[500px]">
