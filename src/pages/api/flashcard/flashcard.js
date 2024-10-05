@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     const { title, room_code, account_id, flashcards } = req.body;
 
     try {
-      const gameType = "flashcard";
+      const gameType = "Flashcard";
       const gameResult = await query({
         query: `INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)`,
         values: [title, room_code, account_id, gameType],

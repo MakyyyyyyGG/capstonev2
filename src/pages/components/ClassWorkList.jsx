@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Button } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  Button,
+  Tab,
+  Tabs,
+  Select,
+  SelectItem,
+  Switch,
+  Input,
+} from "@nextui-org/react";
 import Link from "next/link";
 import { Trash, Edit } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -9,6 +19,9 @@ const ClassWorkList = ({ room_code }) => {
   const [roleRedirect, setRoleRedirect] = useState("");
   const [redirectGameType, setRedirectGameType] = useState("");
   const [gameType, setGameType] = useState("");
+  const [filterByDifficulty, setFilterByDifficulty] = useState("");
+  const [filterByGameType, setFilterByGameType] = useState("");
+  const [filterByTitle, setFilterByTitle] = useState("");
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -107,45 +120,103 @@ const ClassWorkList = ({ room_code }) => {
   const getRedirectUrl = (game) => {
     if (game.game_type === "flashcard") {
       return `${roleRedirect}/${room_code}/flashcard/${game.game_id}`;
-    } else if (game.game_type === "four_pics_one_word") {
+    } else if (game.game_type === "4 Pics 1 Word") {
       return `${roleRedirect}/${room_code}/4pics1word/${game.game_id}`;
-    } else if (game.game_type === "four_pics_one_word_advanced") {
+    } else if (game.game_type === "4 Pics 1 Word Advanced") {
       return `${roleRedirect}/${room_code}/4pics1word_advanced/${game.game_id}`;
-    } else if (game.game_type === "color_game") {
+    } else if (game.game_type === "Color Game") {
       return `${roleRedirect}/${room_code}/color_game/${game.game_id}`;
     }
     return "#";
   };
 
+  const renderGames = () => {
+    const filteredGames = games.filter((game) => {
+      return (
+        (!filterByDifficulty || game.difficulty === filterByDifficulty) &&
+        (!filterByGameType ||
+          game.game_type.toLowerCase() === filterByGameType.toLowerCase()) &&
+        (!filterByTitle ||
+          game.title.toLowerCase().includes(filterByTitle.toLowerCase()))
+      );
+    });
+
+    return filteredGames.map((game) => (
+      <li key={game.game_id} className="flex items-center">
+        <div className="flex flex-col my-4 mr-4">
+          <Link href={getRedirectUrl(game)}>
+            <Card className="py-4 hover:bg-gray-200" isPressable>
+              <CardBody>
+                <div className="flex gap-4">
+                  <p className="border-r-2 pr-4">{game.game_type}</p>
+                  <p>{game.title}</p>
+                  <p>{game.game_type}</p>
+                  <p>{game.game_id}</p>
+                  <p>{game.difficulty}</p>
+                </div>
+              </CardBody>
+            </Card>
+          </Link>
+        </div>
+        <Button
+          color="danger"
+          className="mr-4"
+          onPress={() => handleDeleteGame(game.game_id, game.game_type)}
+        >
+          <Trash />
+        </Button>
+      </li>
+    ));
+  };
+
   return (
     <div>
-      <ul>
-        {games.map((game) => (
-          <li key={game.game_id} className="flex items-center">
-            <div className="flex flex-col m-4">
-              <Link href={getRedirectUrl(game)}>
-                <Card className="py-4 hover:bg-gray-200" isPressable>
-                  <CardBody>
-                    <div className="flex gap-4">
-                      <p className="border-r-2 pr-4">{game.game_type}</p>
-                      <p>{game.title}</p>
-                      <p>{game.game_type}</p>
-                      <p>{game.game_id}</p>
-                    </div>
-                  </CardBody>
-                </Card>
-              </Link>
-            </div>
-            <Button
-              color="danger"
-              className="mr-4"
-              onPress={() => handleDeleteGame(game.game_id, game.game_type)}
-            >
-              <Trash />
-            </Button>
-          </li>
-        ))}
-      </ul>
+      <div className="flex items-center my-4 gap-4">
+        <Input
+          className="flex-2 max-w-[400px]"
+          label="Search Title"
+          value={filterByTitle}
+          onChange={(e) => setFilterByTitle(e.target.value)}
+        />
+        <Select
+          className="flex-1"
+          label="Game Type"
+          value={filterByGameType}
+          onChange={(e) => setFilterByGameType(e.target.value)}
+        >
+          <SelectItem key="flashcard" value="flashcard">
+            Flashcard
+          </SelectItem>
+          <SelectItem key="4 Pics 1 Word" value="4pics1word">
+            4 Pics 1 Word
+          </SelectItem>
+          <SelectItem key="4 Pics 1 Word Advanced" value="4pics1word_advanced">
+            4 Pics 1 Word Advanced
+          </SelectItem>
+          <SelectItem key="Color Game" value="color_game">
+            Color Game
+          </SelectItem>
+        </Select>
+
+        <Select
+          className="flex-1"
+          label="Difficulty"
+          value={filterByDifficulty}
+          onChange={(e) => setFilterByDifficulty(e.target.value)}
+        >
+          <SelectItem key="easy" value="easy">
+            Easy
+          </SelectItem>
+          <SelectItem key="medium" value="medium">
+            Medium
+          </SelectItem>
+          <SelectItem key="hard" value="hard">
+            Hard
+          </SelectItem>
+        </Select>
+      </div>
+
+      <ul>{renderGames()}</ul>
     </div>
   );
 };

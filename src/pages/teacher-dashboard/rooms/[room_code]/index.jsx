@@ -59,6 +59,7 @@ const IndividualRoom = () => {
   const [students, setStudents] = useState([]);
   const [roomName, setRoomName] = useState("");
   const [difficulty, setDifficulty] = useState("");
+  const [selectedTab, setSelectedTab] = useState("classroom");
   const router = useRouter();
 
   const { room_code } = router.query;
@@ -134,25 +135,25 @@ const IndividualRoom = () => {
   return (
     <div>
       <div className="header flex justify-between">
-        <div className="w-full">
-          <Tabs aria-label="Options" color="secondary" className="m-2">
+        <div className="w-full flex items-center gap-4">
+          <Tabs
+            aria-label="Options"
+            color="secondary"
+            className="m-2 flex-grow"
+            selectedKey={selectedTab}
+            onSelectionChange={setSelectedTab}
+          >
             <Tab key="classroom" title="Classroom">
               Classroom
             </Tab>
             <Tab key="classworks" title="Classworks">
-              <div className="flex items-center gap-4 border-2 border-gray-300 p-4 w-full">
-                <CreateClassWork room_code={room_code} />
-                <div className="flex flex-col ">
-                  <ClassWorkList room_code={room_code} />
-                </div>
-              </div>
+              Classworks
             </Tab>
             <Tab key="students" title="Students">
-              <StudentList room_code={room_code} />
+              Students
             </Tab>
           </Tabs>
-        </div>
-        <div>
+          <CreateClassWork room_code={room_code} />
           <Button color="secondary" className="m-2" onPress={onOpen}>
             <Settings />
 
@@ -231,16 +232,27 @@ const IndividualRoom = () => {
           </Button>
         </div>
       </div>
-
+      {selectedTab === "classroom" && (
+        <div>
+          <h1>Room Name: {roomData[0]?.room_name || "Room"}</h1>
+          <p>Difficulty: {roomData[0]?.room_difficulty}</p>
+          <p>Room Code: {roomData[0]?.room_code}</p>
+          <div className="flex gap-5 my-5">
+            <p>Teacher Username: {roomData[0]?.email}</p>
+            <p>Teacher First Name: {roomData[0]?.first_name}</p>
+            <p>Teacher Last Name: {roomData[0]?.last_name}</p>
+          </div>
+        </div>
+      )}
+      {selectedTab === "classworks" && (
+        <div className="flex items-center gap-4 border-2 border-gray-300 p-4 w-full">
+          <div className="flex flex-col w-1/2 m-auto ">
+            <ClassWorkList room_code={room_code} />
+          </div>
+        </div>
+      )}
+      {selectedTab === "students" && <StudentList room_code={room_code} />}
       <DeleteRoom room={roomData[0]} onRoomDeleted={() => router.back()} />
-      <h1>Room Name: {roomData[0]?.room_name || "Room"}</h1>
-      <p>Difficulty: {roomData[0]?.room_difficulty}</p>
-      <p>Room Code: {roomData[0]?.room_code}</p>
-      <div className="flex gap-5 my-5">
-        <p>Teacher Username: {roomData[0]?.email}</p>
-        <p>Teacher First Name: {roomData[0]?.first_name}</p>
-        <p>Teacher Last Name: {roomData[0]?.last_name}</p>
-      </div>
       <div className="mt-5"></div>
       {/* Add more details as needed */}
     </div>

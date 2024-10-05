@@ -62,6 +62,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "PUT") {
+    console.log("req.body from server", req.body);
     const {
       account_id,
       first_name,
@@ -75,6 +76,8 @@ export default async function handler(req, res) {
       barangay,
       profileImage,
     } = req.body;
+
+    console.log("req.body from server", req.body);
 
     try {
       // Fetch existing user data

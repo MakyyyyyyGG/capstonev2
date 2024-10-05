@@ -15,6 +15,7 @@ const FourPicsOneWord = ({ cards }) => {
   useEffect(() => {
     setUserAnswers(Array(cards.length).fill(""));
     setFeedback(Array(cards.length).fill(""));
+    console.log(cards);
   }, [cards]);
 
   const handleChange = (value, index) => {
@@ -46,16 +47,34 @@ const FourPicsOneWord = ({ cards }) => {
           <div key={index} className="w-[500px]">
             <Card className="w-full">
               <CardBody className="flex flex-col gap-4">
-                <div className="grid grid-cols-2 gap-2">
-                  {[card.image1, card.image2, card.image3, card.image4].map(
-                    (image, idx) => (
-                      <img
-                        key={idx}
-                        src={`${image}`}
-                        alt={`Image ${idx + 1}`}
-                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
-                      />
-                    )
+                <div
+                  className={`grid ${
+                    card.difficulty === "easy" ? "grid-cols-2" : "grid-cols-3"
+                  } gap-2`}
+                >
+                  {card.image1 && (
+                    <img
+                      src={`${card.image1}`}
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
+                    />
+                  )}
+                  {card.image2 && (
+                    <img
+                      src={`${card.image2}`}
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
+                    />
+                  )}
+                  {card.difficulty !== "easy" && card.image3 && (
+                    <img
+                      src={`${card.image3}`}
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
+                    />
+                  )}
+                  {card.difficulty !== "easy" && card.image4 && (
+                    <img
+                      src={`${card.image4}`}
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
+                    />
                   )}
                 </div>
                 <div className="flex justify-center flex-col gap-2 items-center">

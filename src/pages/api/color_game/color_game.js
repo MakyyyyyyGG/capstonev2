@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const { room_code, account_id, cards, title } = req.body;
 
     try {
-      const gameType = "color_game";
+      const gameType = "Color Game";
       const gameResult = await query({
         query:
           "INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)",
@@ -128,6 +128,22 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error("Error updating game:", error);
       res.status(500).json({ error: "Error updating game" });
+    }
+  } else if (req.method === "DELETE") {
+    const { game_id } = req.query;
+    try {
+      const deleteGameResult = await query({
+        query: "DELETE FROM games WHERE game_id = ?",
+        values: [game_id],
+      });
+      if (deleteGameResult.affectedRows > 0) {
+        res.status(200).json({ message: "Game deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Game not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting game:", error);
+      res.status(500).json({ error: "Error deleting game" });
     }
   } else {
     res.status(405).json({ error: "Method not allowed" });
