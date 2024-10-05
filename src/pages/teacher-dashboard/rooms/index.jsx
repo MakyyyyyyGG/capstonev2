@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { Button, Input, Card, Chip } from "@nextui-org/react";
+import { Button, Input, Card, CardFooter, Chip } from "@nextui-org/react";
 import DeleteRoom from "@/pages/components/DeleteRoom";
 
 const Rooms = ({ rooms, onRoomDeleted }) => {
@@ -42,9 +42,9 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
         {filteredRooms.map((room) => (
           <Card
             key={room.room_id}
-            className="border-1 min-w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-3"
+            className="min-w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-7 hover:shadow-gray-400 shadow-lg"
           >
-            <div className="p-5 row-span-2 grid content-center">
+            <div className="p-5 row-span-5 grid content-center">
               <div className="absolute">
                 <Chip
                   color={getChipColor(room.room_difficulty)}
@@ -56,21 +56,26 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
               </div>
               <div className="content-center">
                 <h1 className="text-2xl text-bold text-white text-center content-center">
-                  {room.room_name}
+                  <Link
+                    href={`/teacher-dashboard/rooms/${room.room_code}`}
+                    className="hover:underline underline-offset-2"
+                  >
+                    {room.room_name}
+                  </Link>
                 </h1>
               </div>
             </div>
-            <div className="row-span-1 grid grid-cols-2 justify-between border-t border-white">
-              <div className="p-5 text-white flex items-center">
+            <CardFooter className="row-span-2 grid grid-cols-2 justify-between bg-white">
+              <div className="p-2 text-[#7469B6] flex items-center">
                 <p>Code: {room.room_code}</p>
               </div>
-              <div className="flex justify-center gap-1 items-center">
+              <div className="p-2 text-white flex items-center justify-end">
                 <DeleteRoom room={room} onRoomDeleted={onRoomDeleted} />
-                <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
+                {/* <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
                   <Button>View Room</Button>
-                </Link>
+                </Link> */}
               </div>
-            </div>
+            </CardFooter>
           </Card>
         ))}
       </ul>
