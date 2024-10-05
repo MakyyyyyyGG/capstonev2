@@ -502,14 +502,14 @@ const Index = () => {
                           handleFlashcardChange(index, "term", e.target.value)
                         }
                       />
-                      {flashcard.term && (
+                      {/* {flashcard.term && (
                         <Button
                           color="secondary"
                           onPress={() => handleTextToSpeech(flashcard.term)}
                         >
                           <Volume2 /> Play Term
                         </Button>
-                      )}
+                      )} */}
                     </div>
                     <div className="flex w-[45%]">
                       <Input

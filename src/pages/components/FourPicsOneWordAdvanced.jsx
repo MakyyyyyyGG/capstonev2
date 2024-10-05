@@ -10,10 +10,6 @@ import {
 } from "@/components/ui/input-otp";
 
 const FourPicsOneWordAdvanced = ({ cards }) => {
-  //   console.log("cards:", cards);
-  //   cards.forEach((card, index) => {
-  //     console.log(`Card ${index} correct_answer:`, card.correct_answer);
-  //   });
   const handleTextToSpeech = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     const synth = window.speechSynthesis;
@@ -40,8 +36,8 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
   };
 
   const handleImageClick = (idx, cardIndex) => {
-    const correctAnswer = cards[cardIndex].correct_answer;
-    if (correctAnswer == idx) {
+    const correctAnswer = cards[cardIndex].correct_answer.split(",");
+    if (correctAnswer.includes(idx.toString())) {
       alert("Yey! Correct answer");
     } else {
       alert("Wrong answer");
@@ -51,6 +47,8 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
   return (
     <div>
       <h1>4 Pics 1 Word Game</h1>
+
+      {/* <h1>difficulty {cards[0].difficulty}</h1> */}
       <div className="flex flex-wrap gap-4">
         {cards.map((card, index) => (
           <div key={index} className="w-[500px]">
@@ -86,23 +84,46 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
                     </Button>
                   )}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {[card.image1, card.image2, card.image3, card.image4].map(
-                    (image, idx) => (
-                      <div
-                        key={idx}
-                        className="hover:cursor-pointer hover:border-2 hover:border-purple-300 rounded-md"
-                      >
-                        <Image
-                          radius="none"
-                          isZoomed
-                          onClick={() => handleImageClick(idx, index)}
-                          src={`${image}`}
-                          alt={`Image ${idx + 1}`}
-                          className="w-full h-auto object-cover aspect-square "
-                        />
-                      </div>
-                    )
+                <div
+                  className={`grid ${
+                    card.difficulty === "easy"
+                      ? "grid-cols-2"
+                      : card.difficulty === "medium"
+                      ? "grid-cols-3"
+                      : "grid-cols-2 grid-rows-2"
+                  } gap-2 border`}
+                >
+                  {card.image1 && (
+                    <img
+                      onClick={() => handleImageClick(0, index)}
+                      src={`${card.image1}`}
+                      alt="Image 1"
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                    />
+                  )}
+                  {card.image2 && (
+                    <img
+                      onClick={() => handleImageClick(1, index)}
+                      src={`${card.image2}`}
+                      alt="Image 2"
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                    />
+                  )}
+                  {card.difficulty !== "easy" && card.image3 && (
+                    <img
+                      onClick={() => handleImageClick(2, index)}
+                      src={`${card.image3}`}
+                      alt="Image 3"
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                    />
+                  )}
+                  {card.difficulty === "hard" && card.image4 && (
+                    <img
+                      onClick={() => handleImageClick(3, index)}
+                      src={`${card.image4}`}
+                      alt="Image 4"
+                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                    />
                   )}
                 </div>
               </CardBody>

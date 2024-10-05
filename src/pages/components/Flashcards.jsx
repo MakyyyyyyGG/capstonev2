@@ -55,12 +55,12 @@ const Flashcards = ({ flashcards }) => {
                   />
                 )}
                 <p>Term: {flashcard.term}</p>
-                <Button
+                {/* <Button
                   onClick={() => handleTextToSpeech(flashcard.term)}
                   color="secondary"
                 >
                   <Volume2 />
-                </Button>
+                </Button> */}
                 <p>Description: {flashcard.description}</p>
                 {flashcard.audio && (
                   <audio src={flashcard.audio} controls className="w-full" />

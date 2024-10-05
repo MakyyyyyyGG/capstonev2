@@ -291,13 +291,24 @@ const index = () => {
       alert("Please enter a title.");
       return;
     }
-    // // Ensure each card has 4 images
-    // for (const card of cards) {
-    //   if (card.images.filter((image) => image !== null).length < 4) {
-    //     alert("Please upload 4 images for each card.");
-    //     return;
-    //   }
-    // }
+    for (const card of cards) {
+      let requiredImages = 4; // Default to 4 images for "hard" difficulty
+      const currentDifficulty = selectedDifficulty || difficulty;
+      if (currentDifficulty === "easy") {
+        requiredImages = 2;
+      } else if (currentDifficulty === "medium") {
+        requiredImages = 3;
+      } else if (currentDifficulty === "hard") {
+        requiredImages = 4;
+      }
+
+      if (
+        card.images.filter((image) => image !== null).length < requiredImages
+      ) {
+        alert(`Please upload all  images slots for each card.`);
+        return;
+      }
+    }
 
     try {
       await setupNewCards(cards); // Handle new cards creation if necessary

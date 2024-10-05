@@ -22,7 +22,7 @@ const index = () => {
       const data = await res.json();
       setCards(data);
       if (res.ok) {
-        console.log("Cards fetched successfully");
+        console.log("Cards fetched successfully ");
       } else {
         console.error("Error fetching cards:", data.error);
       }
@@ -42,6 +42,7 @@ const index = () => {
       <h1>4 Pics 1 Word Advanced</h1>
       <p>game_id: {game_id}</p>
       <p>room_code: {room_code}</p>
+
       <Button color="primary">
         <Link
           href={{

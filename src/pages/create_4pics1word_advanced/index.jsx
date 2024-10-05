@@ -15,15 +15,20 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Select,
+  SelectItem,
+  Checkbox,
+  CheckboxGroup,
 } from "@nextui-org/react";
 
 const Index = () => {
   const { data: session } = useSession();
+  const [difficulty, setDifficulty] = useState("");
   const router = useRouter();
   const { room_code } = router.query;
   const [title, setTitle] = useState("");
   const [cards, setCards] = useState([
-    { word: "", images: [null, null, null, null], correct_answer: null },
+    { word: "", images: [null, null, null, null], correct_answers: [] },
   ]);
   const fileInputRefs = useRef([]);
 
@@ -86,7 +91,7 @@ const Index = () => {
   const handleAddCard = () => {
     const newCards = [
       ...cards,
-      { word: "", images: [null, null, null, null], correct_answer: null },
+      { word: "", images: [null, null, null, null], correct_answers: [] },
     ];
     setCards(newCards);
     initializeRefs(newCards.length); // Initialize refs for the new card
@@ -201,13 +206,21 @@ const Index = () => {
       alert("Please enter a title.");
       return;
     }
+    const requiredImages =
+      difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4;
     for (const card of cards) {
-      if (card.images.filter((image) => image !== null).length < 4) {
-        alert("Please upload 4 images for each card.");
+      if (
+        card.images.filter((image) => image !== null).length < requiredImages
+      ) {
+        alert(`Please upload ${requiredImages} images for each card.`);
         return;
       }
-      if (card.correct_answer === null) {
-        alert("Please select the correct answer for each card.");
+      if (card.word === "") {
+        alert("Please enter a word for each card.");
+        return;
+      }
+      if (card.correct_answers.length === 0) {
+        alert("Please select at least one correct answer for each card.");
         return;
       }
     }
@@ -232,6 +245,7 @@ const Index = () => {
             room_code: room_code,
             account_id: session?.user?.id,
             cards: cards,
+            difficulty: difficulty,
           }),
         }
       );
@@ -278,10 +292,22 @@ const Index = () => {
       <h1>room code {room_code}</h1>
       <div className="w-80">
         <Input
+          isRequired
           label="Title"
           onChange={(e) => setTitle(e.target.value)}
           className="mb-4 w-80"
         />
+        <Select
+          label="Difficulty"
+          onChange={(e) => {
+            setDifficulty(e.target.value);
+          }}
+          isRequired
+        >
+          <SelectItem key="easy">Easy (2 images)</SelectItem>
+          <SelectItem key="medium">Medium (3 images)</SelectItem>
+          <SelectItem key="hard">Hard (4 images)</SelectItem>
+        </Select>
       </div>
       <div className="p-4">
         <div className="grid grid-cols-3 gap-4">
@@ -321,109 +347,153 @@ const Index = () => {
                     </Button>
                   )}
                   <div className="grid grid-cols-2 gap-4">
-                    {card.images.map((image, imageIndex) => (
-                      <div
-                        key={imageIndex}
-                        className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 ${
-                          draggingIndex?.cardIndex === cardIndex &&
-                          draggingIndex?.imageIndex === imageIndex
-                            ? "border-green-500"
-                            : "border-dashed border-gray-300"
-                        } flex flex-col items-center justify-center cursor-pointer`}
-                        onDragEnter={(e) =>
-                          handleDragEnter(e, cardIndex, imageIndex)
-                        }
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, cardIndex, imageIndex)}
-                        onDragOver={(e) => e.preventDefault()}
-                      >
-                        {image ? (
-                          <>
-                            <div className="  flex items-center  space-x-2 m-2 p-2  w-full">
-                              <Button
-                                onClick={() =>
-                                  handleEdit(cardIndex, imageIndex)
-                                }
-                                color="secondary"
-                                size="sm"
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  const updatedCards = [...cards];
-                                  updatedCards[cardIndex].images[imageIndex] =
-                                    null;
-                                  setCards(updatedCards);
-                                }}
-                                color="danger"
-                                size="sm"
-                              >
-                                Delete
-                              </Button>
-                              {card.correct_answer === imageIndex ? (
-                                <div
-                                  className="bg-green-500 p-2 rounded-full"
-                                  style={{ color: "#fff" }}
+                    {card.images
+                      .slice(
+                        0,
+                        difficulty === "easy"
+                          ? 2
+                          : difficulty === "medium"
+                          ? 3
+                          : 4
+                      )
+                      .map((image, imageIndex) => (
+                        <div
+                          key={imageIndex}
+                          className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 ${
+                            draggingIndex?.cardIndex === cardIndex &&
+                            draggingIndex?.imageIndex === imageIndex
+                              ? "border-green-500"
+                              : "border-dashed border-gray-300"
+                          } flex flex-col items-center justify-center cursor-pointer`}
+                          onDragEnter={(e) =>
+                            handleDragEnter(e, cardIndex, imageIndex)
+                          }
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, cardIndex, imageIndex)}
+                          onDragOver={(e) => e.preventDefault()}
+                        >
+                          {image ? (
+                            <>
+                              <div className="  flex items-center  space-x-2 m-2 p-2  w-full">
+                                <Button
+                                  onClick={() =>
+                                    handleEdit(cardIndex, imageIndex)
+                                  }
+                                  color="secondary"
+                                  size="sm"
+                                >
+                                  Edit
+                                </Button>
+                                <Button
                                   onClick={() => {
                                     const updatedCards = [...cards];
-                                    updatedCards[cardIndex].correct_answer =
+                                    updatedCards[cardIndex].images[imageIndex] =
                                       null;
                                     setCards(updatedCards);
                                   }}
+                                  color="danger"
+                                  size="sm"
                                 >
-                                  <div>
-                                    {" "}
+                                  Delete
+                                </Button>
+                                {card.correct_answers.includes(imageIndex) ? (
+                                  <div
+                                    className="bg-green-500 p-2 rounded-full"
+                                    style={{ color: "#fff" }}
+                                    onClick={() => {
+                                      const updatedCards = [...cards];
+                                      updatedCards[cardIndex].correct_answers =
+                                        updatedCards[
+                                          cardIndex
+                                        ].correct_answers.filter(
+                                          (index) => index !== imageIndex
+                                        );
+                                      setCards(updatedCards);
+                                    }}
+                                  >
+                                    <div>
+                                      {" "}
+                                      <CircleCheck size={20} />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    className="p-2 bg-slate-400 rounded-full"
+                                    style={{ color: "#fff" }}
+                                    onClick={() => {
+                                      const updatedCards = [...cards];
+                                      updatedCards[
+                                        cardIndex
+                                      ].correct_answers.push(imageIndex);
+                                      setCards(updatedCards);
+                                    }}
+                                  >
                                     <CircleCheck size={20} />
                                   </div>
-                                </div>
-                              ) : (
-                                <div
-                                  className="p-2 bg-slate-400 rounded-full"
-                                  style={{ color: "#fff" }}
+                                )}
+                              </div>
+                              <div className="relative">
+                                <img
+                                  src={image}
+                                  alt={`Uploaded ${imageIndex + 1}`}
+                                  className="h-full w-full object-cover rounded-lg"
+                                />
+                                {/* <Checkbox
+                                  className="absolute top-2 right-2"
                                   onClick={() => {
                                     const updatedCards = [...cards];
-                                    updatedCards[cardIndex].correct_answer =
-                                      imageIndex;
+                                    if (
+                                      updatedCards[
+                                        cardIndex
+                                      ].correct_answers.includes(imageIndex)
+                                    ) {
+                                      updatedCards[cardIndex].correct_answers =
+                                        updatedCards[
+                                          cardIndex
+                                        ].correct_answers.filter(
+                                          (index) => index !== imageIndex
+                                        );
+                                    } else {
+                                      updatedCards[
+                                        cardIndex
+                                      ].correct_answers.push(imageIndex);
+                                    }
                                     setCards(updatedCards);
                                   }}
-                                >
-                                  <CircleCheck size={20} />
-                                </div>
-                              )}
+                                  isSelected={card.correct_answers.includes(
+                                    imageIndex
+                                  )}
+                                /> */}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex flex-col items-center space-y-2">
+                              <span className="text-gray-400">
+                                Drag & Drop Image
+                              </span>
+                              <Button
+                                color="secondary"
+                                onClick={() =>
+                                  handleEdit(cardIndex, imageIndex)
+                                }
+                              >
+                                Upload Image
+                              </Button>
                             </div>
-                            <img
-                              src={image}
-                              alt={`Uploaded ${imageIndex + 1}`}
-                              className="h-full w-full object-cover rounded-lg"
-                            />
-                          </>
-                        ) : (
-                          <div className="flex flex-col items-center space-y-2">
-                            <span className="text-gray-400">
-                              Drag & Drop Image
-                            </span>
-                            <Button
-                              color="secondary"
-                              onClick={() => handleEdit(cardIndex, imageIndex)}
-                            >
-                              Upload Image
-                            </Button>
-                          </div>
-                        )}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          ref={
-                            fileInputRefs.current[cardIndex * 4 + imageIndex]
-                          }
-                          className="hidden"
-                          onChange={(e) =>
-                            handleFileChange(e, cardIndex, imageIndex)
-                          }
-                        />
-                      </div>
-                    ))}
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={
+                              fileInputRefs.current[cardIndex * 4 + imageIndex]
+                            }
+                            className="hidden"
+                            onChange={(e) =>
+                              handleFileChange(e, cardIndex, imageIndex)
+                            }
+                          />
+                        </div>
+                      ))}
                   </div>
                 </form>
               </CardBody>
@@ -437,7 +507,7 @@ const Index = () => {
             <Button
               color="secondary"
               onPress={handleSubmit}
-              isDisabled={!title}
+              isDisabled={!title || !difficulty || cards.length < 2}
             >
               Create
             </Button>
