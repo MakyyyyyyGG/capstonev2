@@ -3,11 +3,8 @@ import {
   Card,
   CardBody,
   Button,
-  Tab,
-  Tabs,
   Select,
   SelectItem,
-  Switch,
   Input,
 } from "@nextui-org/react";
 import Link from "next/link";
@@ -15,28 +12,12 @@ import { Trash, Edit, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { useSession } from "next-auth/react";
 
-const ClassWorkList = ({ room_code }) => {
-  const [games, setGames] = useState([]);
+const ClassWorkList = ({ room_code, games = [] }) => {
   const [roleRedirect, setRoleRedirect] = useState("");
-  const [redirectGameType, setRedirectGameType] = useState("");
-  const [gameType, setGameType] = useState("");
   const [filterByDifficulty, setFilterByDifficulty] = useState("");
   const [filterByGameType, setFilterByGameType] = useState("");
   const [filterByTitle, setFilterByTitle] = useState("");
   const { data: session } = useSession();
-
-  useEffect(() => {
-    fetchGames();
-    console.log(session);
-  }, [room_code]);
-
-  const fetchGames = async () => {
-    const response = await fetch(
-      `/api/games/fetch_games?room_code=${room_code}`
-    );
-    const data = await response.json();
-    setGames(data);
-  };
 
   const handleDeleteGame = async (game_id, game_type) => {
     const delWorkData = {
@@ -47,64 +28,66 @@ const ClassWorkList = ({ room_code }) => {
       body: JSON.stringify({ game_id: game_id }),
     };
     if (game_type === "flashcard") {
-      try {
-        const res = await fetch(
-          `/api/flashcard/flashcard?game_id=${game_id}`,
-          delWorkData
-        );
-        const data = await res.json();
-        console.log(data);
-        fetchGames();
-      } catch (error) {
-        console.log("Error deleting game:", error);
+      if (confirm("Are you sure you want to delete this flashcard game?")) {
+        try {
+          const res = await fetch(
+            `/api/flashcard/flashcard?game_id=${game_id}`,
+            delWorkData
+          );
+          const data = await res.json();
+          console.log(data);
+        } catch (error) {
+          console.log("Error deleting game:", error);
+        }
       }
-    } else if (game_type === "four_pics_one_word") {
-      console.log("deleting four pics one word game", game_id);
-      try {
-        const res = await fetch(
-          `/api/4pics1word/4pics1word?game_id=${game_id}`,
-          delWorkData
-        );
-        const data = await res.json();
-        console.log(data);
-        fetchGames();
-      } catch (error) {
-        console.log("Error deleting game:", error);
+    } else if (game_type === "4 Pics 1 Word") {
+      if (confirm("Are you sure you want to delete this 4 Pics 1 Word game?")) {
+        console.log("deleting four pics one word game", game_id);
+        try {
+          const res = await fetch(
+            `/api/4pics1word/4pics1word?game_id=${game_id}`,
+            delWorkData
+          );
+          const data = await res.json();
+          console.log(data);
+        } catch (error) {
+          console.log("Error deleting game:", error);
+        }
       }
-    } else if (game_type === "four_pics_one_word_advanced") {
-      console.log("deleting four pics one word advanced game", game_id);
-      try {
-        const res = await fetch(
-          `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}`,
-          delWorkData
-        );
-        const data = await res.json();
-        console.log(data);
-        fetchGames();
-      } catch (error) {
-        console.log("Error deleting game:", error);
+    } else if (game_type === "4 Pics 1 Word Advanced") {
+      if (
+        confirm(
+          "Are you sure you want to delete this 4 Pics 1 Word Advanced game?"
+        )
+      ) {
+        console.log("deleting four pics one word advanced game", game_id);
+        try {
+          const res = await fetch(
+            `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}`,
+            delWorkData
+          );
+          const data = await res.json();
+          console.log(data);
+        } catch (error) {
+          console.log("Error deleting game:", error);
+        }
       }
-    } else if (game_type === "color_game") {
-      console.log("deleting color game", game_id);
-      try {
-        const res = await fetch(
-          `/api/color_game/color_game?game_id=${game_id}`,
-          delWorkData
-        );
-        const data = await res.json();
-        console.log(data);
-        fetchGames();
-      } catch (error) {
-        console.log("Error deleting game:", error);
+    } else if (game_type === "Color Game") {
+      if (confirm("Are you sure you want to delete this Color Game?")) {
+        console.log("deleting color game", game_id);
+        try {
+          const res = await fetch(
+            `/api/color_game/color_game?game_id=${game_id}`,
+            delWorkData
+          );
+          const data = await res.json();
+          console.log(data);
+        } catch (error) {
+          console.log("Error deleting game:", error);
+        }
       }
     }
   };
-
-  useEffect(() => {
-    games.forEach((game) => {
-      console.log(game.game_type);
-    });
-  }, [games]);
 
   const isTeacher = () => {
     if (session.user.role === "teacher") {
@@ -119,7 +102,7 @@ const ClassWorkList = ({ room_code }) => {
   }, [session]);
 
   const getRedirectUrl = (game) => {
-    if (game.game_type === "flashcard") {
+    if (game.game_type === "Flashcard") {
       return `${roleRedirect}/${room_code}/flashcard/${game.game_id}`;
     } else if (game.game_type === "4 Pics 1 Word") {
       return `${roleRedirect}/${room_code}/4pics1word/${game.game_id}`;

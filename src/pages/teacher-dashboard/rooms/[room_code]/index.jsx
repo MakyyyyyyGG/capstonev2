@@ -64,6 +64,7 @@ const IndividualRoom = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: session } = useSession();
   const [roomData, setRoomData] = useState(null);
+  const [games, setGames] = useState([]);
   const [students, setStudents] = useState([]);
   const [roomName, setRoomName] = useState("");
   const [difficulty, setDifficulty] = useState("");
@@ -71,6 +72,18 @@ const IndividualRoom = () => {
   const router = useRouter();
 
   const { room_code } = router.query;
+  const fetchGames = async () => {
+    const response = await fetch(
+      `/api/games/fetch_games?room_code=${room_code}`
+    );
+    const data = await response.json();
+    setGames(data);
+    // console.log("data:", data);
+  };
+
+  useEffect(() => {
+    fetchGames(); // Preload games data while on classroom tab
+  }, [room_code]);
 
   useEffect(() => {
     if (room_code) {
@@ -310,7 +323,7 @@ const IndividualRoom = () => {
             {selectedTab === "classworks" && (
               <div className="flex items-center gap-4 w-full">
                 <div className="flex flex-col w-full">
-                  <ClassWorkList room_code={room_code} />
+                  <ClassWorkList room_code={room_code} games={games} />
                 </div>
               </div>
             )}
