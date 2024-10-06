@@ -9,17 +9,17 @@ import {
 } from "@nextui-org/react";
 
 const ColorGames = ({ cards }) => {
-  console.log(cards);
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
-
   const getColorFromImageUrl = (url) => {
     const parts = url.split("/");
     const filename = parts[parts.length - 1];
     return filename.split("-")[0];
   };
-
+  useEffect(() => {
+    console.log("cards:", cards);
+  }, [cards]);
   const handleImageSelect = async (cardId, imageIndex, imageUrl) => {
     const color = await getColorFromImageUrl(imageUrl);
     console.log("Color:", color);
@@ -32,7 +32,10 @@ const ColorGames = ({ cards }) => {
           ...prev,
           [cardId]: newSelection.filter((id) => id !== imageIndex),
         };
-      } else if (newSelection.length < 3) {
+      } else if (
+        newSelection.length <
+        (difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4)
+      ) {
         return { ...prev, [cardId]: [...newSelection, imageIndex] };
       }
       return prev;
@@ -66,13 +69,17 @@ const ColorGames = ({ cards }) => {
   const handleSubmit = (color_game_id) => {
     const card = cards.find((c) => c.color_game_id === color_game_id);
     const selectedCardImages = selectedImages[color_game_id] || [];
-    const correctImageCount = [card.image1, card.image2, card.image3].filter(
-      (image) => getColorFromImageUrl(image) === card.color
-    ).length;
+    const correctImageCount = [
+      card.image1,
+      card.image2,
+      card.image3,
+      card.image4,
+    ].filter((image) => getColorFromImageUrl(image) === card.color).length;
     const correctSelectionsCount = selectedCardImages.filter(
       (index) =>
-        getColorFromImageUrl([card.image1, card.image2, card.image3][index]) ===
-        card.color
+        getColorFromImageUrl(
+          [card.image1, card.image2, card.image3, card.image4][index]
+        ) === card.color
     ).length;
 
     let resultMessage = "";
@@ -100,21 +107,29 @@ const ColorGames = ({ cards }) => {
           <div key={card.color_game_id}>
             <Card>
               <CardBody>
-                <div className="grid grid-cols-3 gap-4">
-                  {[card.image1, card.image2, card.image3].map(
-                    (image, imageIndex) => (
-                      <div
-                        key={imageIndex}
-                        className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 flex items-center justify-center cursor-pointer `}
-                        onClick={() =>
-                          handleImageSelect(
-                            card.color_game_id,
-                            imageIndex,
-                            image
-                          )
-                        }
-                      >
-                        {image && (
+                <div
+                  className={`grid ${
+                    card.difficulty === "easy"
+                      ? "grid-cols-2"
+                      : card.difficulty === "medium"
+                      ? "grid-cols-3"
+                      : "grid-cols-2 grid-rows-2"
+                  } gap-2 border`}
+                >
+                  {[card.image1, card.image2, card.image3, card.image4].map(
+                    (image, imageIndex) =>
+                      image && (
+                        <div
+                          key={imageIndex}
+                          className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 flex items-center justify-center cursor-pointer `}
+                          onClick={() =>
+                            handleImageSelect(
+                              card.color_game_id,
+                              imageIndex,
+                              image
+                            )
+                          }
+                        >
                           <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
                             <Checkbox
                               isSelected={(
@@ -135,9 +150,8 @@ const ColorGames = ({ cards }) => {
                               className="h-full w-full object-cover rounded-lg"
                             />
                           </div>
-                        )}
-                      </div>
-                    )
+                        </div>
+                      )
                   )}
                 </div>
                 <p>Color: {card.color}</p>
