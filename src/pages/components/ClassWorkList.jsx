@@ -11,7 +11,8 @@ import {
   Input,
 } from "@nextui-org/react";
 import Link from "next/link";
-import { Trash, Edit } from "lucide-react";
+import { Trash, Edit, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
+import { TbCards } from "react-icons/tb";
 import { useSession } from "next-auth/react";
 
 const ClassWorkList = ({ room_code }) => {
@@ -130,6 +131,21 @@ const ClassWorkList = ({ room_code }) => {
     return "#";
   };
 
+  const getGameTypeIcon = (game_type) => {
+    switch (game_type.toLowerCase()) {
+      case "flashcard":
+        return <TbCards className="text-4xl text-white" />;
+      case "4 pics 1 word":
+        return <LayoutGrid className="w-7 h-7 text-white" />;
+      case "4 pics 1 word advanced":
+        return <LayoutGrid className="w-7 h-7 text-white" />;
+      case "color game":
+        return <Palette className="w-8 h-8 text-white" />;
+      default:
+        return <TbCards className="text-4xl text-white" />; // Default to flashcards if game type is unknown
+    }
+  };
+
   const renderGames = () => {
     const filteredGames = games.filter((game) => {
       return (
@@ -142,81 +158,106 @@ const ClassWorkList = ({ room_code }) => {
     });
 
     return filteredGames.map((game) => (
-      <li key={game.game_id} className="flex items-center">
-        <div className="flex flex-col my-4 mr-4">
-          <Link href={getRedirectUrl(game)}>
-            <Card className="py-4 hover:bg-gray-200" isPressable>
-              <CardBody>
-                <div className="flex gap-4">
-                  <p className="border-r-2 pr-4">{game.game_type}</p>
-                  <p>{game.title}</p>
-                  <p>{game.game_type}</p>
-                  <p>{game.game_id}</p>
-                  <p>{game.difficulty}</p>
+      <li key={game.game_id} className="relative flex w-full items-center">
+        <div className="flex w-full items-center">
+          <Link href={getRedirectUrl(game)} className="w-full">
+            <Card
+              radius="sm"
+              className="flex items-center w-full py-4 px-6 hover:bg-gray-200"
+            >
+              <div className="flex w-full h-[70px] items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+                    {getGameTypeIcon(game.game_type)}
+                  </div>
+                  <div className="text-left ml-4">
+                    <div className="text-lg font-bold">
+                      <h1>{game.title}</h1>
+                    </div>
+                    <div>
+                      <p>
+                        {game.game_type} ID {game.game_id}
+                      </p>
+                      <p>{game.difficulty}</p>
+                    </div>
+                  </div>
                 </div>
-              </CardBody>
+              </div>
             </Card>
           </Link>
+          <div className="absolute right-0 pr-6">
+            <Button
+              isIconOnly
+              color="danger"
+              onPress={() => handleDeleteGame(game.game_id, game.game_type)}
+            >
+              <Trash />
+            </Button>
+          </div>
         </div>
-        <Button
-          color="danger"
-          className="mr-4"
-          onPress={() => handleDeleteGame(game.game_id, game.game_type)}
-        >
-          <Trash />
-        </Button>
       </li>
     ));
   };
 
   return (
-    <div>
-      <div className="flex items-center my-4 gap-4">
-        <Input
-          className="flex-2 max-w-[400px]"
-          label="Search Title"
-          value={filterByTitle}
-          onChange={(e) => setFilterByTitle(e.target.value)}
-        />
-        <Select
-          className="flex-1"
-          label="Game Type"
-          value={filterByGameType}
-          onChange={(e) => setFilterByGameType(e.target.value)}
-        >
-          <SelectItem key="flashcard" value="flashcard">
-            Flashcard
-          </SelectItem>
-          <SelectItem key="4 Pics 1 Word" value="4pics1word">
-            4 Pics 1 Word
-          </SelectItem>
-          <SelectItem key="4 Pics 1 Word Advanced" value="4pics1word_advanced">
-            4 Pics 1 Word Advanced
-          </SelectItem>
-          <SelectItem key="Color Game" value="color_game">
-            Color Game
-          </SelectItem>
-        </Select>
+    <div className="w-full">
+      <div className="flex w-full items-center justify-between my-4 gap-4">
+        <div className="w-1/2">
+          <Input
+            radius="sm"
+            label="Search Title"
+            value={filterByTitle}
+            onChange={(e) => setFilterByTitle(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-4 w-1/2 ">
+          <Select
+            radius="sm"
+            className="flex-auto w-1/2"
+            label="Game Type"
+            value={filterByGameType}
+            onChange={(e) => setFilterByGameType(e.target.value)}
+          >
+            <SelectItem key="flashcard" value="flashcard">
+              Flashcard
+            </SelectItem>
+            <SelectItem key="4 Pics 1 Word" value="4pics1word">
+              4 Pics 1 Word
+            </SelectItem>
+            <SelectItem
+              key="4 Pics 1 Word Advanced"
+              value="4pics1word_advanced"
+            >
+              4 Pics 1 Word Advanced
+            </SelectItem>
+            <SelectItem key="Color Game" value="color_game">
+              Color Game
+            </SelectItem>
+          </Select>
 
-        <Select
-          className="flex-1"
-          label="Difficulty"
-          value={filterByDifficulty}
-          onChange={(e) => setFilterByDifficulty(e.target.value)}
-        >
-          <SelectItem key="easy" value="easy">
-            Easy
-          </SelectItem>
-          <SelectItem key="medium" value="medium">
-            Medium
-          </SelectItem>
-          <SelectItem key="hard" value="hard">
-            Hard
-          </SelectItem>
-        </Select>
+          <Select
+            radius="sm"
+            className="flex-auto w-1/2"
+            label="Difficulty"
+            value={filterByDifficulty}
+            onChange={(e) => setFilterByDifficulty(e.target.value)}
+          >
+            <SelectItem key="easy" value="easy">
+              Easy
+            </SelectItem>
+            <SelectItem key="medium" value="medium">
+              Medium
+            </SelectItem>
+            <SelectItem key="hard" value="hard">
+              Hard
+            </SelectItem>
+          </Select>
+        </div>
       </div>
 
-      <ul>{renderGames()}</ul>
+      <div className="flex w-full">
+        <ul className="w-full flex flex-col gap-4">{renderGames()}</ul>
+      </div>
     </div>
   );
 };
