@@ -10,14 +10,14 @@ export const config = {
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { room_code, account_id, cards, title } = req.body;
+    const { room_code, account_id, cards, title, difficulty } = req.body;
 
     try {
       const gameType = "Color Game";
       const gameResult = await query({
         query:
-          "INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)",
-        values: [title, room_code, account_id, gameType],
+          "INSERT INTO games (title, room_code, account_id, game_type, difficulty) VALUES (?, ?, ?, ?, ?)",
+        values: [title, room_code, account_id, gameType, difficulty],
       });
       const gameId = gameResult.insertId;
 
@@ -30,9 +30,12 @@ export default async function handler(req, res) {
 
       const cardPromises = cards.map((card) => {
         const imageFileNames = card.images.map((image) => image || null);
+        while (imageFileNames.length < 4) {
+          imageFileNames.push(null);
+        }
         return query({
           query:
-            "INSERT INTO color_game (color_game_set_id, color, image1, image2, image3) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO color_game (color_game_set_id, color, image1, image2, image3, image4) VALUES (?, ?, ?, ?, ?, ?)",
           values: [groupId, card.color, ...imageFileNames],
         });
       });
@@ -60,9 +63,10 @@ export default async function handler(req, res) {
 
       const cardsResults = await query({
         query: `
-          SELECT color_game.*, color_game_sets.title
+          SELECT color_game.*, games.title, games.difficulty, games.game_id
           FROM color_game 
           JOIN color_game_sets ON color_game.color_game_set_id = color_game_sets.color_game_set_id 
+          JOIN games ON color_game_sets.game_id = games.game_id
           WHERE color_game.color_game_set_id = ?
         `,
         values: [groupId],
@@ -76,10 +80,12 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error("Error fetching game:", error);
       res.status(500).json({ error: "Error fetching game" });
+      28;
     }
   } else if (req.method === "PUT") {
     const { color_game_id } = req.query;
-    const { cards, title } = req.body;
+    const { cards, title, game_id, difficulty } = req.body;
+    console.log("cards", cards);
 
     try {
       // Get the current card data
@@ -96,23 +102,27 @@ export default async function handler(req, res) {
       let imageFileNames = [];
 
       // Loop through images and update only if the new image is different
-      for (let i = 1; i <= 3; i++) {
-        const imageKey = `image${i}`;
-        imageFileNames.push(cards.images[i - 1] || currentCard[imageKey]); // Use new image if provided, otherwise retain old image
+      for (let i = 1; i <= 4; i++) {
+        const imageKey = `images${i}`;
+        if (cards.images[i - 1]) {
+          imageFileNames.push(cards.images[i - 1] || currentCard[imageKey]); // Use new image if provided, otherwise retain old image
+        } else {
+          imageFileNames.push(null); // Set to null if there is no filename
+        }
       }
+      console.log("imageFileNames", imageFileNames);
       // Update the images and color in the color_game table
       const updateCardResult = await query({
         query:
-          "UPDATE color_game SET image1 = ?, image2 = ?, image3 = ?, color = ? WHERE color_game_id = ?",
+          "UPDATE color_game SET image1 = ?, image2 = ?, image3 = ?, image4 = ?, color = ? WHERE color_game_id = ?",
         values: [...imageFileNames, cards.color, color_game_id],
       });
 
       if (updateCardResult.affectedRows > 0) {
         // Also update the title in the color_game_sets table
         const updateTitleResult = await query({
-          query:
-            "UPDATE color_game_sets SET title = ? WHERE color_game_set_id = (SELECT color_game_set_id FROM color_game WHERE color_game_id = ?)",
-          values: [title, color_game_id],
+          query: "UPDATE games SET title = ?, difficulty = ? WHERE game_id = ?",
+          values: [title, difficulty, game_id],
         });
 
         if (updateTitleResult.affectedRows > 0) {

@@ -15,6 +15,8 @@ import {
   ModalFooter,
   useDisclosure,
   Checkbox,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 const index = () => {
   const { data: session } = useSession();
@@ -26,6 +28,9 @@ const index = () => {
   const [draggingIndex, setDraggingIndex] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
   const [defaultImages, setDefaultImages] = useState([]);
+  const [difficulty, setDifficulty] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const [updateDifficulty, setUpdateDifficulty] = useState(false);
   const [tempImage, setTempImage] = useState();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -89,12 +94,13 @@ const index = () => {
       // Map over the data and transform image1, image2, and image3 into an array
       const transformedData = data.map((item) => ({
         ...item, // Spread the existing properties
-        images: [item.image1, item.image2, item.image3], // Create an 'images' array
+        images: [item.image1, item.image2, item.image3, item.image4], // Create an 'images' array
       }));
 
       setCards(transformedData); // Set the transformed data as cards
       setTitle(transformedData[0].title); // Set the title (assuming title is from the first card)
-
+      setDifficulty(transformedData[0].difficulty);
+      setSelectedDifficulty(transformedData[0].difficulty);
       if (res.ok) {
         console.log("Cards fetched successfully");
         console.log(transformedData);
@@ -126,11 +132,13 @@ const index = () => {
   const groupedImages = groupImagesByColor(displayImages);
 
   const handleImageSelect = (imageId) => {
-    console.log("Image ID:", imageId);
     setDefaultImages((prev) => {
       if (prev.includes(imageId)) {
         return prev.filter((id) => id !== imageId);
-      } else if (prev.length < 3) {
+      } else if (
+        prev.length <
+        (difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4)
+      ) {
         return [...prev, imageId];
       }
       return prev;
@@ -138,7 +146,10 @@ const index = () => {
     setSelectedImages((prev) => {
       if (prev.includes(imageId)) {
         return prev.filter((id) => id !== imageId);
-      } else if (prev.length < 3) {
+      } else if (
+        prev.length <
+        (difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4)
+      ) {
         return [...prev, imageId];
       }
       return prev;
@@ -148,14 +159,13 @@ const index = () => {
   const handleAddCard = () => {
     setCards([
       ...cards,
-      { images: [null, null, null], color: "", isNew: true },
+      { images: [null, null, null, null], color: "", isNew: true },
     ]);
   };
 
   const handleRemoveCard = (cardIndex) => {
     const updatedCards = cards.filter((_, index) => index !== cardIndex);
     setCards(updatedCards);
-    handleDeleteCard(cardIndex);
   };
 
   const handleEdit = (cardIndex, imageIndex) => {
@@ -214,17 +224,21 @@ const index = () => {
     console.log("Submitting:", {
       title,
       cards,
+      difficulty,
       room_code,
     });
 
     try {
       const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
-      console.log("cardsToUpdate", cardsToUpdate);
+      // console.log("cardsToUpdate", cardsToUpdate);
       for (const card of cardsToUpdate) {
         const body = JSON.stringify({
           title: title, // Pass the title for the card set
           cards: card, // Pass the modified card details (with images and word)
+          difficulty: difficulty,
+          game_id: game_id,
         });
+        console.log("body", body);
         const response = await fetch(
           `/api/color_game/color_game?color_game_id=${card.color_game_id}`,
           {
@@ -241,7 +255,7 @@ const index = () => {
         }
 
         const data = await response.json();
-        console.log("Color game created successfully");
+        alert("Color game created successfully");
         console.log("Color game created successfully:", data);
       }
     } catch (error) {
@@ -299,6 +313,22 @@ const index = () => {
     setCards(updatedCards);
   };
 
+  const handleDifficultyChange = (e) => {
+    const newDifficulty = e.target.value;
+    setDifficulty(newDifficulty);
+
+    const maxImages =
+      newDifficulty === "easy" ? 2 : newDifficulty === "medium" ? 3 : 4;
+    const updatedCards = cards.map((card) => {
+      const updatedImages = card.images.slice(0, maxImages);
+      return {
+        ...card,
+        images: updatedImages,
+      };
+    });
+    setCards(updatedCards);
+  };
+
   return (
     <div>
       <h1>Create Color Game</h1>
@@ -306,11 +336,42 @@ const index = () => {
       <form onSubmit={handleSubmit}>
         <div className="w-80">
           <Input
+            isRequired
             label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="mb-4 w-80"
           />
+
+          {updateDifficulty ? (
+            <>
+              <Select
+                isRequired
+                label="Difficulty"
+                defaultSelectedKeys={[selectedDifficulty]}
+                onChange={handleDifficultyChange}
+                className="mb-4 w-80"
+              >
+                <SelectItem value="easy" key="easy">
+                  Easy (2 images)
+                </SelectItem>
+                <SelectItem value="medium" key="medium">
+                  Medium (3 images)
+                </SelectItem>
+                <SelectItem value="hard" key="hard">
+                  Hard (4 images)
+                </SelectItem>
+              </Select>
+              <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
+            </>
+          ) : (
+            <Button
+              onClick={() => setUpdateDifficulty(!updateDifficulty)}
+              color="secondary"
+            >
+              Edit Difficulty
+            </Button>
+          )}
         </div>
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-3 gap-4">
@@ -321,7 +382,7 @@ const index = () => {
                     <h2 className="mb-4 text-lg font-semibold">
                       Color Card {cardIndex + 1}
                     </h2>
-
+                    <p>Card ID: {card.color_game_id}s</p>
                     <Button
                       onPress={() => handleRemoveCard(cardIndex)}
                       color="danger"
@@ -404,53 +465,88 @@ const index = () => {
                     </Checkbox>
                   </div>
 
-                  <h1>Choose 3 images</h1>
-                  <div className="grid grid-cols-3 gap-4">
-                    {card.images.map((image, imageIndex) => (
-                      <div
-                        key={imageIndex}
-                        className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer group`}
-                      >
-                        {image ? (
-                          <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden w-full h-full">
-                            <img
-                              src={image}
-                              alt={`Image ${imageIndex + 1}`}
-                              className="h-full w-full object-cover rounded-lg"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity z-100">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {card.images
+                      .slice(
+                        0,
+                        difficulty === "easy"
+                          ? 2
+                          : difficulty === "medium"
+                          ? 3
+                          : 4
+                      )
+                      .map((image, imageIndex) => (
+                        <div
+                          key={imageIndex}
+                          className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer group`}
+                        >
+                          {image ? (
+                            <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden w-full h-full">
+                              <img
+                                src={image}
+                                alt={`Image ${imageIndex + 1}`}
+                                className="h-full w-full object-cover rounded-lg"
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity z-100">
+                                <Button
+                                  onPress={() =>
+                                    handleEdit(cardIndex, imageIndex)
+                                  }
+                                  color="secondary"
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    const updatedCards = [...cards];
+                                    updatedCards[cardIndex].images[imageIndex] =
+                                      null;
+                                    setCards(updatedCards);
+                                  }}
+                                  color="danger"
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center space-y-2">
                               <Button
                                 onPress={() =>
                                   handleEdit(cardIndex, imageIndex)
                                 }
-                                color="secondary"
                               >
-                                Edit
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  const updatedCards = [...cards];
-                                  updatedCards[cardIndex].images[imageIndex] =
-                                    null;
-                                  setCards(updatedCards);
-                                }}
-                                color="danger"
-                              >
-                                Delete
+                                <LibraryBig />
                               </Button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center space-y-2">
-                            <Button
-                              onPress={() => handleEdit(cardIndex, imageIndex)}
-                            >
-                              <LibraryBig />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                          )}
+                        </div>
+                      ))}
+                    {/* Render empty image holders based on difficulty */}
+                    {Array.from(
+                      {
+                        length:
+                          (difficulty === "easy"
+                            ? 2
+                            : difficulty === "medium"
+                            ? 3
+                            : 4) - card.images.length,
+                      },
+                      (_, index) => (
+                        <div
+                          key={`empty-${index}`}
+                          className="flex flex-col items-center space-y-2"
+                        >
+                          <Button
+                            onPress={() =>
+                              handleEdit(cardIndex, card.images.length + index)
+                            }
+                          >
+                            <LibraryBig />
+                          </Button>
+                        </div>
+                      )
+                    )}
                   </div>
                 </CardBody>
               </Card>
@@ -475,7 +571,11 @@ const index = () => {
                 Image Library
               </ModalHeader>
               <ModalBody>
-                <h2 className="mb-4 text-lg font-semibold">Select 3 Images</h2>
+                <h2 className="mb-4 text-lg font-semibold">
+                  Select{" "}
+                  {difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4}{" "}
+                  Images
+                </h2>
                 <div className="grid grid-cols-3 gap-4">
                   {Object.entries(groupedImages).map(([color, images]) => (
                     <div
@@ -500,8 +600,12 @@ const index = () => {
                               }
                               onChange={() => handleImageSelect(item.id)}
                               isDisabled={
-                                selectedImages.length >= 3 &&
-                                !selectedImages.includes(item.id)
+                                selectedImages.length >=
+                                  (difficulty === "easy"
+                                    ? 2
+                                    : difficulty === "medium"
+                                    ? 3
+                                    : 4) && !selectedImages.includes(item.id)
                                 // !defaultImages.includes(item.image)
                               }
                             />
@@ -525,7 +629,14 @@ const index = () => {
                 <Button
                   color="primary"
                   onPress={insertImages}
-                  isDisabled={selectedImages.length !== 3}
+                  isDisabled={
+                    selectedImages.length !==
+                    (difficulty === "easy"
+                      ? 2
+                      : difficulty === "medium"
+                      ? 3
+                      : 4)
+                  }
                 >
                   Insert
                 </Button>
