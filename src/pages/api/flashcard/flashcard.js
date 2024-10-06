@@ -33,7 +33,7 @@ const saveFileToPublic = async (base64String, fileName, folder) => {
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { title, room_code, account_id, flashcards } = req.body;
-
+    // console.log(req.body);
     try {
       const gameType = "Flashcard";
       const gameResult = await query({
