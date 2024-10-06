@@ -159,8 +159,8 @@ function Signup() {
             className="flex flex-col gap-2 min-w-[80%] sm:w-6/12 w-11/12"
             onSubmit={handleSubmit}
           >
-            <div className="flex gap-2">
-              <div className="flex flex-col gap-2">
+            <div className="flex justify-between gap-2">
+              <div className="flex flex-col w-full gap-2">
                 <label htmlFor="firstName" className="font-bold text-[#3b3b3b]">
                   First Name
                 </label>
@@ -173,7 +173,7 @@ function Signup() {
                   className="w-full mr-2 p-3 rounded-xl border border-[#7469b6] bg-transparent text-[#7469b6] transition ease relative inline-flex items-center justify-center"
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col w-full gap-2">
                 <label htmlFor="lastName" className="font-bold text-[#3b3b3b]">
                   Last Name
                 </label>
