@@ -1,5 +1,5 @@
 import React from "react";
-import { Book } from "lucide-react";
+import { Book, Plus } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -19,13 +19,17 @@ const CreateClassWork = ({ room_code }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
     <div>
-      <Button color="secondary" onPress={onOpen} className="m-2">
-        Create +
+      <Button isIconOnly color="secondary" onPress={onOpen}>
+        <Plus />
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="xl">
         <ModalContent>
-          <ModalHeader>What would you like to create?</ModalHeader>
-          <ModalBody>
+          <ModalHeader className="flex justify-center items-center">
+            <h1 className="pt-6 pb-3 text-xl font-extrabold">
+              What would you like to create?
+            </h1>
+          </ModalHeader>
+          <ModalBody className="pb-6">
             <div className="grid grid-cols-2  gap-4">
               <Link href={`/create_flashcard?room_code=${room_code}`}>
                 <Card className="py-4 hover:bg-gray-200" isPressable>
