@@ -532,7 +532,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         );
       }
       setUserData(user);
-      console.log("User data:", user);
+      // console.log("User data:", user);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }

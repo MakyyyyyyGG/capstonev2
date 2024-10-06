@@ -120,9 +120,9 @@ const Index = () => {
       }
 
       const data = await response.json();
-      console.log("Flashcard created successfully");
+      // console.log("Flashcard created successfully");
       console.log("Flashcard created successfully:", data);
-      console.log("Flashcards data:", flashcards);
+      // console.log("Flashcards data:", flashcards);
       alert("Flashcard created successfully");
     } catch (error) {
       console.error("Error creating flashcard:", error.message);
