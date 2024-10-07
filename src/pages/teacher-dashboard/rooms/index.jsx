@@ -42,7 +42,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
         {filteredRooms.map((room) => (
           <Card
             key={room.room_id}
-            className="min-w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-7 hover:shadow-gray-400 shadow-lg"
+            className="shrink w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-7 hover:shadow-gray-400 shadow-lg"
           >
             <div className="p-5 row-span-5 grid content-center">
               <div className="absolute">
