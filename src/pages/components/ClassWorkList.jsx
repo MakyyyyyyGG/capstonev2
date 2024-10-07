@@ -110,6 +110,8 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       return `${roleRedirect}/${room_code}/4pics1word_advanced/${game.game_id}`;
     } else if (game.game_type === "Color Game") {
       return `${roleRedirect}/${room_code}/color_game/${game.game_id}`;
+    } else if (game.game_type === "Color Game Advanced") {
+      return `${roleRedirect}/${room_code}/color_game_advanced/${game.game_id}`;
     }
     return "#";
   };

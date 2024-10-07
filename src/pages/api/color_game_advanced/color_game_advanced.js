@@ -99,5 +99,117 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error("Error submitting form:", error);
     }
+  } else if (req.method === "GET") {
+    console.log("GET request received");
+    const { game_id } = req.query;
+    console.log(game_id);
+    try {
+      const gameResults = await query({
+        query:
+          "SELECT * FROM color_game_advanced_sets JOIN games ON color_game_advanced_sets.game_id = games.game_id WHERE color_game_advanced_sets.game_id = ?",
+        values: [game_id],
+      });
+      if (!gameResults.length) {
+        return res.status(404).json({ error: "Game not found" });
+      }
+      // console.log(gameResults);
+
+      const groupId = gameResults[0].color_game_advanced_sets_id;
+      // console.log("group id:", groupId);
+
+      const cardsResults = await query({
+        query: `
+          SELECT color_game_advanced.*, games.title, games.difficulty, games.game_id
+          FROM color_game_advanced 
+          JOIN color_game_advanced_sets ON color_game_advanced.color_game_advanced_set_id = color_game_advanced_sets.color_game_advanced_sets_id 
+          JOIN games ON color_game_advanced_sets.game_id = games.game_id
+          WHERE color_game_advanced.color_game_advanced_set_id = ?;
+        `,
+        values: [groupId],
+      });
+
+      if (!cardsResults.length) {
+        return res.status(404).json({ error: "Cards not found" });
+      }
+
+      res.status(200).json(cardsResults);
+    } catch (error) {
+      console.error("Error fetching game:", error);
+      res.status(500).json({ error: "Error fetching game" });
+    }
+  } else if (req.method === "PUT") {
+    const { color_game_advanced_id } = req.query;
+    const { cards, title, game_id, difficulty } = req.body;
+    console.log("body", req.body);
+    try {
+      const currentCardResults = await query({
+        query:
+          "SELECT * FROM color_game_advanced WHERE color_game_advanced_id = ?",
+        values: [color_game_advanced_id],
+      });
+
+      if (!currentCardResults.length) {
+        return res.status(404).json({ error: "Card not found" });
+      }
+
+      const currentCard = currentCardResults[0];
+      let imageFileNames = [];
+      let colorArray = [];
+      for (let i = 1; i <= 10; i++) {
+        const imageKey = `images${i}`;
+        if (cards.images[i - 1]) {
+          imageFileNames.push(cards.images[i - 1] || currentCard[imageKey]); // Use new image if provided, otherwise retain old image
+        } else {
+          break; // Stop adding if the next index is null
+        }
+      }
+      for (let i = 1; i <= 10; i++) {
+        const colorKey = `colors${i}`;
+        if (cards.colors[i - 1]) {
+          colorArray.push(cards.colors[i - 1] || currentCard[colorKey]); // Use new color if provided, otherwise retain old color
+        } else {
+          break; // Stop adding if the next index is null
+        }
+      }
+      if (cards.insertedAudio) {
+        const audioFileName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .substr(2, 9)}.wav`;
+        cards.insertedAudio = await saveFileToPublic(
+          cards.insertedAudio,
+          audioFileName,
+          "color_game_advanced/audio"
+        );
+        console.log(`Audio URI: ${cards.insertedAudio}`);
+      }
+
+      await query({
+        query:
+          "UPDATE color_game_advanced SET images = ?, color = ?, audio = ? WHERE color_game_advanced_id = ?",
+        values: [
+          imageFileNames.join(","),
+          colorArray.join(","),
+          cards.insertedAudio || cards.audio,
+          color_game_advanced_id,
+        ],
+      });
+
+      // Also update the title in the games table
+      const updateTitleResult = await query({
+        query: "UPDATE games SET title = ?, difficulty = ? WHERE game_id = ?",
+        values: [title, difficulty, game_id],
+      });
+
+      if (updateTitleResult.affectedRows > 0) {
+        return res
+          .status(200)
+          .json({ message: "Cards and title updated successfully" });
+      } else {
+        return res.status(404).json({ error: "Failed to update the title" });
+      }
+    } catch (error) {
+      console.error("Error updating cards:", error);
+      res.status(500).json({ error: "Error updating cards" });
+    }
   }
 }

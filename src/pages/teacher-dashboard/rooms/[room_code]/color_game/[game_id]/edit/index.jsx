@@ -165,6 +165,7 @@ const index = () => {
 
   const handleRemoveCard = (cardIndex) => {
     const updatedCards = cards.filter((_, index) => index !== cardIndex);
+    handleDeleteCard(cardIndex);
     setCards(updatedCards);
   };
 
