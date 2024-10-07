@@ -321,14 +321,16 @@ const IndividualRoom = () => {
               </div>
             )}
             {selectedTab === "classworks" && (
-              <div className="flex items-center gap-4 border-2 border-gray-300 p-4 w-full">
-                <div className="flex flex-col w-1/2">
+              <div className="flex items-center gap-4 w-full">
+                <div className="flex flex-col w-full">
                   <ClassWorkList room_code={room_code} games={games} />
                 </div>
               </div>
             )}
             {selectedTab === "students" && (
-              <StudentList room_code={room_code} />
+              <div className="flex items-center gap-4 w-full">
+                <StudentList room_code={room_code} />
+              </div>
             )}
 
             <div className="mt-5"></div>
