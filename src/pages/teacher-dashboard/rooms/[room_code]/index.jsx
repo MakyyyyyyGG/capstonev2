@@ -272,7 +272,7 @@ const IndividualRoom = () => {
                   cursor: "w-full bg-[#7469B6]",
                   tab: "max-w-fit px-0 h-12",
                   tabContent:
-                    "group-data-[selected=true]:text-[#7469B6] font-bold text-xs",
+                    "group-data-[selected=true]:text-[#7469B6] font-bold max-sm:text-xs",
                 }}
                 selectedKey={selectedTab}
                 onSelectionChange={setSelectedTab}
