@@ -217,3 +217,7 @@ Button[disabled=""][type="submit"] {
     @apply bg-background text-foreground;
   }
 } */
+.dragging {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px dashed #000;
+}
