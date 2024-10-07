@@ -55,7 +55,7 @@ const fetchStudents = async (room_code, setStudents) => {
 };
 
 const IndividualRoom = () => {
-  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(false);
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);

@@ -67,7 +67,7 @@ const Index = () => {
   const [currentIndex, setCurrentIndex] = useState(null);
   const imgRef = useRef(null);
 
-  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(false);
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
