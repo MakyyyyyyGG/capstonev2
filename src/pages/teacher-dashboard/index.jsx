@@ -16,7 +16,7 @@ import {
 const Dashboard = () => {
   const { data: session } = useSession();
   const [rooms, setRooms] = useState([]);
-  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(false);
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
