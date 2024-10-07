@@ -184,8 +184,8 @@ const ClassWorkList = ({ room_code, games = [] }) => {
 
   return (
     <div className="w-full">
-      <div className="flex w-full items-center justify-between my-4 gap-4">
-        <div className="w-1/2">
+      <div className="flex w-full items-center justify-between my-4 gap-4 max-sm:flex-col">
+        <div className="w-1/2 z-0 max-sm:w-full">
           <Input
             radius="sm"
             label="Search Title"
@@ -193,10 +193,10 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             onChange={(e) => setFilterByTitle(e.target.value)}
           />
         </div>
-        <div className="flex gap-4 w-1/2 ">
+        <div className="flex gap-4 w-1/2 max-sm:w-full">
           <Select
             radius="sm"
-            className="flex-auto w-1/2"
+            className="flex-auto w-1/2 z-0"
             label="Game Type"
             value={filterByGameType}
             onChange={(e) => setFilterByGameType(e.target.value)}
@@ -220,7 +220,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
 
           <Select
             radius="sm"
-            className="flex-auto w-1/2"
+            className="flex-auto w-1/2 z-0"
             label="Difficulty"
             value={filterByDifficulty}
             onChange={(e) => setFilterByDifficulty(e.target.value)}

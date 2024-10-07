@@ -134,7 +134,7 @@ function Signup() {
           />
         </div>
         <div className="card flex flex-col justify-center items-center h-full w-full">
-          <div className="greet flex flex-col min-w-[80%] sm:w-6/12 gap-4">
+          <div className="greet px-4 flex flex-col min-w-[80%] sm:w-6/12 gap-4">
             <h1 className="sm:text-5xl font-bold text-[#7469b6] text-[35px]">
               Sign Up
             </h1>

@@ -130,6 +130,19 @@ Button[disabled=""][type="submit"] {
   display: none;
 }
 
+[data-collapse="true"] #smallscreen__backdrop {
+  display: none;
+}
+
+[data-collapse="true"] #smallscreen__sidebaritems {
+  display: none;
+  transition: all 0.3s ease-in-out;
+}
+
+[data-collapse="true"] #smallscreen__sidebar {
+  width: 0rem;
+}
+
 .ant-steps-item-process .ant-steps-item-icon {
   background: #7469b6 !important;
   border-color: #7469b6 !important;

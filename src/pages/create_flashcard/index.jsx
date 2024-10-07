@@ -355,7 +355,7 @@ const Index = () => {
               </Button>
             </div>
           </div>
-          <div className="items-center">
+          <div className="items-center z-0">
             <Input
               label="Flashcard Title"
               value={title}
@@ -369,8 +369,8 @@ const Index = () => {
                 key={index}
                 className="w-full border border-slate-800 rounded-md flex"
               >
-                <CardHeader className="flex px-5 justify-between items-center">
-                  <div className="text-xl font-bold">
+                <CardHeader className="flex px-3 justify-between items-center z-0">
+                  <div className="pl-2 text-xl font-bold">
                     <h1>{index + 1}</h1>
                   </div>
                   <div className="flex gap-2">
@@ -471,31 +471,24 @@ const Index = () => {
                         )}
                       </ModalContent>
                     </Modal>
-                    <Tooltip
-                      showArrow={true}
-                      placement="bottom"
-                      content="Delete Flashcard"
+                    <Button
+                      isIconOnly
                       color="danger"
+                      onClick={() => removeFlashcard(index)}
                     >
-                      <Button
-                        isIconOnly
-                        color="danger"
-                        onClick={() => removeFlashcard(index)}
-                      >
-                        <Trash2 size={22} />
-                      </Button>
-                    </Tooltip>
+                      <Trash2 size={22} />
+                    </Button>
                   </div>
                 </CardHeader>
                 <Divider className="m-0 h-0.5 bg-slate-300" />
                 <CardBody>
-                  <div className="flex w-full gap-4">
-                    <div className="flex flex-col w-[45%] gap-2">
+                  <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                    <div className="flex shrink flex-col w-[45%] gap-2 max-sm:w-full">
                       <Input
                         type="text"
                         variant="underlined"
                         color="secondary"
-                        className="text-[#7469B6]"
+                        className="text-[#7469B6] z-0"
                         label={`Flashcard Term ${index + 1}`}
                         value={flashcard.term}
                         onChange={(e) =>
@@ -511,12 +504,12 @@ const Index = () => {
                         </Button>
                       )} */}
                     </div>
-                    <div className="flex w-[45%]">
+                    <div className="flex w-[55%] gap-2 max-sm:w-full">
                       <Input
                         type="text"
                         variant="underlined"
                         color="secondary"
-                        className="text-[#7469B6]"
+                        className="text-[#7469B6] z-0"
                         label={`Flashcard Description ${index + 1}`}
                         value={flashcard.description}
                         onChange={(e) =>
@@ -527,23 +520,17 @@ const Index = () => {
                           )
                         }
                       />
-                    </div>
-                    <div className="flex items-center justify-center border-dashed border-2 border-gray-300 w-[100px] h-[100px]">
-                      {flashcard.image && (
-                        <div className="relative flex flex-col gap-2">
-                          <div className=" w-[100px] h-[100px]">
-                            <img
-                              src={flashcard.image}
-                              alt="flashcard image"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <Tooltip
-                            showArrow={true}
-                            placement="left"
-                            content="Delete Image"
-                            color="danger"
-                          >
+                      <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
+                        {flashcard.image && (
+                          <div className="relative flex flex-col gap-2">
+                            <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
+                              <img
+                                src={flashcard.image}
+                                alt="flashcard image"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+
                             <Button
                               isIconOnly
                               size="sm"
@@ -551,28 +538,21 @@ const Index = () => {
                                 handleFlashcardChange(index, "image", null)
                               }
                               color="danger"
-                              className="absolute top-2 right-2"
+                              className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
                             >
                               <Trash2 size={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip
-                            showArrow={true}
-                            placement="left"
-                            content="Show Image"
-                            color="secondary"
-                          >
                             <Button
                               isIconOnly
                               size="sm"
                               color="secondary"
-                              className="absolute bottom-2 right-2"
+                              className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
                             >
                               <ScanSearch size={18} />
                             </Button>
-                          </Tooltip>
-                        </div>
-                      )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardBody>

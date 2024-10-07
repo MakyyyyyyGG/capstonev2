@@ -268,11 +268,11 @@ const IndividualRoom = () => {
                 className="w-full"
                 classNames={{
                   tabList:
-                    "gap-8 w-full relative rounded-none p-0 border-b-2 border-divider",
+                    "gap-8 w-full relative rounded-none p-0 border-b-2 border-divider max-sm:gap-4",
                   cursor: "w-full bg-[#7469B6]",
                   tab: "max-w-fit px-0 h-12",
                   tabContent:
-                    "group-data-[selected=true]:text-[#7469B6] font-bold",
+                    "group-data-[selected=true]:text-[#7469B6] font-bold text-xs",
                 }}
                 selectedKey={selectedTab}
                 onSelectionChange={setSelectedTab}
@@ -281,7 +281,7 @@ const IndividualRoom = () => {
                   key="classroom"
                   title={
                     <div className="flex items-center space-x-2">
-                      <Shapes />
+                      <Shapes className="max-sm:w-4 max-sm:h-4" />
                       <span>Classroom</span>
                     </div>
                   }
@@ -290,7 +290,7 @@ const IndividualRoom = () => {
                   key="classworks"
                   title={
                     <div className="flex items-center space-x-2">
-                      <SquareLibrary />
+                      <SquareLibrary className="max-sm:w-4 max-sm:h-4" />
                       <span>Classworks</span>
                     </div>
                   }
@@ -299,7 +299,7 @@ const IndividualRoom = () => {
                   key="students"
                   title={
                     <div className="flex items-center space-x-2">
-                      <GraduationCap />
+                      <GraduationCap className="max-sm:w-4 max-sm:h-4" />
                       <span>Students</span>
                     </div>
                   }

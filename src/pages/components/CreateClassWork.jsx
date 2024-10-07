@@ -22,7 +22,12 @@ const CreateClassWork = ({ room_code }) => {
       <Button isIconOnly color="secondary" onPress={onOpen}>
         <Plus />
       </Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="xl">
+      <Modal
+        scrollBehavior="inside"
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="xl"
+      >
         <ModalContent>
           <ModalHeader className="flex justify-center items-center">
             <h1 className="pt-6 pb-3 text-xl font-extrabold">
