@@ -8,6 +8,11 @@ import JoinedRoom from "./joined_rooms";
 const Index = () => {
   const { data: session, status } = useSession();
   const [rooms, setRooms] = useState([]);
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
+
+  function toggleSidebarCollapseHandler() {
+    setIsCollapsedSidebar((prev) => !prev);
+  }
 
   const fetchJoinedRoom = async () => {
     console.log("Function reached");
@@ -32,14 +37,17 @@ const Index = () => {
 
   return (
     <div>
-      <Header />
+      <Header
+        isCollapsed={isCollapsedSidebar}
+        toggleCollapse={toggleSidebarCollapseHandler}
+      />
       <div className="flex border-2">
-        <div className="flex flex-col  m-4 p-4 border-2 w-[200px]">
+        <SidebarStudent
+          isCollapsed={isCollapsedSidebar}
+          toggleCollapse={toggleSidebarCollapseHandler}
+        />
+        <div className="p-4 w-full">
           <JoinRoom onRoomJoin={fetchJoinedRoom} />
-          <SidebarStudent />
-        </div>
-        <div className="border-2 -black w-full">
-          <h1 className="border-2">Student dashboard</h1>
           <div>
             <JoinedRoom rooms={rooms} onUnenroll={fetchJoinedRoom} />
           </div>

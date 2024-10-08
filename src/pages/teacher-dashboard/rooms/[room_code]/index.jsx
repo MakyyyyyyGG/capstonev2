@@ -166,8 +166,8 @@ const IndividualRoom = () => {
         />
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           <div className="">
-            <div className="flex justify-between">
-              <div className="text-3xl font-extrabold">
+            <div className="flex justify-between items-center">
+              <div className="text-3xl font-extrabold mb-2">
                 <h1>{roomData[0]?.room_name || "Room"}</h1>
               </div>
               <div className="flex gap-2">

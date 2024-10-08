@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Input, Card, CardFooter, Chip } from "@nextui-org/react";
+import { Trash2 } from "lucide-react";
 
 const JoinedRoom = ({ rooms, onUnenroll }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -8,6 +9,20 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
   const filteredRooms = rooms.filter((room) =>
     room.room_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Function to dynamically set Chip color based on room difficulty
+  const getChipColor = (difficulty) => {
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return "success";
+      case "moderate":
+        return "warning";
+      case "hard":
+        return "danger";
+      default:
+        return "default"; // fallback if the difficulty is not recognized
+    }
+  };
 
   async function unEnroll(joined_room_id) {
     const unEnrollData = {
@@ -34,35 +49,84 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
   return (
     <div>
       <div>
-        <h1>Joined Rooms</h1>
         <Input
           clearable
-          placeholder="Search by room name"
+          placeholder="Search by Room Name"
+          radius="sm"
+          size="lg"
+          color="secondary"
+          variant="faded"
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-4 w-full p-2"
         />
+        <h1 className="text-4xl my-6 font-bold">Joined Rooms</h1>
         <div className="flex flex-wrap gap-5">
           {filteredRooms.map((room) => (
-            <div
-              key={room.room_code}
-              className="border-2 w-[30%] h-[300px] flex flex-col"
+            <Card
+              key={room.room_id}
+              className="shrink w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-7 hover:shadow-gray-400 shadow-lg"
             >
-              <h2>Student Room ID: {room.student_room_id}</h2>
-              <h2>Room Name: {room.room_name}</h2>
-              <h2>Room Difficulty: {room.room_difficulty}</h2>
-              <h2>Room Code: {room.room_code}</h2>
-              <h2>Teacher: {room.email}</h2>
-              <Link href={`/homepage/joined_rooms/${room.room_code}`}>
-                <Button>View Room</Button>
-              </Link>
-              <Button
-                color="danger"
-                onClick={() => unEnroll(room.student_room_id)}
-              >
-                Leave Room
-              </Button>
-            </div>
+              <div className="p-5 row-span-5 grid content-center">
+                <div className="absolute">
+                  <Chip
+                    color={getChipColor(room.room_difficulty)}
+                    radius="sm"
+                    className="text-base text-white py-4"
+                  >
+                    {room.room_difficulty}
+                  </Chip>
+                </div>
+                <div className="content-center">
+                  <h1 className="text-2xl text-bold text-white text-center content-center">
+                    <Link
+                      href={`/homepage/joined_rooms/${room.room_code}`}
+                      className="hover:underline underline-offset-2"
+                    >
+                      {room.room_name}
+                    </Link>
+                    <h2 className="text-lg text-bold text-white text-center content-center hover:underline">
+                      {room.email}
+                    </h2>
+                  </h1>
+                </div>
+              </div>
+              <CardFooter className="row-span-2 grid grid-cols-2 justify-between bg-white">
+                <div className="p-2 text-[#7469B6] flex items-center">
+                  <p>Code: {room.room_code}</p>
+                </div>
+                <div className="p-2 text-white flex items-center justify-end">
+                  <Button
+                    isIconOnly
+                    color="danger"
+                    onClick={() => unEnroll(room.student_room_id)}
+                  >
+                    <Trash2 size={22} />
+                  </Button>
+                  {/* <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
+                            <Button>View Room</Button>
+                          </Link> */}
+                </div>
+              </CardFooter>
+            </Card>
           ))}
+          {/* <div
+            key={room.room_code}
+            className="border-2 w-[30%] h-[300px] flex flex-col"
+          >
+            <h2>Student Room ID: {room.student_room_id}</h2>
+            <h2>Room Name: {room.room_name}</h2>
+            <h2>Room Difficulty: {room.room_difficulty}</h2>
+            <h2>Room Code: {room.room_code}</h2>
+            <h2>Teacher: {room.email}</h2>
+            <Link href={`/homepage/joined_rooms/${room.room_code}`}>
+              <Button>View Room</Button>
+            </Link>
+            <Button
+              color="danger"
+              onClick={() => unEnroll(room.student_room_id)}
+            >
+              Leave Room
+            </Button>
+          </div> */}
         </div>
       </div>
     </div>

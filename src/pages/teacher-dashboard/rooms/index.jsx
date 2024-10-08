@@ -28,6 +28,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
   return (
     <div>
       <Input
+        clearable
         type="text"
         placeholder="Search Room"
         radius="sm"
@@ -37,7 +38,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
-      <h2 className="text-4xl my-6 font-bold">Your Rooms</h2>
+      <h1 className="text-4xl my-6 font-bold">Your Rooms</h1>
       <ul className="flex flex-wrap gap-5">
         {filteredRooms.map((room) => (
           <Card
