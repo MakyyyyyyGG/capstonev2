@@ -28,7 +28,7 @@ const CreateClassWork = ({ room_code }) => {
         onOpenChange={onOpenChange}
         placement="center"
         scrollBehavior="inside"
-        size="lg"
+        size="xl"
         classNames={{
           body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
           header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
