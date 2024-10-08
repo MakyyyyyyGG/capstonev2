@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import { Plus } from "lucide-react";
 import {
   Input,
   Modal,
@@ -59,8 +60,29 @@ const JoinRoom = ({ onRoomJoin }) => {
 
   return (
     <div>
-      <Button onPress={onOpen}>Join Room</Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <Button
+        onPress={onOpen}
+        radius="sm"
+        color="secondary"
+        startContent={<Plus size={20} />}
+      >
+        Join Room
+      </Button>
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        placement="center"
+        size="xl"
+        radius="sm"
+        classNames={{
+          body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
+          header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
+          footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
+          base: "bg-[#7469B6] dark:bg-[#19172c] text-[#a8b0d3]",
+          closeButton:
+            "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
+        }}
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -70,6 +92,8 @@ const JoinRoom = ({ onRoomJoin }) => {
               <ModalBody>
                 <Input
                   placeholder="Enter Room Code"
+                  radius="sm"
+                  size="lg"
                   value={roomCode}
                   onChange={(e) => setRoomCode(e.target.value)}
                   error={!!error} // Converts error string to boolean
@@ -82,10 +106,15 @@ const JoinRoom = ({ onRoomJoin }) => {
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" radius="sm" onPress={onClose}>
                   Close
                 </Button>
-                <Button color="primary" onPress={handleJoinRoom}>
+                <Button
+                  color="success"
+                  radius="sm"
+                  className="text-white"
+                  onPress={handleJoinRoom}
+                >
                   Enter
                 </Button>
               </ModalFooter>
