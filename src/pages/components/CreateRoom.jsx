@@ -106,6 +106,7 @@ const CreateRoom = ({ onRoomCreated }) => {
     <div>
       <Button
         onPress={onOpen}
+        radius="sm"
         color="secondary"
         startContent={<Plus size={20} />}
       >
@@ -114,13 +115,14 @@ const CreateRoom = ({ onRoomCreated }) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
+        placement="center"
         size="3xl"
         radius="sm"
         classNames={{
-          body: "pb-6 px-8",
-          header: "text-[#F3F3F3] text-3xl p-8",
-          footer: "px-8 pb-8",
-          base: "bg-[#7469B6] dark:bg-[#19172c] text-[#a8b0d3]",
+          body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
+          header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
+          footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
+          base: "bg-[#7469B6] text-[#a8b0d3]",
           closeButton:
             "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
         }}
