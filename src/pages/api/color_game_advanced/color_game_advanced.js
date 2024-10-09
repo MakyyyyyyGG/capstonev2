@@ -211,5 +211,23 @@ export default async function handler(req, res) {
       console.error("Error updating cards:", error);
       res.status(500).json({ error: "Error updating cards" });
     }
+  } else if (req.method === "DELETE") {
+    const { game_id } = req.query;
+    console.log("game_id", game_id);
+    try {
+      const result = await query({
+        query: "DELETE FROM games WHERE game_id = ?",
+        values: [game_id],
+      });
+      if (result.affectedRows > 0) {
+        console.log(`Card deleted successfully: ${game_id}`);
+        res.status(200).json({ message: "Card deleted successfully" });
+      } else {
+        throw new Error("Failed to delete card");
+      }
+    } catch (error) {
+      console.error("Error deleting card:", error);
+      res.status(500).json({ error: "Error deleting card" });
+    }
   }
 }

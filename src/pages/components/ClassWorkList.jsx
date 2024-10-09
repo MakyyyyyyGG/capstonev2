@@ -17,6 +17,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   const [filterByDifficulty, setFilterByDifficulty] = useState("");
   const [filterByGameType, setFilterByGameType] = useState("");
   const [filterByTitle, setFilterByTitle] = useState("");
+  const [gameList, setGameList] = useState(games);
   const { data: session } = useSession();
 
   const handleDeleteGame = async (game_id, game_type) => {
@@ -27,7 +28,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       },
       body: JSON.stringify({ game_id: game_id }),
     };
-    if (game_type === "flashcard") {
+    if (game_type === "Flashcard") {
       if (confirm("Are you sure you want to delete this flashcard game?")) {
         try {
           const res = await fetch(
@@ -36,6 +37,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           );
           const data = await res.json();
           console.log(data);
+          setGameList(gameList.filter((game) => game.game_id !== game_id));
         } catch (error) {
           console.log("Error deleting game:", error);
         }
@@ -50,6 +52,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           );
           const data = await res.json();
           console.log(data);
+          setGameList(gameList.filter((game) => game.game_id !== game_id));
         } catch (error) {
           console.log("Error deleting game:", error);
         }
@@ -68,6 +71,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           );
           const data = await res.json();
           console.log(data);
+          setGameList(gameList.filter((game) => game.game_id !== game_id));
         } catch (error) {
           console.log("Error deleting game:", error);
         }
@@ -82,6 +86,39 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           );
           const data = await res.json();
           console.log(data);
+          setGameList(gameList.filter((game) => game.game_id !== game_id));
+        } catch (error) {
+          console.log("Error deleting game:", error);
+        }
+      }
+    } else if (game_type === "Color Game Advanced") {
+      if (
+        confirm("Are you sure you want to delete this Color Game Advanced?")
+      ) {
+        console.log("deleting color game advanced", game_id);
+        try {
+          const res = await fetch(
+            `/api/color_game_advanced/color_game_advanced?game_id=${game_id}`,
+            delWorkData
+          );
+          const data = await res.json();
+          console.log(data);
+          setGameList(gameList.filter((game) => game.game_id !== game_id));
+        } catch (error) {
+          console.log("Error deleting game:", error);
+        }
+      }
+    } else if (game_type === "Decision Maker") {
+      if (confirm("Are you sure you want to delete this Decision Maker?")) {
+        console.log("deleting decision maker", game_id);
+        try {
+          const res = await fetch(
+            `/api/decision_maker/decision_maker?game_id=${game_id}`,
+            delWorkData
+          );
+          const data = await res.json();
+          console.log(data);
+          setGameList(gameList.filter((game) => game.game_id !== game_id));
         } catch (error) {
           console.log("Error deleting game:", error);
         }
@@ -112,6 +149,8 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       return `${roleRedirect}/${room_code}/color_game/${game.game_id}`;
     } else if (game.game_type === "Color Game Advanced") {
       return `${roleRedirect}/${room_code}/color_game_advanced/${game.game_id}`;
+    } else if (game.game_type === "Decision Maker") {
+      return `${roleRedirect}/${room_code}/decision_maker/${game.game_id}`;
     }
     return "#";
   };
@@ -132,7 +171,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   };
 
   const renderGames = () => {
-    const filteredGames = games.filter((game) => {
+    const filteredGames = gameList.filter((game) => {
       return (
         (!filterByDifficulty || game.difficulty === filterByDifficulty) &&
         (!filterByGameType ||
@@ -217,6 +256,9 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             </SelectItem>
             <SelectItem key="Color Game" value="color_game">
               Color Game
+            </SelectItem>
+            <SelectItem key="Color Game Advanced" value="color_game_advanced">
+              Color Game Advanced
             </SelectItem>
           </Select>
 
