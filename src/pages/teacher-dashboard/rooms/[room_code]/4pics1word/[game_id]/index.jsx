@@ -43,7 +43,7 @@ const Index = () => {
             pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word/${game_id}/edit`,
           }}
         >
-          Edit 4 Pics 1 Word
+          Edit ThinkPic
         </Link>
       </Button>
       <FourPicsOneWord cards={cards} />
