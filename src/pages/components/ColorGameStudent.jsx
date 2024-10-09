@@ -6,17 +6,31 @@ import {
   Input,
   Checkbox,
   Button,
+  Progress,
 } from "@nextui-org/react";
-
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import "swiper/swiper-bundle.css";
 const ColorGames = ({ cards }) => {
-  console.log(cards);
+  // console.log(cards);
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
   const [shuffledCards, setShuffledCards] = useState([]);
+  const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
+  const [answer, setAnswer] = useState(0);
+  const [score, setScore] = useState(0);
+  const [swiperInstance, setSwiperInstance] = useState(null);
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { game_id } = router.query;
 
   useEffect(() => {
     setShuffledCards(shuffleArray(cards));
+    setFeedback(Array(cards.length).fill(""));
+    getStudentTries();
   }, [cards]);
 
   const shuffleArray = (array) => {
@@ -94,11 +108,23 @@ const ColorGames = ({ cards }) => {
       correctSelectionsCount === correctImageCount &&
       selectedCardImages.length === correctImageCount
     ) {
+      alert("Correct!");
       resultMessage = "Correct!";
-    } else if (correctSelectionsCount > 0) {
-      resultMessage = "Almost there!";
+      setAnswer(answer + 1);
+
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
     } else {
-      resultMessage = "Incorrect. Try again.";
+      alert("Incorrect.");
+      resultMessage = "Incorrect.";
+      setAnswer(answer + 1);
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
+    }
+    if (answer + 1 === cards.length) {
+      endGame();
     }
 
     setSubmissionResults((prev) => ({
@@ -107,77 +133,154 @@ const ColorGames = ({ cards }) => {
     }));
   };
 
+  const endGame = async () => {
+    await handleResult();
+    alert("You have completed the game!");
+  };
+
+  const getStudentTries = async () => {
+    const account_id = session?.user?.id;
+    try {
+      const response = await fetch(
+        `/api/student_game_record/student_game_record?account_id=${account_id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleResult = async () => {
+    const data = {
+      account_id: session.user.id,
+      game_id: game_id,
+      score: score,
+    };
+
+    try {
+      const response = await fetch(
+        "/api/student_game_record/student_game_record",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 403) {
+        alert(result.message); // Show the limit message
+      } else {
+        console.log(result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <div className="">
-      <div className="grid grid-cols-3 gap-4">
+    <div className="w-full m-auto my-4">
+      <Progress
+        value={(answer / cards.length) * 100}
+        classNames={{
+          // label: "tracking-wider",
+          value: "text-foreground/60",
+        }}
+        label="Progress"
+        showValueLabel={true}
+        color="success"
+      />
+      <Swiper
+        modules={[Navigation, Pagination, Scrollbar, A11y]}
+        navigation
+        spaceBetween={50}
+        slidesPerView={1}
+        onSwiper={(swiper) => setSwiperInstance(swiper)}
+        onSlideChange={() => console.log("slide change")}
+        onSwiperSlideChange={() => console.log("swiper slide change")}
+      >
         {shuffledCards.map((card) => (
-          <div key={card.color_game_id}>
-            <Card>
-              <CardBody>
-                <div className="grid grid-cols-3 gap-4">
-                  {[card.image1, card.image2, card.image3].map(
-                    (image, imageIndex) => (
-                      <div
-                        key={imageIndex}
-                        className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer `}
-                        onClick={() =>
-                          handleImageSelect(
-                            card.color_game_id,
-                            imageIndex,
-                            image
-                          )
+          <SwiperSlide key={card.color_game_id}>
+            <div className="flex justify-center w-1/2 m-auto">
+              <div key={card.color_game_id}>
+                <Card>
+                  <CardBody>
+                    <div className="grid grid-cols-3 gap-4">
+                      {[card.image1, card.image2, card.image3].map(
+                        (image, imageIndex) => (
+                          <div
+                            key={imageIndex}
+                            className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer `}
+                            onClick={() =>
+                              handleImageSelect(
+                                card.color_game_id,
+                                imageIndex,
+                                image
+                              )
+                            }
+                          >
+                            {image && (
+                              <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
+                                <Checkbox
+                                  isSelected={(
+                                    selectedImages[card.color_game_id] || []
+                                  ).includes(imageIndex)}
+                                  onChange={() =>
+                                    handleImageSelect(
+                                      card.color_game_id,
+                                      imageIndex,
+                                      image
+                                    )
+                                  }
+                                  className="absolute top-2 left-2 z-99"
+                                />
+                                <Image
+                                  src={image}
+                                  alt={`Image ${imageIndex + 1}`}
+                                  className="h-full w-full object-cover rounded-lg"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )
+                      )}
+                    </div>
+                    <p>Color: {card.color}</p>
+
+                    <Button onClick={() => handleSubmit(card.color_game_id)}>
+                      Submit
+                    </Button>
+                    {submissionResults[card.color_game_id] && (
+                      <p
+                        className={
+                          submissionResults[card.color_game_id] === "Correct!"
+                            ? "text-green-500"
+                            : submissionResults[card.color_game_id] ===
+                              "Almost there!"
+                            ? "text-yellow-500"
+                            : "text-red-500"
                         }
                       >
-                        {image && (
-                          <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
-                            <Checkbox
-                              isSelected={(
-                                selectedImages[card.color_game_id] || []
-                              ).includes(imageIndex)}
-                              onChange={() =>
-                                handleImageSelect(
-                                  card.color_game_id,
-                                  imageIndex,
-                                  image
-                                )
-                              }
-                              className="absolute top-2 left-2 z-99"
-                            />
-                            <Image
-                              src={image}
-                              alt={`Image ${imageIndex + 1}`}
-                              className="h-full w-full object-cover rounded-lg"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )
-                  )}
-                </div>
-                <p>Color: {card.color}</p>
-
-                <Button onClick={() => handleSubmit(card.color_game_id)}>
-                  Submit
-                </Button>
-                {submissionResults[card.color_game_id] && (
-                  <p
-                    className={
-                      submissionResults[card.color_game_id] === "Correct!"
-                        ? "text-green-500"
-                        : submissionResults[card.color_game_id] ===
-                          "Almost there!"
-                        ? "text-yellow-500"
-                        : "text-red-500"
-                    }
-                  >
-                    {submissionResults[card.color_game_id]}
-                  </p>
-                )}
-              </CardBody>{" "}
-            </Card>{" "}
-          </div>
+                        {submissionResults[card.color_game_id]}
+                      </p>
+                    )}
+                  </CardBody>{" "}
+                </Card>{" "}
+              </div>
+            </div>
+          </SwiperSlide>
         ))}
-      </div>
+      </Swiper>
     </div>
   );
 };

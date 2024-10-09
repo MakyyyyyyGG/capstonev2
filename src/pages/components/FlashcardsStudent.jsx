@@ -32,7 +32,7 @@ const handleTextToSpeech = (text) => {
       setVoiceAndSpeak(voices[1]); // Set default voice
     };
   } else {
-    console.log("voices:", voices);
+    // console.log("voices:", voices);
     setVoiceAndSpeak(voices[1]); // Set default voice
   }
 
@@ -62,8 +62,8 @@ const FlashcardsStudent = ({ flashcards }) => {
         // navigation
         // pagination={{ clickable: true }}
         // scrollbar={{ draggable: true }}
-        onSwiper={(swiper) => console.log(swiper)}
-        onSlideChange={() => console.log("slide change")}
+        // onSwiper={(swiper) => console.log(swiper)}
+        // onSlideChange={() => console.log("slide change")}
       >
         {randomizedFlashcards.map((flashcard) => (
           <SwiperSlide key={flashcard.flashcard_id}>

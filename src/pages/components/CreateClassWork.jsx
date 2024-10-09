@@ -84,7 +84,7 @@ const CreateClassWork = ({ room_code }) => {
                     </div>
                   </CardHeader>
                   <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">4 Pics 1 Word</p>
+                    <p className="uppercase font-bold text-lg">ThinkPic</p>
                   </CardBody>
                 </Link>
               </Card>
@@ -99,9 +99,7 @@ const CreateClassWork = ({ room_code }) => {
                     </div>
                   </CardHeader>
                   <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">
-                      4 Pics 1 Word +
-                    </p>
+                    <p className="uppercase font-bold text-lg">ThinkPic +</p>
                   </CardBody>
                 </Link>
               </Card>
