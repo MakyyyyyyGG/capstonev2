@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import {
   Card,
   CardBody,
+  Chip,
   Button,
   Select,
   SelectItem,
   Input,
 } from "@nextui-org/react";
 import Link from "next/link";
-import { Trash, Edit, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
+import { Trash2, Edit, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { useSession } from "next-auth/react";
 
@@ -169,6 +170,23 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     }
   };
 
+  // Helper function to return the Chip color based on difficulty
+  const getChipColor = (difficulty) => {
+    if (!difficulty) return "default"; // Return a default color if difficulty is null or undefined
+
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return "success"; // Green for easy
+      case "medium": // Assuming "medium" is equivalent to "moderate"
+      case "moderate":
+        return "warning"; // Yellow for medium/moderate
+      case "hard":
+        return "danger"; // Red for hard
+      default:
+        return "default"; // Fallback color
+    }
+  };
+
   const renderGames = () => {
     const filteredGames = gameList.filter((game) => {
       return (
@@ -181,14 +199,15 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     });
 
     return filteredGames.map((game) => (
-      <li key={game.game_id} className="relative flex w-full items-center">
+      <li key={game.game_id} className="flex w-full items-center ">
         <div className="flex w-full items-center">
-          <Link href={getRedirectUrl(game)} className="w-full">
-            <Card
-              radius="sm"
-              className="flex items-center w-full py-4 px-6 hover:bg-gray-200"
-            >
-              <div className="flex w-full h-[70px] items-center justify-between">
+          <Card
+            isPressable
+            radius="sm"
+            className="flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 max-sm:px-4 max-sm:py-3"
+          >
+            <Link href={getRedirectUrl(game)} className="w-full">
+              <div className="flex w-full h-[70px] items-center justify-between max-sm:scale-[95%]">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
                     {getGameTypeIcon(game.game_type)}
@@ -197,26 +216,33 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                     <div className="text-lg font-bold">
                       <h1>{game.title}</h1>
                     </div>
-                    <div>
-                      <p>
-                        {game.game_type} ID {game.game_id}
-                      </p>
-                      <p>{game.difficulty}</p>
+                    <div className="flex items-center gap-2">
+                      <p>{game.game_type}</p>
+                      {game.difficulty && (
+                        <Chip
+                          color={getChipColor(game.difficulty)}
+                          radius="sm"
+                          className="text-sm text-white capitalize"
+                        >
+                          {game.difficulty}
+                        </Chip>
+                      )}
+                      <p>ID {game.game_id}</p>
                     </div>
                   </div>
                 </div>
               </div>
-            </Card>
-          </Link>
-          <div className="absolute right-0 pr-6">
-            <Button
-              isIconOnly
-              color="danger"
-              onPress={() => handleDeleteGame(game.game_id, game.game_type)}
-            >
-              <Trash />
-            </Button>
-          </div>
+            </Link>
+            <div>
+              <Button
+                isIconOnly
+                color="danger"
+                onPress={() => handleDeleteGame(game.game_id, game.game_type)}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          </Card>
         </div>
       </li>
     ));

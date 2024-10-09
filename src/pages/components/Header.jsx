@@ -675,11 +675,22 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 Profile Details
               </ModalHeader>
               <ModalBody>
-                <div className="mx-2 grid grid-cols-7 gap-3 justify-between">
+                <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
                   <div className="col-span-1">
-                    <p>Profile</p>
+                    <div className="flex justify-between">
+                      <p>Profile</p>
+                      <Button
+                        color="secondary"
+                        size="sm"
+                        radius="full"
+                        className="px-4 sm:hidden"
+                        onClick={handleUpdateClick}
+                      >
+                        Update
+                      </Button>
+                    </div>
                   </div>
-                  <div className="col-span-4 col-start-3">
+                  <div className="col-span-4 col-start-3 col-end-8 max-sm:col-span-1 max-sm:col-start-1 ">
                     {isEditing ? (
                       <>
                         <Card className="w-full p-2">
@@ -695,7 +706,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                   onClick={editProfilePicture}
                                   color="secondary"
                                 >
-                                  Update Profile Picture
+                                  Update Picture
                                 </Button>
                                 {profilePictureEditing && (
                                   <div className="flex flex-col gap-3 mt-3">
@@ -728,7 +739,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                             </div>
                           </CardHeader>
                           <CardBody className="py-3 text-small text-default-400 font-semibold">
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
                               <Input
                                 type="text"
                                 label="First Name"
@@ -780,7 +791,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                 <option value="Other">Other</option>
                               </select> */}
                               <Input //DatePicker has some problems
-                                className="col-span-2"
+                                className="col-span-2 max-sm:col-span-1"
                                 type="date"
                                 label="Enter Your Birth Date"
                                 size="sm"
@@ -842,7 +853,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                             color="secondary"
                             size="sm"
                             radius="full"
-                            className="px-4"
+                            className="px-4 max-sm:hidden"
                             onClick={handleUpdateClick}
                           >
                             Update
@@ -853,11 +864,22 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                   </div>
                 </div>
                 <hr className="mx-8 border-gray opacity-75" />
-                <div className="mx-2 grid grid-cols-7 gap-3 justify-between">
+                <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
                   <div className="col-span-1">
-                    <p>Location</p>
+                    <div className="flex mt-4 justify-between">
+                      <p>Location</p>
+                      <Button
+                        color="secondary"
+                        size="sm"
+                        radius="full"
+                        className="px-4 sm:hidden"
+                        onClick={handleLocUpdateClick}
+                      >
+                        Update
+                      </Button>
+                    </div>
                   </div>
-                  <div className="col-span-4 col-start-3">
+                  <div className="col-span-4 col-start-3 col-end-8 max-sm:col-span-1 max-sm:col-start-1">
                     {isLocationEditing ? (
                       <>
                         <Card className="w-full p-2">
@@ -997,7 +1019,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                             color="secondary"
                             size="sm"
                             radius="full"
-                            className="px-4"
+                            className="px-4 max-sm:hidden"
                             onClick={handleLocUpdateClick}
                           >
                             Update

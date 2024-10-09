@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
+import Header from "@/pages/components/Header";
+import Sidebar from "@/pages/components/Sidebar";
 import { useRouter } from "next/router";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import {
   Card,
+  CardHeader,
   CardBody,
+  Chip,
+  Divider,
   Input,
   Button,
   Modal,
@@ -15,6 +20,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
+import { Image, Plus, Trash2, ScanSearch } from "lucide-react";
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -36,6 +42,12 @@ const index = () => {
     y: 25,
   });
   const imgRef = useRef(null);
+
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
+
+  function toggleSidebarCollapseHandler() {
+    setIsCollapsedSidebar((prev) => !prev);
+  }
 
   // Track dragging state
   const [draggingIndex, setDraggingIndex] = useState(null);
@@ -361,6 +373,19 @@ const index = () => {
     initializeRefs(cards.length);
   }, [cards.length]);
 
+  // Function to dynamically set Chip color based on room difficulty
+  const getChipColor = (difficulty) => {
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return "success";
+      case "moderate":
+        return "warning";
+      case "hard":
+        return "danger";
+      default:
+        return "default"; // fallback if the difficulty is not recognized
+    }
+  };
   const getImageHolders = (card, cardIndex) => {
     let imageCount;
     if (selectedDifficulty === "easy") {
@@ -374,11 +399,12 @@ const index = () => {
     const gridCols = imageCount === 3 ? "grid-cols-3" : "grid-cols-2";
 
     return (
-      <div className={`grid ${gridCols} gap-4`}>
+      // <div className={`grid ${gridCols} gap-4`}>
+      <div className="flex flex-wrap gap-4 justify-center max-sm:gap-2">
         {card.images.slice(0, imageCount).map((image, imageIndex) => (
           <div
             key={imageIndex}
-            className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 ${
+            className={`relative block w-[18rem] aspect-square bg-gray-100 rounded-lg border-2 max-sm:w-[14rem] ${
               draggingIndex?.cardIndex === cardIndex &&
               draggingIndex?.imageIndex === imageIndex
                 ? "border-green-500"
@@ -442,135 +468,181 @@ const index = () => {
 
   return (
     <div>
-      <h1>edit 4pics1word</h1>
-      <h1>room code {room_code}</h1>
-      <h1>difficulty: {difficulty}</h1>
-
-      {updateDifficulty ? (
-        <>
-          <Select
-            isRequired
-            label="Difficulty"
-            defaultSelectedKeys={[selectedDifficulty]}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="mb-4 w-80"
-          >
-            <SelectItem value="easy" key="easy">
-              Easy
-            </SelectItem>
-            <SelectItem value="medium" key="medium">
-              Medium
-            </SelectItem>
-            <SelectItem value="hard" key="hard">
-              Hard
-            </SelectItem>
-          </Select>
-          <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
-        </>
-      ) : (
-        <Button
-          onClick={() => setUpdateDifficulty(!updateDifficulty)}
-          color="secondary"
-        >
-          Edit Difficulty
-        </Button>
-      )}
-
-      <div className="w-80">
-        <Input
-          isRequired
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="mb-4 w-80"
+      <Header
+        isCollapsed={isCollapsedSidebar}
+        toggleCollapse={toggleSidebarCollapseHandler}
+      />
+      <div className="flex border-2">
+        <Sidebar
+          isCollapsed={isCollapsedSidebar}
+          toggleCollapse={toggleSidebarCollapseHandler}
         />
-      </div>
-      <div className="p-4">
-        <div className="grid grid-cols-3 gap-4">
-          {cards.map((card, cardIndex) => (
-            <Card key={cardIndex} className="w-full ">
-              <CardBody>
-                <div className="flex items-center justify-between">
-                  <h1 className="mb-4 text-lg font-semibold">4 Pics 1 Word</h1>
-                  <Button
-                    onPress={() => handleRemoveCard(cardIndex)}
-                    color="danger"
-                    className="mb-4"
-                  >
-                    Remove Card
-                  </Button>
-                </div>
-
-                <form action="">
-                  <Input
-                    label="Word"
-                    className="mb-4"
-                    color="secondary"
-                    value={card.word}
-                    onChange={(e) => {
-                      const updatedCards = [...cards];
-                      updatedCards[cardIndex].word = e.target.value;
-                      setCards(updatedCards);
-                    }}
-                  />
-                  {getImageHolders(card, cardIndex)}
-                </form>
-              </CardBody>
-            </Card>
-          ))}
-
-          <div className="col-span-3 mt-4 flex justify-between">
-            <Button color="secondary" onClick={handleAddCard}>
-              Add +
-            </Button>
-            <Button color="secondary" onPress={handleSave} isDisabled={!title}>
+        <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+          <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+            <h1>Edit 4 Pics One Word</h1>
+            <Button
+              color="secondary"
+              onPress={handleSave}
+              isDisabled={!title}
+              className="mt-5"
+            >
               Save Changes
             </Button>
           </div>
+          <div className="flex gap-2 items-center">
+            <h1 className="text-lg font-bold">Difficulty:</h1>
+            <Chip
+              color={getChipColor(difficulty)}
+              radius="sm"
+              className="text-base text-white py-4 capitalize"
+            >
+              {difficulty}
+            </Chip>
+          </div>
+          <div className="flex gap-2 items-center z-0 max-sm:flex-col">
+            <Input
+              isRequired
+              label="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full"
+            />
+            <div className="flex gap-2 justify-end items-center max-sm:w-full">
+              {updateDifficulty ? (
+                <>
+                  <Select
+                    isRequired
+                    label="Difficulty"
+                    defaultSelectedKeys={[selectedDifficulty]}
+                    onChange={(e) => setSelectedDifficulty(e.target.value)}
+                    className="w-[15rem] max-sm:w-full"
+                  >
+                    <SelectItem value="easy" key="easy">
+                      Easy
+                    </SelectItem>
+                    <SelectItem value="medium" key="medium">
+                      Medium
+                    </SelectItem>
+                    <SelectItem value="hard" key="hard">
+                      Hard
+                    </SelectItem>
+                  </Select>
+                  <Button onClick={() => setUpdateDifficulty(false)}>
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => setUpdateDifficulty(!updateDifficulty)}
+                  color="secondary"
+                >
+                  Edit Difficulty
+                </Button>
+              )}
+            </div>
+          </div>
+          {/* <h1>room code {room_code}</h1> */}
+          <div className="flex flex-wrap gap-4">
+            {cards.map((card, cardIndex) => (
+              <Card
+                key={cardIndex}
+                className="w-full border border-slate-800 rounded-md flex"
+              >
+                <CardHeader className="flex px-3 justify-between items-center z-0">
+                  <div className="pl-2 text-xl font-bold">
+                    <h1>{cardIndex + 1}</h1>
+                  </div>
+                  <div className="flex">
+                    <Button
+                      isIconOnly
+                      onPress={() => handleRemoveCard(cardIndex)}
+                      color="danger"
+                    >
+                      <Trash2 size={22} />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <Divider className="m-0 h-0.5 bg-slate-300" />
+                <CardBody>
+                  <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                    <form action="" className="w-full">
+                      <div className="flex shrink w-full mb-4">
+                        <Input
+                          label="Word"
+                          variant="underlined"
+                          color="secondary"
+                          className="text-[#7469B6] px-2 z-0"
+                          value={card.word}
+                          onChange={(e) => {
+                            const updatedCards = [...cards];
+                            updatedCards[cardIndex].word = e.target.value;
+                            setCards(updatedCards);
+                          }}
+                        />
+                      </div>
+                      <div>{getImageHolders(card, cardIndex)}</div>
+                    </form>
+                  </div>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+
+          <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+            <ModalContent>
+              <ModalHeader className="flex flex-col gap-1">
+                Crop Image
+              </ModalHeader>
+              <ModalBody>
+                {tempImage && (
+                  <div className="w-full h-full">
+                    <ReactCrop
+                      src={tempImage}
+                      crop={crop}
+                      onChange={(newCrop) => setCrop(newCrop)}
+                      onImageLoaded={onImageLoad}
+                      aspect={1}
+                    >
+                      {tempImage && (
+                        <img
+                          src={tempImage}
+                          onLoad={onImageLoad}
+                          alt="Crop preview"
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </ReactCrop>
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  auto
+                  onClick={() => {
+                    setIsOpen(false);
+                  }}
+                  color="secondary"
+                >
+                  Close
+                </Button>
+                <Button auto onClick={handleCrop} color="primary">
+                  Crop Image
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+          <Button
+            size="lg"
+            radius="sm"
+            color="secondary"
+            className="my-4 text-sm"
+            onClick={handleAddCard}
+            startContent={<Plus size={22} />}
+          >
+            Add
+          </Button>
         </div>
       </div>
-
-      <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Crop Image</ModalHeader>
-          <ModalBody>
-            {tempImage && (
-              <div className="w-full h-full">
-                <ReactCrop
-                  src={tempImage}
-                  crop={crop}
-                  onChange={(newCrop) => setCrop(newCrop)}
-                  onImageLoaded={onImageLoad}
-                  aspect={1}
-                >
-                  {tempImage && (
-                    <img
-                      src={tempImage}
-                      onLoad={onImageLoad}
-                      alt="Crop preview"
-                      className="w-full h-full object-contain"
-                    />
-                  )}
-                </ReactCrop>
-              </div>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              auto
-              onClick={() => {
-                setIsOpen(false);
-              }}
-              color="secondary"
-            >
-              Close
-            </Button>
-            <Button auto onClick={handleCrop} color="primary">
-              Crop Image
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </div>
   );
 };

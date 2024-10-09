@@ -1,6 +1,14 @@
 import React from "react";
-import { Book, Plus, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
+import {
+  Book,
+  Plus,
+  LayoutGrid,
+  Grid2X2Plus,
+  Palette,
+  Info,
+} from "lucide-react";
 import { TbCards } from "react-icons/tb";
+import { FaRegLightbulb } from "react-icons/fa";
 import Link from "next/link";
 import {
   Card,
@@ -46,13 +54,13 @@ const CreateClassWork = ({ room_code }) => {
           </ModalHeader>
           <ModalBody className="pb-6">
             <div className="grid grid-cols-4 gap-4 max-sm:grid-cols-2 ">
-              <Link
-                href={`/create_flashcard?room_code=${room_code}`}
-                className="col-span-2"
+              <Card
+                className="relative col-span-2 hover:bg-gray-200"
+                isPressable
               >
-                <Card
-                  className="w-full py-4 justify-center hover:bg-gray-200"
-                  isPressable
+                <Link
+                  href={`/create_flashcard?room_code=${room_code}`}
+                  className="w-full py-4 justify-center "
                 >
                   <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
                     <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
@@ -62,15 +70,13 @@ const CreateClassWork = ({ room_code }) => {
                   <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
                     <p className="uppercase font-bold text-lg">Flashcard</p>
                   </CardBody>
-                </Card>
-              </Link>
-              <Link
-                href={`/create_4pics1word?room_code=${room_code}`}
-                className="col-span-2"
-              >
-                <Card
-                  className="w-full py-4 justify-center hover:bg-gray-200"
-                  isPressable
+                </Link>
+              </Card>
+
+              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+                <Link
+                  href={`/create_4pics1word?room_code=${room_code}`}
+                  className="w-full py-4 justify-center "
                 >
                   <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
                     <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
@@ -80,15 +86,12 @@ const CreateClassWork = ({ room_code }) => {
                   <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
                     <p className="uppercase font-bold text-lg">ThinkPic</p>
                   </CardBody>
-                </Card>
-              </Link>
-              <Link
-                href={`/create_4pics1word_advanced?room_code=${room_code}`}
-                className="col-span-2"
-              >
-                <Card
-                  className="w-full py-4 justify-center hover:bg-gray-200"
-                  isPressable
+                </Link>
+              </Card>
+              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+                <Link
+                  href={`/create_4pics1word_advanced?room_code=${room_code}`}
+                  className="w-full py-4 justify-center"
                 >
                   <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
                     <div className="relative flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
@@ -98,15 +101,13 @@ const CreateClassWork = ({ room_code }) => {
                   <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
                     <p className="uppercase font-bold text-lg">ThinkPic +</p>
                   </CardBody>
-                </Card>
-              </Link>
-              <Link
-                href={`/create_color_game?room_code=${room_code}`}
-                className="col-span-2"
-              >
-                <Card
-                  className="w-full py-4 justify-center hover:bg-gray-200"
-                  isPressable
+                </Link>
+              </Card>
+
+              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+                <Link
+                  href={`/create_color_game?room_code=${room_code}`}
+                  className="w-full py-4 justify-center"
                 >
                   <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
                     <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
@@ -116,15 +117,12 @@ const CreateClassWork = ({ room_code }) => {
                   <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
                     <p className="uppercase font-bold text-lg">Color Game</p>
                   </CardBody>
-                </Card>
-              </Link>
-              <Link
-                href={`/create_color_game_advanced?room_code=${room_code}`}
-                className="col-span-2 col-start-2 max-sm:col-start-1"
-              >
-                <Card
-                  className="w-full py-4 justify-center hover:bg-gray-200"
-                  isPressable
+                </Link>
+              </Card>
+              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+                <Link
+                  href={`/create_color_game_advanced?room_code=${room_code}`}
+                  className="w-full py-4 justify-center"
                 >
                   <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
                     <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
@@ -134,20 +132,27 @@ const CreateClassWork = ({ room_code }) => {
                   <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
                     <p className="uppercase font-bold text-lg">Color Game +</p>
                   </CardBody>
-                </Card>
-              </Link>
-              <Link href={`/create_decision_maker?room_code=${room_code}`}>
-                <Card className="py-4 hover:bg-gray-200" isPressable>
-                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
-                    <Book />
-                    <p className="uppercase font-bold">Decision Maker</p>
+                </Link>
+              </Card>
+              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+                <Link
+                  href={`/create_decision_maker?room_code=${room_code}`}
+                  className="w-full py-4 justify-center"
+                >
+                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
+                    <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
+                      <FaRegLightbulb className="text-4xl text-white -rotate-[15deg]" />
+                    </div>
                   </CardHeader>
-                  <CardBody className="overflow-visible py-2">
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                    Iure, libero?
+                  <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
+                    <p className="uppercase font-bold text-lg">
+                      Decision Maker
+                    </p>
+                    {/* Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                    Iure, libero? */}
                   </CardBody>
-                </Card>
-              </Link>
+                </Link>
+              </Card>
             </div>
           </ModalBody>
         </ModalContent>
