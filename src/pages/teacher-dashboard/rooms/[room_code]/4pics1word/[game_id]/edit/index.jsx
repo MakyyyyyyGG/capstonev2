@@ -479,7 +479,7 @@ const index = () => {
         />
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-            <h1>Edit 4 Pics One Word</h1>
+            <h1>Edit ThinkPic Set</h1>
             <Button
               color="secondary"
               onPress={handleSave}
