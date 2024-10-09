@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Button } from "@nextui-org/react";
+import { Card, CardBody, Button, Progress } from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
@@ -12,9 +12,10 @@ import {
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import "swiper/swiper-bundle.css";
+import { Input } from "@nextui-org/react";
 import { AlertTriangle } from "lucide-react";
 
-const FourPicsOneWord = ({ cards }) => {
+const FourPicsOneWordStudent = ({ cards }) => {
   const { data: session } = useSession();
   const route = useRouter();
   const game_id = route.query.game_id;
@@ -65,7 +66,7 @@ const FourPicsOneWord = ({ cards }) => {
     } else {
       const newFeedback = [...feedback];
       newFeedback[index] = "Incorrect. Try again!";
-      alert("Incorrect. Try again!");
+      alert("Incorrect!");
       setAnswer(answer + 1);
       setFeedback(newFeedback);
       if (swiperInstance) {
@@ -150,6 +151,21 @@ const FourPicsOneWord = ({ cards }) => {
             Score: {score} / {cards.length}
           </h1>
           <h1>Question Answered: {answer}</h1>
+          <div className="flex justify-center items-center w-1/2 m-auto my-4">
+            <Progress
+              value={(answer / cards.length) * 100}
+              classNames={{
+                // label: "tracking-wider",
+                value: "text-foreground/60",
+              }}
+              label="Progress"
+              showValueLabel={true}
+              color="success"
+            />
+            {/* <span className="ml-2">
+              {((answer / cards.length) * 100).toFixed(2)}%
+            </span> */}
+          </div>
           <Swiper
             modules={[Navigation, Pagination, Scrollbar, A11y]}
             navigation
@@ -169,20 +185,41 @@ const FourPicsOneWord = ({ cards }) => {
                 <div className="m-auto h-screen">
                   <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
                     <CardBody className="flex flex-col gap-4">
-                      <div className="grid grid-cols-4 gap-2">
+                      <div
+                        className={`grid ${
+                          [
+                            card.image1,
+                            card.image2,
+                            card.image3,
+                            card.image4,
+                          ].filter((image) => image !== null).length === 4
+                            ? "grid-cols-2 grid-rows-2"
+                            : [
+                                card.image1,
+                                card.image2,
+                                card.image3,
+                                card.image4,
+                              ].filter((image) => image !== null).length === 3
+                            ? "grid-cols-3"
+                            : "grid-cols-2"
+                        } gap-2`}
+                      >
                         {[
                           card.image1,
                           card.image2,
                           card.image3,
                           card.image4,
-                        ].map((image, idx) => (
-                          <img
-                            key={idx}
-                            src={`${image}`}
-                            alt={`Image ${idx + 1}`}
-                            className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
-                          />
-                        ))}
+                        ].map(
+                          (image, idx) =>
+                            image && (
+                              <img
+                                key={idx}
+                                src={`${image}`}
+                                alt={`Image ${idx + 1}`}
+                                className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
+                              />
+                            )
+                        )}
                       </div>
                       <div className="flex justify-center flex-col gap-2 items-center">
                         <h1>Answer:</h1>
@@ -208,6 +245,12 @@ const FourPicsOneWord = ({ cards }) => {
                       </div>
                       <div className="flex flex-col items-center gap-2">
                         <h1>Your Answer:</h1>
+                        <Input
+                          value={userAnswers[index]}
+                          onChange={(e) => handleChange(e.target.value, index)}
+                          disabled={feedback[index] !== ""}
+                          label="Enter your answer here"
+                        />
                         <InputOTP
                           pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                           maxLength={card.word.length}
@@ -262,4 +305,4 @@ const FourPicsOneWord = ({ cards }) => {
   );
 };
 
-export default FourPicsOneWord;
+export default FourPicsOneWordStudent;

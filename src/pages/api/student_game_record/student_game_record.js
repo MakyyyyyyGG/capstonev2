@@ -10,9 +10,9 @@ export default async function handler(req, res) {
         query: `
           SELECT COUNT(*) as count 
           FROM user_game_plays 
-          WHERE account_id = ? AND created_at > NOW() - INTERVAL 1 HOUR
+          WHERE account_id = ? AND game_id = ? AND created_at > NOW() - INTERVAL 1 HOUR
         `,
-        values: [account_id],
+        values: [account_id, game_id],
       });
 
       const gamesPlayedInLastHour = countResult[0].count;
