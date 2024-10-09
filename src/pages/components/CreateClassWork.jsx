@@ -138,6 +138,18 @@ const CreateClassWork = ({ room_code }) => {
                   </CardBody>
                 </Card>
               </Link>
+              <Link href={`/create_decision_maker?room_code=${room_code}`}>
+                <Card className="py-4 hover:bg-gray-200" isPressable>
+                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center">
+                    <Book />
+                    <p className="uppercase font-bold">Decision Maker</p>
+                  </CardHeader>
+                  <CardBody className="overflow-visible py-2">
+                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                    Iure, libero?
+                  </CardBody>
+                </Card>
+              </Link>
             </div>
           </ModalBody>
         </ModalContent>
