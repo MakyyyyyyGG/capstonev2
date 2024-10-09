@@ -269,7 +269,7 @@ const Index = () => {
         />
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-            <h1 className="">Create a new Think Pic Set</h1>
+            <h1 className="">Create a new ThinkPic Set</h1>
             <div>
               <Button
                 color="secondary"
