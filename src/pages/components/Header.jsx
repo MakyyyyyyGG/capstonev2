@@ -679,7 +679,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                   <div className="col-span-1">
                     <p>Profile</p>
                   </div>
-                  <div className="col-span-4 col-start-3 col-end-8">
+                  <div className="col-span-4 col-start-3">
                     {isEditing ? (
                       <>
                         <Card className="w-full p-2">
@@ -857,7 +857,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                   <div className="col-span-1">
                     <p>Location</p>
                   </div>
-                  <div className="col-span-4 col-start-3 col-end-8">
+                  <div className="col-span-4 col-start-3">
                     {isLocationEditing ? (
                       <>
                         <Card className="w-full p-2">
@@ -975,7 +975,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                     ) : (
                       <>
                         <div className="min-w-[400px] flex flex-row items-center justify-between gap-5 text-sm">
-                          <div>
+                          <div className="min-w-[300px]">
                             <div className="grid grid-cols-2">
                               <p className="font-bold">Region</p>
                               <p>{userData?.region}</p>
