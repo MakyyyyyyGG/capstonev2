@@ -247,7 +247,7 @@ const Index = () => {
 
   return (
     <div>
-      <h1>create_4pics1word</h1>
+      <h1>create_thinkpic</h1>
       <h1>room code {room_code}</h1>
       <div className="w-80">
         <Input
@@ -274,7 +274,7 @@ const Index = () => {
             <Card key={cardIndex} className="w-full ">
               <CardBody>
                 <div className="flex items-center justify-between">
-                  <h1 className="mb-4 text-lg font-semibold">4 Pics 1 Word</h1>
+                  <h1 className="mb-4 text-lg font-semibold">ThinkPic</h1>
                   <Button
                     onPress={() => handleRemoveCard(cardIndex)}
                     color="danger"

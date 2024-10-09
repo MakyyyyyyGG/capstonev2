@@ -17,8 +17,12 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   const [filterByDifficulty, setFilterByDifficulty] = useState("");
   const [filterByGameType, setFilterByGameType] = useState("");
   const [filterByTitle, setFilterByTitle] = useState("");
-  const [gameList, setGameList] = useState(games);
+  const [gameList, setGameList] = useState([]);
   const { data: session } = useSession();
+
+  useEffect(() => {
+    setGameList(games);
+  }, [games]);
 
   const handleDeleteGame = async (game_id, game_type) => {
     const delWorkData = {
@@ -42,9 +46,9 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           console.log("Error deleting game:", error);
         }
       }
-    } else if (game_type === "4 Pics 1 Word") {
-      if (confirm("Are you sure you want to delete this 4 Pics 1 Word game?")) {
-        console.log("deleting four pics one word game", game_id);
+    } else if (game_type === "ThinkPic") {
+      if (confirm("Are you sure you want to delete this ThinkPic game?")) {
+        console.log("deleting thinkpic game", game_id);
         try {
           const res = await fetch(
             `/api/4pics1word/4pics1word?game_id=${game_id}`,
@@ -57,12 +61,8 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           console.log("Error deleting game:", error);
         }
       }
-    } else if (game_type === "4 Pics 1 Word Advanced") {
-      if (
-        confirm(
-          "Are you sure you want to delete this 4 Pics 1 Word Advanced game?"
-        )
-      ) {
+    } else if (game_type === "ThinkPic +") {
+      if (confirm("Are you sure you want to delete this ThinkPic + game?")) {
         console.log("deleting four pics one word advanced game", game_id);
         try {
           const res = await fetch(
@@ -141,9 +141,9 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   const getRedirectUrl = (game) => {
     if (game.game_type === "Flashcard") {
       return `${roleRedirect}/${room_code}/flashcard/${game.game_id}`;
-    } else if (game.game_type === "4 Pics 1 Word") {
+    } else if (game.game_type === "ThinkPic") {
       return `${roleRedirect}/${room_code}/4pics1word/${game.game_id}`;
-    } else if (game.game_type === "4 Pics 1 Word Advanced") {
+    } else if (game.game_type === "ThinkPic +") {
       return `${roleRedirect}/${room_code}/4pics1word_advanced/${game.game_id}`;
     } else if (game.game_type === "Color Game") {
       return `${roleRedirect}/${room_code}/color_game/${game.game_id}`;
@@ -151,8 +151,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       return `${roleRedirect}/${room_code}/color_game_advanced/${game.game_id}`;
     } else if (game.game_type === "Decision Maker") {
       return `${roleRedirect}/${room_code}/decision_maker/${game.game_id}`;
-    }
-    return "#";
+    } else return "#";
   };
 
   const getGameTypeIcon = (game_type) => {
@@ -245,20 +244,20 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             <SelectItem key="flashcard" value="flashcard">
               Flashcard
             </SelectItem>
-            <SelectItem key="4 Pics 1 Word" value="4pics1word">
-              4 Pics 1 Word
+            <SelectItem key="ThinkPic" value="thinkpic">
+              ThinkPic
             </SelectItem>
-            <SelectItem
-              key="4 Pics 1 Word Advanced"
-              value="4pics1word_advanced"
-            >
-              4 Pics 1 Word Advanced
+            <SelectItem key="ThinkPic +" value="thinkpic_plus">
+              ThinkPic +
             </SelectItem>
             <SelectItem key="Color Game" value="color_game">
               Color Game
             </SelectItem>
             <SelectItem key="Color Game Advanced" value="color_game_advanced">
               Color Game Advanced
+            </SelectItem>
+            <SelectItem key="Decision Maker" value="decision_maker">
+              Decision Maker
             </SelectItem>
           </Select>
 
@@ -283,7 +282,9 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       </div>
 
       <div className="flex w-full">
-        <ul className="w-full flex flex-col gap-4">{renderGames()}</ul>
+        <ul className="w-full flex flex-col gap-4">
+          {gameList.length > 0 ? renderGames() : <p>Loading games...</p>}
+        </ul>
       </div>
     </div>
   );
