@@ -17,7 +17,9 @@ import {
   Input,
   Divider,
   Card,
+  CardHeader,
   CardBody,
+  CardFooter,
   Tabs,
   Tab,
   Modal,
@@ -189,10 +191,14 @@ const IndividualRoom = () => {
                             <Divider />
                           </ModalHeader>
                           <ModalBody>
-                            <div className="flex justify-center w-[700px] mx-auto">
-                              <Card className="w-full">
+                            <div className="flex justify-center w-full mx-auto">
+                              <Card className="w-full max-w-[700px] p-4 max-sm:p-2">
+                                <CardHeader>
+                                  <h1 className="text-2xl font-extrabold">
+                                    Room Details
+                                  </h1>
+                                </CardHeader>
                                 <CardBody>
-                                  <h1 className="my-4">Room Details</h1>
                                   <Input
                                     placeholder={roomData[0]?.room_name}
                                     label="Room Name"
@@ -229,23 +235,23 @@ const IndividualRoom = () => {
                                       Hard
                                     </AutocompleteItem>
                                   </Autocomplete>
+                                </CardBody>
+                                <CardFooter className="flex justify-end gap-2">
                                   <Button
-                                    className="mt-4"
                                     color="secondary"
-                                    size="lg"
+                                    size="md"
                                     onClick={handlUpdateRoom}
                                   >
                                     Update
                                   </Button>
                                   <Button
                                     color="danger"
-                                    className="mt-2"
-                                    size="lg"
+                                    size="md"
                                     onPress={onClose}
                                   >
                                     Cancel
                                   </Button>
-                                </CardBody>
+                                </CardFooter>
                               </Card>
                             </div>
                           </ModalBody>
