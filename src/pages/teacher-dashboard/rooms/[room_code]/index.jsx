@@ -174,7 +174,11 @@ const IndividualRoom = () => {
               </div>
               <div className="flex gap-2">
                 <CreateClassWork room_code={room_code} />
-                <Button isIconOnly color="secondary" onPress={onOpen}>
+                <Button
+                  isIconOnly
+                  className="bg-[#7469B6] text-white border-0"
+                  onPress={onOpen}
+                >
                   <Settings />
 
                   <Modal
@@ -238,7 +242,7 @@ const IndividualRoom = () => {
                                 </CardBody>
                                 <CardFooter className="flex justify-end gap-2">
                                   <Button
-                                    color="secondary"
+                                    className="bg-[#7469B6] text-white border-0"
                                     size="md"
                                     onClick={handlUpdateRoom}
                                   >

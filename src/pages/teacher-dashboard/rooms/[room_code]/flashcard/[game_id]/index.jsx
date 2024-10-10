@@ -57,18 +57,17 @@ const Index = () => {
           isCollapsed={isCollapsedSidebar}
           toggleCollapse={toggleSidebarCollapseHandler}
         />
-        <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
-          <div>
-            <Flashcards flashcards={flashcards} />
-          </div>
-          <div>
-            <Button color="primary" startContent={<Pencil size={22} />}>
+
+        <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
+          <Flashcards flashcards={flashcards} />
+          <div className="w-full flex justify-end">
+            <Button isIconOnly className="bg-[#7469B6] text-white border-0">
               <Link
                 href={{
                   pathname: `/teacher-dashboard/rooms/${room_code}/flashcard/${game_id}/edit`,
                 }}
               >
-                Edit Flashcards
+                <Pencil size={22} />
               </Link>
             </Button>
           </div>

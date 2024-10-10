@@ -159,7 +159,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     switch (game_type.toLowerCase()) {
       case "flashcard":
         return <TbCards className="text-4xl text-white" />;
-      case "4 pics 1 word":
+      case "thinkpic":
         return <LayoutGrid className="w-7 h-7 text-white" />;
       case "4 pics 1 word advanced":
         return <LayoutGrid className="w-7 h-7 text-white" />;

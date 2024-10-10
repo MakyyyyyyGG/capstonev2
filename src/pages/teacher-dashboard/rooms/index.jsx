@@ -72,7 +72,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
                 </h1>
               </div>
             </CardHeader>
-            <CardFooter className="row-span-2 grid grid-cols-2 justify-between bg-white">
+            <CardFooter className="row-span-2 row-start-6 row-end-8 grid grid-cols-2 justify-between bg-white">
               <div className="p-2 text-[#7469B6] flex items-center">
                 <p>Code: {room.room_code}</p>
               </div>

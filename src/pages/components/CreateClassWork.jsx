@@ -28,7 +28,11 @@ const CreateClassWork = ({ room_code }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
     <div>
-      <Button isIconOnly color="secondary" onPress={onOpen}>
+      <Button
+        isIconOnly
+        className="bg-[#7469B6] text-white border-0"
+        onPress={onOpen}
+      >
         <Plus />
       </Button>
       <Modal
