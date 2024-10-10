@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Button, Progress } from "@nextui-org/react";
+import { Card, CardBody, Button, Progress, Input } from "@nextui-org/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
+
 const ColorGamesAdvancedStudent = ({ cards }) => {
   const [showImages, setShowImages] = useState(false);
   const [randomizedImages, setRandomizedImages] = useState({});
@@ -13,18 +14,49 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
   const [checkResult, setCheckResult] = useState({});
-  const [answer, setAnswer] = useState(0);
+  const [answeredQuestions, setAnsweredQuestions] = useState(0);
   const [score, setScore] = useState(0);
   const [swiperInstance, setSwiperInstance] = useState(null);
   const { data: session } = useSession();
   const router = useRouter();
   const { game_id } = router.query;
 
+  const [attempts, setAttempts] = useState({});
+  const [feedback, setFeedback] = useState({});
+  const [isGameFinished, setIsGameFinished] = useState(false);
+
   useEffect(() => {
-    setShuffledCards(shuffleArray(cards));
-    // setFeedback(Array(cards.length).fill(""));
-    // getStudentTries();
+    if (cards) {
+      console.log(session);
+      const shuffled = shuffleArray(cards);
+      setShuffledCards(shuffled);
+      initializeAttempts(shuffled);
+      initializeFeedback(shuffled);
+      getStudentTries();
+    }
   }, [cards]);
+
+  useEffect(() => {
+    if (isGameFinished) {
+      handleResult();
+    }
+  }, [isGameFinished]);
+
+  const initializeAttempts = (shuffledCards) => {
+    const initialAttempts = {};
+    shuffledCards.forEach((card) => {
+      initialAttempts[card.color_game_advanced_id] = 0;
+    });
+    setAttempts(initialAttempts);
+  };
+
+  const initializeFeedback = (shuffledCards) => {
+    const initialFeedback = {};
+    shuffledCards.forEach((card) => {
+      initialFeedback[card.color_game_advanced_id] = "";
+    });
+    setFeedback(initialFeedback);
+  };
 
   const shuffleArray = (array) => {
     const shuffled = [...array];
@@ -35,7 +67,6 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
     return shuffled;
   };
 
-  // Function to render images
   const renderImages = (card) => {
     const images = card.images.split(",");
     return (
@@ -70,6 +101,9 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
   };
 
   const checkImageSequence = (card) => {
+    const currentAttempts = attempts[card.color_game_advanced_id];
+    if (currentAttempts >= 3) return;
+
     const images = randomizedImages[card.color_game_advanced_id] || [];
     const colors = card.color.split(",");
     const correctImageCount = colors.length;
@@ -81,26 +115,39 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
       correctSelectionsCount === correctImageCount &&
       images.length === correctImageCount;
 
-    setCheckResult((prev) => ({
-      ...prev,
-      [card.color_game_advanced_id]: result,
-    }));
+    const newAttempts = { ...attempts };
+    newAttempts[card.color_game_advanced_id]++;
+    setAttempts(newAttempts);
 
-    handleNextCard();
-    // Update score and answer
-    setAnswer((prev) => prev + 1);
+    const newFeedback = { ...feedback };
     if (result) {
-      setScore((prev) => prev + 1);
-      alert("Correct Sequence!");
+      newFeedback[card.color_game_advanced_id] = "Correct!";
+      setScore((prevScore) => prevScore + 1);
+      setAnsweredQuestions((prevAnswered) => prevAnswered + 1);
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
+    } else if (newAttempts[card.color_game_advanced_id] >= 3) {
+      newFeedback[card.color_game_advanced_id] = "Out of attempts.";
+      setAnsweredQuestions((prevAnswered) => prevAnswered + 1);
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
     } else {
-      alert("Incorrect Sequence!");
+      newFeedback[card.color_game_advanced_id] = `Incorrect. ${
+        3 - newAttempts[card.color_game_advanced_id]
+      } attempts left.`;
     }
-    if (answer + 1 === cards.length) {
-      endGame();
+    setFeedback(newFeedback);
+
+    const allAnswered = Object.values(newFeedback).every(
+      (fb) => fb.includes("Correct") || fb.includes("Out of attempts")
+    );
+    if (allAnswered) {
+      setIsGameFinished(true);
     }
   };
 
-  // Randomize images on mount
   useEffect(() => {
     const newRandomizedImages = {};
     shuffledCards.forEach((card) => {
@@ -115,23 +162,6 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
     });
     setRandomizedImages(newRandomizedImages);
   }, [shuffledCards]);
-
-  const handleNextCard = () => {
-    if (currentCardIndex < shuffledCards.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
-    }
-  };
-
-  const handlePrevCard = () => {
-    if (currentCardIndex > 0) {
-      setCurrentCardIndex(currentCardIndex - 1);
-    }
-  };
-
-  const endGame = async () => {
-    await handleResult();
-    alert("You have completed the game!");
-  };
 
   const getStudentTries = async () => {
     const account_id = session?.user?.id;
@@ -153,6 +183,10 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
   };
 
   const handleResult = async () => {
+    if (!session || !session.user) {
+      console.error("Session or user is undefined");
+      return;
+    }
     const data = {
       account_id: session.user.id,
       game_id: game_id,
@@ -172,9 +206,11 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
       );
 
       const result = await response.json();
-
+      if (response.ok) {
+        alert("Game Recorded Successfully");
+      }
       if (response.status === 403) {
-        alert(result.message); // Show the limit message
+        alert(result.message);
       } else {
         console.log(result);
       }
@@ -182,15 +218,17 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
       console.log(error);
     }
   };
+
   return (
     <div>
       <h1>Color Games Advanced</h1>
-      <h1>Score: {score}</h1>
+      <h1>
+        Score: {score} / {shuffledCards.length}
+      </h1>
       <div className="w-1/2 m-auto my-4">
         <Progress
-          value={(answer / cards.length) * 100}
+          value={(answeredQuestions / shuffledCards.length) * 100}
           classNames={{
-            // label: "tracking-wider",
             value: "text-foreground/60",
           }}
           label="Progress"
@@ -199,115 +237,108 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
         />
       </div>
       <DragDropContext onDragEnd={handleDragEnd}>
-        {shuffledCards.length > 0 && (
-          <Card
-            key={shuffledCards[currentCardIndex].color_game_advanced_id}
-            className="w-1/2 m-auto"
-          >
-            <CardBody>
-              <h2>{shuffledCards[currentCardIndex].title}</h2>
-              <p>
-                Color Sequence:{" "}
-                {shuffledCards[currentCardIndex].color.split(",").join(", ")}
-              </p>
-              <p>Difficulty: {shuffledCards[currentCardIndex].difficulty}</p>
-              <audio controls>
-                <source
-                  src={shuffledCards[currentCardIndex].audio}
-                  type="audio/wav"
-                />
-                Your browser does not support the audio element.
-              </audio>
-              <div className="w-full">
-                {renderImages(shuffledCards[currentCardIndex])}
-              </div>
-
-              <div className="w-full">
-                <h1>Images that match the color sequence</h1>
-                <Droppable
-                  droppableId={`droppable-${shuffledCards[currentCardIndex].color_game_advanced_id}`}
-                  direction="horizontal"
-                >
-                  {(provided) => (
-                    <ul
-                      className="flex w-full"
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
+        <Swiper
+          modules={[Navigation, Pagination, Scrollbar, A11y]}
+          navigation
+          spaceBetween={50}
+          slidesPerView={1}
+          onSwiper={(swiper) => setSwiperInstance(swiper)}
+        >
+          {shuffledCards.map((card, index) => (
+            <SwiperSlide key={card.color_game_advanced_id}>
+              <div className="m-auto h-screen">
+                <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
+                  <CardBody className="flex flex-col gap-4">
+                    <h2>{card.title}</h2>
+                    <p>Color Sequence: {card.color.split(",").join(", ")}</p>
+                    <p>Difficulty: {card.difficulty}</p>
+                    <p>
+                      Attempts left: {3 - attempts[card.color_game_advanced_id]}
+                    </p>
+                    <audio controls>
+                      <source src={card.audio} type="audio/wav" />
+                      Your browser does not support the audio element.
+                    </audio>
+                    <div className="w-full">{renderImages(card)}</div>
+                    <div className="w-full">
+                      <h1>Images that match the color sequence</h1>
+                      <Droppable
+                        droppableId={`droppable-${card.color_game_advanced_id}`}
+                        direction="horizontal"
+                      >
+                        {(provided) => (
+                          <ul
+                            className="flex w-full"
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                          >
+                            {randomizedImages[card.color_game_advanced_id]?.map(
+                              (updatedImage, index) => (
+                                <Draggable
+                                  key={updatedImage.id}
+                                  draggableId={updatedImage.id}
+                                  index={index}
+                                >
+                                  {(provided) => (
+                                    <div
+                                      {...provided.dragHandleProps}
+                                      {...provided.draggableProps}
+                                      ref={provided.innerRef}
+                                      className="w-[100px] h-[100px] border-2 "
+                                    >
+                                      <img
+                                        src={updatedImage.src}
+                                        alt={`Image ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  )}
+                                </Draggable>
+                              )
+                            )}
+                            {provided.placeholder}
+                          </ul>
+                        )}
+                      </Droppable>
+                    </div>
+                    <Button
+                      color="secondary"
+                      isDisabled={
+                        attempts[card.color_game_advanced_id] >= 3 ||
+                        feedback[card.color_game_advanced_id] === "Correct!"
+                      }
+                      onClick={() => checkImageSequence(card)}
                     >
-                      {randomizedImages[
-                        shuffledCards[currentCardIndex].color_game_advanced_id
-                      ]?.map((updatedImage, index) => (
-                        <Draggable
-                          key={updatedImage.id}
-                          draggableId={updatedImage.id}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <div
-                              {...provided.dragHandleProps}
-                              {...provided.draggableProps}
-                              ref={provided.innerRef}
-                              className="w-[100px] h-[100px] border-2 "
-                            >
-                              <img
-                                src={updatedImage.src}
-                                alt={`Image ${index + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </ul>
-                  )}
-                </Droppable>
+                      Check Sequence
+                    </Button>
+                    {feedback[card.color_game_advanced_id] && (
+                      <p
+                        className={
+                          feedback[card.color_game_advanced_id] === "Correct!"
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }
+                      >
+                        {feedback[card.color_game_advanced_id]}
+                      </p>
+                    )}
+                  </CardBody>
+                </Card>
               </div>
-
-              <Button
-                color="secondary"
-                isDisabled={
-                  checkResult[
-                    shuffledCards[currentCardIndex].color_game_advanced_id
-                  ] !== undefined
-                }
-                onClick={() =>
-                  checkImageSequence(shuffledCards[currentCardIndex])
-                }
-              >
-                Check Sequence
-              </Button>
-              {checkResult[
-                shuffledCards[currentCardIndex].color_game_advanced_id
-              ] !== undefined && (
-                <span>
-                  {checkResult[
-                    shuffledCards[currentCardIndex].color_game_advanced_id
-                  ] ? (
-                    <h1 className="text-green-500">Correct Sequence!</h1>
-                  ) : (
-                    <h1 className="text-red-500">Incorrect Sequence!</h1>
-                  )}
-                </span>
-              )}
-              <div className="flex justify-between mt-4">
-                <Button
-                  onClick={handlePrevCard}
-                  disabled={currentCardIndex === 0}
-                >
-                  Previous
-                </Button>
-                <Button
-                  onClick={handleNextCard}
-                  disabled={currentCardIndex === shuffledCards.length - 1}
-                >
-                  Next
-                </Button>
-              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </DragDropContext>
+      {isGameFinished && (
+        <div className="m-auto h-screen">
+          <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
+            <CardBody className="flex flex-col gap-4">
+              <h1>Game Over!</h1>
+              <h1>Your score is: {score}</h1>
             </CardBody>
           </Card>
-        )}
-      </DragDropContext>
+        </div>
+      )}
     </div>
   );
 };

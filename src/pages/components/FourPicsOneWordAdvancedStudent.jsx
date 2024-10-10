@@ -24,12 +24,21 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   const router = useRouter();
   const { game_id } = router.query;
   const [playedGames, setPlayedGames] = useState(1); // times played
+  const [attempts, setAttempts] = useState(Array(cards.length).fill(0)); // New state for attempts
+  const [isGameFinished, setIsGameFinished] = useState(false);
 
   useEffect(() => {
     setShuffledCards(shuffleArray(cards));
     setFeedback(Array(cards.length).fill(""));
+    setAttempts(Array(cards.length).fill(0)); // Reset attempts when cards change
     getStudentTries();
   }, [cards]);
+
+  useEffect(() => {
+    if (isGameFinished) {
+      handleResult();
+    }
+  }, [isGameFinished]);
 
   const shuffleArray = (array) => {
     const shuffled = [...array];
@@ -66,37 +75,43 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   };
 
   const handleImageClick = (idx, cardIndex) => {
-    const correctAnswer = shuffledCards[cardIndex].correct_answer;
-    if (correctAnswer == idx) {
-      alert("Yey! Correct answer");
-      setScore(score + 1);
-      const newFeedback = [...feedback];
-      newFeedback[cardIndex] = "Correct!";
-      setFeedback(newFeedback);
-      setAnswer(answer + 1);
-      console.log("answer", answer);
+    if (attempts[cardIndex] >= 3) return; // If 3 attempts are used, do nothing
 
+    const newAttempts = [...attempts];
+    newAttempts[cardIndex]++;
+    setAttempts(newAttempts);
+
+    const correctAnswer = shuffledCards[cardIndex].correct_answer;
+    const newFeedback = [...feedback];
+    if (correctAnswer == idx) {
+      setScore((prevScore) => prevScore + 1);
+      newFeedback[cardIndex] = "Correct!";
+      setAnswer((prevAnswer) => prevAnswer + 1);
       if (swiperInstance) {
         swiperInstance.slideNext();
       }
     } else {
-      const newFeedback = [...feedback];
-      newFeedback[cardIndex] = "Incorrect. Try again!";
-      alert("Wrong answer");
-      setAnswer(answer + 1);
-      console.log("answer", answer);
-      setFeedback(newFeedback);
-      if (swiperInstance) {
-        swiperInstance.slideNext();
+      if (newAttempts[cardIndex] >= 3) {
+        newFeedback[cardIndex] = "Out of attempts. Moving to next question.";
+        setAnswer((prevAnswer) => prevAnswer + 1);
+        if (swiperInstance) {
+          swiperInstance.slideNext();
+        }
+      } else {
+        newFeedback[cardIndex] = `Incorrect. ${
+          3 - newAttempts[cardIndex]
+        } attempts left.`;
       }
     }
-    if (answer + 1 === cards.length) {
-      endGame();
+    setFeedback(newFeedback);
+
+    // Check if all cards have been answered or are out of attempts
+    const allAnswered = newFeedback.every(
+      (fb) => fb.includes("Correct") || fb.includes("Out of attempts")
+    );
+    if (allAnswered) {
+      setIsGameFinished(true);
     }
-  };
-  const endGame = async () => {
-    await handleResult();
-    alert("You have completed the game!");
   };
 
   const getStudentTries = async () => {
@@ -143,11 +158,13 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
         alert(result.message); // Show the limit message
       } else {
         console.log(result);
+        alert("Game finished! Your score: " + score);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
     <div>
       <h1>Score: {score}</h1>
@@ -178,6 +195,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
                 <CardBody className="flex flex-col gap-4">
                   <div className="flex justify-center flex-col gap-2 items-center">
                     <h1>Word:</h1>
+                    <p>Attempts left: {3 - (attempts[index] || 0)}</p>
+
                     <h1>{card.word}</h1>
 
                     {card.word && (
@@ -217,16 +236,25 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
                             className="hover:cursor-pointer hover:border-2 hover:border-purple-300 rounded-md"
                           >
                             <img
-                              aria-disabled={true}
+                              aria-disabled={
+                                attempts[index] >= 3 ||
+                                feedback[index]?.includes("Correct")
+                              }
                               radius="none"
                               onClick={() =>
-                                feedback[index] === ""
+                                attempts[index] < 3 &&
+                                !feedback[index]?.includes("Correct")
                                   ? handleImageClick(idx, index)
                                   : null
                               }
                               src={`${image}`}
                               alt={`Image ${idx + 1}`}
-                              className="w-full h-full object-cover"
+                              className={`w-full h-full object-cover ${
+                                attempts[index] >= 3 ||
+                                feedback[index]?.includes("Correct")
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
                             />
                           </div>
                         )
@@ -248,9 +276,6 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
             </div>
           </SwiperSlide>
         ))}
-        <SwiperSlide>
-          <h1>You have completed the game!</h1>
-        </SwiperSlide>
       </Swiper>
     </div>
   );

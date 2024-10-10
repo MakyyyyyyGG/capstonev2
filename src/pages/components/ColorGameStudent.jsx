@@ -14,7 +14,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
 const ColorGames = ({ cards }) => {
-  // console.log(cards);
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
@@ -26,12 +25,26 @@ const ColorGames = ({ cards }) => {
   const { data: session } = useSession();
   const router = useRouter();
   const { game_id } = router.query;
+  const [attempts, setAttempts] = useState({});
+  const [isGameFinished, setIsGameFinished] = useState(false);
 
   useEffect(() => {
+    const shuffled = shuffleArray(cards);
+
     setShuffledCards(shuffleArray(cards));
+    setShuffledCards(shuffled);
     setFeedback(Array(cards.length).fill(""));
+    setAttempts(Array(shuffled.length).fill(0));
+    setFeedback(Array(shuffled.length).fill(""));
+
     getStudentTries();
   }, [cards]);
+
+  useEffect(() => {
+    if (isGameFinished) {
+      handleResult();
+    }
+  }, [isGameFinished]);
 
   const shuffleArray = (array) => {
     const shuffled = [...array];
@@ -49,10 +62,6 @@ const ColorGames = ({ cards }) => {
   };
 
   const handleImageSelect = async (cardId, imageIndex, imageUrl) => {
-    const color = await getColorFromImageUrl(imageUrl);
-    console.log("Color:", color);
-    console.log("Image url:", imageUrl);
-
     setSelectedImages((prev) => {
       const newSelection = prev[cardId] ? [...prev[cardId]] : [];
       if (newSelection.includes(imageIndex)) {
@@ -91,9 +100,18 @@ const ColorGames = ({ cards }) => {
     setCorrectSelections(newCorrectSelections);
   }, [selectedImages, shuffledCards]);
 
-  const handleSubmit = (color_game_id) => {
-    const card = shuffledCards.find((c) => c.color_game_id === color_game_id);
-    const selectedCardImages = selectedImages[color_game_id] || [];
+  const handleSubmit = (index) => {
+    console.log("presssed in card", index);
+    const currentAttempts = attempts[index];
+    console.log("attempt in car index", currentAttempts);
+    if (currentAttempts >= 3) return;
+
+    const newAttempts = [...attempts];
+    newAttempts[index]++;
+    setAttempts(newAttempts);
+
+    const card = shuffledCards[index];
+    const selectedCardImages = selectedImages[card.color_game_id] || [];
     const correctImageCount = [card.image1, card.image2, card.image3].filter(
       (image) => getColorFromImageUrl(image) === card.color
     ).length;
@@ -103,39 +121,43 @@ const ColorGames = ({ cards }) => {
         card.color
     ).length;
 
-    let resultMessage = "";
+    let newFeedback = "";
     if (
       correctSelectionsCount === correctImageCount &&
       selectedCardImages.length === correctImageCount
     ) {
-      alert("Correct!");
-      resultMessage = "Correct!";
-      setAnswer(answer + 1);
-
+      newFeedback = "Correct!";
+      setScore((prevScore) => prevScore + 1);
+      setAnswer((prevAnswer) => prevAnswer + 1);
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
+    } else if (newAttempts[index] >= 3) {
+      newFeedback = "Out of attempts. The correct answer was: " + card.color;
+      setAnswer((prevAnswer) => prevAnswer + 1);
       if (swiperInstance) {
         swiperInstance.slideNext();
       }
     } else {
-      alert("Incorrect.");
-      resultMessage = "Incorrect.";
-      setAnswer(answer + 1);
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
+      newFeedback = `Incorrect. ${3 - newAttempts[index]} attempts left.`;
     }
-    if (answer + 1 === cards.length) {
-      endGame();
+
+    const newFeedbackArray = [...feedback];
+    newFeedbackArray[index] = newFeedback;
+    setFeedback(newFeedbackArray);
+
+    // Check if all cards have been answered or are out of attempts
+    const allAnswered = newFeedbackArray.every(
+      (fb) => fb.includes("Correct") || fb.includes("Out of attempts")
+    );
+    if (allAnswered) {
+      setIsGameFinished(true);
     }
 
     setSubmissionResults((prev) => ({
       ...prev,
-      [color_game_id]: resultMessage,
+      [card.color_game_id]: newFeedback,
     }));
-  };
-
-  const endGame = async () => {
-    await handleResult();
-    alert("You have completed the game!");
   };
 
   const getStudentTries = async () => {
@@ -158,6 +180,7 @@ const ColorGames = ({ cards }) => {
   };
 
   const handleResult = async () => {
+    console.log("Game finished. Final score:", score);
     const data = {
       account_id: session.user.id,
       game_id: game_id,
@@ -177,11 +200,14 @@ const ColorGames = ({ cards }) => {
       );
 
       const result = await response.json();
-
+      if (response.status === 200) {
+        alert("Game record created successfully");
+      }
       if (response.status === 403) {
         alert(result.message); // Show the limit message
       } else {
         console.log(result);
+        alert(`Game finished! Your score: ${score}`);
       }
     } catch (error) {
       console.log(error);
@@ -190,16 +216,18 @@ const ColorGames = ({ cards }) => {
 
   return (
     <div className="w-full m-auto my-4">
-      <Progress
-        value={(answer / cards.length) * 100}
-        classNames={{
-          // label: "tracking-wider",
-          value: "text-foreground/60",
-        }}
-        label="Progress"
-        showValueLabel={true}
-        color="success"
-      />
+      <h1>Score: {score}</h1>
+      <div className="w-1/2 m-auto my-4">
+        <Progress
+          value={(answer / cards.length) * 100}
+          classNames={{
+            value: "text-foreground/60",
+          }}
+          label="Progress"
+          showValueLabel={true}
+          color="success"
+        />
+      </div>
       <Swiper
         modules={[Navigation, Pagination, Scrollbar, A11y]}
         navigation
@@ -209,7 +237,7 @@ const ColorGames = ({ cards }) => {
         onSlideChange={() => console.log("slide change")}
         onSwiperSlideChange={() => console.log("swiper slide change")}
       >
-        {shuffledCards.map((card) => (
+        {shuffledCards.map((card, index) => (
           <SwiperSlide key={card.color_game_id}>
             <div className="flex justify-center w-1/2 m-auto">
               <div key={card.color_game_id}>
@@ -220,7 +248,11 @@ const ColorGames = ({ cards }) => {
                         (image, imageIndex) => (
                           <div
                             key={imageIndex}
-                            className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer `}
+                            className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer ${
+                              (attempts[index] || 0) >= 3
+                                ? "opacity-50 pointer-events-none"
+                                : ""
+                            }`}
                             onClick={() =>
                               handleImageSelect(
                                 card.color_game_id,
@@ -243,6 +275,7 @@ const ColorGames = ({ cards }) => {
                                     )
                                   }
                                   className="absolute top-2 left-2 z-99"
+                                  isDisabled={(attempts[index] || 0) >= 3}
                                 />
                                 <Image
                                   src={image}
@@ -256,8 +289,12 @@ const ColorGames = ({ cards }) => {
                       )}
                     </div>
                     <p>Color: {card.color}</p>
+                    <p>Attempts left: {3 - (attempts[index] || 0)}</p>
 
-                    <Button onClick={() => handleSubmit(card.color_game_id)}>
+                    <Button
+                      onClick={() => handleSubmit(index)}
+                      isDisabled={(attempts[index] || 0) >= 3}
+                    >
                       Submit
                     </Button>
                     {submissionResults[card.color_game_id] && (
@@ -274,8 +311,8 @@ const ColorGames = ({ cards }) => {
                         {submissionResults[card.color_game_id]}
                       </p>
                     )}
-                  </CardBody>{" "}
-                </Card>{" "}
+                  </CardBody>
+                </Card>
               </div>
             </div>
           </SwiperSlide>
