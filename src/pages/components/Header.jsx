@@ -704,7 +704,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               <div className="flex flex-col justify-center text-sm">
                                 <Button
                                   onClick={editProfilePicture}
-                                  color="secondary"
+                                  className="bg-[#7469B6] text-white border-0"
                                 >
                                   Update Picture
                                 </Button>
@@ -721,14 +721,14 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                       <Button
                                         size="sm"
                                         onClick={cancelProfilePicture}
-                                        color="danger"
+                                        color="default"
                                       >
                                         Cancel
                                       </Button>
                                       <Button
                                         size="sm"
                                         onClick={handleProfilePicture}
-                                        color="primary"
+                                        className="bg-[#7469B6] text-white border-0"
                                       >
                                         Save
                                       </Button>
@@ -810,7 +810,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               Cancel
                             </Button>
                             <Button
-                              color="secondary"
+                              className="bg-[#7469B6] text-white border-0"
                               size="sm"
                               onClick={handleSaveClick}
                             >
@@ -850,10 +850,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           </div>
 
                           <Button
-                            color="secondary"
                             size="sm"
                             radius="full"
-                            className="px-4 max-sm:hidden"
+                            className="px-4 bg-[#7469B6] text-white border-0 max-sm:hidden"
                             onClick={handleUpdateClick}
                           >
                             Update
@@ -869,10 +868,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                     <div className="flex mt-4 justify-between">
                       <p>Location</p>
                       <Button
-                        color="secondary"
                         size="sm"
                         radius="full"
-                        className="px-4 sm:hidden"
+                        className="px-4 bg-[#7469B6] text-white border-0 sm:hidden"
                         onClick={handleLocUpdateClick}
                       >
                         Update
@@ -985,7 +983,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               Cancel
                             </Button>
                             <Button
-                              color="secondary"
+                              className="bg-[#7469B6] text-white border-0"
                               size="sm"
                               onClick={handleLocationSaveClick}
                             >
@@ -1016,10 +1014,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                             </div>
                           </div>
                           <Button
-                            color="secondary"
                             size="sm"
                             radius="full"
-                            className="px-4 max-sm:hidden"
+                            className="px-4 bg-[#7469B6] text-white border-0 max-sm:hidden"
                             onClick={handleLocUpdateClick}
                           >
                             Update
