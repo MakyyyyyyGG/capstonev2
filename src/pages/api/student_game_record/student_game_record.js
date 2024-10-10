@@ -3,6 +3,7 @@ import { query } from "@/lib/db";
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { account_id, game_id, score } = req.body;
+    console.log(req.body);
 
     try {
       // Check how many games the user has played in the last hour

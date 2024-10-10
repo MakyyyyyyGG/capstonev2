@@ -31,6 +31,7 @@ import {
   X,
   RefreshCw,
 } from "lucide-react";
+
 const DecisionMakerStudent = ({ cards }) => {
   const [firstCard, setFirstCard] = useState(null);
   const [selectedCards, setSelectedCards] = useState({});
@@ -42,13 +43,32 @@ const DecisionMakerStudent = ({ cards }) => {
   const { data: session } = useSession();
   const router = useRouter();
   const { game_id } = router.query;
+  const [attempts, setAttempts] = useState({});
+  const [gameCompleted, setGameCompleted] = useState(false);
+  const [feedback, setFeedback] = useState({});
+  const [isGameFinished, setIsGameFinished] = useState(false);
+
   useEffect(() => {
     if (cards.length > 0) {
       setFirstCard(cards[0]);
       setShuffledCards(shuffleArray(cards));
       getStudentTries();
+      initializeAttempts(cards);
     }
   }, [cards]);
+  useEffect(() => {
+    if (isGameFinished) {
+      handleResult();
+    }
+  }, [isGameFinished]);
+
+  const initializeAttempts = (cards) => {
+    const initialAttempts = {};
+    cards.forEach((card) => {
+      initialAttempts[card.decision_maker_id] = 3;
+    });
+    setAttempts(initialAttempts);
+  };
 
   const shuffleArray = (array) => {
     const shuffled = [...array];
@@ -60,28 +80,56 @@ const DecisionMakerStudent = ({ cards }) => {
   };
 
   const handleVote = (card, vote) => {
-    console.log(card, vote);
+    const currentAttempts = attempts[card.decision_maker_id];
+    if (currentAttempts <= 0) return;
+
+    const newAttempts = { ...attempts };
+    newAttempts[card.decision_maker_id]--;
+    setAttempts(newAttempts);
+
     const isCorrect = card.correct_answer === vote;
-    console.log("isCorrect", isCorrect);
+    const newFeedback = { ...feedback };
+
+    if (isCorrect) {
+      newFeedback[card.decision_maker_id] = "Correct!";
+      setScore((prevScore) => prevScore + 1);
+      setAnswer((prev) => prev + 1);
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
+    } else if (newAttempts[card.decision_maker_id] <= 0) {
+      newFeedback[card.decision_maker_id] = "Out of attempts.";
+      setAnswer((prev) => prev + 1);
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
+    } else {
+      newFeedback[card.decision_maker_id] = `Incorrect. ${
+        newAttempts[card.decision_maker_id]
+      } attempts left.`;
+    }
+
+    setFeedback(newFeedback);
+    console.log("newFeedback", newFeedback);
+
     setSelectedCards((prev) => ({
       ...prev,
-      [card.decision_maker_id]: { ...card, isCorrect },
+      [card.decision_maker_id]: {
+        ...card,
+        isCorrect,
+        feedback: newFeedback[card.decision_maker_id],
+      },
     }));
-    setAnswer((prev) => prev + 1);
-    if (isCorrect) {
-      setScore((prev) => prev + 1);
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
-      alert("Correct Decision!");
-    } else {
-      alert("Incorrect Decision!");
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
-    }
-    if (answer + 1 === cards.length) {
-      endGame();
+
+    const allAnswered = shuffledCards.every(
+      (card) =>
+        newFeedback[card.decision_maker_id] === "Correct!" ||
+        newFeedback[card.decision_maker_id] === "Out of attempts."
+    );
+    console.log("allAnswered", allAnswered);
+
+    if (allAnswered) {
+      setIsGameFinished(true);
     }
   };
 
@@ -105,8 +153,10 @@ const DecisionMakerStudent = ({ cards }) => {
   };
 
   const endGame = async () => {
-    await handleResult();
-    alert("You have completed the game!");
+    if (gameCompleted) {
+      await handleResult();
+      alert("You have completed the game!");
+    }
   };
 
   const getStudentTries = async () => {
@@ -162,6 +212,7 @@ const DecisionMakerStudent = ({ cards }) => {
   return (
     <div>
       {firstCard && <h1>{firstCard.title}</h1>}
+      <h1>Score: {score}</h1>
       <Button variant="flat" color="secondary" onPress={changeIconPair}>
         Change Icons
       </Button>
@@ -169,7 +220,6 @@ const DecisionMakerStudent = ({ cards }) => {
         <Progress
           value={(answer / cards.length) * 100}
           classNames={{
-            // label: "tracking-wider",
             value: "text-foreground/60",
           }}
           label="Progress"
@@ -205,7 +255,9 @@ const DecisionMakerStudent = ({ cards }) => {
                     color="success"
                     variant="flat"
                     isDisabled={
-                      selectedCards[card.decision_maker_id] !== undefined
+                      feedback[card.decision_maker_id] === "Correct!" ||
+                      feedback[card.decision_maker_id] === "Out of attempts." ||
+                      attempts[card.decision_maker_id] <= 0
                     }
                   >
                     {buttonPairs[currentPairIndex].positive}
@@ -215,30 +267,45 @@ const DecisionMakerStudent = ({ cards }) => {
                     color="danger"
                     variant="flat"
                     isDisabled={
-                      selectedCards[card.decision_maker_id] !== undefined
+                      feedback[card.decision_maker_id] === "Correct!" ||
+                      feedback[card.decision_maker_id] === "Out of attempts." ||
+                      attempts[card.decision_maker_id] <= 0
                     }
                   >
                     {buttonPairs[currentPairIndex].negative}
                   </Button>
                 </div>
-                {selectedCards[card.decision_maker_id] && (
-                  <h1>
-                    {selectedCards[card.decision_maker_id].isCorrect ? (
-                      <div className="flex justify-center">
-                        <h1 className="text-green-500">Correct</h1>
-                      </div>
-                    ) : (
-                      <div className="flex justify-center">
-                        <h1 className="text-red-500">Incorrect</h1>
-                      </div>
-                    )}
-                  </h1>
+                {feedback[card.decision_maker_id] && (
+                  <div className="flex justify-center">
+                    <h1
+                      className={
+                        feedback[card.decision_maker_id] === "Correct!"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }
+                    >
+                      {feedback[card.decision_maker_id]}
+                    </h1>
+                  </div>
                 )}
+                <div className="text-center mt-2">
+                  Attempts left: {attempts[card.decision_maker_id]}
+                </div>
               </CardBody>
             </Card>
           </SwiperSlide>
         ))}
       </Swiper>
+      {isGameFinished && (
+        <div className="m-auto h-screen">
+          <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
+            <CardBody className="flex flex-col gap-4">
+              <h1>Game Over!</h1>
+              <h1>Your score is: {score}</h1>
+            </CardBody>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
