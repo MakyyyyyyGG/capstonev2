@@ -12,6 +12,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import Example from "./Example";
+import Callout from "./Callout";
+import BarChart from "./BarChart";
 import "swiper/swiper-bundle.css";
 const ColorGames = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -27,6 +30,9 @@ const ColorGames = ({ cards }) => {
   const { game_id } = router.query;
   const [attempts, setAttempts] = useState({});
   const [isGameFinished, setIsGameFinished] = useState(false);
+  // const [latestAttempts, setLatestAttempts] = useState({});
+  const [gameRecord, setGameRecord] = useState([]);
+  const [attemptsUsed, setAttemptsUsed] = useState(0);
 
   useEffect(() => {
     const shuffled = shuffleArray(cards);
@@ -62,6 +68,10 @@ const ColorGames = ({ cards }) => {
   };
 
   const handleImageSelect = async (cardId, imageIndex, imageUrl) => {
+    if (imageUrl === "") {
+      alert("No image selected");
+      return;
+    }
     setSelectedImages((prev) => {
       const newSelection = prev[cardId] ? [...prev[cardId]] : [];
       if (newSelection.includes(imageIndex)) {
@@ -101,17 +111,22 @@ const ColorGames = ({ cards }) => {
   }, [selectedImages, shuffledCards]);
 
   const handleSubmit = (index) => {
-    console.log("presssed in card", index);
+    const card = shuffledCards[index];
+    const selectedCardImages = selectedImages[card.color_game_id] || [];
+
+    // Check if no image is selected
+    if (selectedCardImages.length === 0) {
+      alert("Please select at least one image before submitting.");
+      return;
+    }
+
     const currentAttempts = attempts[index];
-    console.log("attempt in car index", currentAttempts);
     if (currentAttempts >= 3) return;
 
     const newAttempts = [...attempts];
     newAttempts[index]++;
     setAttempts(newAttempts);
 
-    const card = shuffledCards[index];
-    const selectedCardImages = selectedImages[card.color_game_id] || [];
     const correctImageCount = [card.image1, card.image2, card.image3].filter(
       (image) => getColorFromImageUrl(image) === card.color
     ).length;
@@ -160,11 +175,44 @@ const ColorGames = ({ cards }) => {
     }));
   };
 
+  const getLatestAttempts = (data) => {
+    // Group by month and year
+    const attemptsByMonth = {};
+
+    data.forEach((attempt) => {
+      // Get year and month from created_at
+      const date = new Date(attempt.created_at);
+      const yearMonth = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format as "YYYY-MM"
+
+      // Add attempt to the correct month
+      if (!attemptsByMonth[yearMonth]) {
+        attemptsByMonth[yearMonth] = [];
+      }
+      attemptsByMonth[yearMonth].push(attempt);
+    });
+
+    // Get the latest 8 attempts for each month
+    const latestAttempts = {};
+    Object.keys(attemptsByMonth).forEach((month) => {
+      // Sort by created_at (newest first)
+      const sortedAttempts = attemptsByMonth[month].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      // Keep only the latest 8 attempts
+      latestAttempts[month] = sortedAttempts.slice(0, 8);
+    });
+
+    // setLatestAttempts(latestAttempts);
+    return latestAttempts;
+  };
+
   const getStudentTries = async () => {
     const account_id = session?.user?.id;
+    console.log(account_id, game_id);
     try {
       const response = await fetch(
-        `/api/student_game_record/student_game_record?account_id=${account_id}`,
+        `/api/student_game_record/student_game_record?account_id=${account_id}&game_id=${game_id}`,
         {
           method: "GET",
           headers: {
@@ -173,6 +221,19 @@ const ColorGames = ({ cards }) => {
         }
       );
       const data = await response.json();
+      if (data.data && data.data.length > 0) {
+        setGameRecord(data.data);
+        const latestAttempts = getLatestAttempts(data.data);
+        console.log("latest attempts", latestAttempts);
+
+        // Calculate attempts used
+        const currentDate = new Date();
+        const currentYearMonth = `${currentDate.getFullYear()}-${
+          currentDate.getMonth() + 1
+        }`;
+        const currentMonthAttempts = latestAttempts[currentYearMonth] || [];
+        setAttemptsUsed(currentMonthAttempts.length);
+      }
       console.log(data);
     } catch (error) {
       console.log(error);
@@ -202,12 +263,14 @@ const ColorGames = ({ cards }) => {
       const result = await response.json();
       if (response.status === 200) {
         alert("Game record created successfully");
+        // Update gameRecord after finishing the game
+        await getStudentTries();
       }
       if (response.status === 403) {
-        alert(result.message); // Show the limit message
+        // alert(result.message); // Show the limit message
       } else {
         console.log(result);
-        alert(`Game finished! Your score: ${score}`);
+        // alert(`Game finished! Your score: ${score}`);
       }
     } catch (error) {
       console.log(error);
@@ -216,108 +279,132 @@ const ColorGames = ({ cards }) => {
 
   return (
     <div className="w-full m-auto my-4">
-      <h1>Score: {score}</h1>
-      <div className="w-1/2 m-auto my-4">
-        <Progress
-          value={(answer / cards.length) * 100}
-          classNames={{
-            value: "text-foreground/60",
-          }}
-          label="Progress"
-          showValueLabel={true}
-          color="success"
-        />
-      </div>
-      <Swiper
-        modules={[Navigation, Pagination, Scrollbar, A11y]}
-        navigation
-        spaceBetween={50}
-        slidesPerView={1}
-        onSwiper={(swiper) => setSwiperInstance(swiper)}
-        onSlideChange={() => console.log("slide change")}
-        onSwiperSlideChange={() => console.log("swiper slide change")}
-      >
-        {shuffledCards.map((card, index) => (
-          <SwiperSlide key={card.color_game_id}>
-            <div className="flex justify-center w-1/2 m-auto">
-              <div key={card.color_game_id}>
-                <Card>
-                  <CardBody>
-                    <div className="grid grid-cols-3 gap-4">
-                      {[card.image1, card.image2, card.image3].map(
-                        (image, imageIndex) => (
-                          <div
-                            key={imageIndex}
-                            className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer ${
-                              (attempts[index] || 0) >= 3
-                                ? "opacity-50 pointer-events-none"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              handleImageSelect(
-                                card.color_game_id,
-                                imageIndex,
-                                image
-                              )
+      {isGameFinished ? (
+        <>
+          {gameRecord.length > 0 && (
+            <BarChart gameRecord={gameRecord} questions={cards.length} />
+          )}
+        </>
+      ) : (
+        <>
+          {" "}
+          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+          {attemptsUsed >= 8 && (
+            <div className="w-1/2 bg-red-400 rounded-md p-4">
+              <p className="text-white">
+                You have used all your attempts for this month. Your score wont
+                be recorded. Wait for next month.
+              </p>
+            </div>
+          )}
+          <h1>Score: {score}</h1>
+          <div className="w-1/2 m-auto my-4">
+            <Progress
+              value={(answer / cards.length) * 100}
+              classNames={{
+                value: "text-foreground/60",
+              }}
+              label="Progress"
+              showValueLabel={true}
+              color="success"
+            />
+          </div>
+          <Swiper
+            modules={[Navigation, Pagination, Scrollbar, A11y]}
+            navigation
+            spaceBetween={50}
+            slidesPerView={1}
+            onSwiper={(swiper) => setSwiperInstance(swiper)}
+            onSlideChange={() => console.log("slide change")}
+            onSwiperSlideChange={() => console.log("swiper slide change")}
+          >
+            {shuffledCards.map((card, index) => (
+              <SwiperSlide key={card.color_game_id}>
+                <div className="flex justify-center w-1/2 m-auto">
+                  <div key={card.color_game_id}>
+                    <Card>
+                      <CardBody>
+                        <div className="grid grid-cols-3 gap-4">
+                          {[card.image1, card.image2, card.image3].map(
+                            (image, imageIndex) => (
+                              <div
+                                key={imageIndex}
+                                className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer ${
+                                  (attempts[index] || 0) >= 3
+                                    ? "opacity-50 pointer-events-none"
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  handleImageSelect(
+                                    card.color_game_id,
+                                    imageIndex,
+                                    image
+                                  )
+                                }
+                              >
+                                {image && (
+                                  <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
+                                    <Checkbox
+                                      isSelected={(
+                                        selectedImages[card.color_game_id] || []
+                                      ).includes(imageIndex)}
+                                      onChange={() =>
+                                        handleImageSelect(
+                                          card.color_game_id,
+                                          imageIndex,
+                                          image
+                                        )
+                                      }
+                                      className="absolute top-2 left-2 z-99"
+                                      isDisabled={(attempts[index] || 0) >= 3}
+                                    />
+                                    <Image
+                                      src={image}
+                                      alt={`Image ${imageIndex + 1}`}
+                                      className="h-full w-full object-cover rounded-lg"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          )}
+                        </div>
+                        <p>Color: {card.color}</p>
+                        <p>Attempts left: {3 - (attempts[index] || 0)}</p>
+
+                        <Button
+                          onClick={() => handleSubmit(index)}
+                          isDisabled={
+                            (attempts[index] || 0) >= 3 ||
+                            !(selectedImages[card.color_game_id] || []).length
+                          }
+                        >
+                          Submit
+                        </Button>
+                        {submissionResults[card.color_game_id] && (
+                          <p
+                            className={
+                              submissionResults[card.color_game_id] ===
+                              "Correct!"
+                                ? "text-green-500"
+                                : submissionResults[card.color_game_id] ===
+                                  "Almost there!"
+                                ? "text-yellow-500"
+                                : "text-red-500"
                             }
                           >
-                            {image && (
-                              <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
-                                <Checkbox
-                                  isSelected={(
-                                    selectedImages[card.color_game_id] || []
-                                  ).includes(imageIndex)}
-                                  onChange={() =>
-                                    handleImageSelect(
-                                      card.color_game_id,
-                                      imageIndex,
-                                      image
-                                    )
-                                  }
-                                  className="absolute top-2 left-2 z-99"
-                                  isDisabled={(attempts[index] || 0) >= 3}
-                                />
-                                <Image
-                                  src={image}
-                                  alt={`Image ${imageIndex + 1}`}
-                                  className="h-full w-full object-cover rounded-lg"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )
-                      )}
-                    </div>
-                    <p>Color: {card.color}</p>
-                    <p>Attempts left: {3 - (attempts[index] || 0)}</p>
-
-                    <Button
-                      onClick={() => handleSubmit(index)}
-                      isDisabled={(attempts[index] || 0) >= 3}
-                    >
-                      Submit
-                    </Button>
-                    {submissionResults[card.color_game_id] && (
-                      <p
-                        className={
-                          submissionResults[card.color_game_id] === "Correct!"
-                            ? "text-green-500"
-                            : submissionResults[card.color_game_id] ===
-                              "Almost there!"
-                            ? "text-yellow-500"
-                            : "text-red-500"
-                        }
-                      >
-                        {submissionResults[card.color_game_id]}
-                      </p>
-                    )}
-                  </CardBody>
-                </Card>
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+                            {submissionResults[card.color_game_id]}
+                          </p>
+                        )}
+                      </CardBody>
+                    </Card>
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </>
+      )}
     </div>
   );
 };

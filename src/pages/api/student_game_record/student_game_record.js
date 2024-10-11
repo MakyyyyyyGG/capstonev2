@@ -3,25 +3,25 @@ import { query } from "@/lib/db";
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { account_id, game_id, score } = req.body;
-    console.log(req.body);
-
     try {
-      // Check how many games the user has played in the last hour
+      // Check how many games the user has played in the current month
       const countResult = await query({
         query: `
           SELECT COUNT(*) as count 
           FROM user_game_plays 
-          WHERE account_id = ? AND game_id = ? AND created_at > NOW() - INTERVAL 1 HOUR
+          WHERE account_id = ? AND game_id = ? 
+          AND YEAR(created_at) = YEAR(CURRENT_DATE()) 
+          AND MONTH(created_at) = MONTH(CURRENT_DATE())
         `,
         values: [account_id, game_id],
       });
 
-      const gamesPlayedInLastHour = countResult[0].count;
+      const gamesPlayedThisMonth = countResult[0].count;
 
-      if (gamesPlayedInLastHour >= 3) {
+      if (gamesPlayedThisMonth >= 8) {
         return res
           .status(403)
-          .json({ message: "You can only play 3 times per hour." });
+          .json({ message: "You can only play 8 times per month." });
       }
 
       // If under the limit, proceed to insert the new record
@@ -43,9 +43,11 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
       const account_id = req.query.account_id;
+      const game_id = req.query.game_id;
       const result = await query({
-        query: "SELECT * FROM user_game_plays WHERE account_id = ?",
-        values: [account_id],
+        query:
+          "SELECT * FROM user_game_plays WHERE account_id = ? AND game_id = ?",
+        values: [account_id, game_id],
       });
       return res
         .status(200)
