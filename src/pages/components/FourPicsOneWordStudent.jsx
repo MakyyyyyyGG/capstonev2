@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardBody, Button, Progress, Input } from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useRouter } from "next/router";
@@ -6,6 +6,13 @@ import { useSession } from "next-auth/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import "swiper/swiper-bundle.css";
+import BarChart from "./BarChart";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@/components/ui/input-otp";
 
 const FourPicsOneWordStudent = ({ cards }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
@@ -16,9 +23,12 @@ const FourPicsOneWordStudent = ({ cards }) => {
   const [answeredQuestions, setAnsweredQuestions] = useState(0);
   const [swiperInstance, setSwiperInstance] = useState(null);
   const [isGameFinished, setIsGameFinished] = useState(false);
+  const [gameRecord, setGameRecord] = useState([]);
+  const [attemptsUsed, setAttemptsUsed] = useState(0);
   const { data: session } = useSession();
   const router = useRouter();
   const { game_id } = router.query;
+  const inputRefs = useRef([]);
 
   useEffect(() => {
     if (cards) {
@@ -51,7 +61,7 @@ const FourPicsOneWordStudent = ({ cards }) => {
     const account_id = session?.user?.id;
     try {
       const response = await fetch(
-        `/api/student_game_record/student_game_record?account_id=${account_id}`,
+        `/api/student_game_record/student_game_record?account_id=${account_id}&game_id=${game_id}`,
         {
           method: "GET",
           headers: {
@@ -60,10 +70,55 @@ const FourPicsOneWordStudent = ({ cards }) => {
         }
       );
       const data = await response.json();
+      if (data.data && data.data.length > 0) {
+        setGameRecord(data.data);
+        const latestAttempts = getLatestAttempts(data.data);
+        console.log("latest attempts", latestAttempts);
+
+        // Calculate attempts used
+        const currentDate = new Date();
+        const currentYearMonth = `${currentDate.getFullYear()}-${
+          currentDate.getMonth() + 1
+        }`;
+        const currentMonthAttempts = latestAttempts[currentYearMonth] || [];
+        setAttemptsUsed(currentMonthAttempts.length);
+      }
       console.log(data);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const getLatestAttempts = (data) => {
+    // Group by month and year
+    const attemptsByMonth = {};
+
+    data.forEach((attempt) => {
+      // Get year and month from created_at
+      const date = new Date(attempt.created_at);
+      const yearMonth = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format as "YYYY-MM"
+
+      // Add attempt to the correct month
+      if (!attemptsByMonth[yearMonth]) {
+        attemptsByMonth[yearMonth] = [];
+      }
+      attemptsByMonth[yearMonth].push(attempt);
+    });
+
+    // Get the latest 8 attempts for each month
+    const latestAttempts = {};
+    Object.keys(attemptsByMonth).forEach((month) => {
+      // Sort by created_at (newest first)
+      const sortedAttempts = attemptsByMonth[month].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      // Keep only the latest 8 attempts
+      latestAttempts[month] = sortedAttempts.slice(0, 8);
+    });
+
+    // setLatestAttempts(latestAttempts);
+    return latestAttempts;
   };
 
   const handleChange = (value, index) => {
@@ -141,6 +196,7 @@ const FourPicsOneWordStudent = ({ cards }) => {
       const result = await response.json();
       if (response.status === 200) {
         alert("Game Recorded Successfully");
+        await getStudentTries();
       } else if (response.status === 403) {
         alert(result.message); // Show the limit message
       } else {
@@ -151,100 +207,174 @@ const FourPicsOneWordStudent = ({ cards }) => {
     }
   };
 
+  const handleKeyDown = (e, cardIndex, inputIndex) => {
+    if (e.key === "Backspace" && inputIndex > 0 && !e.target.value) {
+      // Move to previous input on backspace if current input is empty
+      inputRefs.current[cardIndex][inputIndex - 1].focus();
+    } else if (e.key.length === 1 && e.key.match(/[a-z]/i)) {
+      // If a letter key is pressed
+      e.preventDefault();
+      const newAnswer = [...(userAnswers[cardIndex] || "")];
+      newAnswer[inputIndex] = e.key.toLowerCase();
+      handleChange(newAnswer.join(""), cardIndex);
+
+      // Move to next input
+      if (inputIndex < shuffledCards[cardIndex].word.length - 1) {
+        inputRefs.current[cardIndex][inputIndex + 1].focus();
+      }
+    }
+  };
+
   return (
     <div>
-      <h1>
-        Score: {score} / {cards.length}
-      </h1>
-      <h1>Remaining Attemps for this month: {10 - attempts}</h1>
-      <h1>Questions Answered: {answeredQuestions}</h1>
-      <h1>cards length: {cards.length}</h1>
-      <div className="flex justify-center items-center w-1/2 m-auto my-4">
-        <Progress
-          value={(answeredQuestions / cards.length) * 100}
-          classNames={{
-            value: "text-foreground/60",
-          }}
-          label="Progress"
-          showValueLabel={true}
-          color="success"
-        />
-      </div>
-      <Swiper
-        modules={[Navigation, Pagination, Scrollbar, A11y]}
-        navigation
-        spaceBetween={50}
-        slidesPerView={1}
-        onSwiper={(swiper) => setSwiperInstance(swiper)}
-      >
-        {shuffledCards.map((card, index) => (
-          <SwiperSlide key={index}>
-            <div className="m-auto h-screen">
-              <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
-                <CardBody className="flex flex-col gap-4">
-                  <p>Attempts left: {3 - (attempts[index] || 0)}</p>
-
-                  <div className={`grid grid-cols-2 grid-rows-2 gap-2`}>
-                    {[card.image1, card.image2, card.image3, card.image4].map(
-                      (image, idx) =>
-                        image && (
-                          <img
-                            key={idx}
-                            src={`${image}`}
-                            alt={`Image ${idx + 1}`}
-                            className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
-                          />
-                        )
-                    )}
-                  </div>
-                  <div className="flex flex-col items-center gap-2">
-                    <h1>Question: {card.question}</h1>
-                    <Input
-                      value={userAnswers[index] || ""}
-                      onChange={(e) => handleChange(e.target.value, index)}
-                      disabled={
-                        feedback[index]?.includes("Correct") ||
-                        attempts[index] >= 3
-                      }
-                      label="Enter your answer here"
-                    />
-                    <Button
-                      color="secondary"
-                      onClick={() => checkAnswer(index)}
-                      disabled={
-                        feedback[index]?.includes("Correct") ||
-                        attempts[index] >= 3
-                      }
-                    >
-                      Check Answer
-                    </Button>
-                    {feedback[index] && (
-                      <p
-                        className={
-                          feedback[index].includes("Correct")
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }
-                      >
-                        {feedback[index]}
-                      </p>
-                    )}
-                  </div>
-                </CardBody>
-              </Card>
+      {isGameFinished ? (
+        <>
+          {gameRecord.length > 0 && (
+            <BarChart gameRecord={gameRecord} questions={cards.length} />
+          )}
+        </>
+      ) : (
+        <>
+          <h1>
+            Score: {score} / {cards.length}
+          </h1>
+          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+          {attemptsUsed >= 8 && (
+            <div className="w-1/2 bg-red-400 rounded-md p-4">
+              <p className="text-white">
+                You have used all your attempts for this month. Your score wont
+                be recorded. Wait for next month.
+              </p>
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-      {isGameFinished && (
-        <div className="m-auto h-screen">
-          <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
-            <CardBody className="flex flex-col gap-4">
-              <h1>Game Over!</h1>
-              <h1>Your score is: {score}</h1>
-            </CardBody>
-          </Card>
-        </div>
+          )}
+          <h1>Questions Answered: {answeredQuestions}</h1>
+          <h1>cards length: {cards.length}</h1>
+          <div className="flex justify-center items-center w-1/2 m-auto my-4">
+            <Progress
+              value={(answeredQuestions / cards.length) * 100}
+              classNames={{
+                value: "text-foreground/60",
+              }}
+              label="Progress"
+              showValueLabel={true}
+              color="success"
+            />
+          </div>
+          <Swiper
+            modules={[Navigation, Pagination, Scrollbar, A11y]}
+            navigation
+            spaceBetween={50}
+            slidesPerView={1}
+            onSwiper={(swiper) => setSwiperInstance(swiper)}
+          >
+            {shuffledCards.map((card, index) => (
+              <SwiperSlide key={index}>
+                <div className="m-auto h-screen">
+                  <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
+                    <CardBody className="flex flex-col gap-4">
+                      <p>Attempts left: {3 - (attempts[index] || 0)}</p>
+
+                      <div className={`grid grid-cols-2 grid-rows-2 gap-2`}>
+                        {[
+                          card.image1 || "",
+                          card.image2 || "",
+                          card.image3 || "",
+                          card.image4 || "",
+                        ].map(
+                          (image, idx) =>
+                            image && (
+                              <img
+                                key={idx}
+                                src={`${image}`}
+                                alt={`Image ${idx + 1}`}
+                                className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
+                              />
+                            )
+                        )}
+                      </div>
+                      <div className="flex flex-col items-center gap-2">
+                        <h1>Question: {card.question}</h1>
+
+                        <div className="max-w-md mx-auto text-center bg-white px-4 sm:px-8 py-10 rounded-xl shadow">
+                          <header className="mb-8">
+                            <h1 className="text-2xl font-bold mb-1">
+                              Enter Your Answer
+                            </h1>
+                            <p className="text-[15px] text-slate-500">
+                              Enter the answer based on the images above.
+                            </p>
+                          </header>
+                          <form id="otp-form">
+                            <div className="flex items-center justify-center gap-3">
+                              {Array.from({ length: card.word.length }).map(
+                                (_, idx) => (
+                                  <input
+                                    key={idx}
+                                    type="text"
+                                    className="w-14 h-14 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                    maxLength="1"
+                                    value={userAnswers[index]?.[idx] || ""}
+                                    onChange={(e) => {
+                                      const newAnswer = userAnswers[index]
+                                        ? userAnswers[index].split("")
+                                        : [];
+                                      newAnswer[idx] = e.target.value;
+                                      handleChange(newAnswer.join(""), index);
+                                    }}
+                                    onKeyDown={(e) =>
+                                      handleKeyDown(e, index, idx)
+                                    }
+                                    ref={(el) => {
+                                      if (!inputRefs.current[index]) {
+                                        inputRefs.current[index] = [];
+                                      }
+                                      inputRefs.current[index][idx] = el;
+                                    }}
+                                    disabled={
+                                      feedback[index]?.includes("Correct") ||
+                                      attempts[index] >= 3
+                                    }
+                                  />
+                                )
+                              )}
+                            </div>
+                            <div className="max-w-[260px] mx-auto mt-4">
+                              <Button
+                                color="secondary"
+                                onClick={() => checkAnswer(index)}
+                                isDisabled={
+                                  feedback[index]?.includes("Correct") ||
+                                  attempts[index] >= 3 ||
+                                  userAnswers[index]?.length !==
+                                    card.word.length
+                                }
+                                className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-indigo-500 px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                              >
+                                Check Answer
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
+
+                        {feedback[index] && (
+                          <p
+                            className={
+                              feedback[index].includes("Correct")
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }
+                          >
+                            {feedback[index]}
+                          </p>
+                        )}
+                      </div>
+                    </CardBody>
+                  </Card>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </>
       )}
     </div>
   );

@@ -37,8 +37,6 @@ const index = () => {
 
   return (
     <div>
-      <h1>Color Game Advanced</h1>
-      <p>{game_id}</p>
       <ColorGamesAdvancedStudent cards={cards} />
     </div>
   );
