@@ -105,13 +105,12 @@ const CreateRoom = ({ onRoomCreated }) => {
   return (
     <div>
       <Button
+        isIconOnly
         onPress={onOpen}
         radius="sm"
         color="secondary"
-        startContent={<Plus size={20} />}
-      >
-        Create Room
-      </Button>
+        startContent={<Plus size={22} />}
+      ></Button>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}

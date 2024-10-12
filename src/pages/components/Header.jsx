@@ -29,6 +29,7 @@ import {
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import JoinRoom from "./JoinRoom";
+import CreateRoom from "../components/CreateRoom";
 const Header = ({ isCollapsed, toggleCollapse }) => {
   const router = useRouter();
 
@@ -85,6 +86,21 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   // useEffect(() => {
   //   console.log(gender, bday, region, province, municipality, barangay);
   // }, [gender, bday, region, province, municipality, barangay]);
+
+  // Function to fetch rooms
+  const [rooms, setRooms] = useState([]);
+  const fetchRooms = async () => {
+    if (session?.user?.id) {
+      const res = await fetch(
+        `/api/accounts_teacher/room/create_room?account_id=${session.user.id}`
+      );
+      const data = await res.json();
+      setRooms(data.roomsData);
+    }
+  };
+  useEffect(() => {
+    fetchRooms();
+  }, [session?.user?.id]);
 
   const fetchRegions = async () => {
     try {
@@ -564,90 +580,93 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
           </NavbarBrand>
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
-          <Dropdown
-            isOpen={isDropdownOpen}
-            onOpenChange={setIsDropdownOpen}
-            placement="bottom-end"
-          >
-            <DropdownTrigger>
-              <Avatar
-                isBordered
-                as="button"
-                className="transition-transform"
-                color="secondary"
-                size="md"
-                src={profileImage}
-              />
-            </DropdownTrigger>
-            <DropdownMenu
-              aria-label="Profile Actions"
-              variant="flat"
-              className="min-w-[380px]"
+          <div className="flex gap-4">
+            <CreateRoom onRoomCreated={fetchRooms} />
+            <Dropdown
+              isOpen={isDropdownOpen}
+              onOpenChange={setIsDropdownOpen}
+              placement="bottom-end"
             >
-              <DropdownSection showDivider>
-                <DropdownItem
-                  isReadOnly
-                  // key="profile"
-                  className="h-14 gap-2 text-center cursor-default"
-                >
-                  <p className="font-semibold">Signed in as</p>
-                  <p className="font-light">{session.user.email}</p>
-                </DropdownItem>
-                <DropdownItem
-                  isReadOnly
-                  // key="profile"
-                  className="h-30 gap-2 cursor-default flex justify-center"
-                >
-                  <div className="flex justify-center w-full">
-                    <Avatar
-                      src={profileImage}
-                      className="w-[100px] h-[100px] text-large"
-                    />
-                  </div>
-                </DropdownItem>
-                <DropdownItem
-                  isReadOnly
-                  // key="profile"
-                  className="h-30 gap-2 cursor-default"
-                >
-                  <p className=" text-center text-2xl">Hi, {firstName}!</p>
-                </DropdownItem>
-              </DropdownSection>
-              <DropdownSection>
-                <DropdownItem
-                  isReadOnly
-                  key="settings"
-                  className="min-w-[100px] flex justify-center gap-2 cursor-default"
-                >
-                  <div className="flex flex-row gap-2">
-                    <Button
-                      onPress={handleOpenModal}
-                      radius="sm"
-                      size="md"
-                      className="w-full text-sm"
-                      startContent={<Settings size={20} />}
-                    >
-                      Manage Account
-                    </Button>
-                    <Button
-                      color="danger"
-                      radius="sm"
-                      size="md"
-                      className="w-full text-sm"
-                      startContent={<LogOut size={20} />}
-                      onPress={() =>
-                        signOut({ redirect: false }).then(() =>
-                          router.push("/")
-                        )
-                      }
-                    >
-                      Signout
-                    </Button>
-                  </div>
-                </DropdownItem>
-              </DropdownSection>
-            </DropdownMenu>
-          </Dropdown>
+              <DropdownTrigger>
+                <Avatar
+                  isBordered
+                  as="button"
+                  className="transition-transform"
+                  color="secondary"
+                  size="md"
+                  src={profileImage}
+                />
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Profile Actions"
+                variant="flat"
+                className="min-w-[380px]"
+              >
+                <DropdownSection showDivider>
+                  <DropdownItem
+                    isReadOnly
+                    // key="profile"
+                    className="h-14 gap-2 text-center cursor-default"
+                  >
+                    <p className="font-semibold">Signed in as</p>
+                    <p className="font-light">{session.user.email}</p>
+                  </DropdownItem>
+                  <DropdownItem
+                    isReadOnly
+                    // key="profile"
+                    className="h-30 gap-2 cursor-default flex justify-center"
+                  >
+                    <div className="flex justify-center w-full">
+                      <Avatar
+                        src={profileImage}
+                        className="w-[100px] h-[100px] text-large"
+                      />
+                    </div>
+                  </DropdownItem>
+                  <DropdownItem
+                    isReadOnly
+                    // key="profile"
+                    className="h-30 gap-2 cursor-default"
+                  >
+                    <p className=" text-center text-2xl">Hi, {firstName}!</p>
+                  </DropdownItem>
+                </DropdownSection>
+                <DropdownSection>
+                  <DropdownItem
+                    isReadOnly
+                    key="settings"
+                    className="min-w-[100px] flex justify-center gap-2 cursor-default"
+                  >
+                    <div className="flex flex-row gap-2">
+                      <Button
+                        onPress={handleOpenModal}
+                        radius="sm"
+                        size="md"
+                        className="w-full text-sm"
+                        startContent={<Settings size={20} />}
+                      >
+                        Manage Account
+                      </Button>
+                      <Button
+                        color="danger"
+                        radius="sm"
+                        size="md"
+                        className="w-full text-sm"
+                        startContent={<LogOut size={20} />}
+                        onPress={() =>
+                          signOut({ redirect: false }).then(() =>
+                            router.push("/")
+                          )
+                        }
+                      >
+                        Signout
+                      </Button>
+                    </div>
+                  </DropdownItem>
+                </DropdownSection>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
         </NavbarContent>
       </Navbar>
 
@@ -674,7 +693,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
               <ModalHeader className="flex flex-col gap-1">
                 Profile Details
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="shadow-inner">
                 <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
                   <div className="col-span-1">
                     <div className="flex justify-between">
@@ -862,7 +881,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                     )}
                   </div>
                 </div>
-                <hr className="mx-8 border-gray opacity-75" />
+                <hr className="border-gray opacity-75" />
                 <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
                   <div className="col-span-1">
                     <div className="flex mt-4 justify-between">

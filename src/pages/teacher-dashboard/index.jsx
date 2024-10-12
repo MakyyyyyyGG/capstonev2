@@ -22,7 +22,7 @@ const Dashboard = () => {
     setIsCollapsedSidebar((prev) => !prev);
   }
 
-  // Function to fetch rooms
+  // Function to fetch roomssm:hidden
   const fetchRooms = async () => {
     if (session?.user?.id) {
       const res = await fetch(
@@ -39,10 +39,11 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 w-full">
-      {/* Pass the fetchRooms function to CreateRoom */}
-      <CreateRoom onRoomCreated={fetchRooms} />
       <div className="w-full">
         <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />
+        {/* <div className="absolute bottom-0 right-0 p-5 drop-shadow-lg sm:hidden">
+          <CreateRoom onRoomCreated={fetchRooms} />
+        </div> */}
       </div>
     </div>
   );
