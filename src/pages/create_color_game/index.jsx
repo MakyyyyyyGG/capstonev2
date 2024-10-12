@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
-import { LibraryBig, Trash2, Plus } from "lucide-react";
+import { LibraryBig, Trash2, Plus, Pencil } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import {

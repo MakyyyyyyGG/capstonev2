@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
-import { LibraryBig, Disc2, VolumeX } from "lucide-react";
+import {
+  LibraryBig,
+  Disc2,
+  VolumeX,
+  Volume2,
+  Trash2,
+  Pencil,
+} from "lucide-react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import {
@@ -9,7 +16,10 @@ import {
   Button,
   Image,
   Card,
+  CardHeader,
   CardBody,
+  CardFooter,
+  Divider,
   Modal,
   ModalContent,
   ModalHeader,
@@ -339,55 +349,63 @@ const index = () => {
   };
 
   return (
-    <div className="w-full">
-      <h1>Create Color Game Advanced</h1>
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+        <h1>Create Color Game+</h1>
+        <Button
+          color="secondary"
+          type="submit"
+          isDisabled={
+            !title ||
+            cards.some(
+              (card) =>
+                card.images.some((img) => img === null) || !card.colors.length
+            )
+          }
+        >
+          Create
+        </Button>
+      </div>
       <h1>room code: {room_code}</h1>
+
       <form onSubmit={handleSubmit}>
-        <div className="w-80">
+        <div className="flex gap-2 items-center z-0 mb-4 max-sm:flex-col">
           <Input
             isRequired
             label="Title"
             onChange={(e) => setTitle(e.target.value)}
-            className="mb-4 w-80"
+            className="w-3/5 max-sm:w-full"
           />
           <Select
             label="Difficulty"
             onChange={handleDifficultyChange}
             isRequired
             value={difficulty}
+            className="w-2/5 max-sm:w-full"
           >
             <SelectItem key="easy">Easy (3 images)</SelectItem>
             <SelectItem key="medium">Medium (5 images)</SelectItem>
             <SelectItem key="hard">Hard (10 images)</SelectItem>
           </Select>
         </div>
-        <div className="flex flex-col gap-4 w-full">
-          <div className="grid grid-cols-2 gap-4">
-            {cards.map((card, cardIndex) => (
-              <Card key={cardIndex} className="w-full">
-                <CardBody>
-                  <div className="flex items-center justify-between">
-                    <h2 className="mb-4 text-lg font-semibold">
-                      Color Card Sequence {cardIndex + 1}
-                    </h2>
-
-                    <Button
-                      onPress={() => handleRemoveCard(cardIndex)}
-                      color="danger"
-                      className="mb-4"
-                    >
-                      Remove Card
-                    </Button>
-                  </div>
-                  <div>
-                    <h1>Choose a color</h1>
-                  </div>
+        <div className="flex flex-wrap gap-4">
+          {cards.map((card, cardIndex) => (
+            <Card
+              key={cardIndex}
+              className="w-full border border-slate-800 rounded-md flex"
+            >
+              <CardHeader className="flex px-3 justify-between items-center z-0">
+                <div className="pl-2 text-xl font-bold">
+                  <h1>{cardIndex + 1}</h1>
+                </div>
+                <div className="flex gap-2">
                   {recordingCardIndex !== cardIndex ? (
                     <Button
                       color="secondary"
                       onClick={() => startRecording(cardIndex)}
+                      startContent={<Volume2 size={22} />}
                     >
-                      Start Recording
+                      Record Sequence
                     </Button>
                   ) : (
                     <Button
@@ -403,136 +421,140 @@ const index = () => {
                       </div>
                     </Button>
                   )}
-                  {card.audioBlob && (
-                    <>
-                      <div className="flex items-center justify-between gap-3">
-                        <audio
-                          controls
-                          src={URL.createObjectURL(card.audioBlob)}
-                        ></audio>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => removeAudio(cardIndex)}
-                            color="danger"
-                          >
-                            <VolumeX size={20} />
-                            Remove Audio
-                          </Button>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {Array.from(
-                      {
-                        length:
-                          difficulty === "easy"
-                            ? 3
-                            : difficulty === "medium"
-                            ? 5
-                            : 10,
-                      },
-                      (_, imageIndex) => (
-                        <div key={imageIndex}>
-                          <div className="mt-2">
-                            <Select
-                              label="Color"
-                              onChange={(e) =>
-                                handleColorChange(cardIndex, e.target.value)
-                              }
-                              isRequired
-                              value={card.colors[imageIndex] || ""}
-                              className="mb-4"
+                  <div>
+                    <Button
+                      isIconOnly
+                      onPress={() => handleRemoveCard(cardIndex)}
+                      color="danger"
+                    >
+                      <Trash2 size={22} />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <Divider className="m-0 h-0.5 bg-slate-300" />
+              <CardBody>
+                <div className="flex items-center justify-between text-left max-sm:flex-col">
+                  <h1 className="font-bold text-lg">Choose a color</h1>
+                  <div>
+                    {card.audioBlob && (
+                      <>
+                        <div className="flex items-center justify-between gap-3 max-sm:flex-col">
+                          <audio
+                            controls
+                            src={URL.createObjectURL(card.audioBlob)}
+                          ></audio>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => removeAudio(cardIndex)}
+                              color="danger"
                             >
-                              <SelectItem key="blue">Blue</SelectItem>
-                              <SelectItem key="red">Red</SelectItem>
-                              <SelectItem key="yellow">Yellow</SelectItem>
-                              <SelectItem key="green">Green</SelectItem>
-                              <SelectItem key="orange">Orange</SelectItem>
-                              <SelectItem key="purple">Purple</SelectItem>
-                              <SelectItem key="pink">Pink</SelectItem>
-                              <SelectItem key="brown">Brown</SelectItem>
-                              <SelectItem key="black">Black</SelectItem>
-                              <SelectItem key="white">White</SelectItem>
-                              <SelectItem key="gray">Gray</SelectItem>
-                            </Select>
+                              <VolumeX size={20} />
+                              Remove
+                            </Button>
                           </div>
-                          <div
-                            className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer`}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {Array.from(
+                    {
+                      length:
+                        difficulty === "easy"
+                          ? 3
+                          : difficulty === "medium"
+                          ? 5
+                          : 10,
+                    },
+                    (_, imageIndex) => (
+                      <div key={imageIndex}>
+                        <div className="mt-2">
+                          <Select
+                            color="secondary"
+                            variant="underlined"
+                            label="Color"
+                            onChange={(e) =>
+                              handleColorChange(cardIndex, e.target.value)
+                            }
+                            isRequired
+                            value={card.colors[imageIndex] || ""}
+                            className="mb-4"
                           >
-                            {card.images[imageIndex] ? (
-                              <>
-                                <img
-                                  src={card.images[imageIndex]}
-                                  alt={`Uploaded ${imageIndex + 1}`}
-                                  className="h-full w-full object-cover rounded-lg"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
-                                  <Button
-                                    onPress={() =>
-                                      handleEdit(cardIndex, imageIndex)
-                                    }
-                                    color="secondary"
-                                  >
-                                    Edit
-                                  </Button>
-                                  <Button
-                                    onClick={() => {
-                                      const updatedCards = [...cards];
-                                      updatedCards[cardIndex].images[
-                                        imageIndex
-                                      ] = null;
-                                      updatedCards[cardIndex].colors[
-                                        imageIndex
-                                      ] = null;
-                                      setCards(updatedCards);
-                                    }}
-                                    color="danger"
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </>
-                            ) : (
-                              <div className="flex flex-col items-center space-y-2">
-                                {/* <h1>asdj</h1> */}
+                            <SelectItem key="blue">Blue</SelectItem>
+                            <SelectItem key="red">Red</SelectItem>
+                            <SelectItem key="yellow">Yellow</SelectItem>
+                            <SelectItem key="green">Green</SelectItem>
+                            <SelectItem key="orange">Orange</SelectItem>
+                            <SelectItem key="purple">Purple</SelectItem>
+                            <SelectItem key="pink">Pink</SelectItem>
+                            <SelectItem key="brown">Brown</SelectItem>
+                            <SelectItem key="black">Black</SelectItem>
+                            <SelectItem key="white">White</SelectItem>
+                            <SelectItem key="gray">Gray</SelectItem>
+                          </Select>
+                        </div>
+                        <div
+                          className={`flex relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer`}
+                        >
+                          {card.images[imageIndex] ? (
+                            <>
+                              <img
+                                src={card.images[imageIndex]}
+                                alt={`Uploaded ${imageIndex + 1}`}
+                                className="h-full w-full object-cover rounded-lg"
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
                                 <Button
+                                  isIconOnly
                                   onPress={() =>
                                     handleEdit(cardIndex, imageIndex)
                                   }
+                                  color="secondary"
+                                  size="sm"
                                 >
-                                  <LibraryBig />
+                                  <Pencil size={18} />
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  onClick={() => {
+                                    const updatedCards = [...cards];
+                                    updatedCards[cardIndex].images[imageIndex] =
+                                      null;
+                                    updatedCards[cardIndex].colors[imageIndex] =
+                                      null;
+                                    setCards(updatedCards);
+                                  }}
+                                  color="danger"
+                                  size="sm"
+                                >
+                                  <Trash2 size={18} />
                                 </Button>
                               </div>
-                            )}
-                          </div>
+                            </>
+                          ) : (
+                            <div className="flex flex-col items-center space-y-2">
+                              {/* <h1>asdj</h1> */}
+                              <Button
+                                color="secondary"
+                                onPress={() =>
+                                  handleEdit(cardIndex, imageIndex)
+                                }
+                              >
+                                <LibraryBig /> Select
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                      )
-                    )}
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-          <div className="mt-4 flex justify-between">
-            <Button color="secondary" onClick={handleAddCard} type="button">
-              Add Card
-            </Button>
-            <Button
-              color="primary"
-              type="submit"
-              isDisabled={
-                !title ||
-                cards.some(
-                  (card) =>
-                    card.images.some((img) => img === null) ||
-                    !card.colors.length
-                )
-              }
-            >
-              Create Game
-            </Button>
-          </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </CardBody>
+            </Card>
+          ))}
         </div>
       </form>
 
@@ -614,6 +636,16 @@ const index = () => {
           )}
         </ModalContent>
       </Modal>
+      <Button
+        size="lg"
+        radius="sm"
+        color="secondary"
+        className="mb-4 text-sm"
+        onClick={handleAddCard}
+        type="button"
+      >
+        Add Card
+      </Button>
     </div>
   );
 };

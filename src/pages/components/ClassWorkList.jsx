@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { Trash2, Edit, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
 import { TbCards } from "react-icons/tb";
+import { FaRegLightbulb } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 
 const ClassWorkList = ({ room_code, games = [] }) => {
@@ -187,10 +188,10 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             <Palette className="w-8 h-8 text-white" />
           </div>
         );
-      case "descision maker":
+      case "decision maker":
         return (
           <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-            <Palette className="w-8 h-8 text-white" />
+            <FaRegLightbulb className="text-3xl text-white -rotate-[15deg]" />
           </div>
         );
       default:
