@@ -40,7 +40,7 @@ const CreateClassWork = ({ room_code }) => {
         onOpenChange={onOpenChange}
         placement="center"
         scrollBehavior="inside"
-        size="xl"
+        size="3xl"
         classNames={{
           body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
           header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
@@ -59,98 +59,151 @@ const CreateClassWork = ({ room_code }) => {
           <ModalBody className="pb-6">
             <div className="grid grid-cols-4 gap-4 max-sm:grid-cols-2 ">
               <Card
-                className="relative col-span-2 hover:bg-gray-200"
+                className="col-span-2 px-3 hover:bg-gray-200 flex items-center"
                 isPressable
               >
                 <Link
                   href={`/create_flashcard?room_code=${room_code}`}
-                  className="w-full py-4 justify-center "
+                  className="w-full h-full flex flex-col justify-center items-center"
                 >
-                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
-                    <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
-                      <TbCards className="text-5xl text-white" />
+                  <CardHeader className="flex gap-5 pt-5 items-center justify-start ">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#7469B6] p-1 rounded-full">
+                        <TbCards className="text-xl text-white" />
+                      </div>
+                      <p className="font-bold text-xl ml-3">Flashcard</p>
                     </div>
                   </CardHeader>
-                  <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">Flashcard</p>
+                  <CardBody className="overflow-visible pt-0 pb-5 text-left">
+                    <p className="text-sm">
+                      Tool used to teach the student to identify and remember
+                      the objects seen or used in the environement. for memory
+                      retention
+                    </p>
                   </CardBody>
                 </Link>
               </Card>
 
-              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+              <Card
+                className="col-span-2 px-3 hover:bg-gray-200 flex items-center"
+                isPressable
+              >
                 <Link
                   href={`/create_4pics1word?room_code=${room_code}`}
-                  className="w-full py-4 justify-center "
+                  className="w-full h-full flex flex-col justify-center items-center"
                 >
-                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
-                    <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
-                      <LayoutGrid className="w-9 h-9 text-white" />
+                  <CardHeader className="flex gap-5 pt-5 items-center justify-start ">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#7469B6] p-1 rounded-full">
+                        <LayoutGrid className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="font-bold text-xl ml-3">ThinkPic</p>
                     </div>
                   </CardHeader>
-                  <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">ThinkPic</p>
+                  <CardBody className="overflow-visible pt-0 pb-5 text-left">
+                    <p className="text-sm">
+                      Challenge students to guess the word that connects to the
+                      images. Test the students' problem solving skills and
+                      their vocabulary.
+                    </p>
                   </CardBody>
                 </Link>
               </Card>
-              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+              <Card
+                className="col-span-2 px-3 hover:bg-gray-200 flex items-center"
+                isPressable
+              >
                 <Link
                   href={`/create_4pics1word_advanced?room_code=${room_code}`}
-                  className="w-full py-4 justify-center"
+                  className="w-full h-full flex flex-col justify-center items-center"
                 >
-                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
-                    <div className="relative flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
-                      <LayoutGrid className="w-9 h-9 text-white" />
+                  <CardHeader className="flex gap-5 pt-5 items-center justify-start">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#f31260] p-1 rounded-full">
+                        <LayoutGrid className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="font-bold text-xl ml-3">ThinkPic+</p>
                     </div>
                   </CardHeader>
-                  <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">ThinkPic +</p>
+                  <CardBody className="overflow-visible pt-0 pb-5 text-left">
+                    <p className="text-sm">
+                      Challenge students to guess the word using the images as
+                      the options. This will further test the student's skills
+                      in problem solving.
+                    </p>
                   </CardBody>
                 </Link>
               </Card>
 
-              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+              <Card
+                className="col-span-2 px-3 hover:bg-gray-200 flex items-center"
+                isPressable
+              >
                 <Link
                   href={`/create_color_game?room_code=${room_code}`}
-                  className="w-full py-4 justify-center"
+                  className="w-full h-full flex flex-col justify-center items-center"
                 >
-                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
-                    <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
-                      <Palette className="w-10 h-10 text-white" />
+                  <CardHeader className="flex gap-5 pt-5 items-center justify-start">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#7469B6] p-1 rounded-full">
+                        <Palette className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="font-bold text-xl ml-3">Color Game</p>
                     </div>
                   </CardHeader>
-                  <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">Color Game</p>
+                  <CardBody className="overflow-visible pt-0 pb-5 text-left">
+                    <p className="text-sm">
+                      Enchance students' color recognition skills through
+                      identifying images that will match to a specific color.
+                    </p>
                   </CardBody>
                 </Link>
               </Card>
-              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+              <Card
+                className="col-span-2 px-3 hover:bg-gray-200 flex items-center"
+                isPressable
+              >
                 <Link
                   href={`/create_color_game_advanced?room_code=${room_code}`}
-                  className="w-full py-4 justify-center"
+                  className="w-full h-full flex flex-col justify-center items-center"
                 >
-                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
-                    <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
-                      <Palette className="w-10 h-10 text-white" />
+                  <CardHeader className="flex gap-5 pt-5 items-center justify-start">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#f31260] p-1 rounded-full">
+                        <Palette className="w-4 h-4 text-white" />
+                      </div>
+                      <p className="font-bold text-xl ml-3">Color Game+</p>
                     </div>
                   </CardHeader>
-                  <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">Color Game +</p>
+                  <CardBody className="overflow-visible pt-0 pb-5 text-left">
+                    <p className="text-sm">
+                      Enchance students' color recognition skills through
+                      identifying images that will match to a specific color.
+                    </p>
                   </CardBody>
                 </Link>
               </Card>
-              <Card className="col-span-2 hover:bg-gray-200" isPressable>
+              <Card
+                className="col-span-2 px-3 hover:bg-gray-200 flex items-center"
+                isPressable
+              >
                 <Link
                   href={`/create_decision_maker?room_code=${room_code}`}
-                  className="w-full py-4 justify-center"
+                  className="w-full h-full flex flex-col justify-center items-center"
                 >
-                  <CardHeader className="pb-0 pt-2 px-4 flex gap-5 items-center justify-center ">
-                    <div className="flex items-center justify-center w-[80px] h-[80px] bg-[#7469B6] rounded-full">
-                      <FaRegLightbulb className="text-4xl text-white -rotate-[15deg]" />
+                  <CardHeader className="flex gap-5 pt-5 items-center justify-start">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#7469B6] p-1 rounded-full">
+                        <FaRegLightbulb className="text-lg text-white -rotate-[15deg]" />
+                      </div>
+                      <p className="font-bold text-xl ml-3">Decision Maker</p>
                     </div>
                   </CardHeader>
-                  <CardBody className="overflow-visible mt-2 py-2 justify-center text-center">
-                    <p className="uppercase font-bold text-lg">
-                      Decision Maker
+                  <CardBody className="overflow-visible pt-0 pb-5 text-left">
+                    <p className="text-sm">
+                      Practice the students' critical thinking skills by
+                      identifying right and wrong actions to help proper
+                      decision making in real life.z
                     </p>
                     {/* Lorem ipsum dolor sit amet consectetur, adipisicing elit.
                     Iure, libero? */}

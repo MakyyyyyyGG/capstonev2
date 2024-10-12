@@ -158,15 +158,47 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   const getGameTypeIcon = (game_type) => {
     switch (game_type.toLowerCase()) {
       case "flashcard":
-        return <TbCards className="text-4xl text-white" />;
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+            <TbCards className="text-4xl text-white" />
+          </div>
+        );
       case "thinkpic":
-        return <LayoutGrid className="w-7 h-7 text-white" />;
-      case "4 pics 1 word advanced":
-        return <LayoutGrid className="w-7 h-7 text-white" />;
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+            <LayoutGrid className="w-7 h-7 text-white" />
+          </div>
+        );
+      case "thinkpic +":
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#F31260] rounded-full">
+            <LayoutGrid className="w-7 h-7 text-white" />
+          </div>
+        );
       case "color game":
-        return <Palette className="w-8 h-8 text-white" />;
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+            <Palette className="w-8 h-8 text-white" />
+          </div>
+        );
+      case "color game advanced":
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#F31260] rounded-full">
+            <Palette className="w-8 h-8 text-white" />
+          </div>
+        );
+      case "descision maker":
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+            <Palette className="w-8 h-8 text-white" />
+          </div>
+        );
       default:
-        return <TbCards className="text-4xl text-white" />; // Default to flashcards if game type is unknown
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+            <TbCards className="text-4xl text-white" />
+          </div>
+        ); // Default to flashcards if game type is unknown
     }
   };
 

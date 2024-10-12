@@ -38,23 +38,11 @@ const Dashboard = () => {
   }, [session?.user?.id]);
 
   return (
-    <div>
-      <Header
-        isCollapsed={isCollapsedSidebar}
-        toggleCollapse={toggleSidebarCollapseHandler}
-      />
-      <div className="flex border-2">
-        <Sidebar
-          isCollapsed={isCollapsedSidebar}
-          toggleCollapse={toggleSidebarCollapseHandler}
-        />
-        <div className="p-4 w-full">
-          {/* Pass the fetchRooms function to CreateRoom */}
-          <CreateRoom onRoomCreated={fetchRooms} />
-          <div>
-            <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />
-          </div>
-        </div>
+    <div className="p-4 w-full">
+      {/* Pass the fetchRooms function to CreateRoom */}
+      <CreateRoom onRoomCreated={fetchRooms} />
+      <div className="w-full">
+        <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />
       </div>
     </div>
   );
