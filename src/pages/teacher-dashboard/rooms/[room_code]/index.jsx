@@ -2,18 +2,21 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import DeleteRoom from "@/pages/components/DeleteRoom";
-import { Settings, SquareLibrary, Shapes, GraduationCap } from "lucide-react";
+import {
+  Settings,
+  SquareLibrary,
+  Shapes,
+  GraduationCap,
+  Trophy,
+} from "lucide-react";
 import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
 import CreateClassWork from "@/pages/components/CreateClassWork";
 import ClassWorkList from "@/pages/components/ClassWorkList";
+import Scores from "@/pages/components/Scores";
 import {
   Autocomplete,
   AutocompleteItem,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   Input,
   Divider,
   Card,
@@ -26,11 +29,11 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
   Button,
   useDisclosure,
 } from "@nextui-org/react";
 import StudentList from "@/pages/components/StudentList";
+
 const fetchRoomDetails = async (room_code, setRoomData) => {
   try {
     const res = await fetch(
@@ -38,9 +41,18 @@ const fetchRoomDetails = async (room_code, setRoomData) => {
     );
     const data = await res.json();
     setRoomData(data.roomsData);
-    console.log(data);
   } catch (error) {
     console.error("Error fetching room details:", error);
+  }
+};
+
+const fetchStudentRecords = async (room_code, setStudentRecords) => {
+  try {
+    const res = await fetch(`/api/reports/game_records?room_code=${room_code}`);
+    const data = await res.json();
+    setStudentRecords(data.gameRecords);
+  } catch (error) {
+    console.error("Error fetching student records:", error);
   }
 };
 
@@ -58,11 +70,6 @@ const fetchStudents = async (room_code, setStudents) => {
 
 const IndividualRoom = () => {
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
-
-  function toggleSidebarCollapseHandler() {
-    setIsCollapsedSidebar((prev) => !prev);
-  }
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: session } = useSession();
   const [roomData, setRoomData] = useState(null);
@@ -71,26 +78,29 @@ const IndividualRoom = () => {
   const [roomName, setRoomName] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [selectedTab, setSelectedTab] = useState("classroom");
+  const [studentRecords, setStudentRecords] = useState([]);
   const router = useRouter();
 
   const { room_code } = router.query;
+
   const fetchGames = async () => {
-    const response = await fetch(
-      `/api/games/fetch_games?room_code=${room_code}`
-    );
-    const data = await response.json();
-    setGames(data);
-    // console.log("data:", data);
+    try {
+      const response = await fetch(
+        `/api/games/fetch_games?room_code=${room_code}`
+      );
+      const data = await response.json();
+      setGames(data);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    }
   };
 
   useEffect(() => {
-    fetchGames(); // Preload games data while on classroom tab
-  }, [room_code]);
-
-  useEffect(() => {
     if (room_code) {
+      fetchGames();
       fetchRoomDetails(room_code, setRoomData);
       fetchStudents(room_code, setStudents);
+      fetchStudentRecords(room_code, setStudentRecords);
     }
   }, [room_code]);
 
@@ -103,31 +113,18 @@ const IndividualRoom = () => {
 
   if (!roomData) return <p>Loading...</p>;
 
-  const updatedRoomName = (key) => {
-    setRoomName(key);
-  };
-  const handleDifficultyChange = (key) => {
-    console.log("Selected difficulty:", key); // Debugging line
-    setDifficulty(key);
-  };
-
-  const handlUpdateRoom = async (e) => {
+  const handleUpdateRoom = async (e) => {
     e.preventDefault();
-    if (difficulty === "" && roomName === "") {
+    if (!difficulty && !roomName) {
       alert("Input at least one field");
-      if (difficulty === "") {
-        setDifficulty(roomData[0]?.room_difficulty);
-      }
-      if (roomName === "") {
-        setRoomName(roomData[0]?.room_name);
-      }
+      setDifficulty(roomData[0]?.room_difficulty);
+      setRoomName(roomData[0]?.room_name);
+      return;
     }
 
     const updatedRoomData = {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         room_name: roomName || roomData[0]?.room_name,
         room_difficulty: difficulty || roomData[0]?.room_difficulty,
@@ -142,6 +139,7 @@ const IndividualRoom = () => {
       const result = await response.json();
       if (response.ok) {
         console.log("Room updated successfully", result);
+        fetchRoomDetails(room_code, setRoomData);
       } else {
         console.error("Error updating room:", result.error);
       }
@@ -151,20 +149,18 @@ const IndividualRoom = () => {
     setDifficulty("");
     setRoomName("");
     onOpenChange(false);
-
-    fetchRoomDetails(room_code, setRoomData);
   };
 
   return (
     <div>
       <Header
         isCollapsed={isCollapsedSidebar}
-        toggleCollapse={toggleSidebarCollapseHandler}
+        toggleCollapse={() => setIsCollapsedSidebar((prev) => !prev)}
       />
       <div className="flex">
         <Sidebar
           isCollapsed={isCollapsedSidebar}
-          toggleCollapse={toggleSidebarCollapseHandler}
+          toggleCollapse={() => setIsCollapsedSidebar((prev) => !prev)}
         />
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           <div className="">
@@ -180,89 +176,6 @@ const IndividualRoom = () => {
                   onPress={onOpen}
                 >
                   <Settings />
-
-                  <Modal
-                    isOpen={isOpen}
-                    onOpenChange={onOpenChange}
-                    size="full"
-                  >
-                    <ModalContent>
-                      {(onClose) => (
-                        <>
-                          <ModalHeader className="flex flex-col gap-1">
-                            <h1>Room settings</h1>
-
-                            <Divider />
-                          </ModalHeader>
-                          <ModalBody>
-                            <div className="flex justify-center w-full mx-auto">
-                              <Card className="w-full max-w-[700px] p-4 max-sm:p-2">
-                                <CardHeader>
-                                  <h1 className="text-2xl font-extrabold">
-                                    Room Details
-                                  </h1>
-                                </CardHeader>
-                                <CardBody>
-                                  <Input
-                                    placeholder={roomData[0]?.room_name}
-                                    label="Room Name"
-                                    onChange={(e) =>
-                                      updatedRoomName(e.target.value)
-                                    }
-                                  />
-
-                                  <Autocomplete
-                                    className="mt-4"
-                                    label="Select a difficulty"
-                                    placeholder={roomData[0].room_difficulty}
-                                    onSelectionChange={handleDifficultyChange}
-                                  >
-                                    <AutocompleteItem
-                                      key="Easy"
-                                      value="Easy"
-                                      color="success"
-                                    >
-                                      Easy
-                                    </AutocompleteItem>
-                                    <AutocompleteItem
-                                      key="Moderate"
-                                      value="Moderate"
-                                      color="warning"
-                                    >
-                                      Moderate
-                                    </AutocompleteItem>
-                                    <AutocompleteItem
-                                      key="Hard"
-                                      value="Hard"
-                                      color="danger"
-                                    >
-                                      Hard
-                                    </AutocompleteItem>
-                                  </Autocomplete>
-                                </CardBody>
-                                <CardFooter className="flex justify-end gap-2">
-                                  <Button
-                                    className="bg-[#7469B6] text-white border-0"
-                                    size="md"
-                                    onClick={handlUpdateRoom}
-                                  >
-                                    Update
-                                  </Button>
-                                  <Button
-                                    color="danger"
-                                    size="md"
-                                    onPress={onClose}
-                                  >
-                                    Cancel
-                                  </Button>
-                                </CardFooter>
-                              </Card>
-                            </div>
-                          </ModalBody>
-                        </>
-                      )}
-                    </ModalContent>
-                  </Modal>
                 </Button>
                 <DeleteRoom
                   room={roomData[0]}
@@ -270,52 +183,59 @@ const IndividualRoom = () => {
                 />
               </div>
             </div>
-            <div className="w-full">
-              <Tabs
-                aria-label="Options"
-                color="secondary"
-                variant="underlined"
-                className="w-full"
-                classNames={{
-                  tabList:
-                    "gap-8 w-full relative rounded-none p-0 border-b-2 border-divider max-sm:gap-4",
-                  cursor: "w-full bg-[#7469B6]",
-                  tab: "max-w-fit px-0 h-12",
-                  tabContent:
-                    "group-data-[selected=true]:text-[#7469B6] font-bold max-sm:text-xs",
-                }}
-                selectedKey={selectedTab}
-                onSelectionChange={setSelectedTab}
-              >
-                <Tab
-                  key="classroom"
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <Shapes className="max-sm:w-4 max-sm:h-4" />
-                      <span>Classroom</span>
-                    </div>
-                  }
-                />
-                <Tab
-                  key="classworks"
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <SquareLibrary className="max-sm:w-4 max-sm:h-4" />
-                      <span>Classworks</span>
-                    </div>
-                  }
-                ></Tab>
-                <Tab
-                  key="students"
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <GraduationCap className="max-sm:w-4 max-sm:h-4" />
-                      <span>Students</span>
-                    </div>
-                  }
-                ></Tab>
-              </Tabs>
-            </div>
+            <Tabs
+              aria-label="Options"
+              color="secondary"
+              variant="underlined"
+              className="w-full"
+              classNames={{
+                tabList:
+                  "gap-8 w-full relative rounded-none p-0 border-b-2 border-divider max-sm:gap-4",
+                cursor: "w-full bg-[#7469B6]",
+                tab: "max-w-fit px-0 h-12",
+                tabContent:
+                  "group-data-[selected=true]:text-[#7469B6] font-bold max-sm:text-xs",
+              }}
+              selectedKey={selectedTab}
+              onSelectionChange={setSelectedTab}
+            >
+              <Tab
+                key="classroom"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <Shapes className="max-sm:w-4 max-sm:h-4" />
+                    <span>Classroom</span>
+                  </div>
+                }
+              />
+              <Tab
+                key="classworks"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <SquareLibrary className="max-sm:w-4 max-sm:h-4" />
+                    <span>Classworks</span>
+                  </div>
+                }
+              />
+              <Tab
+                key="students"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <GraduationCap className="max-sm:w-4 max-sm:h-4" />
+                    <span>Students</span>
+                  </div>
+                }
+              />
+              <Tab
+                key="grades"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <Trophy className="max-sm:w-4 max-sm:h-4" />
+                    <span>Scores</span>
+                  </div>
+                }
+              />
+            </Tabs>
           </div>
           <div>
             {selectedTab === "classroom" && (
@@ -339,15 +259,85 @@ const IndividualRoom = () => {
             )}
             {selectedTab === "students" && (
               <div className="flex items-center gap-4 w-full">
-                <StudentList room_code={room_code} />
+                <StudentList students={students} />
               </div>
             )}
-
-            <div className="mt-5"></div>
-            {/* Add more details as needed */}
+            {selectedTab === "grades" && (
+              <div className="flex items-center gap-4 w-full">
+                <Scores studentRecords={studentRecords} students={students} />
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="full">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <h1>Room settings</h1>
+                <Divider />
+              </ModalHeader>
+              <ModalBody>
+                <div className="flex justify-center w-full mx-auto">
+                  <Card className="w-full max-w-[700px] p-4 max-sm:p-2">
+                    <CardHeader>
+                      <h1 className="text-2xl font-extrabold">Room Details</h1>
+                    </CardHeader>
+                    <CardBody>
+                      <Input
+                        placeholder={roomData[0]?.room_name}
+                        label="Room Name"
+                        onChange={(e) => setRoomName(e.target.value)}
+                      />
+                      <Autocomplete
+                        className="mt-4"
+                        label="Select a difficulty"
+                        placeholder={roomData[0].room_difficulty}
+                        onSelectionChange={setDifficulty}
+                      >
+                        <AutocompleteItem
+                          key="Easy"
+                          value="Easy"
+                          color="success"
+                        >
+                          Easy
+                        </AutocompleteItem>
+                        <AutocompleteItem
+                          key="Moderate"
+                          value="Moderate"
+                          color="warning"
+                        >
+                          Moderate
+                        </AutocompleteItem>
+                        <AutocompleteItem
+                          key="Hard"
+                          value="Hard"
+                          color="danger"
+                        >
+                          Hard
+                        </AutocompleteItem>
+                      </Autocomplete>
+                    </CardBody>
+                    <CardFooter className="flex justify-end gap-2">
+                      <Button
+                        className="bg-[#7469B6] text-white border-0"
+                        size="md"
+                        onClick={handleUpdateRoom}
+                      >
+                        Update
+                      </Button>
+                      <Button color="danger" size="md" onPress={onClose}>
+                        Cancel
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </div>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

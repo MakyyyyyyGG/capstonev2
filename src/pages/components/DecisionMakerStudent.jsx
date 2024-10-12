@@ -32,6 +32,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import BarChart from "./BarChart";
+import GameHistory from "./GameHistory";
 
 const DecisionMakerStudent = ({ cards }) => {
   const [firstCard, setFirstCard] = useState(null);
@@ -242,6 +243,7 @@ const DecisionMakerStudent = ({ cards }) => {
       ) : (
         <>
           <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+          <GameHistory gameRecord={gameRecord} cards={cards.length} />
           {attemptsUsed >= 8 && (
             <div className="w-1/2 bg-red-400 rounded-md p-4">
               <p className="text-white">

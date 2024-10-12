@@ -1,7 +1,7 @@
 import React from "react";
 import CreateRoom from "./CreateRoom";
 import { Link, Divider, Accordion, AccordionItem } from "@nextui-org/react";
-import { House, Phone, BookA, School } from "lucide-react";
+import { House, Phone, BookA, School, ChartNoAxesCombined } from "lucide-react";
 
 const sidebarItems1 = [
   {
@@ -10,9 +10,9 @@ const sidebarItems1 = [
     icon: House,
   },
   {
-    name: "SidebarLink2",
-    href: "/",
-    icon: Phone,
+    name: "Reports",
+    href: "/teacher-dashboard/reports",
+    icon: ChartNoAxesCombined,
   },
   {
     name: "SidebarLink3",

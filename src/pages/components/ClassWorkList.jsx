@@ -136,7 +136,11 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   };
 
   useEffect(() => {
-    isTeacher();
+    if (session) {
+      isTeacher();
+    } else {
+      return;
+    }
   }, [session]);
 
   const getRedirectUrl = (game) => {

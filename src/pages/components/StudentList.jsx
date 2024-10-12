@@ -2,31 +2,31 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Chip, Divider, Avatar } from "@nextui-org/react";
 
-const fetchStudents = async (room_code, setStudents) => {
-  try {
-    const res = await fetch(
-      `/api/accounts_teacher/room/students_list?room_code=${room_code}`
-    );
-    const data = await res.json();
-    setStudents(data.studentsData);
-  } catch (error) {
-    console.error("Error fetching students:", error);
-  }
-};
+// const fetchStudents = async (room_code, setStudents) => {
+//   try {
+//     const res = await fetch(
+//       `/api/accounts_teacher/room/students_list?room_code=${room_code}`
+//     );
+//     const data = await res.json();
+//     setStudents(data.studentsData);
+//   } catch (error) {
+//     console.error("Error fetching students:", error);
+//   }
+// };
 
-const StudentList = ({ room_code }) => {
+const StudentList = ({ students }) => {
   const { data: session, status } = useSession();
-  const [students, setStudents] = useState([]);
+  // const [students, setStudents] = useState([]);
 
   if (status === "loading") {
     return <p>Loading...</p>;
   }
 
-  useEffect(() => {
-    if (room_code) {
-      fetchStudents(room_code, setStudents);
-    }
-  }, [room_code]);
+  // useEffect(() => {
+  //   if (room_code) {
+  //     fetchStudents(room_code, setStudents);
+  //   }
+  // }, [room_code]);
 
   return (
     <div className="w-full">
@@ -41,7 +41,7 @@ const StudentList = ({ room_code }) => {
             <div className="flex items-center gap-6 items-center p-2">
               <div className="flex items-center pl-2">
                 <div className="px-4">
-                  <Avatar size="md" src="" />
+                  <Avatar size="md" src={student.profile_image} />
                 </div>
                 <div>
                   <p className="font-bold">

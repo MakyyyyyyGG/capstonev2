@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       const game_id = req.query.game_id;
       const result = await query({
         query:
-          "SELECT * FROM user_game_plays WHERE account_id = ? AND game_id = ?",
+          "SELECT * FROM user_game_plays WHERE account_id = ? AND game_id = ? ORDER BY created_at DESC",
         values: [account_id, game_id],
       });
       return res

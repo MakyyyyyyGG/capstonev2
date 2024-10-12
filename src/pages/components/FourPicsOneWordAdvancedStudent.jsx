@@ -14,6 +14,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
 import BarChart from "./BarChart";
+import GameHistory from "./GameHistory";
 const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
   const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
@@ -224,6 +225,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
         <>
           <h1>Score: {score}</h1>
           <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+          <GameHistory gameRecord={gameRecord} cards={cards.length} />
           {attemptsUsed >= 8 && (
             <div className="w-1/2 bg-red-400 rounded-md p-4">
               <p className="text-white">
@@ -233,7 +235,6 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
             </div>
           )}
           <div className="w-1/2 m-auto my-4">
-            h1
             <Progress
               value={(answer / cards.length) * 100}
               classNames={{

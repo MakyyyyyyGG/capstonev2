@@ -13,6 +13,7 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
+import GameHistory from "./GameHistory";
 
 const FourPicsOneWordStudent = ({ cards }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
@@ -239,6 +240,7 @@ const FourPicsOneWordStudent = ({ cards }) => {
             Score: {score} / {cards.length}
           </h1>
           <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+          <GameHistory gameRecord={gameRecord} cards={cards.length} />
           {attemptsUsed >= 8 && (
             <div className="w-1/2 bg-red-400 rounded-md p-4">
               <p className="text-white">
