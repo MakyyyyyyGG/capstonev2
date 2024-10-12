@@ -9,8 +9,7 @@ import {
   GraduationCap,
   Trophy,
 } from "lucide-react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
+
 import CreateClassWork from "@/pages/components/CreateClassWork";
 import ClassWorkList from "@/pages/components/ClassWorkList";
 import Scores from "@/pages/components/Scores";
@@ -152,16 +151,8 @@ const IndividualRoom = () => {
   };
 
   return (
-    <div>
-      <Header
-        isCollapsed={isCollapsedSidebar}
-        toggleCollapse={() => setIsCollapsedSidebar((prev) => !prev)}
-      />
+    <div className="w-full">
       <div className="flex">
-        <Sidebar
-          isCollapsed={isCollapsedSidebar}
-          toggleCollapse={() => setIsCollapsedSidebar((prev) => !prev)}
-        />
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           <div className="">
             <div className="flex justify-between items-center">

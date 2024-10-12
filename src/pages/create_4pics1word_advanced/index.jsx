@@ -1,13 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
+import Header from "@/pages/components/Header";
+import Sidebar from "@/pages/components/Sidebar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { CircleCheck, Volume2 } from "lucide-react";
+import { CircleCheck, Volume2, Trash2, Plus, Pencil } from "lucide-react";
 
 import {
   Card,
+  CardHeader,
   CardBody,
+  CardFooter,
+  Divider,
   Input,
   Button,
   Modal,
@@ -62,6 +67,12 @@ const Index = () => {
   useEffect(() => {
     initializeRefs(cards.length);
   }, [cards]);
+
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
+
+  function toggleSidebarCollapseHandler() {
+    setIsCollapsedSidebar((prev) => !prev);
+  }
 
   const handleFileChange = (e, cardIndex, imageIndex) => {
     const file = e.target.files[0];
@@ -287,15 +298,26 @@ const Index = () => {
     }
   };
   return (
-    <div>
-      <h1>create_thinkpic_plus</h1>
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+        <h1>Create a new ThinkPic+ Set</h1>
+        <div>
+          <Button
+            color="secondary"
+            onPress={handleSubmit}
+            isDisabled={!title || !difficulty || cards.length < 2}
+          >
+            Create
+          </Button>
+        </div>
+      </div>
       <h1>room code {room_code}</h1>
-      <div className="w-80">
+      <div className="flex gap-2 items-center z-0 max-sm:flex-col">
         <Input
           isRequired
           label="Title"
           onChange={(e) => setTitle(e.target.value)}
-          className="mb-4 w-80"
+          className="w-3/5 max-sm:w-full"
         />
         <Select
           label="Difficulty"
@@ -303,50 +325,61 @@ const Index = () => {
             setDifficulty(e.target.value);
           }}
           isRequired
+          className="w-2/5 max-sm:w-full"
         >
           <SelectItem key="easy">Easy (2 images)</SelectItem>
           <SelectItem key="medium">Medium (3 images)</SelectItem>
           <SelectItem key="hard">Hard (4 images)</SelectItem>
         </Select>
       </div>
-      <div className="p-4">
-        <div className="grid grid-cols-3 gap-4">
-          {cards.map((card, cardIndex) => (
-            <Card key={cardIndex} className="w-full ">
-              <CardBody>
-                <div className="flex items-center justify-between">
-                  <h1 className="mb-4 text-lg font-semibold">ThinkPic +</h1>
-                  <Button
-                    onPress={() => handleRemoveCard(cardIndex)}
-                    color="danger"
-                    className="mb-4"
-                  >
-                    Remove Card
-                  </Button>
-                </div>
-
-                <form action="">
-                  <Input
-                    label="Word"
-                    className="mb-4"
-                    color="secondary"
-                    value={card.word}
-                    onChange={(e) => {
-                      const updatedCards = [...cards];
-                      updatedCards[cardIndex].word = e.target.value;
-                      setCards(updatedCards);
-                    }}
-                  />
-                  {card.word && (
-                    <Button
-                      className="mb-4"
+      <div className="flex flex-wrap gap-4">
+        {cards.map((card, cardIndex) => (
+          <Card
+            key={cardIndex}
+            className="w-full border border-slate-800 rounded-md flex"
+          >
+            <CardHeader className="flex px-3 justify-between items-center z-0">
+              <div className="pl-2 text-xl font-bold">
+                <h1>{cardIndex + 1}</h1>
+              </div>
+              <div className="flex">
+                <Button
+                  isIconOnly
+                  color="danger"
+                  onPress={() => handleRemoveCard(cardIndex)}
+                >
+                  <Trash2 size={22} />
+                </Button>
+              </div>
+            </CardHeader>
+            <Divider className="m-0 h-0.5 bg-slate-300" />
+            <CardBody className="flex px-3 pb-6 items-center z-0">
+              <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                <form action="" className="w-full">
+                  <div className="flex shrink w-full mb-4 items-center">
+                    <Input
+                      label="Word"
+                      variant="underlined"
                       color="secondary"
-                      onPress={() => handleTextToSpeech(card.word)}
-                    >
-                      <Volume2 />
-                    </Button>
-                  )}
-                  <div className="grid grid-cols-2 gap-4">
+                      className="text-[#7469B6] px-2 z-0"
+                      value={card.word}
+                      onChange={(e) => {
+                        const updatedCards = [...cards];
+                        updatedCards[cardIndex].word = e.target.value;
+                        setCards(updatedCards);
+                      }}
+                    />
+                    {card.word && (
+                      <Button
+                        isIconOnly
+                        color="secondary"
+                        onPress={() => handleTextToSpeech(card.word)}
+                      >
+                        <Volume2 />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-4 justify-center max-sm:gap-2">
                     {card.images
                       .slice(
                         0,
@@ -359,7 +392,7 @@ const Index = () => {
                       .map((image, imageIndex) => (
                         <div
                           key={imageIndex}
-                          className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 ${
+                          className={`relative block w-[18rem] aspect-square bg-gray-100 rounded-lg border-2 max-sm:w-[14rem] ${
                             draggingIndex?.cardIndex === cardIndex &&
                             draggingIndex?.imageIndex === imageIndex
                               ? "border-green-500"
@@ -374,17 +407,19 @@ const Index = () => {
                         >
                           {image ? (
                             <>
-                              <div className="  flex items-center  space-x-2 m-2 p-2  w-full">
+                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity p-2 z-10">
                                 <Button
+                                  isIconOnly
                                   onClick={() =>
                                     handleEdit(cardIndex, imageIndex)
                                   }
                                   color="secondary"
                                   size="sm"
                                 >
-                                  Edit
+                                  <Pencil size={18} />
                                 </Button>
                                 <Button
+                                  isIconOnly
                                   onClick={() => {
                                     const updatedCards = [...cards];
                                     updatedCards[cardIndex].images[imageIndex] =
@@ -394,8 +429,10 @@ const Index = () => {
                                   color="danger"
                                   size="sm"
                                 >
-                                  Delete
+                                  <Trash2 size={18} />
                                 </Button>
+                              </div>
+                              <div className="absolute p-2 z-10 top-0 right-0">
                                 {card.correct_answers.includes(imageIndex) ? (
                                   <div
                                     className="bg-green-500 p-2 rounded-full"
@@ -496,66 +533,65 @@ const Index = () => {
                       ))}
                   </div>
                 </form>
-              </CardBody>
-            </Card>
-          ))}
-
-          <div className="col-span-3 mt-4 flex justify-between">
-            <Button color="secondary" onClick={handleAddCard}>
-              Add +
-            </Button>
-            <Button
-              color="secondary"
-              onPress={handleSubmit}
-              isDisabled={!title || !difficulty || cards.length < 2}
-            >
-              Create
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Crop Image</ModalHeader>
-          <ModalBody>
-            {tempImage && (
-              <div className="w-full h-full">
-                <ReactCrop
-                  src={tempImage}
-                  crop={crop}
-                  onChange={(newCrop) => setCrop(newCrop)}
-                  onImageLoaded={onImageLoad}
-                  aspect={1}
-                >
-                  {tempImage && (
-                    <img
-                      src={tempImage}
-                      onLoad={onImageLoad}
-                      alt="Crop preview"
-                      className="w-full h-full object-contain"
-                    />
-                  )}
-                </ReactCrop>
               </div>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              auto
-              onClick={() => {
-                setIsOpen(false);
-              }}
-              color="secondary"
-            >
-              Close
-            </Button>
-            <Button auto onClick={handleCrop} color="primary">
+            </CardBody>
+          </Card>
+        ))}
+
+        <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+          <ModalContent>
+            <ModalHeader className="flex flex-col gap-1">
               Crop Image
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            </ModalHeader>
+            <ModalBody>
+              {tempImage && (
+                <div className="w-full h-full">
+                  <ReactCrop
+                    src={tempImage}
+                    crop={crop}
+                    onChange={(newCrop) => setCrop(newCrop)}
+                    onImageLoaded={onImageLoad}
+                    aspect={1}
+                  >
+                    {tempImage && (
+                      <img
+                        src={tempImage}
+                        onLoad={onImageLoad}
+                        alt="Crop preview"
+                        className="w-full h-full object-contain"
+                      />
+                    )}
+                  </ReactCrop>
+                </div>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                auto
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+                color="secondary"
+              >
+                Close
+              </Button>
+              <Button auto onClick={handleCrop} color="primary">
+                Crop Image
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </div>
+      <Button
+        size="lg"
+        radius="sm"
+        color="secondary"
+        className="my-4 text-sm"
+        onClick={handleAddCard}
+        startContent={<Plus size={22} />}
+      >
+        Add
+      </Button>
     </div>
   );
 };
