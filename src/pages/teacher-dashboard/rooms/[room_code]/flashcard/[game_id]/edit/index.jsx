@@ -424,7 +424,10 @@ const Index = () => {
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
             <h1>Edit Flashcards Page</h1>
             <div>
-              <Button onClick={handleSave} color="secondary" className="mt-5">
+              <Button
+                onClick={handleSave}
+                className="mt-5 bg-[#7469B6] text-white border-0"
+              >
                 Save Changes
               </Button>
             </div>
@@ -440,7 +443,7 @@ const Index = () => {
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        color="secondary"
+                        className="bg-[#7469B6] text-white border-0"
                         onPress={() => {
                           setIsImageModalOpen(true);
                           setCurrentIndex(index);
@@ -534,7 +537,7 @@ const Index = () => {
                                   Cancel
                                 </Button>
                                 <Button
-                                  color="secondary"
+                                  className="bg-[#7469B6] text-white border-0"
                                   onPress={confirmImage}
                                 >
                                   Insert
@@ -569,7 +572,7 @@ const Index = () => {
                         />
                         {flashcard.term ? (
                           <Button
-                            color="secondary"
+                            className="bg-[#7469B6] text-white border-0"
                             onPress={() => handleTextToSpeech(flashcard.term)}
                           >
                             <Volume2 /> Play Term
@@ -621,8 +624,7 @@ const Index = () => {
                             <Button
                               isIconOnly
                               size="sm"
-                              color="secondary"
-                              className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                              className="absolute bg-[#7469B6] text-white border-0 bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
                             >
                               <ScanSearch size={18} />
                             </Button>
@@ -636,7 +638,7 @@ const Index = () => {
                     {/* <h1>flashcard ID: {flashcard.flashcard_id}</h1> */}
                     <div className="flex gap-2 items-center">
                       <Button
-                        color="secondary"
+                        className="bg-[#7469B6] text-white border-0"
                         onPress={() => {
                           setIsAudioModalOpen(true);
                           setCurrentIndex(index);
@@ -669,7 +671,7 @@ const Index = () => {
                               <ModalBody>
                                 {!isRecording ? (
                                   <Button
-                                    color="secondary"
+                                    className="bg-[#7469B6] text-white border-0"
                                     onClick={startRecording}
                                   >
                                     Start Recording
@@ -708,7 +710,7 @@ const Index = () => {
                                   Cancel
                                 </Button>
                                 <Button
-                                  color="secondary"
+                                  className="bg-[#7469B6] text-white border-0"
                                   onClick={() => {
                                     insertAudio();
                                     onClose();
@@ -732,8 +734,7 @@ const Index = () => {
           <Button
             size="lg"
             radius="sm"
-            color="secondary"
-            className="my-4 text-sm"
+            className="my-4 text-sm bg-[#7469B6] text-white border-0"
             onClick={addFlashcard}
             startContent={<Plus size={22} />}
           >
