@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import BarChart from "./BarChart";
-
+import GameHistory from "./GameHistory";
 const ColorGamesAdvancedStudent = ({ cards }) => {
   const [showImages, setShowImages] = useState(false);
   const [randomizedImages, setRandomizedImages] = useState({});
@@ -289,6 +289,7 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
           <h1>
             Score: {score} / {shuffledCards.length}
           </h1>
+          <GameHistory gameRecord={gameRecord} cards={cards.length} />
           <h1>Attempts used this month: {attemptsUsed} / 8</h1>
           {attemptsUsed >= 8 && (
             <div className="w-1/2 bg-red-400 rounded-md p-4">

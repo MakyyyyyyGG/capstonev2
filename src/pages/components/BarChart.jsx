@@ -107,6 +107,7 @@ export default function BarChartComponent({ gameRecord, questions }) {
         </h3>
 
         <BarChart
+          aria-sort="ascending"
           data={filteredChartData}
           index="month"
           categories={categories}

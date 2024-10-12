@@ -6,6 +6,7 @@ export default async function handler(req, res) {
     const studentsData = await query({
       query: `select 
 students.account_id,
+students.profile_image,
 	students.first_name,
     students.last_name,
     rooms.room_id

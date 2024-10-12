@@ -28,7 +28,7 @@ function AppContent({ Component, pageProps }) {
           font-family: ${inter.style.fontFamily}, sans-serif;
         }
       `}</style>
-      {session && (
+      {session ? (
         <>
           <Header
             isCollapsed={isCollapsedSidebar}
@@ -42,6 +42,8 @@ function AppContent({ Component, pageProps }) {
             <Component {...pageProps} />
           </div>
         </>
+      ) : (
+        <Component {...pageProps} />
       )}
     </>
   );

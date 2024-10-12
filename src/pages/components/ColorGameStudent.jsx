@@ -16,6 +16,7 @@ import Example from "./Example";
 import Callout from "./Callout";
 import BarChart from "./BarChart";
 import "swiper/swiper-bundle.css";
+import GameHistory from "./GameHistory";
 const ColorGames = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
@@ -298,6 +299,7 @@ const ColorGames = ({ cards }) => {
             </div>
           )}
           <h1>Score: {score}</h1>
+          <GameHistory gameRecord={gameRecord} cards={cards.length} />
           <div className="w-1/2 m-auto my-4">
             <Progress
               value={(answer / cards.length) * 100}
