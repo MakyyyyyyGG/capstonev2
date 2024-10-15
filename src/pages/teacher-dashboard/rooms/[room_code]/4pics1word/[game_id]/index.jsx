@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import FourPicsOneWord from "@/pages/components/FourPicsOneWord";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
+import { Pencil } from "lucide-react";
 
 const Index = () => {
   const router = useRouter();
@@ -36,17 +37,19 @@ const Index = () => {
   }, [game_id]);
 
   return (
-    <div>
-      <Button color="primary">
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word/${game_id}/edit`,
-          }}
-        >
-          Edit ThinkPic
-        </Link>
-      </Button>
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
       <FourPicsOneWord cards={cards} />
+      <div className="w-full flex justify-end">
+        <Button isIconOnly className="bg-[#7469B6] text-white border-0">
+          <Link
+            href={{
+              pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word/${game_id}/edit`,
+            }}
+          >
+            <Pencil size={22} />
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 };
