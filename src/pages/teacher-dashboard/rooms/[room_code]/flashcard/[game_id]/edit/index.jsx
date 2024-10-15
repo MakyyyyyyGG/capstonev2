@@ -574,13 +574,6 @@ const Index = () => {
                         handleInputChange(index, "description", e.target.value)
                       }
                     />
-                    {flashcard.audio && (
-                      <audio
-                        src={flashcard.audio}
-                        controls
-                        className="w-full"
-                      />
-                    )}
                     <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
                       <div className="relative flex flex-col gap-2">
                         <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
@@ -616,24 +609,29 @@ const Index = () => {
               <Divider className="m-0 h-0.5 bg-slate-300" />
               <CardFooter className="flex px-3 gap-2 items-center justify-between">
                 {/* <h1>flashcard ID: {flashcard.flashcard_id}</h1> */}
-                <div className="flex gap-2 items-center">
-                  <Button
-                    className="bg-[#7469B6] text-white border-0"
-                    onPress={() => {
-                      setIsAudioModalOpen(true);
-                      setCurrentIndex(index);
-                    }}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    color="danger"
-                    onPress={() => {
-                      removeAudio(index);
-                    }}
-                  >
-                    <Trash2 />
-                  </Button>
+                <div className="flex gap-2 w-full items-center max-sm:flex-col">
+                  <div className="flex gap-2">
+                    <Button
+                      className="bg-[#7469B6] text-white border-0"
+                      onPress={() => {
+                        setIsAudioModalOpen(true);
+                        setCurrentIndex(index);
+                      }}
+                    >
+                      <Mic size={22} /> Edit Audio
+                    </Button>
+                    <Button
+                      color="danger"
+                      onPress={() => {
+                        removeAudio(index);
+                      }}
+                    >
+                      <Trash2 size={22} /> Delete Audio
+                    </Button>
+                  </div>
+                  {flashcard.audio && (
+                    <audio src={flashcard.audio} controls className="w-full" />
+                  )}
                   <Modal
                     isOpen={isAudioModalOpen && currentIndex === index}
                     onOpenChange={() => setIsAudioModalOpen(false)}
@@ -670,17 +668,19 @@ const Index = () => {
                             )}
                             {tempAudioBlob && (
                               <>
-                                <audio
-                                  controls
-                                  src={URL.createObjectURL(tempAudioBlob)}
-                                ></audio>
-                                <div className="flex gap-2">
-                                  <Button
-                                    onClick={removeTempAudio}
-                                    color="danger"
-                                  >
-                                    Remove Temporary Audio
-                                  </Button>
+                                <div className="flex gap-2 items-center justify-between">
+                                  <audio
+                                    controls
+                                    src={URL.createObjectURL(tempAudioBlob)}
+                                  ></audio>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      onClick={removeTempAudio}
+                                      color="danger"
+                                    >
+                                      <Trash2 size={22} />
+                                    </Button>
+                                  </div>
                                 </div>
                               </>
                             )}

@@ -20,7 +20,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { Image, Plus, Trash2, ScanSearch } from "lucide-react";
+import { Image, Pencil, Plus, Trash2, ScanSearch } from "lucide-react";
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -424,12 +424,15 @@ const index = () => {
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
                   <Button
+                    isIconOnly
+                    size="sm"
                     color="secondary"
                     onClick={() => handleEdit(cardIndex, imageIndex)}
                   >
-                    Edit
+                    <Pencil size={18} />
                   </Button>
                   <Button
+                    isIconOnly
                     onClick={() => {
                       const updatedCards = [...cards];
                       updatedCards[cardIndex].images[imageIndex] = null;
@@ -437,8 +440,9 @@ const index = () => {
                       console.log("updatedCards", updatedCards);
                     }}
                     color="danger"
+                    size="sm"
                   >
-                    Delete
+                    <Trash2 size={18} />
                   </Button>
                 </div>
               </>
@@ -467,182 +471,166 @@ const index = () => {
   };
 
   return (
-    <div>
-      <Header
-        isCollapsed={isCollapsedSidebar}
-        toggleCollapse={toggleSidebarCollapseHandler}
-      />
-      <div className="flex border-2">
-        <Sidebar
-          isCollapsed={isCollapsedSidebar}
-          toggleCollapse={toggleSidebarCollapseHandler}
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+        <h1>Edit ThinkPic Set</h1>
+        <Button
+          color="secondary"
+          onPress={handleSave}
+          isDisabled={!title}
+          className="mt-5"
+        >
+          Save Changes
+        </Button>
+      </div>
+      <div className="flex gap-2 items-center">
+        <h1 className="text-lg font-bold">Difficulty:</h1>
+        <Chip
+          color={getChipColor(difficulty)}
+          radius="sm"
+          className="text-base text-white py-4 capitalize"
+        >
+          {difficulty}
+        </Chip>
+      </div>
+      <div className="flex gap-2 items-center z-0 max-sm:flex-col">
+        <Input
+          isRequired
+          label="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full"
         />
-        <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
-          <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-            <h1>Edit ThinkPic Set</h1>
-            <Button
-              color="secondary"
-              onPress={handleSave}
-              isDisabled={!title}
-              className="mt-5"
-            >
-              Save Changes
-            </Button>
-          </div>
-          <div className="flex gap-2 items-center">
-            <h1 className="text-lg font-bold">Difficulty:</h1>
-            <Chip
-              color={getChipColor(difficulty)}
-              radius="sm"
-              className="text-base text-white py-4 capitalize"
-            >
-              {difficulty}
-            </Chip>
-          </div>
-          <div className="flex gap-2 items-center z-0 max-sm:flex-col">
-            <Input
-              isRequired
-              label="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full"
-            />
-            <div className="flex gap-2 justify-end items-center max-sm:w-full">
-              {updateDifficulty ? (
-                <>
-                  <Select
-                    isRequired
-                    label="Difficulty"
-                    defaultSelectedKeys={[selectedDifficulty]}
-                    onChange={(e) => setSelectedDifficulty(e.target.value)}
-                    className="w-[15rem] max-sm:w-full"
-                  >
-                    <SelectItem value="easy" key="easy">
-                      Easy
-                    </SelectItem>
-                    <SelectItem value="medium" key="medium">
-                      Medium
-                    </SelectItem>
-                    <SelectItem value="hard" key="hard">
-                      Hard
-                    </SelectItem>
-                  </Select>
-                  <Button onClick={() => setUpdateDifficulty(false)}>
-                    Cancel
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  onClick={() => setUpdateDifficulty(!updateDifficulty)}
-                  color="secondary"
-                >
-                  Edit Difficulty
-                </Button>
-              )}
-            </div>
-          </div>
-          {/* <h1>room code {room_code}</h1> */}
-          <div className="flex flex-wrap gap-4">
-            {cards.map((card, cardIndex) => (
-              <Card
-                key={cardIndex}
-                className="w-full border border-slate-800 rounded-md flex"
+        <div className="flex gap-2 justify-end items-center max-sm:w-full">
+          {updateDifficulty ? (
+            <>
+              <Select
+                isRequired
+                label="Difficulty"
+                defaultSelectedKeys={[selectedDifficulty]}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                className="w-[15rem] max-sm:w-full"
               >
-                <CardHeader className="flex px-3 justify-between items-center z-0">
-                  <div className="pl-2 text-xl font-bold">
-                    <h1>{cardIndex + 1}</h1>
-                  </div>
-                  <div className="flex">
-                    <Button
-                      isIconOnly
-                      onPress={() => handleRemoveCard(cardIndex)}
-                      color="danger"
-                    >
-                      <Trash2 size={22} />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <Divider className="m-0 h-0.5 bg-slate-300" />
-                <CardBody>
-                  <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
-                    <form action="" className="w-full">
-                      <div className="flex shrink w-full mb-4">
-                        <Input
-                          label="Word"
-                          variant="underlined"
-                          color="secondary"
-                          className="text-[#7469B6] px-2 z-0"
-                          value={card.word}
-                          onChange={(e) => {
-                            const updatedCards = [...cards];
-                            updatedCards[cardIndex].word = e.target.value;
-                            setCards(updatedCards);
-                          }}
-                        />
-                      </div>
-                      <div>{getImageHolders(card, cardIndex)}</div>
-                    </form>
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-
-          <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
-            <ModalContent>
-              <ModalHeader className="flex flex-col gap-1">
-                Crop Image
-              </ModalHeader>
-              <ModalBody>
-                {tempImage && (
-                  <div className="w-full h-full">
-                    <ReactCrop
-                      src={tempImage}
-                      crop={crop}
-                      onChange={(newCrop) => setCrop(newCrop)}
-                      onImageLoaded={onImageLoad}
-                      aspect={1}
-                    >
-                      {tempImage && (
-                        <img
-                          src={tempImage}
-                          onLoad={onImageLoad}
-                          alt="Crop preview"
-                          className="w-full h-full object-contain"
-                        />
-                      )}
-                    </ReactCrop>
-                  </div>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  auto
-                  onClick={() => {
-                    setIsOpen(false);
-                  }}
-                  color="secondary"
-                >
-                  Close
-                </Button>
-                <Button auto onClick={handleCrop} color="primary">
-                  Crop Image
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-          <Button
-            size="lg"
-            radius="sm"
-            color="secondary"
-            className="my-4 text-sm"
-            onClick={handleAddCard}
-            startContent={<Plus size={22} />}
-          >
-            Add
-          </Button>
+                <SelectItem value="easy" key="easy">
+                  Easy
+                </SelectItem>
+                <SelectItem value="medium" key="medium">
+                  Medium
+                </SelectItem>
+                <SelectItem value="hard" key="hard">
+                  Hard
+                </SelectItem>
+              </Select>
+              <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
+            </>
+          ) : (
+            <Button
+              onClick={() => setUpdateDifficulty(!updateDifficulty)}
+              color="secondary"
+            >
+              Edit Difficulty
+            </Button>
+          )}
         </div>
       </div>
+      {/* <h1>room code {room_code}</h1> */}
+      <div className="flex flex-wrap gap-4">
+        {cards.map((card, cardIndex) => (
+          <Card
+            key={cardIndex}
+            className="w-full border border-slate-800 rounded-md flex"
+          >
+            <CardHeader className="flex px-3 justify-between items-center z-0">
+              <div className="pl-2 text-xl font-bold">
+                <h1>{cardIndex + 1}</h1>
+              </div>
+              <div className="flex">
+                <Button
+                  isIconOnly
+                  onPress={() => handleRemoveCard(cardIndex)}
+                  color="danger"
+                >
+                  <Trash2 size={22} />
+                </Button>
+              </div>
+            </CardHeader>
+            <Divider className="m-0 h-0.5 bg-slate-300" />
+            <CardBody>
+              <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                <form action="" className="w-full">
+                  <div className="flex shrink w-full mb-4">
+                    <Input
+                      label="Word"
+                      variant="underlined"
+                      color="secondary"
+                      className="text-[#7469B6] px-2 z-0"
+                      value={card.word}
+                      onChange={(e) => {
+                        const updatedCards = [...cards];
+                        updatedCards[cardIndex].word = e.target.value;
+                        setCards(updatedCards);
+                      }}
+                    />
+                  </div>
+                  <div>{getImageHolders(card, cardIndex)}</div>
+                </form>
+              </div>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+
+      <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Crop Image</ModalHeader>
+          <ModalBody>
+            {tempImage && (
+              <div className="w-full h-full">
+                <ReactCrop
+                  src={tempImage}
+                  crop={crop}
+                  onChange={(newCrop) => setCrop(newCrop)}
+                  onImageLoaded={onImageLoad}
+                  aspect={1}
+                >
+                  {tempImage && (
+                    <img
+                      src={tempImage}
+                      onLoad={onImageLoad}
+                      alt="Crop preview"
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                </ReactCrop>
+              </div>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              auto
+              onClick={() => {
+                setIsOpen(false);
+              }}
+              color="secondary"
+            >
+              Close
+            </Button>
+            <Button auto onClick={handleCrop} color="primary">
+              Crop Image
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <Button
+        size="lg"
+        radius="sm"
+        color="secondary"
+        className="my-4 text-sm"
+        onClick={handleAddCard}
+        startContent={<Plus size={22} />}
+      >
+        Add
+      </Button>
     </div>
   );
 };
