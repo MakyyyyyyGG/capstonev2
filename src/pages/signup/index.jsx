@@ -191,6 +191,7 @@ function Signup() {
               Username
             </label>
             <input
+              required
               type="text"
               name="email"
               value={email}
@@ -199,9 +200,10 @@ function Signup() {
               className="w-full p-3 bg-blue-600 rounded-xl border border-[#7469b6] bg-transparent text-[#7469b6] transition ease relative inline-flex items-center justify-center"
             />
             <label htmlFor="password" className="font-bold text-[#3b3b3b]">
-              Password
+              Password (8 characters minimum)
             </label>
             <input
+              required
               type="password"
               name="password"
               value={password}
@@ -210,9 +212,9 @@ function Signup() {
               className="w-full p-3 bg-blue-600 rounded-xl border border-[#7469b6] bg-transparent text-[#7469b6] transition ease relative inline-flex items-center justify-center"
             />
             <label htmlFor="password" className="sr-only">
-              Password
+              Password (8 characters minimum)
             </label>
-            <div className="w-full rounded-lg flex flex-col  py-2 hover:cursor-default">
+            {/* <div className="w-full rounded-lg flex flex-col  py-2 hover:cursor-default">
               <Checkbox
                 size="sm"
                 isSelected={passwordLength}
@@ -241,13 +243,13 @@ function Signup() {
               >
                 Contains special character.
               </Checkbox>
-            </div>
+            </div> */}
             <Button
               type="submit"
               className={`rounded-xl p-6 bg-[#7469b6] text-slate-50 text-lg hover:bg-[#473f7e] transition ease-in-out ${
                 !isFormValid ? "disabled" : ""
               }`}
-              disabled={!isFormValid}
+              disabled={!passwordLength}
               // disabled={
               //   !passwordLength ||
               //   !passwordUpper ||

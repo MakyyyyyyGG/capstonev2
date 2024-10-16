@@ -36,21 +36,11 @@ const Index = () => {
   }, [session?.user?.id, status]);
 
   return (
-    <div>
-      <Header
-        isCollapsed={isCollapsedSidebar}
-        toggleCollapse={toggleSidebarCollapseHandler}
-      />
-      <div className="flex border-2">
-        <SidebarStudent
-          isCollapsed={isCollapsedSidebar}
-          toggleCollapse={toggleSidebarCollapseHandler}
-        />
-        <div className="p-4 w-full">
-          <JoinRoom onRoomJoin={fetchJoinedRoom} />
-          <div>
-            <JoinedRoom rooms={rooms} onUnenroll={fetchJoinedRoom} />
-          </div>
+    <div className="w-full">
+      <div className="p-4 w-full">
+        <JoinRoom onRoomJoin={fetchJoinedRoom} />
+        <div>
+          <JoinedRoom rooms={rooms} onUnenroll={fetchJoinedRoom} />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
 import { LibraryBig, Trash2, Plus, Pencil } from "lucide-react";
@@ -23,66 +23,32 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
+import { getImages } from "@/pages/api/getImages";
 
-const Index = () => {
+export async function getStaticProps() {
+  const images = getImages();
+  console.log("images:", images);
+  return {
+    props: {
+      images,
+    },
+  };
+}
+
+const Index = ({ images }) => {
   const { data: session } = useSession();
   const router = useRouter();
   const { room_code } = router.query;
-
   const [cards, setCards] = useState([
     { images: [null, null, null, null], color: "" },
   ]);
+  // console.log("images:", images);
   const [title, setTitle] = useState("");
   const [draggingIndex, setDraggingIndex] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [difficulty, setDifficulty] = useState("");
-  const displayImages = [
-    {
-      id: 1,
-      image: "/color_game/images/blue-book.png",
-    },
-    {
-      id: 2,
-      image: "/color_game/images/blue-cap.png",
-    },
-    {
-      id: 3,
-      image: "/color_game/images/blue-cup.png",
-    },
-    {
-      id: 4,
-      image: "/color_game/images/red-ball.png",
-    },
-    {
-      id: 5,
-      image: "/color_game/images/red-strawberry.png",
-    },
-    {
-      id: 6,
-      image: "/color_game/images/red-watermelon.png",
-    },
-    {
-      id: 7,
-      image: "/color_game/images/yellow-bee.png",
-    },
-    {
-      id: 8,
-      image: "/color_game/images/yellow-duck.png",
-    },
-    {
-      id: 9,
-      image: "/color_game/images/yellow-star.png",
-    },
-    {
-      id: 10,
-      image: "/color_game/images/yellow-star.png",
-    },
-    {
-      id: 11,
-      image: "/color_game/images/yellow-star.png",
-    },
-  ];
+  const displayImages = images;
 
   const groupImagesByColor = (images) => {
     return images.reduce((acc, image) => {
@@ -104,6 +70,18 @@ const Index = () => {
   const groupedImages = groupImagesByColor(displayImages);
 
   const handleImageSelect = (imageId) => {
+    if (
+      selectedImages.length >=
+      (difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4)
+    ) {
+      alert(
+        `You can only select ${
+          difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4
+        } images.`
+      );
+      return;
+    }
+    // console.log("imageId:", imageId);
     setSelectedImages((prev) => {
       if (prev.includes(imageId)) {
         return prev.filter((id) => id !== imageId);
@@ -221,7 +199,8 @@ const Index = () => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Color Game</h1>
         <Button
-          type="submit"
+          // type="submit"
+          onClick={handleSubmit}
           color="secondary"
           isDisabled={
             !title ||
@@ -420,7 +399,13 @@ const Index = () => {
         <div className="mt-4 flex justify-between"></div>
       </form>
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="full">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="full"
+        scrollBehavior="inside"
+        backdrop="opaque"
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -450,7 +435,7 @@ const Index = () => {
                           >
                             <Checkbox
                               color="secondary"
-                              className="absolute top-2 right-2 z-99"
+                              // className="absolute top-2 right-2 z-99"
                               isSelected={selectedImages.includes(item.id)}
                               onChange={() => handleImageSelect(item.id)}
                               isDisabled={
@@ -468,6 +453,7 @@ const Index = () => {
                               className="w-full h-full object-cover"
                               onClick={() => handleImageSelect(item.id)}
                             />
+                            <h1>{item.name}</h1>
                           </div>
                         ))}
                       </div>

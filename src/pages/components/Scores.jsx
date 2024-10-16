@@ -8,9 +8,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const Scores = ({ studentRecords, students }) => {
   const [processedData, setProcessedData] = useState([]);
+  const [viewChart, setViewChart] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
+
+  const recordsPerPage = 10;
 
   useEffect(() => {
     if (studentRecords && students) {
@@ -86,48 +112,145 @@ const Scores = ({ studentRecords, students }) => {
     });
   };
 
+  const toggleViewChart = (index) => {
+    setViewChart((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
+  const sortData = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedData = () => {
+    if (!processedData) return []; // Added check for processedData
+    const sortableData = [...processedData];
+    if (sortConfig.key !== null) {
+      sortableData.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableData;
+  };
+
+  const sortedData = getSortedData();
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = sortedData.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
+  const totalPages = Math.ceil(sortedData.length / recordsPerPage);
+
   return (
     <div className="w-full">
       {processedData && processedData.length > 0 ? (
-        <Table className="w-full bg-white rounded-lg">
-          <TableCaption>Student Scores</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Game Type</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Attempt 1</TableHead>
-              <TableHead>Attempt 2</TableHead>
-              <TableHead>Attempt 3</TableHead>
-              <TableHead>Attempt 4</TableHead>
-              <TableHead>Attempt 5</TableHead>
-              <TableHead>Attempt 6</TableHead>
-              <TableHead>Attempt 7</TableHead>
-              <TableHead>Attempt 8</TableHead>
-              <TableHead>Average</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {processedData.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.gameType}</TableCell>
-                <TableCell>{row.date}</TableCell>
-                {Array.isArray(row.scores) && row.scores.length > 0 ? (
-                  row.scores.map((score, i) => (
-                    <TableCell key={i}>{score}</TableCell>
-                  ))
-                ) : (
-                  <TableCell colSpan={8}>No Scores</TableCell>
-                )}
-                {[...Array(8 - row.scores.length)].map((_, i) => (
-                  <TableCell key={i + row.scores.length}>-</TableCell>
-                ))}
-                <TableCell>{row.average}</TableCell>
+        <>
+          <Table className="w-full bg-white rounded-lg">
+            <TableCaption>Student Scores</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>
+                  <button onClick={() => sortData("name")}>
+                    Name{" "}
+                    {sortConfig.key === "name" &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </button>
+                </TableHead>
+                <TableHead>
+                  <button onClick={() => sortData("gameType")}>
+                    Game Type{" "}
+                    {sortConfig.key === "gameType" &&
+                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  </button>
+                </TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Average</TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {currentRecords.map((row, index) => (
+                <React.Fragment key={index}>
+                  <TableRow>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.gameType}</TableCell>
+                    <TableCell>{row.date}</TableCell>
+                    <TableCell>{row.average}</TableCell>
+                    <TableCell>
+                      <button onClick={() => toggleViewChart(index)}>
+                        {viewChart[index] ? "View Less" : "View More"}
+                      </button>
+                    </TableCell>
+                  </TableRow>
+                  {viewChart[index] && (
+                    <TableRow>
+                      <TableCell colSpan={5}>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart
+                            data={row.scores.map((score, i) => ({
+                              name: `Attempt ${i + 1}`,
+                              score: score === "TBA" ? null : score,
+                            }))}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Line
+                              type="monotone"
+                              dataKey="score"
+                              stroke="#8884d8"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+          <Pagination>
+            <PaginationPrevious
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </PaginationPrevious>
+            <PaginationContent>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <PaginationItem
+                  key={i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                  active={currentPage === i + 1}
+                >
+                  {i + 1}
+                </PaginationItem>
+              ))}
+            </PaginationContent>
+            <PaginationNext
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </PaginationNext>
+          </Pagination>
+        </>
       ) : (
         <p>No data available</p>
       )}

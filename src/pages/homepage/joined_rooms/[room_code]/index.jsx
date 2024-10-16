@@ -60,16 +60,8 @@ const IndividualRoom = () => {
   if (!roomData) return <p>Loading...</p>;
 
   return (
-    <div>
-      <Header
-        isCollapsed={isCollapsedSidebar}
-        toggleCollapse={toggleSidebarCollapseHandler}
-      />
-      <div className="flex">
-        <SidebarStudent
-          isCollapsed={isCollapsedSidebar}
-          toggleCollapse={toggleSidebarCollapseHandler}
-        />
+    <div className="w-full">
+      <div className="">
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           <div className="">
             <div className="flex justify-between items-center">

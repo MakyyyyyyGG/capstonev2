@@ -27,6 +27,7 @@ const statusColor = {
 };
 
 export default function BarChartComponent({ gameRecord, questions }) {
+  console.log("Records: ", gameRecord);
   const [selectedYear, setSelectedYear] = useState("All");
 
   // Group records by month
@@ -132,7 +133,7 @@ export default function BarChartComponent({ gameRecord, questions }) {
             </ListItem>
           ))}
         </List>
-        <Accordion variant="splitted">
+        {/* <Accordion variant="splitted">
           <AccordionItem key={1} title="Monthly Average Scores">
             <div className="mt-4">
               <div className="flex items-center justify-between">
@@ -170,7 +171,7 @@ export default function BarChartComponent({ gameRecord, questions }) {
               ))}
             </div>
           </AccordionItem>
-        </Accordion>
+        </Accordion> */}
         <Button onPress={() => Router.push("/homepage")} className="mt-4">
           Back to Dashboard
         </Button>

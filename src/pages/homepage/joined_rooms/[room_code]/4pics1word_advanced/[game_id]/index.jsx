@@ -39,7 +39,7 @@ const index = () => {
   }, [game_id]);
 
   return (
-    <div>
+    <div className="w-full ">
       {/* <h1>4 Pics 1 Word Advanced</h1>
       <p>game_id: {game_id}</p>
       <p>room_code: {room_code}</p> */}

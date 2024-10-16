@@ -38,7 +38,7 @@ const index = () => {
     }
   }, [game_id]);
   return (
-    <div>
+    <div className="w-full">
       <DecisionMakerStudent cards={cards} />
     </div>
   );
