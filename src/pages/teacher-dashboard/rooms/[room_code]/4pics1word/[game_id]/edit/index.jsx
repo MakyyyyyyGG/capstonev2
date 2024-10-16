@@ -422,7 +422,7 @@ const index = () => {
                   alt={`Uploaded ${imageIndex + 1}`}
                   className="h-full w-full object-cover rounded-lg"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
+                <div className="absolute top-0 right-0 p-2 flex items-center justify-center space-x-2">
                   <Button
                     isIconOnly
                     size="sm"

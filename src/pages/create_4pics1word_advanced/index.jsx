@@ -408,7 +408,7 @@ const Index = () => {
                         >
                           {image ? (
                             <>
-                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity p-2 z-10">
+                              <div className="absolute top-0 right-0 flex items-center justify-center space-x-2 p-2 z-10">
                                 <Button
                                   isIconOnly
                                   onClick={() =>
@@ -433,7 +433,7 @@ const Index = () => {
                                   <Trash2 size={18} />
                                 </Button>
                               </div>
-                              <div className="absolute p-2 z-10 top-0 right-0">
+                              <div className="absolute p-2 z-10 top-0 left-0">
                                 {card.correct_answers.includes(imageIndex) ? (
                                   <div
                                     className="bg-green-500 p-2 rounded-full"

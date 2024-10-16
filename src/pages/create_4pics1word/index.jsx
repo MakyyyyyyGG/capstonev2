@@ -20,7 +20,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { Image, Plus, Trash2, ScanSearch } from "lucide-react";
+import { Image, Plus, Trash2, ScanSearch, Pencil } from "lucide-react";
 
 const Index = () => {
   const { data: session } = useSession();
@@ -363,16 +363,19 @@ const Index = () => {
                                 alt={`Uploaded ${imageIndex + 1}`}
                                 className="h-full w-full object-cover rounded-lg"
                               />
-                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
+                              <div className="absolute top-0 right-0 p-2 flex items-center justify-center space-x-2">
                                 <Button
+                                  isIconOnly
+                                  size="sm"
                                   onClick={() =>
                                     handleEdit(cardIndex, imageIndex)
                                   }
                                   color="secondary"
                                 >
-                                  Edit
+                                  <Pencil size={18} />
                                 </Button>
                                 <Button
+                                  isIconOnly
                                   onClick={() => {
                                     const updatedCards = [...cards];
                                     updatedCards[cardIndex].images[imageIndex] =
@@ -380,8 +383,9 @@ const Index = () => {
                                     setCards(updatedCards);
                                   }}
                                   color="danger"
+                                  size="sm"
                                 >
-                                  Delete
+                                  <Trash2 size={18} />
                                 </Button>
                               </div>
                             </>
