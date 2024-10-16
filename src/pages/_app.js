@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Providers from "@/Providers";
 import Script from "next/script";
 import "../styles/globals.css";
@@ -7,17 +7,24 @@ import { Inter } from "next/font/google";
 import { SessionProvider, useSession } from "next-auth/react";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-
+import SidebarStudent from "./components/SidebarStudent";
 // Import the Inter font
 const inter = Inter({ subsets: ["latin"] });
 
 function AppContent({ Component, pageProps }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
   }
+
+  useEffect(() => {
+    if (status !== "loading") {
+      setIsLoading(false);
+    }
+  }, [status]);
 
   return (
     <>
@@ -28,17 +35,24 @@ function AppContent({ Component, pageProps }) {
           font-family: ${inter.style.fontFamily}, sans-serif;
         }
       `}</style>
-      {session ? (
+      {session && !isLoading ? (
         <>
           <Header
             isCollapsed={isCollapsedSidebar}
             toggleCollapse={toggleSidebarCollapseHandler}
           />
           <div className="flex">
-            <Sidebar
-              isCollapsed={isCollapsedSidebar}
-              toggleCollapse={toggleSidebarCollapseHandler}
-            />
+            {session.user.role === "student" ? (
+              <SidebarStudent
+                isCollapsed={isCollapsedSidebar}
+                toggleCollapse={toggleSidebarCollapseHandler}
+              />
+            ) : (
+              <Sidebar
+                isCollapsed={isCollapsedSidebar}
+                toggleCollapse={toggleSidebarCollapseHandler}
+              />
+            )}
             <Component {...pageProps} />
           </div>
         </>

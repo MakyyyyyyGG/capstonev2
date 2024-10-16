@@ -12,8 +12,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import Example from "./Example";
-import Callout from "./Callout";
+
 import BarChart from "./BarChart";
 import "swiper/swiper-bundle.css";
 import GameHistory from "./GameHistory";

@@ -36,7 +36,7 @@ const index = () => {
   }, [game_id]);
 
   return (
-    <div>
+    <div className="w-full">
       <ColorGamesAdvancedStudent cards={cards} />
     </div>
   );

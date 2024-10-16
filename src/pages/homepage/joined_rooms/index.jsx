@@ -54,7 +54,7 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
   }
 
   return (
-    <div>
+    <div className="w-full">
       <div>
         <Input
           clearable

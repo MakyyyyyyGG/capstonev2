@@ -34,7 +34,7 @@ const index = () => {
     }
   }, [game_id]);
   return (
-    <div>
+    <div className="w-full">
       {/* <h1>Color Game</h1>
       <p>{game_id}</p> */}
 

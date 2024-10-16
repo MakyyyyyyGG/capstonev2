@@ -37,7 +37,7 @@ const Index = () => {
   }, [game_id]);
 
   return (
-    <div>
+    <div className="w-full">
       <FourPicsOneWordStudent cards={cards} />
     </div>
   );
