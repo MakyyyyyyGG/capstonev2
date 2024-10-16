@@ -332,6 +332,7 @@ const index = ({ images }) => {
           onClick={handleSubmit}
           color="secondary"
           type="submit"
+          radius="sm"
           isDisabled={
             !title ||
             cards.some(
@@ -541,6 +542,15 @@ const index = ({ images }) => {
         size="full"
         scrollBehavior="inside"
         backdrop="opaque"
+        placement="center"
+        classNames={{
+          body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
+          header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
+          footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
+          base: "bg-[#7469B6] text-[#a8b0d3]",
+          closeButton:
+            "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
+        }}
       >
         <ModalContent>
           {(onClose) => (
@@ -549,17 +559,14 @@ const index = ({ images }) => {
                 Image Library
               </ModalHeader>
               <ModalBody>
-                <h2 className="mb-4 text-lg font-semibold">
+                <h2 className="mb-4 text-lg text-[#F3F3F3] font-semibold">
                   Select{" "}
                   {difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10}{" "}
                   Images
                 </h2>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1 max-md:grid-cols-2">
                   {Object.entries(groupedImages).map(([color, images]) => (
-                    <div
-                      key={color}
-                      className="flex flex-col border rounded-md border-purple-400 p-4"
-                    >
+                    <Card key={color} className="flex flex-col rounded-md p-4">
                       <h3 className="mb-2 text-md font-semibold capitalize">
                         {color}
                       </h3>
@@ -567,7 +574,11 @@ const index = ({ images }) => {
                         {images.map((item) => (
                           <div
                             key={item.id}
-                            className="p-2 border rounded-md border-purple-400 relative overflow-hidden"
+                            className={`p-2 rounded-md relative overflow-hidden border transition-all duration-300 ${
+                              selectedImages.includes(item.id)
+                                ? "border-2 border-[#17C964]" // Thicker border when selected
+                                : "border-2 border-[#7469B6]" // Default border when not selected
+                            }`}
                           >
                             <Checkbox
                               color="secondary"
@@ -593,16 +604,18 @@ const index = ({ images }) => {
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" radius="sm" onPress={onClose}>
                   Close
                 </Button>
                 <Button
-                  color="primary"
+                  radius="sm"
+                  color="success"
+                  className="text-white"
                   onPress={insertImages}
                   isDisabled={
                     selectedImages.length !==

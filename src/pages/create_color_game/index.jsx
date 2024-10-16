@@ -22,6 +22,7 @@ import {
   Checkbox,
   Select,
   SelectItem,
+  cn,
 } from "@nextui-org/react";
 import { getImages } from "@/pages/api/getImages";
 
@@ -202,6 +203,7 @@ const Index = ({ images }) => {
           // type="submit"
           onClick={handleSubmit}
           color="secondary"
+          radius="sm"
           isDisabled={
             !title ||
             cards.some(
@@ -258,6 +260,7 @@ const Index = ({ images }) => {
                   <h1 className="mb-4 font-bold text-lg">Choose a color</h1>
                   <div className="flex flex-wrap gap-6 mx-2 my-2 max-sm:gap-4 max-sm:max-0">
                     <Checkbox
+                      color="secondary"
                       className="border bg-red-500 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "red"}
                       onChange={() => handleColorChange(cardIndex, "red")}
@@ -265,6 +268,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Red</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-blue-500 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "blue"}
                       onChange={() => handleColorChange(cardIndex, "blue")}
@@ -272,6 +276,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Blue</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-yellow-500 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "yellow"}
                       onChange={() => handleColorChange(cardIndex, "yellow")}
@@ -279,6 +284,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Yellow</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-green-500 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "green"}
                       onChange={() => handleColorChange(cardIndex, "green")}
@@ -286,6 +292,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Green</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-purple-500 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "purple"}
                       onChange={() => handleColorChange(cardIndex, "purple")}
@@ -293,6 +300,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Purple</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-orange-500 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "orange"}
                       onChange={() => handleColorChange(cardIndex, "orange")}
@@ -300,6 +308,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Orange</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-pink-400 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "pink"}
                       onChange={() => handleColorChange(cardIndex, "pink")}
@@ -307,6 +316,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Pink</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-yellow-700 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "brown"}
                       onChange={() => handleColorChange(cardIndex, "brown")}
@@ -314,6 +324,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Brown</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-gray-900 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "black"}
                       onChange={() => handleColorChange(cardIndex, "black")}
@@ -321,6 +332,7 @@ const Index = ({ images }) => {
                       <span className="text-white">Black</span>
                     </Checkbox>
                     <Checkbox
+                      color="secondary"
                       className="border bg-gray-100 rounded-md max-sm:scale-[90%]"
                       isSelected={card.color === "white"}
                       onChange={() => handleColorChange(cardIndex, "white")}
@@ -405,6 +417,15 @@ const Index = ({ images }) => {
         size="full"
         scrollBehavior="inside"
         backdrop="opaque"
+        placement="center"
+        classNames={{
+          body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
+          header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
+          footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
+          base: "bg-[#7469B6] text-[#a8b0d3]",
+          closeButton:
+            "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
+        }}
       >
         <ModalContent>
           {(onClose) => (
@@ -413,17 +434,14 @@ const Index = ({ images }) => {
                 Image Library
               </ModalHeader>
               <ModalBody>
-                <h2 className="mb-4 text-lg font-semibold">
+                <h2 className="mb-2 text-lg text-[#F3F3F3] font-semibold">
                   Select{" "}
                   {difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4}{" "}
                   Images
                 </h2>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1 max-md:grid-cols-2">
                   {Object.entries(groupedImages).map(([color, images]) => (
-                    <Card
-                      key={color}
-                      className="flex flex-col border rounded-md border-purple-400 p-4"
-                    >
+                    <Card key={color} className="flex flex-col rounded-md p-4">
                       <h3 className="mb-2 text-md font-semibold capitalize">
                         {color}
                       </h3>
@@ -431,11 +449,14 @@ const Index = ({ images }) => {
                         {images.map((item) => (
                           <div
                             key={item.id}
-                            className="p-2 border rounded-md border-purple-400 relative overflow-hidden"
+                            className={`p-2 rounded-md relative overflow-hidden border transition-all duration-300 ${
+                              selectedImages.includes(item.id)
+                                ? "border-2 border-[#17C964]" // Thicker border when selected
+                                : "border-2 border-[#7469B6]" // Default border when not selected
+                            }`}
                           >
                             <Checkbox
                               color="secondary"
-                              // className="absolute top-2 right-2 z-99"
                               isSelected={selectedImages.includes(item.id)}
                               onChange={() => handleImageSelect(item.id)}
                               isDisabled={
@@ -453,7 +474,7 @@ const Index = ({ images }) => {
                               className="w-full h-full object-cover"
                               onClick={() => handleImageSelect(item.id)}
                             />
-                            <h1>{item.name}</h1>
+                            <h1 className="text-center">{item.name}</h1>
                           </div>
                         ))}
                       </div>
@@ -462,11 +483,13 @@ const Index = ({ images }) => {
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" onPress={onClose}>
+                <Button color="danger" radius="sm" onPress={onClose}>
                   Close
                 </Button>
                 <Button
-                  color="secondary"
+                  radius="sm"
+                  color="success"
+                  className="text-white"
                   onPress={insertImages}
                   isDisabled={
                     selectedImages.length !==
