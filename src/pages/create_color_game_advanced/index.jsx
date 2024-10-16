@@ -30,7 +30,17 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-const index = () => {
+import { getImages } from "@/pages/api/getImages";
+export async function getStaticProps() {
+  const images = getImages();
+  console.log("images:", images);
+  return {
+    props: {
+      images,
+    },
+  };
+}
+const index = ({ images }) => {
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [recordingCardIndex, setRecordingCardIndex] = useState(null);
@@ -60,52 +70,7 @@ const index = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [difficulty, setDifficulty] = useState("easy");
-  const displayImages = [
-    {
-      id: 1,
-      image: "/color_game/images/blue-book.png",
-    },
-    {
-      id: 2,
-      image: "/color_game/images/blue-cap.png",
-    },
-    {
-      id: 3,
-      image: "/color_game/images/blue-cup.png",
-    },
-    {
-      id: 4,
-      image: "/color_game/images/red-ball.png",
-    },
-    {
-      id: 5,
-      image: "/color_game/images/red-strawberry.png",
-    },
-    {
-      id: 6,
-      image: "/color_game/images/red-watermelon.png",
-    },
-    {
-      id: 7,
-      image: "/color_game/images/yellow-bee.png",
-    },
-    {
-      id: 8,
-      image: "/color_game/images/yellow-duck.png",
-    },
-    {
-      id: 9,
-      image: "/color_game/images/yellow-star.png",
-    },
-    {
-      id: 10,
-      image: "/color_game/images/yellow-star.png",
-    },
-    {
-      id: 11,
-      image: "/color_game/images/yellow-star.png",
-    },
-  ];
+  const displayImages = images;
 
   const groupImagesByColor = (images) => {
     return images.reduce((acc, image) => {
@@ -121,6 +86,17 @@ const index = () => {
   const groupedImages = groupImagesByColor(displayImages);
 
   const handleImageSelect = (imageId) => {
+    if (
+      selectedImages.length >=
+      (difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10)
+    ) {
+      alert(
+        `You can only select ${
+          difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10
+        } images.`
+      );
+      return;
+    }
     setSelectedImages((prev) => {
       if (prev.includes(imageId)) {
         return prev.filter((id) => id !== imageId);
@@ -353,6 +329,7 @@ const index = () => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Color Game+</h1>
         <Button
+          onClick={handleSubmit}
           color="secondary"
           type="submit"
           isDisabled={
@@ -558,7 +535,13 @@ const index = () => {
         </div>
       </form>
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="full">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="full"
+        scrollBehavior="inside"
+        backdrop="opaque"
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -588,7 +571,7 @@ const index = () => {
                           >
                             <Checkbox
                               color="secondary"
-                              className="absolute top-2 right-2 z-99"
+                              // className="absolute top-2 right-2 z-99"
                               isSelected={selectedImages.includes(item.id)}
                               onChange={() => handleImageSelect(item.id)}
                               isDisabled={
@@ -606,6 +589,7 @@ const index = () => {
                               className="w-full h-full object-cover"
                               onClick={() => handleImageSelect(item.id)}
                             />
+                            <h1>{item.name}</h1>
                           </div>
                         ))}
                       </div>
