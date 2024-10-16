@@ -66,6 +66,7 @@ const Index = () => {
 
   useEffect(() => {
     initializeRefs(cards.length);
+    setDraggingIndex({ cardIndex: 0, imageIndex: 0 });
   }, [cards]);
 
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);

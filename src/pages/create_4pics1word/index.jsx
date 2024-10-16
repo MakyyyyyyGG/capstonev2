@@ -70,6 +70,7 @@ const Index = () => {
 
   useEffect(() => {
     initializeRefs(cards.length);
+    setDraggingIndex({ cardIndex: 0, imageIndex: 0 });
   }, [cards]);
 
   const handleFileChange = (e, cardIndex, imageIndex) => {
@@ -87,6 +88,9 @@ const Index = () => {
   };
 
   const handleEdit = (cardIndex, imageIndex) => {
+    // console.log("Card index and image index:", cardIndex, imageIndex);
+    setDraggingIndex({ cardIndex, imageIndex });
+
     const refIndex = cardIndex * 4 + imageIndex;
     const inputRef = fileInputRefs.current[refIndex];
 
