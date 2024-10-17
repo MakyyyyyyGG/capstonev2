@@ -20,7 +20,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { Image, Plus, Trash2, ScanSearch, Pencil } from "lucide-react";
+import { Image, Plus, Trash2, ScanSearch, Pencil, Link } from "lucide-react";
 
 const Index = () => {
   const { data: session } = useSession();
@@ -38,6 +38,7 @@ const Index = () => {
   const [tempImage, setTempImage] = useState(null);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [isEditImageURLOpen, setIsEditImageURLOpen] = useState(false);
   const [crop, setCrop] = useState({
     unit: "%",
     width: 10,
@@ -212,6 +213,10 @@ const Index = () => {
 
   //submit form
   const handleSubmit = async () => {
+    if (cards.some((card) => card.word === "")) {
+      alert("Please enter a word for each card.");
+      return;
+    }
     if (!title) {
       alert("Please enter a title.");
       return;
@@ -252,6 +257,9 @@ const Index = () => {
       if (response.ok) {
         alert("Game created successfully");
         console.log("Response data:", data);
+        router.push(
+          `/teacher-dashboard/rooms/${room_code}/4pics1word/${data.gameId}`
+        );
       } else {
         alert("Error creating game");
       }
@@ -259,7 +267,16 @@ const Index = () => {
       console.error("Error:", error);
     }
   };
-
+  const handleInsertImageFromUrl = (cardIndex, imageIndex) => {
+    const updatedCards = [...cards];
+    updatedCards[cardIndex].images[imageIndex] = tempImage;
+    setCards(updatedCards);
+  };
+  const handleEditImageFromUrl = (cardIndex, imageIndex) => {
+    const updatedCards = [...cards];
+    updatedCards[cardIndex].images[imageIndex] = tempImage;
+    setCards(updatedCards);
+  };
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
@@ -343,7 +360,7 @@ const Index = () => {
                       .map((image, imageIndex) => (
                         <div
                           key={imageIndex}
-                          className={`relative block w-[18rem] aspect-square bg-gray-100 rounded-lg border-2 max-sm:w-[14rem] ${
+                          className={`p-4 flex flex-col relative block w-[18rem] aspect-square bg-gray-100 rounded-lg border-2 max-sm:w-[14rem] ${
                             draggingIndex?.cardIndex === cardIndex &&
                             draggingIndex?.imageIndex === imageIndex
                               ? "border-green-500"
@@ -363,7 +380,41 @@ const Index = () => {
                                 alt={`Uploaded ${imageIndex + 1}`}
                                 className="h-full w-full object-cover rounded-lg"
                               />
+
+                              <div className="flex gap-4 items-center justify-center">
+                                <Input
+                                  label="Image URL"
+                                  variant="underlined"
+                                  color="secondary"
+                                  className="text-[#7469B6] px-2 z-0"
+                                  value={card.images[imageIndex]}
+                                  onChange={(e) => {
+                                    setTempImage(e.target.value);
+                                  }}
+                                />
+                                <Button
+                                  color="secondary"
+                                  onClick={() =>
+                                    handleInsertImageFromUrl(
+                                      cardIndex,
+                                      imageIndex
+                                    )
+                                  }
+                                >
+                                  Add
+                                </Button>
+                              </div>
                               <div className="absolute top-0 right-0 p-2 flex items-center justify-center space-x-2">
+                                {/* <Button
+                                  isIconOnly
+                                  size="sm"
+                                  onClick={() =>
+                                    handleEdit(cardIndex, imageIndex)
+                                  }
+                                  color="secondary"
+                                >
+                                  <Link size={18} />
+                                </Button> */}
                                 <Button
                                   isIconOnly
                                   size="sm"
@@ -374,6 +425,7 @@ const Index = () => {
                                 >
                                   <Pencil size={18} />
                                 </Button>
+
                                 <Button
                                   isIconOnly
                                   onClick={() => {
@@ -402,6 +454,29 @@ const Index = () => {
                               >
                                 Upload Image
                               </Button>
+                              <div className="flex gap-4">
+                                <Input
+                                  label="Image URL"
+                                  variant="underlined"
+                                  color="secondary"
+                                  className="text-[#7469B6] px-2 z-0"
+                                  value={card.images[imageIndex]}
+                                  onChange={(e) => {
+                                    setTempImage(e.target.value);
+                                  }}
+                                />
+                                <Button
+                                  color="secondary"
+                                  onClick={() =>
+                                    handleInsertImageFromUrl(
+                                      cardIndex,
+                                      imageIndex
+                                    )
+                                  }
+                                >
+                                  Add
+                                </Button>
+                              </div>
                             </div>
                           )}
                           <input
@@ -423,6 +498,27 @@ const Index = () => {
             </CardBody>
           </Card>
         ))}
+
+        <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+          <ModalContent>
+            <ModalHeader className="flex flex-col gap-1">
+              Edit Image
+            </ModalHeader>
+            <ModalBody>
+              <Input
+                label="Image URL"
+                variant="underlined"
+                color="secondary"
+                className="text-[#7469B6] px-2 z-0"
+                value={tempImage}
+                onChange={(e) => {
+                  setTempImage(e.target.value);
+                }}
+              />
+            </ModalBody>
+            <ModalFooter></ModalFooter>
+          </ModalContent>
+        </Modal>
 
         <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
           <ModalContent>

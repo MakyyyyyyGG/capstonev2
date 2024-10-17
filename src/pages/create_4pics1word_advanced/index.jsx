@@ -265,6 +265,9 @@ const Index = () => {
       if (response.ok) {
         alert("Game created successfully");
         console.log("Response data:", data);
+        router.push(
+          `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${data.gameId}`
+        );
       } else {
         alert("Error creating game");
       }
@@ -297,6 +300,11 @@ const Index = () => {
       utterance.rate = 0.7;
       speechSynthesis.speak(utterance);
     }
+  };
+  const handleInsertImageFromUrl = (cardIndex, imageIndex) => {
+    const updatedCards = [...cards];
+    updatedCards[cardIndex].images[imageIndex] = tempImage;
+    setCards(updatedCards);
   };
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
@@ -476,6 +484,29 @@ const Index = () => {
                                   alt={`Uploaded ${imageIndex + 1}`}
                                   className="h-full w-full object-cover rounded-lg"
                                 />
+                                <div className="flex gap-4 items-center justify-center">
+                                  <Input
+                                    label="Image URL"
+                                    variant="underlined"
+                                    color="secondary"
+                                    className="text-[#7469B6] px-2 z-0"
+                                    value={card.images[imageIndex]}
+                                    onChange={(e) => {
+                                      setTempImage(e.target.value);
+                                    }}
+                                  />
+                                  <Button
+                                    color="secondary"
+                                    onClick={() =>
+                                      handleInsertImageFromUrl(
+                                        cardIndex,
+                                        imageIndex
+                                      )
+                                    }
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
                                 {/* <Checkbox
                                   className="absolute top-2 right-2"
                                   onClick={() => {
@@ -517,6 +548,29 @@ const Index = () => {
                               >
                                 Upload Image
                               </Button>
+                              <div className="flex gap-4 items-center justify-center">
+                                <Input
+                                  label="Image URL"
+                                  variant="underlined"
+                                  color="secondary"
+                                  className="text-[#7469B6] px-2 z-0"
+                                  value={card.images[imageIndex]}
+                                  onChange={(e) => {
+                                    setTempImage(e.target.value);
+                                  }}
+                                />
+                                <Button
+                                  color="secondary"
+                                  onClick={() =>
+                                    handleInsertImageFromUrl(
+                                      cardIndex,
+                                      imageIndex
+                                    )
+                                  }
+                                >
+                                  Add
+                                </Button>
+                              </div>
                             </div>
                           )}
                           <input

@@ -57,7 +57,7 @@ export default async function handler(req, res) {
         });
         const groupId = groupResult.insertId;
         const cardPromises = cards.map(async (card) => {
-          if (card.image) {
+          if (card.image && card.image.startsWith("data:")) {
             const imageFileName = `${Date.now()}-${Math.random()
               .toString(36)
               .substr(2, 9)}.png`;

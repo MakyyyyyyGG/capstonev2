@@ -48,15 +48,21 @@ export default async function handler(req, res) {
         const imageFileNames = [];
         for (const image of images) {
           if (image) {
-            const imageFileName = `${Date.now()}-${Math.random()
-              .toString(36)
-              .substr(2, 9)}.png`;
-            const savedImagePath = await saveFileToPublic(
-              image,
-              imageFileName,
-              "four_pics_advanced/images"
-            );
-            imageFileNames.push(savedImagePath);
+            if (image.startsWith("http")) {
+              // If the image is a URL, use it directly
+              imageFileNames.push(image);
+            } else {
+              // If the image is a base64 string, save it to public folder
+              const imageFileName = `${Date.now()}-${Math.random()
+                .toString(36)
+                .substr(2, 9)}.png`;
+              const savedImagePath = await saveFileToPublic(
+                image,
+                imageFileName,
+                "four_pics_advanced/images"
+              );
+              imageFileNames.push(savedImagePath);
+            }
           } else {
             imageFileNames.push(null);
           }

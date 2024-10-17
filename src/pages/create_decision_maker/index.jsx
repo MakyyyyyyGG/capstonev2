@@ -62,6 +62,7 @@ const index = () => {
       word: "",
       image: null,
       correct_answer: "",
+      imageUrl: "",
     },
   ]);
 
@@ -143,7 +144,10 @@ const index = () => {
   };
 
   const addCard = () => {
-    setCards([...cards, { word: "", image: null, correct_answer: "" }]);
+    setCards([
+      ...cards,
+      { word: "", image: null, correct_answer: "", imageUrl: "" },
+    ]);
   };
 
   const removeCard = (index) => {
@@ -201,6 +205,13 @@ const index = () => {
       console.error(error);
     }
   };
+
+  const handleInsertImageFromUrl = (index) => {
+    const newCards = [...cards];
+    newCards[index].image = newCards[index].imageUrl;
+    setCards(newCards);
+  };
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
@@ -231,16 +242,36 @@ const index = () => {
               </div>
               <div className="flex gap-2">
                 {!card.image ? (
-                  <Button
-                    color="secondary"
-                    onPress={() => {
-                      setCurrentIndex(index);
-                      onOpen();
-                    }}
-                    startContent={<Image size={22} />}
-                  >
-                    Insert Image
-                  </Button>
+                  <>
+                    <div className="flex gap-4 items-center justify-center">
+                      <Input
+                        label="Image URL"
+                        variant="underlined"
+                        color="secondary"
+                        className="text-[#7469B6] px-2 z-0"
+                        value={card.imageUrl}
+                        onChange={(e) => {
+                          handleCardChange(index, "imageUrl", e.target.value);
+                        }}
+                      />
+                      <Button
+                        color="secondary"
+                        onClick={() => handleInsertImageFromUrl(index)}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    <Button
+                      color="secondary"
+                      onPress={() => {
+                        setCurrentIndex(index);
+                        onOpen();
+                      }}
+                      startContent={<Image size={22} />}
+                    >
+                      Insert Image
+                    </Button>
+                  </>
                 ) : (
                   <Button
                     color="secondary"

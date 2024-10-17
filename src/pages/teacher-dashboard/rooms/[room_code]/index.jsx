@@ -218,7 +218,7 @@ const IndividualRoom = () => {
                 }
               />
               <Tab
-                key="grades"
+                key="scores"
                 title={
                   <div className="flex items-center space-x-2">
                     <Trophy className="max-sm:w-4 max-sm:h-4" />
@@ -253,7 +253,7 @@ const IndividualRoom = () => {
                 <StudentList students={students} />
               </div>
             )}
-            {selectedTab === "grades" && (
+            {selectedTab === "scores" && (
               <div className="flex items-center gap-4 w-full">
                 <Scores studentRecords={studentRecords} students={students} />
               </div>

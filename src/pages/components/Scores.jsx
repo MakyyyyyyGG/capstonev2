@@ -175,8 +175,16 @@ const Scores = ({ studentRecords, students }) => {
                       (sortConfig.direction === "ascending" ? "↑" : "↓")}
                   </button>
                 </TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Average</TableHead>
+                <TableHead onClick={() => sortData("date")}>
+                  Date
+                  {sortConfig.key === "date" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                </TableHead>
+                <TableHead onClick={() => sortData("average")}>
+                  Average
+                  {sortConfig.key === "average" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                </TableHead>
                 <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>

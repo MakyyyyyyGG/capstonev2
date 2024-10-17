@@ -54,15 +54,21 @@ export default async function handler(req, res) {
           const imageFileNames = await Promise.all(
             card.images.map(async (image) => {
               if (image) {
-                const imageFileName = `${Date.now()}-${Math.random()
-                  .toString(36)
-                  .substr(2, 9)}.png`;
-                const fullPath = await saveFileToPublic(
-                  image,
-                  imageFileName,
-                  "four_pics_advanced/images"
-                );
-                return fullPath;
+                if (image.startsWith("http")) {
+                  // If the image is a URL, use it directly
+                  return image;
+                } else {
+                  // If the image is a base64 string, save it to public folder
+                  const imageFileName = `${Date.now()}-${Math.random()
+                    .toString(36)
+                    .substr(2, 9)}.png`;
+                  const fullPath = await saveFileToPublic(
+                    image,
+                    imageFileName,
+                    "four_pics_advanced/images"
+                  );
+                  return fullPath;
+                }
               }
               return null;
             })
@@ -76,7 +82,7 @@ export default async function handler(req, res) {
         await Promise.all(cardPromises);
         res
           .status(200)
-          .json({ message: "Game and group created successfully" });
+          .json({ message: "Game and group created successfully", gameId });
       } catch (groupError) {
         console.error(
           "Error inserting into four_pics_advanced_sets:",
@@ -174,17 +180,24 @@ WHERE four_pics_advanced.four_pics_advanced_set_id = ?`,
         const imageKey = `image${i}`;
         const newImage = cards.images[i - 1]; // Adjust indexing for images array
 
-        if (newImage && newImage.startsWith("data:image")) {
-          const imageFileName = `${Date.now()}-${Math.random()
-            .toString(36)
-            .substr(2, 9)}.png`;
-          const savedImagePath = await saveFileToPublic(
-            newImage,
-            imageFileName,
-            "four_pics_advanced/images"
-          );
-          imageFileNames.push(savedImagePath);
-          console.log(`New image saved: ${savedImagePath}`);
+        if (
+          newImage &&
+          (newImage.startsWith("data:image") || newImage.startsWith("http"))
+        ) {
+          if (newImage.startsWith("data:image")) {
+            const imageFileName = `${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}.png`;
+            const savedImagePath = await saveFileToPublic(
+              newImage,
+              imageFileName,
+              "four_pics_advanced/images"
+            );
+            imageFileNames.push(savedImagePath);
+            console.log(`New image saved: ${savedImagePath}`);
+          } else {
+            imageFileNames.push(newImage); // Directly use the URL if it's an external image
+          }
         } else {
           imageFileNames.push(currentCard[imageKey]); // Retain old image if not changed
         }

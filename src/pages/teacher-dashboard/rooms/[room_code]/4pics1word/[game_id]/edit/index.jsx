@@ -299,6 +299,11 @@ const index = () => {
   };
 
   const handleSave = async () => {
+    //if there is no word return
+    if (cards.some((card) => card.word === "")) {
+      alert("Please enter a word for each card.");
+      return;
+    }
     if (!title) {
       alert("Please enter a title.");
       return;
@@ -397,7 +402,11 @@ const index = () => {
     }
 
     const gridCols = imageCount === 3 ? "grid-cols-3" : "grid-cols-2";
-
+    const handleInsertImageFromUrl = (cardIndex, imageIndex) => {
+      const updatedCards = [...cards];
+      updatedCards[cardIndex].images[imageIndex] = tempImage;
+      setCards(updatedCards);
+    };
     return (
       // <div className={`grid ${gridCols} gap-4`}>
       <div className="flex flex-wrap gap-4 justify-center max-sm:gap-2">
@@ -416,7 +425,7 @@ const index = () => {
             onDragOver={(e) => e.preventDefault()}
           >
             {image ? (
-              <>
+              <div className="flex flex-col">
                 <img
                   src={image.startsWith("data:") ? image : `${image}`}
                   alt={`Uploaded ${imageIndex + 1}`}
@@ -445,7 +454,27 @@ const index = () => {
                     <Trash2 size={18} />
                   </Button>
                 </div>
-              </>
+                <div className="flex gap-4 items-center justify-center">
+                  <Input
+                    label="Image URL"
+                    variant="underlined"
+                    color="secondary"
+                    className="text-[#7469B6] px-2 z-0"
+                    value={card.images[imageIndex]}
+                    onChange={(e) => {
+                      setTempImage(e.target.value);
+                    }}
+                  />
+                  <Button
+                    color="secondary"
+                    onClick={() =>
+                      handleInsertImageFromUrl(cardIndex, imageIndex)
+                    }
+                  >
+                    Edit
+                  </Button>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col items-center space-y-2">
                 <span className="text-gray-400">Drag & Drop Image</span>
@@ -455,6 +484,26 @@ const index = () => {
                 >
                   Upload Image
                 </Button>
+                <div className="flex gap-4">
+                  <Input
+                    label="Image URL"
+                    variant="underlined"
+                    color="secondary"
+                    className="text-[#7469B6] px-2 z-0"
+                    value={card.images[imageIndex]}
+                    onChange={(e) => {
+                      setTempImage(e.target.value);
+                    }}
+                  />
+                  <Button
+                    color="secondary"
+                    onClick={() =>
+                      handleInsertImageFromUrl(cardIndex, imageIndex)
+                    }
+                  >
+                    Add
+                  </Button>
+                </div>
               </div>
             )}
             <input
@@ -594,12 +643,15 @@ const index = () => {
                   aspect={1}
                 >
                   {tempImage && (
-                    <img
-                      src={tempImage}
-                      onLoad={onImageLoad}
-                      alt="Crop preview"
-                      className="w-full h-full object-contain"
-                    />
+                    <>
+                      {" "}
+                      <img
+                        src={tempImage}
+                        onLoad={onImageLoad}
+                        alt="Crop preview"
+                        className="w-full h-full object-contain"
+                      />
+                    </>
                   )}
                 </ReactCrop>
               </div>

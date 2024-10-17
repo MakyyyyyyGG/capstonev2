@@ -57,7 +57,7 @@ const Index = () => {
   const recordingIntervalRef = useRef(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
-
+  const [isImageViewOpen, setIsImageViewOpen] = useState(false);
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
 
   function toggleSidebarCollapseHandler() {
@@ -408,7 +408,11 @@ const Index = () => {
     setCurrentIndex(index);
     handleImageChange(e);
   };
-
+  const handleInsertImageFromUrl = (flashcard, index) => {
+    const updatedCards = [...flashcardData];
+    updatedCards[index].image = flashcard.imageUrl;
+    setFlashcardData(updatedCards);
+  };
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
@@ -432,6 +436,22 @@ const Index = () => {
                   <h1>{index + 1}</h1>
                 </div>
                 <div className="flex gap-2">
+                  <Input
+                    label="Image"
+                    variant="underlined"
+                    color="secondary"
+                    className="text-[#7469B6] z-0"
+                    value={flashcard.image}
+                    onChange={(e) => {
+                      handleInputChange(index, "imageUrl", e.target.value);
+                    }}
+                  />
+                  <Button
+                    className="bg-[#7469B6] text-white border-0"
+                    onClick={() => handleInsertImageFromUrl(flashcard, index)}
+                  >
+                    Insert Image
+                  </Button>
                   <Button
                     className="bg-[#7469B6] text-white border-0"
                     onPress={() => {
@@ -554,14 +574,14 @@ const Index = () => {
                         handleInputChange(index, "term", e.target.value)
                       }
                     />
-                    {flashcard.term ? (
+                    {/* {flashcard.term ? (
                       <Button
                         className="bg-[#7469B6] text-white border-0"
                         onPress={() => handleTextToSpeech(flashcard.term)}
                       >
                         <Volume2 /> Play Term
                       </Button>
-                    ) : null}
+                    ) : null} */}
                   </div>
                   <div className="flex w-[55%] gap-2 max-sm:w-full">
                     <Textarea
@@ -598,9 +618,29 @@ const Index = () => {
                           isIconOnly
                           size="sm"
                           className="absolute bg-[#7469B6] text-white border-0 bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                          onPress={() => {
+                            setIsImageViewOpen(true);
+                            setCurrentIndex(index);
+                          }}
                         >
                           <ScanSearch size={18} />
                         </Button>
+                        <Modal
+                          isOpen={isImageViewOpen && currentIndex === index}
+                          onOpenChange={() => setIsImageViewOpen(false)}
+                          size="lg"
+                        >
+                          <ModalContent>
+                            <ModalHeader>Image Preview</ModalHeader>
+                            <ModalBody>
+                              <img
+                                src={flashcard.image}
+                                alt={flashcard.term}
+                                className="w-full h-auto"
+                              />
+                            </ModalBody>
+                          </ModalContent>
+                        </Modal>
                       </div>
                     </div>
                   </div>
@@ -610,27 +650,31 @@ const Index = () => {
               <CardFooter className="flex px-3 gap-2 items-center justify-between">
                 {/* <h1>flashcard ID: {flashcard.flashcard_id}</h1> */}
                 <div className="flex gap-2 w-full items-center max-sm:flex-col">
-                  <div className="flex gap-2">
-                    <Button
-                      className="bg-[#7469B6] text-white border-0"
-                      onPress={() => {
-                        setIsAudioModalOpen(true);
-                        setCurrentIndex(index);
-                      }}
-                    >
-                      <Mic size={22} /> Edit Audio
-                    </Button>
-                    <Button
-                      color="danger"
-                      onPress={() => {
-                        removeAudio(index);
-                      }}
-                    >
-                      <Trash2 size={22} /> Delete Audio
-                    </Button>
-                  </div>
                   {flashcard.audio && (
-                    <audio src={flashcard.audio} controls className="w-full" />
+                    <div className="flex gap-2">
+                      <Button
+                        className="bg-[#7469B6] text-white border-0"
+                        onPress={() => {
+                          setIsAudioModalOpen(true);
+                          setCurrentIndex(index);
+                        }}
+                      >
+                        <Mic size={22} /> Edit Audio
+                      </Button>
+                      <Button
+                        color="danger"
+                        onPress={() => {
+                          removeAudio(index);
+                        }}
+                      >
+                        <Trash2 size={22} /> Delete Audio
+                      </Button>
+                      <audio
+                        src={flashcard.audio}
+                        controls
+                        className="w-full"
+                      />
+                    </div>
                   )}
                   <Modal
                     isOpen={isAudioModalOpen && currentIndex === index}
