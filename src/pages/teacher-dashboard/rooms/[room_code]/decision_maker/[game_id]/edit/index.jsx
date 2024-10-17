@@ -17,8 +17,6 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useSession } from "next-auth/react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Link from "next/link";
@@ -27,7 +25,6 @@ const index = () => {
   const { game_id, room_code } = router.query;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: session } = useSession();
-  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(null);
   const imgRef = useRef(null);
   const [title, setTitle] = useState("");
@@ -48,9 +45,7 @@ const index = () => {
       imageBlob: null,
     },
   ]);
-  function toggleSidebarCollapseHandler() {
-    setIsCollapsedSidebar((prev) => !prev);
-  }
+
   const handleCardImageChange = (index, e) => {
     setCurrentIndex(index);
     handleImageChange(e);
@@ -304,150 +299,134 @@ const index = () => {
     }
   }, [game_id]);
   return (
-    <div>
-      <Header
-        isCollapsed={isCollapsedSidebar}
-        toggleCollapse={toggleSidebarCollapseHandler}
+    <div className="flex flex-col gap-4">
+      <h1>Edit Decision Maker</h1>
+      <Input
+        label="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
       />
-      <div className="flex border-2">
-        <Sidebar
-          isCollapsed={isCollapsedSidebar}
-          toggleCollapse={toggleSidebarCollapseHandler}
-        />
-        <div className="flex flex-col gap-4">
-          <h1>Edit Decision Maker</h1>
-          <Input
-            label="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <div className="grid grid-cols-3 gap-4">
-            {cards.map((card, index) => (
-              <div key={index} className="flex flex-col gap-4">
-                <div>
-                  <Card className="w-full">
-                    <CardBody>
-                      <Input
-                        label="Word"
-                        value={card.word}
-                        onChange={(e) =>
-                          handleCardChange(index, "word", e.target.value)
-                        }
-                      />
-                      {!card.image ? (
-                        <Button
-                          className="my-4"
-                          onPress={() => {
-                            setCurrentIndex(index);
-                            onOpen();
-                          }}
-                        >
-                          Insert Image
-                        </Button>
-                      ) : (
-                        <Button
-                          className="my-4"
-                          onPress={() => {
-                            setCurrentIndex(index);
-                            onOpen();
-                          }}
-                        >
-                          Change Image
-                        </Button>
-                      )}
-                      <Modal
-                        isOpen={isOpen && currentIndex === index}
-                        onOpenChange={onOpenChange}
-                      >
-                        <ModalContent>
-                          <ModalHeader>
-                            <h1>Crop Image</h1>
-                          </ModalHeader>
-                          <ModalBody>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleCardImageChange(index, e)}
-                            />
-                            {tempImage && (
-                              <div className="w-full h-full">
-                                <ReactCrop
-                                  src={tempImage}
-                                  crop={crop}
-                                  onChange={(newCrop) => setCrop(newCrop)}
-                                  aspect={1}
-                                >
-                                  <img
-                                    src={tempImage}
-                                    onLoad={onImageLoad}
-                                    alt="Crop preview"
-                                    className="w-full h-full object-contain"
-                                    // style={{
-                                    //   transform: `scale(${zoom})`,
-                                    // }}
-                                  />
-                                </ReactCrop>
-                              </div>
-                            )}
-                          </ModalBody>
-                          <ModalFooter>
-                            <Button
-                              onClick={() => {
-                                confirmImage(currentIndex);
-                                onOpenChange();
-                              }}
+      <div className="grid grid-cols-3 gap-4">
+        {cards.map((card, index) => (
+          <div key={index} className="flex flex-col gap-4">
+            <div>
+              <Card className="w-full">
+                <CardBody>
+                  <Input
+                    label="Word"
+                    value={card.word}
+                    onChange={(e) =>
+                      handleCardChange(index, "word", e.target.value)
+                    }
+                  />
+                  {!card.image ? (
+                    <Button
+                      className="my-4"
+                      onPress={() => {
+                        setCurrentIndex(index);
+                        onOpen();
+                      }}
+                    >
+                      Insert Image
+                    </Button>
+                  ) : (
+                    <Button
+                      className="my-4"
+                      onPress={() => {
+                        setCurrentIndex(index);
+                        onOpen();
+                      }}
+                    >
+                      Change Image
+                    </Button>
+                  )}
+                  <Modal
+                    isOpen={isOpen && currentIndex === index}
+                    onOpenChange={onOpenChange}
+                  >
+                    <ModalContent>
+                      <ModalHeader>
+                        <h1>Crop Image</h1>
+                      </ModalHeader>
+                      <ModalBody>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleCardImageChange(index, e)}
+                        />
+                        {tempImage && (
+                          <div className="w-full h-full">
+                            <ReactCrop
+                              src={tempImage}
+                              crop={crop}
+                              onChange={(newCrop) => setCrop(newCrop)}
+                              aspect={1}
                             >
-                              Confirm Image
-                            </Button>
-                          </ModalFooter>
-                        </ModalContent>
-                      </Modal>
-                      {card.image && (
-                        <div className="w-full h-full">
-                          <img
-                            src={card.imageBlob || card.image}
-                            alt="Crop preview"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      )}
-                      <RadioGroup
-                        label="Decision"
-                        value={card.correct_answer}
-                        onChange={(e) =>
-                          handleCardChange(
-                            index,
-                            "correct_answer",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <div className="flex gap-4">
-                          <Radio value="positive">Positive</Radio>
-                          <Radio value="negative">Negative</Radio>
-                        </div>
-                      </RadioGroup>
-                      <Button
-                        color="danger"
-                        onClick={() => removeCard(index)}
-                        className="mt-4"
-                      >
-                        Remove Card
-                      </Button>
-                    </CardBody>
-                  </Card>
-                </div>
-              </div>
-            ))}
-          </div>{" "}
-          <Button onPress={addCard} color="primary">
-            Add Card
-          </Button>
-          <Button onPress={handleSubmit} color="secondary">
-            Save
-          </Button>
-        </div>
-      </div>
+                              <img
+                                src={tempImage}
+                                onLoad={onImageLoad}
+                                alt="Crop preview"
+                                className="w-full h-full object-contain"
+                                // style={{
+                                //   transform: `scale(${zoom})`,
+                                // }}
+                              />
+                            </ReactCrop>
+                          </div>
+                        )}
+                      </ModalBody>
+                      <ModalFooter>
+                        <Button
+                          onClick={() => {
+                            confirmImage(currentIndex);
+                            onOpenChange();
+                          }}
+                        >
+                          Confirm Image
+                        </Button>
+                      </ModalFooter>
+                    </ModalContent>
+                  </Modal>
+                  {card.image && (
+                    <div className="w-full h-full">
+                      <img
+                        src={card.imageBlob || card.image}
+                        alt="Crop preview"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+                  <RadioGroup
+                    label="Decision"
+                    value={card.correct_answer}
+                    onChange={(e) =>
+                      handleCardChange(index, "correct_answer", e.target.value)
+                    }
+                  >
+                    <div className="flex gap-4">
+                      <Radio value="positive">Positive</Radio>
+                      <Radio value="negative">Negative</Radio>
+                    </div>
+                  </RadioGroup>
+                  <Button
+                    color="danger"
+                    onClick={() => removeCard(index)}
+                    className="mt-4"
+                  >
+                    Remove Card
+                  </Button>
+                </CardBody>
+              </Card>
+            </div>
+          </div>
+        ))}
+      </div>{" "}
+      <Button onPress={addCard} color="primary">
+        Add Card
+      </Button>
+      <Button onPress={handleSubmit} color="secondary">
+        Save
+      </Button>
     </div>
   );
 };
