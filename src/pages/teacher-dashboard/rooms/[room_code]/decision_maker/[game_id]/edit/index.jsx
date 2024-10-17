@@ -261,6 +261,7 @@ const index = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         } else {
           fetchCards();
+          alert("Decision maker updated successfully");
         }
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -303,6 +304,12 @@ const index = () => {
       fetchCards();
     }
   }, [game_id]);
+
+  const handleInsertImageFromUrl = (index) => {
+    const newCards = [...cards];
+    newCards[index].image = newCards[index].imageUrl;
+    setCards(newCards);
+  };
   return (
     <div>
       <Header
@@ -335,15 +342,39 @@ const index = () => {
                         }
                       />
                       {!card.image ? (
-                        <Button
-                          className="my-4"
-                          onPress={() => {
-                            setCurrentIndex(index);
-                            onOpen();
-                          }}
-                        >
-                          Insert Image
-                        </Button>
+                        <>
+                          <Button
+                            className="my-4"
+                            onPress={() => {
+                              setCurrentIndex(index);
+                              onOpen();
+                            }}
+                          >
+                            Insert Image
+                          </Button>
+                          <div className="flex gap-4 items-center justify-center">
+                            <Input
+                              label="Image URL"
+                              variant="underlined"
+                              color="secondary"
+                              className="text-[#7469B6] px-2 z-0"
+                              value={card.imageUrl}
+                              onChange={(e) => {
+                                handleCardChange(
+                                  index,
+                                  "imageUrl",
+                                  e.target.value
+                                );
+                              }}
+                            />
+                            <Button
+                              color="secondary"
+                              onClick={() => handleInsertImageFromUrl(index)}
+                            >
+                              Add
+                            </Button>
+                          </div>
+                        </>
                       ) : (
                         <Button
                           className="my-4"
@@ -404,6 +435,28 @@ const index = () => {
                       </Modal>
                       {card.image && (
                         <div className="w-full h-full">
+                          <div className="flex gap-4 items-center justify-center">
+                            <Input
+                              label="Image URL"
+                              variant="underlined"
+                              color="secondary"
+                              className="text-[#7469B6] px-2 z-0"
+                              value={card.imageUrl}
+                              onChange={(e) => {
+                                handleCardChange(
+                                  index,
+                                  "imageUrl",
+                                  e.target.value
+                                );
+                              }}
+                            />
+                            <Button
+                              color="secondary"
+                              onClick={() => handleInsertImageFromUrl(index)}
+                            >
+                              Add
+                            </Button>
+                          </div>
                           <img
                             src={card.imageBlob || card.image}
                             alt="Crop preview"
