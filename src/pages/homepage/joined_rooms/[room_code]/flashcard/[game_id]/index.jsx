@@ -39,7 +39,7 @@ const Index = () => {
   }, [game_id]);
 
   return (
-    <div>
+    <div className="w-full">
       <FlashcardsStudent flashcards={flashcards} />
     </div>
   );

@@ -54,15 +54,19 @@ export default async function handler(req, res) {
           const imageFileNames = await Promise.all(
             card.images.map(async (image) => {
               if (image) {
-                const imageFileName = `${Date.now()}-${Math.random()
-                  .toString(36)
-                  .substr(2, 9)}.png`;
-                const fullPath = await saveFileToPublic(
-                  image,
-                  imageFileName,
-                  "four_pics_one_word/images"
-                );
-                return fullPath;
+                if (image.startsWith("data:image")) {
+                  const imageFileName = `${Date.now()}-${Math.random()
+                    .toString(36)
+                    .substr(2, 9)}.png`;
+                  const fullPath = await saveFileToPublic(
+                    image,
+                    imageFileName,
+                    "four_pics_one_word/images"
+                  );
+                  return fullPath;
+                } else {
+                  return image; // If image is a URL, return it directly
+                }
               }
               return null;
             })
@@ -76,7 +80,7 @@ export default async function handler(req, res) {
         await Promise.all(cardPromises);
         res
           .status(200)
-          .json({ message: "Game and group created successfully" });
+          .json({ message: "Game and group created successfully", gameId });
       } catch (groupError) {
         console.error(
           "Error inserting into four_pics_one_word_sets:",
@@ -188,6 +192,13 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
           );
           imageFileNames.push(savedImagePath);
           console.log(`New image saved: ${savedImagePath}`);
+        } else if (
+          (newImage && newImage.startsWith("http://")) ||
+          newImage.startsWith("https://")
+        ) {
+          // Accept image URL directly
+          imageFileNames.push(newImage);
+          console.log(`Image URL accepted: ${newImage}`);
         } else {
           imageFileNames.push(currentCard[imageKey]); // Retain old image if not changed
         }

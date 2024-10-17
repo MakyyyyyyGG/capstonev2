@@ -66,15 +66,25 @@ export default async function handler(req, res) {
         let audioFileName = null;
 
         if (flashcard.image) {
-          imageFileName = `${Date.now()}-${Math.random()
-            .toString(36)
-            .substr(2, 9)}.png`;
-          flashcard.image = await saveFileToPublic(
-            flashcard.image,
-            imageFileName,
-            "flashcards/images"
-          );
-          console.log(`Image URI: ${flashcard.image}`);
+          if (flashcard.image.startsWith("data:image")) {
+            imageFileName = `${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}.png`;
+            flashcard.image = await saveFileToPublic(
+              flashcard.image,
+              imageFileName,
+              "flashcards/images"
+            );
+            console.log(`Image URI: ${flashcard.image}`);
+          } else if (
+            flashcard.image.startsWith("http://") ||
+            flashcard.image.startsWith("https://")
+          ) {
+            // Accept image URL directly
+            console.log(`Image URL: ${flashcard.image}`);
+          } else {
+            throw new Error("Invalid image format");
+          }
         }
 
         if (flashcard.audio) {

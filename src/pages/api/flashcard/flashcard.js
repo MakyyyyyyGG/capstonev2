@@ -58,15 +58,25 @@ export default async function handler(req, res) {
           let audioFileName = null;
 
           if (flashcard.image) {
-            imageFileName = `${Date.now()}-${Math.random()
-              .toString(36)
-              .substr(2, 9)}.png`;
-            flashcard.image = await saveFileToPublic(
-              flashcard.image,
-              imageFileName,
-              "flashcards/images"
-            );
-            console.log(`Image URI: ${flashcard.image}`);
+            if (flashcard.image.startsWith("data:image")) {
+              imageFileName = `${Date.now()}-${Math.random()
+                .toString(36)
+                .substr(2, 9)}.png`;
+              flashcard.image = await saveFileToPublic(
+                flashcard.image,
+                imageFileName,
+                "flashcards/images"
+              );
+              console.log(`Image URI: ${flashcard.image}`);
+            } else if (
+              flashcard.image.startsWith("http://") ||
+              flashcard.image.startsWith("https://")
+            ) {
+              // Accept image URL directly
+              console.log(`Image URL: ${flashcard.image}`);
+            } else {
+              throw new Error("Invalid image format");
+            }
           }
 
           if (flashcard.audio) {
@@ -94,7 +104,7 @@ export default async function handler(req, res) {
         });
 
         await Promise.all(flashcardPromises); // Wait for all flashcard insertions to complete
-        res.status(200).json({ groupId });
+        res.status(200).json({ groupId, gameId });
       } catch (error) {
         console.error("Error creating flashcards:", error);
         res.status(500).json({ error: "Error creating flashcards" });
@@ -168,17 +178,25 @@ export default async function handler(req, res) {
 
       let imageFileName = null;
       let audioFileName = null;
-
       if (flashcards.image && flashcards.image !== currentFlashcard.image) {
-        imageFileName = `${Date.now()}-${Math.random()
-          .toString(36)
-          .substr(2, 9)}.png`;
-        flashcards.image = await saveFileToPublic(
-          flashcards.image,
-          imageFileName,
-          "flashcards/images"
-        );
-        console.log(`Image URI: ${flashcards.image}`);
+        if (flashcards.image.startsWith("data:image")) {
+          imageFileName = `${Date.now()}-${Math.random()
+            .toString(36)
+            .substr(2, 9)}.png`;
+          flashcards.image = await saveFileToPublic(
+            flashcards.image,
+            imageFileName,
+            "flashcards/images"
+          );
+          console.log(`Image URI: ${flashcards.image}`);
+        } else if (
+          flashcards.image.startsWith("http://") ||
+          flashcards.image.startsWith("https://")
+        ) {
+          console.log(`Image URL accepted: ${flashcards.image}`);
+        } else {
+          flashcards.image = currentFlashcard.image;
+        }
       } else {
         flashcards.image = currentFlashcard.image;
       }

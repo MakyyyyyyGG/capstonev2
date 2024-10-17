@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
-import { SquareLibrary, Shapes, GraduationCap } from "lucide-react";
+import { SquareLibrary, Shapes, GraduationCap, Trophy } from "lucide-react";
 import StudentList from "@/pages/components/StudentList";
 import ClassWorkList from "@/pages/components/ClassWorkList";
 import SidebarStudent from "@/pages/components/SidebarStudent";
 import Header from "@/pages/components/Header";
+import Scores from "@/pages/components/Scores";
 
 const fetchRoomDetails = async (room_code, setRoomData) => {
   try {
@@ -105,11 +106,11 @@ const IndividualRoom = () => {
                   }
                 ></Tab>
                 <Tab
-                  key="classmates"
+                  key="scores"
                   title={
                     <div className="flex items-center space-x-2">
-                      <GraduationCap className="max-sm:w-4 max-sm:h-4" />
-                      <span>Classmates</span>
+                      <Trophy className="max-sm:w-4 max-sm:h-4" />
+                      <span>Scores</span>
                     </div>
                   }
                 ></Tab>
@@ -136,9 +137,9 @@ const IndividualRoom = () => {
                 </div>
               </div>
             )}
-            {selectedTab === "classmates" && (
+            {selectedTab === "scores" && (
               <div className="flex items-center gap-4 w-full">
-                <StudentList room_code={room_code} />
+                <Scores room_code={room_code} />
               </div>
             )}
 

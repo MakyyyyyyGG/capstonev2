@@ -310,7 +310,11 @@ const Index = () => {
     });
 
     const gridCols = imageCount === 3 ? "grid-cols-3" : "grid-cols-2";
-
+    const handleInsertImageFromUrl = (cardIndex, imageIndex) => {
+      const updatedCards = [...cards];
+      updatedCards[cardIndex].images[imageIndex] = tempImage;
+      setCards(updatedCards);
+    };
     return (
       <div className={`grid ${1} gap-4`}>
         {card.word && (
@@ -350,6 +354,26 @@ const Index = () => {
             >
               {image ? (
                 <>
+                  <div className="flex gap-4 items-center justify-center">
+                    <Input
+                      label="Image URL"
+                      variant="underlined"
+                      color="secondary"
+                      className="text-[#7469B6] px-2 z-0"
+                      value={card.images[imageIndex]}
+                      onChange={(e) => {
+                        setTempImage(e.target.value);
+                      }}
+                    />
+                    <Button
+                      color="secondary"
+                      onClick={() =>
+                        handleInsertImageFromUrl(cardIndex, imageIndex)
+                      }
+                    >
+                      Add
+                    </Button>
+                  </div>
                   <div className="flex items-center  space-x-2 m-2 p-2  w-full">
                     <Button
                       onClick={() => handleEdit(cardIndex, imageIndex)}
@@ -418,6 +442,26 @@ const Index = () => {
                   >
                     Upload Image
                   </Button>
+                  <div className="flex gap-4 items-center justify-center">
+                    <Input
+                      label="Image URL"
+                      variant="underlined"
+                      color="secondary"
+                      className="text-[#7469B6] px-2 z-0"
+                      value={card.images[imageIndex]}
+                      onChange={(e) => {
+                        setTempImage(e.target.value);
+                      }}
+                    />
+                    <Button
+                      color="secondary"
+                      onClick={() =>
+                        handleInsertImageFromUrl(cardIndex, imageIndex)
+                      }
+                    >
+                      Add
+                    </Button>
+                  </div>
                 </div>
               )}
               <input
@@ -438,6 +482,13 @@ const Index = () => {
     if (!title) {
       alert("Please enter a title.");
       return;
+    }
+    //if theres  word return an error
+    for (const card of cards) {
+      if (!card.word) {
+        alert("Please enter a word for each card.");
+        return;
+      }
     }
     // Ensure each card has the required number of images
     for (const card of cards) {

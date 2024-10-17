@@ -55,6 +55,9 @@ export default async function handler(req, res) {
             "decision_maker/images"
           );
           console.log(`Image URI: ${card.imageBlob}`);
+        } else if (card.imageUrl) {
+          card.imageBlob = card.imageUrl;
+          console.log(`Image URL: ${card.imageUrl}`);
         }
 
         return query({
