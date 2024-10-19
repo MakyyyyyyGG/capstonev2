@@ -1,225 +1,157 @@
 import React, { useState, useEffect, useRef } from "react";
 import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
-import {
-  LibraryBig,
-  Disc2,
-  VolumeX,
-  Volume2,
-  Trash2,
-  Pencil,
-} from "lucide-react";
-import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import {
-  Input,
-  Button,
-  Image,
   Card,
   CardHeader,
   CardBody,
   CardFooter,
-  Divider,
+  Input,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Button,
   useDisclosure,
-  Checkbox,
-  Select,
-  SelectItem,
+  Divider,
+  Tooltip,
 } from "@nextui-org/react";
-import { getImages } from "@/pages/api/getImages";
-export async function getStaticProps() {
-  const images = getImages();
-  console.log("images:", images);
-  return {
-    props: {
-      images,
-    },
-  };
-}
-const index = ({ images }) => {
-  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(false);
+import {
+  Mic,
+  Disc2,
+  Image,
+  Plus,
+  Volume2,
+  VolumeX,
+  Trash2,
+  ScanSearch,
+} from "lucide-react";
+import ReactCrop from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+
+const Index = () => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isRecordingOpen,
+    onOpen: onRecordingOpen,
+    onOpenChange: onRecordingOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isImageViewOpen,
+    onOpen: onImageViewOpen,
+    onOpenChange: onImageViewOpenChange,
+  } = useDisclosure();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [difficulty, setDifficulty] = useState("easy");
+  const [image, setImage] = useState(null);
+  const [voice, setVoice] = useState(null);
+  const [tempImage, setTempImage] = useState(null);
+  const [crop, setCrop] = useState({
+    unit: "%",
+    width: 50,
+    height: 50,
+    x: 25,
+    y: 25,
+  });
+  const [videoURL, setVideoURL] = useState("");
+  const [video, setVideo] = useState(null);
+  const [zoom, setZoom] = useState(1);
   const [audioBlob, setAudioBlob] = useState(null);
-  const [recordingCardIndex, setRecordingCardIndex] = useState(null);
+  const [insertedAudio, setInsertedAudio] = useState(null);
+  const { room_code } = router.query;
+  const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordingTime, setRecordingTime] = useState(60); // 60 seconds = 1 minute
+  const [sequence, setSequence] = useState([
+    { step: "", image: null, audio: null, imageUrl: "" },
+  ]);
+  const [currentIndex, setCurrentIndex] = useState(null);
+  const imgRef = useRef(null);
+
+  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
   }
 
-  const { data: session } = useSession();
-  const router = useRouter();
-  const { room_code } = router.query;
-
-  const [cards, setCards] = useState([
-    {
-      images: [],
-      colors: [],
-      audio: null,
-      audioBlob: null,
-      insertedAudio: null,
-    },
-  ]);
-  const [title, setTitle] = useState("");
-  const [draggingIndex, setDraggingIndex] = useState(null);
-  const [selectedColor, setSelectedColor] = useState([]);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [difficulty, setDifficulty] = useState("easy");
-  const displayImages = images;
-
-  const groupImagesByColor = (images) => {
-    return images.reduce((acc, image) => {
-      const color = image.image.split("/").pop().split("-")[0];
-      if (!acc[color]) {
-        acc[color] = [];
-      }
-      acc[color].push(image);
-      return acc;
-    }, {});
-  };
-
-  const groupedImages = groupImagesByColor(displayImages);
-
-  const handleImageSelect = (imageId) => {
-    if (
-      selectedImages.length >=
-      (difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10)
-    ) {
-      alert(
-        `You can only select ${
-          difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10
-        } images.`
-      );
-      return;
+  useEffect(() => {
+    if (room_code) {
+      console.log("room_code:", room_code);
     }
-    setSelectedImages((prev) => {
-      if (prev.includes(imageId)) {
-        return prev.filter((id) => id !== imageId);
-      } else if (
-        prev.length <
-        (difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10)
-      ) {
-        return [...prev, imageId];
-      }
-      return prev;
-    });
-  };
-
-  const handleAddCard = () => {
-    setCards([
-      ...cards,
-      {
-        images: [],
-        colors: [],
-        audio: null,
-        audioBlob: null,
-        insertedAudio: null,
-      },
-    ]);
-  };
-
-  const handleRemoveCard = (cardIndex) => {
-    const updatedCards = cards.filter((_, index) => index !== cardIndex);
-    setCards(updatedCards);
-  };
-
-  const handleEdit = (cardIndex, imageIndex) => {
-    console.log("Card index and image index:", cardIndex, imageIndex);
-    setDraggingIndex({ cardIndex, imageIndex });
-    setSelectedImages(
-      cards[cardIndex].images
-        .filter((img) => img !== null)
-        .map((img) => {
-          const foundImage = displayImages.find(
-            (dispImg) => dispImg.image === img
-          );
-          return foundImage ? foundImage.id : null;
-        })
-        .filter((id) => id !== null)
-    );
-    onOpen();
-  };
-
-  const insertImages = () => {
-    const updatedCards = [...cards];
-    const selectedImageUrls = selectedImages.map(
-      (id) => displayImages.find((img) => img.id === id).image
-    );
-    const selectedImageColors = selectedImages.map(
-      (id) =>
-        displayImages
-          .find((img) => img.id === id)
-          .image.split("/")
-          .pop()
-          .split("-")[0]
-    );
-    updatedCards[draggingIndex.cardIndex].images = selectedImageUrls;
-    updatedCards[draggingIndex.cardIndex].colors = selectedImageColors;
-    setCards(updatedCards);
-    setSelectedImages([]);
-    onOpenChange();
-  };
-
-  const handleColorChange = (cardIndex, color) => {
-    const updatedCards = [...cards];
-    updatedCards[cardIndex].colors = [color];
-    setCards(updatedCards);
-  };
-
-  const handleDifficultyChange = (e) => {
-    const newDifficulty = e.target.value;
-    setDifficulty(newDifficulty);
-
-    const maxImages =
-      newDifficulty === "easy" ? 3 : newDifficulty === "medium" ? 5 : 10;
-    const updatedCards = cards.map((card) => {
-      const newImages = card.images.slice(0, maxImages);
-      const newColors = card.colors.slice(0, maxImages);
-      console.log(`Card ${card.colors} images:`, newImages);
-      return {
-        ...card,
-        images: newImages,
-        colors: newColors,
-      };
-    });
-    setCards(updatedCards);
-  };
+  }, [room_code]);
 
   useEffect(() => {
-    const maxImages =
-      difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10;
-    const updatedCards = cards.map((card) => {
-      const newImages = card.images.slice(0, maxImages);
-      const newColors = card.colors.slice(0, maxImages);
-      console.log(`Card ${card.colors} images:`, newImages);
-      return {
-        ...card,
-        images: newImages,
-        colors: newColors,
-      };
-    });
-    setCards(updatedCards);
-  }, [difficulty]);
+    let interval;
+    if (isRecording && recordingTime > 0) {
+      interval = setInterval(() => {
+        setRecordingTime((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (recordingTime === 0) {
+      stopRecording();
+    }
+    return () => clearInterval(interval);
+  }, [isRecording, recordingTime]);
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
+  const handleCreateFlashcard = async () => {
+    console.log("Sequence:", sequence);
+    if (!title || !room_code || !session?.user?.id) {
+      console.error("Missing required fields");
+      return;
+    }
+    if (sequence.length < 2) {
+      alert("You need to add at least 2 flashcards");
+      return;
+    }
+    if (sequence.some((flashcard) => !flashcard.step)) {
+      alert("All flashcards must have a step");
+      return;
+    }
+    if (sequence.some((flashcard) => !flashcard.image)) {
+      alert("All flashcards must have an image");
+      return;
+    }
+    try {
+      const response = await fetch("/api/sequence_game/sequence_game", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Set the Content-Type header
+        },
+        body: JSON.stringify({
+          title: title,
+          video: video,
+          room_code: room_code,
+          account_id: session?.user?.id,
+          sequence: sequence,
+          difficulty: difficulty,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // console.log("Flashcard created successfully");
+      console.log("Flashcard created successfullyasjdhasjdasgh:", data);
+      console.log("flashcard set id:", data.group_id);
+      // router.push(
+      //     `/teacher-dashboard/rooms/${room_code}/flashcard/${data.group_id}`
+      // );
+      // console.log("Flashcards data:", flashcards);
+      alert("Flashcard created successfully");
+    } catch (error) {
+      console.error("Error creating flashcard:", error.message);
+    }
   };
 
-  const startRecording = async (cardIndex) => {
-    console.log("start recording in card", cardIndex);
+  const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       const audioChunks = [];
 
@@ -229,55 +161,122 @@ const index = ({ images }) => {
 
       recorder.addEventListener("stop", () => {
         const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-        const updatedCards = [...cards];
-        updatedCards[cardIndex].audioBlob = audioBlob;
-        setCards(updatedCards);
-        setRecordingCardIndex(null);
+        setAudioBlob(audioBlob);
+        setIsRecording(false);
         setRecordingTime(60); // Reset the recording time
-        insertAudio(cardIndex, audioBlob); // Pass the audioBlob to insertAudio
       });
 
       recorder.start();
       setMediaRecorder(recorder);
-      setRecordingCardIndex(cardIndex);
+      setIsRecording(true);
     } catch (error) {
       console.error("Error accessing microphone:", error);
     }
   };
 
-  const stopRecording = async (cardIndex) => {
-    if (mediaRecorder && recordingCardIndex === cardIndex) {
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
     }
   };
 
-  const removeAudio = (cardIndex) => {
-    const updatedCards = [...cards];
-    updatedCards[cardIndex].audioBlob = null;
-    updatedCards[cardIndex].insertedAudio = null;
-    setCards(updatedCards);
+  const removeAudio = () => {
+    setAudioBlob(null);
+    setInsertedAudio(null);
   };
 
-  const insertAudio = (cardIndex, audioBlob) => {
-    console.log("insert audio reached");
-    const updatedCards = [...cards];
-    console.log("audioBlob in insertAudio", audioBlob);
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setTempImage(reader.result); // Base64 string
+    };
+
+    if (file) {
+      reader.readAsDataURL(file); // Convert to Base64
+    }
+  };
+
+  const onImageLoad = (e) => {
+    imgRef.current = e.currentTarget;
+    console.log("Image loaded successfully");
+    setCrop({
+      unit: "%",
+      width: 50,
+      height: 50,
+      x: 25,
+      y: 25,
+    });
+  };
+  const confirmImage = () => {
+    if (!imgRef.current) {
+      console.error("Image is not loaded yet.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(
+      imgRef.current,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width * scaleX,
+      crop.height * scaleY
+    );
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        console.error("Canvas is empty");
+        return;
+      }
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        const newSequence = [...sequence];
+        newSequence[currentIndex].image = base64data;
+        setSequence(newSequence);
+        setTempImage(null);
+        onOpenChange(false);
+      };
+    }, "image/jpeg");
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const insertAudio = () => {
     if (audioBlob) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result.replace(/^data:.+;base64,/, "");
         if (isValidBase64(base64String)) {
-          updatedCards[
-            cardIndex
-          ].insertedAudio = `data:audio/wav;base64,${base64String}`;
-          setCards(updatedCards);
-          console.log(`Audio Blob for card ${cardIndex}:`, base64String);
+          handleFlashcardAudioChange(
+            currentIndex,
+            `data:audio/wav;base64,${base64String}`
+          );
         } else {
           console.error("Invalid Base64 data for audio");
         }
       };
       reader.readAsDataURL(audioBlob);
     }
+    onRecordingOpenChange(false);
   };
 
   const isValidBase64 = (str) => {
@@ -289,362 +288,534 @@ const index = ({ images }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // console.log("Submitting:", {
-    //   title,
-    //   difficulty,
-    //   cards: cards.map((card) => ({ ...card, colors: card.colors })),
-    // });
-    try {
-      const response = await fetch(
-        "/api/color_game_advanced/color_game_advanced",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title,
-            difficulty,
-            cards,
-            account_id: session.user.id,
-            room_code: room_code,
-          }),
-        }
-      );
+  const handleFlashcardChange = (index, field, value) => {
+    const newSequence = [...sequence];
+    newSequence[index][field] = value;
+    setSequence(newSequence);
+  };
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      } else {
-        alert("Game created successfully");
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
+  const handleFlashcardImageChange = (index, e) => {
+    setCurrentIndex(index);
+    handleImageChange(e);
+  };
+
+  const handleFlashcardAudioChange = (index, audioBlob) => {
+    const newSequence = [...sequence];
+    newSequence[index].audio = audioBlob;
+    setSequence(newSequence);
+  };
+
+  const addFlashcard = () => {
+    setSequence([
+      ...sequence,
+      { step: "", image: null, audio: null, imageUrl: "" },
+    ]);
+    setTempImage(null);
+    if (sequence.length >= 10) {
+      setDifficulty("hard");
+    } else if (sequence.length >= 5) {
+      setDifficulty("medium");
+    } else {
+      setDifficulty("easy");
     }
+    console.log("Sequence:", sequence);
+  };
+
+  const removeFlashcard = (index) => {
+    const newSequence = sequence.filter((_, i) => i !== index);
+    setSequence(newSequence);
+  };
+
+  const handleWheel = (event) => {
+    event.preventDefault();
+    const newZoom = zoom + event.deltaY * -0.01;
+    setZoom(Math.min(Math.max(1, newZoom), 3)); // Clamp zoom between 1 and 3
+  };
+
+  const handleTextToSpeech = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    const synth = window.speechSynthesis;
+
+    // Get available voices
+    let voices = synth.getVoices();
+
+    // Ensure voices are loaded, this may run before voices are loaded, so handle this event
+    if (!voices.length) {
+      synth.onvoiceschanged = () => {
+        voices = synth.getVoices();
+        setVoiceAndSpeak(voices[1]); // Set default voice
+      };
+    } else {
+      console.log("voices:", voices);
+      setVoiceAndSpeak(voices[1]); // Set default voice
+    }
+
+    function setVoiceAndSpeak(selectedVoice) {
+      // Choose a different voice if needed (e.g., second voice in the list)
+      utterance.voice = selectedVoice; // Select your desired voice
+      utterance.rate = 0.7;
+      speechSynthesis.speak(utterance);
+    }
+  };
+  const handleInsertImageFromUrl = (flashcard, index) => {
+    const updatedCards = [...sequence];
+    updatedCards[index].image = flashcard.imageUrl;
+    setSequence(updatedCards);
+  };
+
+  const handleAddVideo = () => {
+    let embeddableVideoURL;
+
+    if (videoURL.includes("youtu.be")) {
+      // Handle short YouTube URL (e.g., https://youtu.be/<video-id>)
+      const videoId = videoURL.split("/")[3].split("?")[0];
+      const queryParams = videoURL.split("?")[1]
+        ? `?${videoURL.split("?")[1]}`
+        : "";
+      embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+    } else if (videoURL.includes("youtube.com/watch")) {
+      // Handle standard YouTube URL (e.g., https://www.youtube.com/watch?v=<video-id>)
+      const videoId = videoURL.split("v=")[1].split("&")[0];
+      const queryParams = videoURL.split("&").slice(1).join("&")
+        ? `?${videoURL.split("&").slice(1).join("&")}`
+        : "";
+      embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+    }
+
+    console.log("embeddableVideoURL:", embeddableVideoURL);
+    setVideo(embeddableVideoURL);
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
-      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-        <h1>Create Color Game+</h1>
-        <Button
-          onClick={handleSubmit}
-          color="secondary"
-          type="submit"
-          radius="sm"
-          isDisabled={
-            !title ||
-            cards.some(
-              (card) =>
-                card.images.some((img) => img === null) || !card.colors.length
-            )
-          }
-        >
-          Create
-        </Button>
-      </div>
-      <h1>room code: {room_code}</h1>
-
-      <form onSubmit={handleSubmit}>
-        <div className="flex gap-2 items-center z-0 mb-4 max-sm:flex-col">
-          <Input
-            isRequired
-            label="Title"
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-3/5 max-sm:w-full"
-          />
-          <Select
-            label="Difficulty"
-            onChange={handleDifficultyChange}
-            isRequired
-            value={difficulty}
-            className="w-2/5 max-sm:w-full"
-          >
-            <SelectItem key="easy">Easy (3 images)</SelectItem>
-            <SelectItem key="medium">Medium (5 images)</SelectItem>
-            <SelectItem key="hard">Hard (10 images)</SelectItem>
-          </Select>
-        </div>
-        <div className="flex flex-wrap gap-4">
-          {cards.map((card, cardIndex) => (
-            <Card
-              key={cardIndex}
-              className="w-full border border-slate-800 rounded-md flex"
-            >
-              <CardHeader className="flex px-3 justify-between items-center z-0">
-                <div className="pl-2 text-xl font-bold">
-                  <h1>{cardIndex + 1}</h1>
-                </div>
-                <div className="flex gap-2">
-                  {recordingCardIndex !== cardIndex ? (
+    <div className="w-full">
+      <div className="flex border-2">
+        <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+          {/* <h1>room_code: {room_code}</h1>
+          <h1>session: {session?.user?.id}</h1> */}
+          <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+            <h1 className="">Create a new sequence set</h1>
+            <div>
+              <Button
+                color="secondary"
+                isDisabled={!title}
+                onClick={handleCreateFlashcard}
+              >
+                Create
+              </Button>
+            </div>
+          </div>
+          <div className="items-center z-0">
+            <Input
+              label="Sequence Title"
+              value={title}
+              variant="faded"
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Input
+                label="Video URL"
+                value={videoURL}
+                variant="underlined"
+                onChange={(e) => setVideoURL(e.target.value)}
+              />
+              <Button onClick={handleAddVideo}>Add Video</Button>
+            </div>
+            {video && <iframe src={video} frameborder="0"></iframe>}
+            <h1>difficulty {difficulty}</h1>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            {sequence.map((flashcard, index) => (
+              <Card
+                key={index}
+                className="w-full border border-slate-800 rounded-md flex"
+              >
+                <CardHeader className="flex px-3 justify-between items-center z-0">
+                  <div className="pl-2 text-xl font-bold">
+                    <h1>{index + 1}</h1>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      label="Image URL"
+                      variant="underlined"
+                      color="secondary"
+                      className="text-[#7469B6] px-2 z-0"
+                      value={flashcard.imageUrl || ""}
+                      onChange={(e) => {
+                        handleFlashcardChange(
+                          index,
+                          "imageUrl",
+                          e.target.value
+                        );
+                      }}
+                    />
                     <Button
                       color="secondary"
-                      onClick={() => startRecording(cardIndex)}
-                      startContent={<Volume2 size={22} />}
+                      onClick={() => handleInsertImageFromUrl(flashcard, index)}
                     >
-                      Record Sequence
+                      Add
                     </Button>
-                  ) : (
                     <Button
-                      onClick={() => {
-                        stopRecording(cardIndex);
+                      color="secondary"
+                      onPress={() => {
+                        onOpen();
+                        setCurrentIndex(index);
                       }}
-                      color="danger"
-                      className="flex items-center gap-2"
                     >
-                      <div className="flex items-center gap-2">
-                        <Disc2 size={24} />
-                        <p>{formatTime(60 - recordingTime)}/01:00</p>
-                      </div>
+                      <Image />
+                      Add Image
                     </Button>
-                  )}
-                  <div>
+                    <Modal
+                      isOpen={isOpen}
+                      onOpenChange={onOpenChange}
+                      size="lg"
+                      onClose={() => {
+                        setTempImage(null);
+                      }}
+                    >
+                      <ModalContent>
+                        {(onClose) => (
+                          <>
+                            <ModalHeader className="flex flex-col gap-1">
+                              Upload Image
+                            </ModalHeader>
+                            <ModalBody>
+                              <div
+                                className="border-2 border-dashed border-gray-400 rounded-md p-8 text-center cursor-pointer"
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  const file = e.dataTransfer.files[0];
+                                  if (file) {
+                                    handleFlashcardImageChange(currentIndex, {
+                                      target: { files: [file] },
+                                    });
+                                  }
+                                }}
+                              >
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  id="imageUpload"
+                                  onChange={(e) =>
+                                    handleFlashcardImageChange(currentIndex, e)
+                                  }
+                                />
+                                <label htmlFor="imageUpload" className="block">
+                                  Drag or upload your image here
+                                </label>
+                              </div>
+                              <Input
+                                label="Image URL"
+                                variant="underlined"
+                                color="secondary"
+                                className="text-[#7469B6] px-2 z-0"
+                                value={flashcard.imageUrl || ""}
+                                onChange={(e) => {
+                                  handleFlashcardChange(
+                                    currentIndex,
+                                    "imageUrl",
+                                    e.target.value
+                                  );
+                                }}
+                              />
+                              {tempImage && (
+                                <div
+                                  className="w-full h-full"
+                                  onWheel={handleWheel}
+                                >
+                                  <ReactCrop
+                                    className="w-full h-full"
+                                    src={tempImage}
+                                    crop={crop}
+                                    onChange={(newCrop) => setCrop(newCrop)}
+                                    aspect={1}
+                                  >
+                                    {tempImage && !flashcard.image && (
+                                      <img
+                                        src={tempImage}
+                                        onLoad={onImageLoad}
+                                        alt="Crop preview"
+                                        className="w-full h-full object-contain"
+                                        style={{
+                                          transform: `scale(${zoom})`,
+                                        }}
+                                      />
+                                    )}
+                                  </ReactCrop>
+                                </div>
+                              )}
+                            </ModalBody>
+                            <ModalFooter>
+                              <Button
+                                color="danger"
+                                onPress={onClose}
+                                onClick={() => {
+                                  setTempImage(null);
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                              <Button color="secondary" onPress={confirmImage}>
+                                Insert
+                              </Button>
+                            </ModalFooter>
+                          </>
+                        )}
+                      </ModalContent>
+                    </Modal>
                     <Button
                       isIconOnly
-                      onPress={() => handleRemoveCard(cardIndex)}
                       color="danger"
+                      onClick={() => removeFlashcard(index)}
                     >
                       <Trash2 size={22} />
                     </Button>
                   </div>
-                </div>
-              </CardHeader>
-              <Divider className="m-0 h-0.5 bg-slate-300" />
-              <CardBody>
-                <div className="flex items-center justify-between text-left max-sm:flex-col">
-                  <h1 className="font-bold text-lg">Choose a color</h1>
-                  <div>
-                    {card.audioBlob && (
-                      <>
-                        <div className="flex items-center justify-between gap-3 max-sm:flex-col">
-                          <audio
-                            controls
-                            src={URL.createObjectURL(card.audioBlob)}
-                          ></audio>
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() => removeAudio(cardIndex)}
-                              color="danger"
-                            >
-                              <VolumeX size={20} />
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {Array.from(
-                    {
-                      length:
-                        difficulty === "easy"
-                          ? 3
-                          : difficulty === "medium"
-                          ? 5
-                          : 10,
-                    },
-                    (_, imageIndex) => (
-                      <div key={imageIndex}>
-                        <div className="mt-2">
-                          <Select
-                            color="secondary"
-                            variant="underlined"
-                            label="Color"
-                            onChange={(e) =>
-                              handleColorChange(cardIndex, e.target.value)
-                            }
-                            isRequired
-                            value={card.colors[imageIndex] || ""}
-                            className="mb-4"
-                          >
-                            <SelectItem key="blue">Blue</SelectItem>
-                            <SelectItem key="red">Red</SelectItem>
-                            <SelectItem key="yellow">Yellow</SelectItem>
-                            <SelectItem key="green">Green</SelectItem>
-                            <SelectItem key="orange">Orange</SelectItem>
-                            <SelectItem key="purple">Purple</SelectItem>
-                            <SelectItem key="pink">Pink</SelectItem>
-                            <SelectItem key="brown">Brown</SelectItem>
-                            <SelectItem key="black">Black</SelectItem>
-                            <SelectItem key="white">White</SelectItem>
-                            <SelectItem key="gray">Gray</SelectItem>
-                          </Select>
-                        </div>
-                        <div
-                          className={`flex relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer`}
+                </CardHeader>
+                <Divider className="m-0 h-0.5 bg-slate-300" />
+                <CardBody>
+                  <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                    <div className="flex shrink flex-col w-[45%] gap-2 max-sm:w-full">
+                      <Input
+                        type="text"
+                        variant="underlined"
+                        color="secondary"
+                        className="text-[#7469B6] z-0"
+                        label={`Step ${index + 1}`}
+                        value={flashcard.step}
+                        onChange={(e) =>
+                          handleFlashcardChange(index, "step", e.target.value)
+                        }
+                      />
+                      {/* {flashcard.term && (
+                        <Button
+                          color="secondary"
+                          onPress={() => handleTextToSpeech(flashcard.term)}
                         >
-                          {card.images[imageIndex] ? (
-                            <>
+                          <Volume2 /> Play Term
+                        </Button>
+                      )} */}
+                    </div>
+                    <div className="flex w-[55%] gap-2 max-sm:w-full">
+                      {/* <Input
+                        type="text"
+                        variant="underlined"
+                        color="secondary"
+                        className="text-[#7469B6] z-0"
+                        label={`Flashcard Description ${index + 1}`}
+                        value={flashcard.description}
+                        onChange={(e) =>
+                          handleFlashcardChange(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                      /> */}
+                      <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
+                        {flashcard.image && (
+                          <div className="relative flex flex-col gap-2">
+                            <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
                               <img
-                                src={card.images[imageIndex]}
-                                alt={`Uploaded ${imageIndex + 1}`}
-                                className="h-full w-full object-cover rounded-lg"
+                                src={flashcard.image}
+                                alt="flashcard image"
+                                className="w-full h-full object-cover"
                               />
-                              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity">
+                            </div>
+
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              onClick={() => {
+                                handleFlashcardChange(index, "image", null);
+                              }}
+                              color="danger"
+                              className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
+                            >
+                              <Trash2 size={18} />
+                            </Button>
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              color="secondary"
+                              className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                              aria-label="View Image"
+                              onPress={() => {
+                                onImageViewOpen();
+                                setCurrentIndex(index);
+                              }}
+                            >
+                              <ScanSearch size={18} />
+                            </Button>
+                            <Modal
+                              isOpen={isImageViewOpen}
+                              onOpenChange={onImageViewOpenChange}
+                            >
+                              <ModalContent>
+                                {(onClose) => (
+                                  <>
+                                    <ModalHeader>View Image</ModalHeader>
+                                    <ModalBody>
+                                      <div className="w-full h-full">
+                                        <img
+                                          src={flashcard.image}
+                                          alt="flashcard image"
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    </ModalBody>
+                                    <ModalFooter>
+                                      <Button
+                                        color="danger"
+                                        variant="light"
+                                        onPress={onClose}
+                                      >
+                                        Close
+                                      </Button>
+                                      <Button color="primary" onPress={onClose}>
+                                        Action
+                                      </Button>
+                                    </ModalFooter>
+                                  </>
+                                )}
+                              </ModalContent>
+                            </Modal>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardBody>
+                <Divider className="m-0 h-0.5 bg-slate-300" />
+                <CardFooter className="flex px-5 gap-2 items-center justify-between">
+                  <div>
+                    <Button
+                      color="secondary"
+                      className="my-2"
+                      onPress={() => {
+                        onRecordingOpen();
+                        setCurrentIndex(index);
+                      }}
+                    >
+                      <Mic />
+                      Record Audio
+                    </Button>
+                    <Modal
+                      isOpen={isRecordingOpen}
+                      onOpenChange={(isOpen) => {
+                        onRecordingOpenChange(isOpen);
+                        if (!isOpen) {
+                          setAudioBlob(null);
+                          // handleFlashcardChange(index, "image", null);
+                        }
+                      }}
+                      size="lg"
+                    >
+                      <ModalContent>
+                        {(onClose) => (
+                          <>
+                            <ModalHeader className="flex flex-col gap-1">
+                              Record Audio
+                            </ModalHeader>
+                            <ModalBody>
+                              {!isRecording ? (
                                 <Button
-                                  isIconOnly
-                                  onPress={() =>
-                                    handleEdit(cardIndex, imageIndex)
-                                  }
                                   color="secondary"
-                                  size="sm"
+                                  onClick={startRecording}
                                 >
-                                  <Pencil size={18} />
+                                  Start Recording
                                 </Button>
+                              ) : (
                                 <Button
-                                  isIconOnly
-                                  onClick={() => {
-                                    const updatedCards = [...cards];
-                                    updatedCards[cardIndex].images[imageIndex] =
-                                      null;
-                                    updatedCards[cardIndex].colors[imageIndex] =
-                                      null;
-                                    setCards(updatedCards);
-                                  }}
+                                  onClick={stopRecording}
                                   color="danger"
-                                  size="sm"
+                                  className="flex items-center gap-2"
                                 >
-                                  <Trash2 size={18} />
+                                  <div className="flex items-center gap-2">
+                                    <Disc2 size={24} />
+                                    <p>
+                                      {formatTime(60 - recordingTime)}/01:00
+                                    </p>
+                                  </div>
                                 </Button>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="flex flex-col items-center space-y-2">
-                              {/* <h1>asdj</h1> */}
+                              )}
+                              {audioBlob && (
+                                <>
+                                  <div className="flex items-center justify-between gap-3">
+                                    <audio
+                                      controls
+                                      src={URL.createObjectURL(audioBlob)}
+                                    ></audio>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        onClick={removeAudio}
+                                        color="danger"
+                                      >
+                                        <VolumeX size={20} />
+                                        Remove Audio
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </ModalBody>
+                            <ModalFooter>
+                              <Button color="danger" onPress={onClose}>
+                                Cancel
+                              </Button>
                               <Button
                                 color="secondary"
-                                onPress={() =>
-                                  handleEdit(cardIndex, imageIndex)
-                                }
+                                onClick={() => {
+                                  insertAudio();
+                                  onClose();
+                                  setAudioBlob(null);
+                                }}
+                                isDisabled={!audioBlob}
                               >
-                                <LibraryBig /> Select
+                                Insert
                               </Button>
-                            </div>
-                          )}
-                        </div>
+                            </ModalFooter>
+                          </>
+                        )}
+                      </ModalContent>
+                    </Modal>
+                  </div>
+                  <div>
+                    {flashcard.audio && (
+                      <div className="flex gap-3">
+                        <audio controls src={flashcard.audio}></audio>
+                        <Button
+                          onClick={() =>
+                            handleFlashcardChange(index, "audio", null)
+                          }
+                          color="danger"
+                          className="mt-2"
+                        >
+                          <VolumeX size={20} />
+                          Remove Audio
+                        </Button>
                       </div>
-                    )
-                  )}
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+                    )}
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+          <Button
+            size="lg"
+            radius="sm"
+            color="secondary"
+            className="my-4 text-sm"
+            onClick={addFlashcard}
+            startContent={<Plus size={22} />}
+          >
+            Add Flashcard
+          </Button>
         </div>
-      </form>
-
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        size="full"
-        scrollBehavior="inside"
-        backdrop="opaque"
-        placement="center"
-        classNames={{
-          body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
-          header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
-          footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
-          base: "bg-[#7469B6] text-[#a8b0d3]",
-          closeButton:
-            "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
-        }}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Image Library
-              </ModalHeader>
-              <ModalBody>
-                <h2 className="mb-4 text-lg text-[#F3F3F3] font-semibold">
-                  Select{" "}
-                  {difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 10}{" "}
-                  Images
-                </h2>
-                <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1 max-md:grid-cols-2">
-                  {Object.entries(groupedImages).map(([color, images]) => (
-                    <Card key={color} className="flex flex-col rounded-md p-4">
-                      <h3 className="mb-2 text-md font-semibold capitalize">
-                        {color}
-                      </h3>
-                      <div className="grid grid-cols-3 gap-2">
-                        {images.map((item) => (
-                          <div
-                            key={item.id}
-                            className={`p-2 rounded-md relative overflow-hidden border transition-all duration-300 ${
-                              selectedImages.includes(item.id)
-                                ? "border-2 border-[#17C964]" // Thicker border when selected
-                                : "border-2 border-[#7469B6]" // Default border when not selected
-                            }`}
-                          >
-                            <Checkbox
-                              color="secondary"
-                              // className="absolute top-2 right-2 z-99"
-                              isSelected={selectedImages.includes(item.id)}
-                              onChange={() => handleImageSelect(item.id)}
-                              isDisabled={
-                                selectedImages.length >=
-                                  (difficulty === "easy"
-                                    ? 3
-                                    : difficulty === "medium"
-                                    ? 5
-                                    : 10) && !selectedImages.includes(item.id)
-                              }
-                            />
-                            <Image
-                              src={item.image}
-                              alt={`Color game image ${item.id}`}
-                              className="w-full h-full object-cover"
-                              onClick={() => handleImageSelect(item.id)}
-                            />
-                            <h1>{item.name}</h1>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" radius="sm" onPress={onClose}>
-                  Close
-                </Button>
-                <Button
-                  radius="sm"
-                  color="success"
-                  className="text-white"
-                  onPress={insertImages}
-                  isDisabled={
-                    selectedImages.length !==
-                    (difficulty === "easy"
-                      ? 3
-                      : difficulty === "medium"
-                      ? 5
-                      : 10)
-                  }
-                >
-                  Insert
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-      <Button
-        size="lg"
-        radius="sm"
-        color="secondary"
-        className="mb-4 text-sm"
-        onClick={handleAddCard}
-        type="button"
-      >
-        Add Card
-      </Button>
+      </div>
     </div>
   );
 };
 
-export default index;
+export default Index;

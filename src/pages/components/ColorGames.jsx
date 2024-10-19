@@ -13,6 +13,7 @@ const ColorGames = ({ cards }) => {
   const [correctSelections, setCorrectSelections] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
   const getColorFromImageUrl = (url) => {
+    if (!url) return null;
     const parts = url.split("/");
     const filename = parts[parts.length - 1];
     return filename.split("-")[0];
@@ -20,7 +21,12 @@ const ColorGames = ({ cards }) => {
   useEffect(() => {
     console.log("cards:", cards);
   }, [cards]);
-  const handleImageSelect = async (cardId, imageIndex, imageUrl) => {
+  const handleImageSelect = async (
+    cardId,
+    imageIndex,
+    imageUrl,
+    difficulty
+  ) => {
     const color = await getColorFromImageUrl(imageUrl);
     console.log("Color:", color);
     console.log("Image url:", imageUrl);

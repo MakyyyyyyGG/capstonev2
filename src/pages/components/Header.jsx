@@ -581,7 +581,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
           <div className="flex gap-4">
-            <CreateRoom onRoomCreated={fetchRooms} />
+            {session.user.role === "teacher" && (
+              <CreateRoom onRoomCreated={fetchRooms} />
+            )}
             <Dropdown
               isOpen={isDropdownOpen}
               onOpenChange={setIsDropdownOpen}
