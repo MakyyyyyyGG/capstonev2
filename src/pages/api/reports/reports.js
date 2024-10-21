@@ -6,9 +6,10 @@ export default async function handler(req, res) {
     const { room_code } = req.query;
     try {
       const studentData = await query({
-        query: `select students.account_id, students.first_name, students.last_name, students.profile_image from student_room 
+        query: `select students.account_id, students.first_name, students.last_name, students.profile_image, user_game_plays.game_id from student_room 
                     inner join rooms on rooms.room_id = student_room.room_id
                     inner join students on student_room.student_id = students.account_id
+                    left join user_game_plays on students.account_id = user_game_plays.account_id
                     where rooms.room_code = ?`,
         values: [room_code],
       });

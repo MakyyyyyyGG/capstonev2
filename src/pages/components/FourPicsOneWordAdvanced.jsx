@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Button, Image } from "@nextui-org/react";
+import { Card, CardBody, Button, Image, Checkbox } from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Volume2 } from "lucide-react";
 import {
@@ -10,6 +10,11 @@ import {
 } from "@/components/ui/input-otp";
 
 const FourPicsOneWordAdvanced = ({ cards }) => {
+  const [selectedImages, setSelectedImages] = useState(
+    Array(cards.length).fill([])
+  );
+  const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
+
   const handleTextToSpeech = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     const synth = window.speechSynthesis;
@@ -35,20 +40,45 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
     }
   };
 
-  const handleImageClick = (idx, cardIndex) => {
-    const correctAnswer = cards[cardIndex].correct_answer.split(",");
-    if (correctAnswer.includes(idx.toString())) {
-      alert("Yey! Correct answer");
+  const handleImageSelect = (idx, cardIndex) => {
+    const newSelectedImages = [...selectedImages];
+    if (newSelectedImages[cardIndex].includes(idx)) {
+      newSelectedImages[cardIndex] = newSelectedImages[cardIndex].filter(
+        (imageIdx) => imageIdx !== idx
+      );
     } else {
-      alert("Wrong answer");
+      newSelectedImages[cardIndex] = [...newSelectedImages[cardIndex], idx];
     }
+    setSelectedImages(newSelectedImages);
+  };
+
+  const handleCheckAnswers = () => {
+    const newFeedback = [...feedback];
+
+    selectedImages.forEach((selectedIdxs, cardIndex) => {
+      if (selectedIdxs.length > 0) {
+        const correctAnswers = cards[cardIndex].correct_answer
+          .split(",")
+          .map(Number);
+        const isCorrect =
+          selectedIdxs.length === correctAnswers.length &&
+          selectedIdxs.every((idx) => correctAnswers.includes(idx));
+
+        if (isCorrect) {
+          newFeedback[cardIndex] = "Correct!";
+        } else {
+          newFeedback[cardIndex] = "Incorrect. Try again.";
+        }
+      }
+    });
+
+    setFeedback(newFeedback);
   };
 
   return (
     <div>
       <h1>4 Pics 1 Word Game</h1>
 
-      {/* <h1>difficulty {cards[0].difficulty}</h1> */}
       <div className="flex flex-wrap gap-4">
         {cards.map((card, index) => (
           <div key={index} className="w-[500px]">
@@ -94,42 +124,82 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
                   } gap-2 border`}
                 >
                   {card.image1 && (
-                    <img
-                      onClick={() => handleImageClick(0, index)}
-                      src={`${card.image1}`}
-                      alt="Image 1"
-                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                    />
+                    <div className="relative">
+                      <img
+                        src={`${card.image1}`}
+                        alt="Image 1"
+                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                      />
+                      <Checkbox
+                        isSelected={selectedImages[index].includes(0)}
+                        onChange={() => handleImageSelect(0, index)}
+                        className="absolute top-2 left-2"
+                      />
+                    </div>
                   )}
                   {card.image2 && (
-                    <img
-                      onClick={() => handleImageClick(1, index)}
-                      src={`${card.image2}`}
-                      alt="Image 2"
-                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                    />
+                    <div className="relative">
+                      <img
+                        src={`${card.image2}`}
+                        alt="Image 2"
+                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                      />
+                      <Checkbox
+                        isSelected={selectedImages[index].includes(1)}
+                        onChange={() => handleImageSelect(1, index)}
+                        className="absolute top-2 left-2"
+                      />
+                    </div>
                   )}
                   {card.difficulty !== "easy" && card.image3 && (
-                    <img
-                      onClick={() => handleImageClick(2, index)}
-                      src={`${card.image3}`}
-                      alt="Image 3"
-                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                    />
+                    <div className="relative">
+                      <img
+                        src={`${card.image3}`}
+                        alt="Image 3"
+                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                      />
+                      <Checkbox
+                        isSelected={selectedImages[index].includes(2)}
+                        onChange={() => handleImageSelect(2, index)}
+                        className="absolute top-2 left-2"
+                      />
+                    </div>
                   )}
                   {card.difficulty === "hard" && card.image4 && (
-                    <img
-                      onClick={() => handleImageClick(3, index)}
-                      src={`${card.image4}`}
-                      alt="Image 4"
-                      className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                    />
+                    <div className="relative">
+                      <img
+                        src={`${card.image4}`}
+                        alt="Image 4"
+                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                      />
+                      <Checkbox
+                        isSelected={selectedImages[index].includes(3)}
+                        onChange={() => handleImageSelect(3, index)}
+                        className="absolute top-2 left-2"
+                      />
+                    </div>
                   )}
                 </div>
+                {feedback[index] && (
+                  <p
+                    className={
+                      feedback[index].includes("Correct")
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }
+                  >
+                    {feedback[index]}
+                  </p>
+                )}
               </CardBody>
             </Card>
           </div>
         ))}
+      </div>
+      <div className="flex justify-center mt-4">
+        <Button onClick={handleCheckAnswers} color="primary">
+          Check Answers
+        </Button>
       </div>
     </div>
   );

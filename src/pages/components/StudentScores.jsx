@@ -85,13 +85,15 @@ const StudentScores = ({ studentRecords, students }) => {
         })
         .slice(0, 8);
 
-      // Calculate the average score
+      // Calculate the average score as a percentage
       const average =
         scores.filter((score) => score !== "TBA").length > 0
-          ? scores.reduce(
+          ? (scores.reduce(
               (sum, score) => sum + (score !== "TBA" ? score : 0),
               0
-            ) / scores.filter((score) => score !== "TBA").length
+            ) /
+              scores.filter((score) => score !== "TBA").length) *
+            100
           : 0;
 
       return {
@@ -106,7 +108,9 @@ const StudentScores = ({ studentRecords, students }) => {
                 month: "short",
               })
             : "Unknown",
-        scores,
+        scores: scores.map((score) =>
+          score !== "TBA" ? (score * 100).toFixed(2) : "TBA"
+        ),
         average: average.toFixed(2),
       };
     });
@@ -195,7 +199,7 @@ const StudentScores = ({ studentRecords, students }) => {
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.gameType}</TableCell>
                     <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.average}</TableCell>
+                    <TableCell>{row.average}%</TableCell>
                     <TableCell>
                       <button onClick={() => toggleViewChart(index)}>
                         {viewChart[index] ? "View Less" : "View More"}
@@ -209,7 +213,7 @@ const StudentScores = ({ studentRecords, students }) => {
                           <LineChart
                             data={row.scores.map((score, i) => ({
                               name: `Attempt ${i + 1}`,
-                              score: score === "TBA" ? null : score,
+                              score: score === "TBA" ? null : parseFloat(score),
                             }))}
                           >
                             <CartesianGrid strokeDasharray="3 3" />

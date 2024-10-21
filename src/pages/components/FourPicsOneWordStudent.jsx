@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
 import BarChart from "./BarChart";
 import {
@@ -231,7 +232,8 @@ const FourPicsOneWordStudent = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <BarChart gameRecord={gameRecord} questions={cards.length} />
+            // <BarChart gameRecord={gameRecord} questions={cards.length} />
+            <Summary gameRecord={gameRecord} questions={cards.length} />
           )}
         </>
       ) : (
