@@ -57,10 +57,10 @@ export default function BarChartComponent({ gameRecord, questions }) {
     return {
       month: monthYear,
       ...scores.reduce((acc, score, index) => {
-        acc[`Score ${index + 1}`] = score.Score;
+        acc[`Score ${index + 1}`] = (score.Score / questions) * 100; // Convert to percentage
         return acc;
       }, {}),
-      "Average Score": averageScore,
+      "Average Score": (averageScore / questions) * 100, // Convert to percentage
     };
   });
 
@@ -70,11 +70,11 @@ export default function BarChartComponent({ gameRecord, questions }) {
   const summary = [
     {
       name: "Total Score",
-      value: totalScore,
+      value: (totalScore / questions) * 100, // Convert to percentage
     },
     {
       name: "Average Score",
-      value: averageScore,
+      value: (averageScore / questions) * 100, // Convert to percentage
     },
   ];
 
@@ -85,9 +85,6 @@ export default function BarChartComponent({ gameRecord, questions }) {
 
   // Add "Average Score" to categories
   categories.push("Average Score");
-
-  //compute the percentage change
-  const percentageChange = (totalScore / gameRecord.length) * 100;
 
   // Filter chartData based on selected year
   const filteredChartData =
@@ -163,8 +160,8 @@ export default function BarChartComponent({ gameRecord, questions }) {
                   <p className="text-sm mb-1">{data.month}</p>
                   <Progress
                     value={data["Average Score"]}
-                    maxValue={questions}
-                    label={`${data["Average Score"].toFixed(2)} / ${questions}`}
+                    maxValue={100} // Percentage base
+                    label={`${data["Average Score"].toFixed(2)}%`}
                     className=""
                   />
                 </div>

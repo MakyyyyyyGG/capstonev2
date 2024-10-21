@@ -12,7 +12,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-
+import Summary from "./Summary";
 import BarChart from "./BarChart";
 import "swiper/swiper-bundle.css";
 import GameHistory from "./GameHistory";
@@ -282,7 +282,8 @@ const ColorGames = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <BarChart gameRecord={gameRecord} questions={cards.length} />
+            // <BarChart gameRecord={gameRecord} questions={cards.length} />
+            <Summary gameRecord={gameRecord} questions={cards.length} />
           )}
         </>
       ) : (

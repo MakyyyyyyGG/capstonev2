@@ -22,6 +22,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
+import Summary from "./Summary";
 import {
   ThumbsUp,
   ThumbsDown,
@@ -237,7 +238,8 @@ const DecisionMakerStudent = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <BarChart gameRecord={gameRecord} questions={cards.length} />
+            // <BarChart gameRecord={gameRecord} questions={cards.length} />
+            <Summary gameRecord={gameRecord} questions={cards.length} />
           )}
         </>
       ) : (
