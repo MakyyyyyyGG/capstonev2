@@ -288,19 +288,23 @@ const ColorGames = ({ cards }) => {
         </>
       ) : (
         <>
-          {" "}
-          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-          {attemptsUsed >= 8 && (
-            <div className="w-1/2 bg-red-400 rounded-md p-4">
-              <p className="text-white">
-                You have used all your attempts for this month. Your score wont
-                be recorded. Wait for next month.
-              </p>
+          <div className="relative">
+            <div className="absolute top-0 left-0">
+              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+              {attemptsUsed >= 8 && (
+                <div className="w-1/2 bg-red-400 rounded-md p-4">
+                  <p className="text-white">
+                    You have used all your attempts for this month. Your score
+                    wont be recorded. Wait for next month.
+                  </p>
+                </div>
+              )}
+              <h1>Score: {score}</h1>
+              <GameHistory gameRecord={gameRecord} cards={cards.length} />
             </div>
-          )}
-          <h1>Score: {score}</h1>
-          <GameHistory gameRecord={gameRecord} cards={cards.length} />
-          <div className="w-1/2 m-auto my-4">
+          </div>
+
+          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
             <Progress
               value={(answer / cards.length) * 100}
               classNames={{
@@ -324,8 +328,12 @@ const ColorGames = ({ cards }) => {
               <SwiperSlide key={card.color_game_id}>
                 <div className="flex justify-center w-1/2 m-auto">
                   <div key={card.color_game_id}>
-                    <Card>
-                      <CardBody>
+                    <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+                      <CardBody className="flex flex-col gap-4 px-20 py-7 items-center justify-center">
+                        <p>Attempts left: {3 - (attempts[index] || 0)}</p>
+                        <div className="text-2xl font-extrabold justify-center items-center capitalize">
+                          <p>{card.color}</p>
+                        </div>
                         <div className="grid grid-cols-3 gap-4">
                           {[card.image1, card.image2, card.image3].map(
                             (image, imageIndex) => (
@@ -371,10 +379,9 @@ const ColorGames = ({ cards }) => {
                             )
                           )}
                         </div>
-                        <p>Color: {card.color}</p>
-                        <p>Attempts left: {3 - (attempts[index] || 0)}</p>
 
                         <Button
+                          color="secondary"
                           onClick={() => handleSubmit(index)}
                           isDisabled={
                             (attempts[index] || 0) >= 3 ||

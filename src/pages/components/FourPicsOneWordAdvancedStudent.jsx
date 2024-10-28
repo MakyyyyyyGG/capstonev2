@@ -263,18 +263,23 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
         </>
       ) : (
         <>
-          <h1>Score: {score}</h1>
-          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-          <GameHistory gameRecord={gameRecord} cards={cards.length} />
-          {attemptsUsed >= 8 && (
-            <div className="w-1/2 bg-red-400 rounded-md p-4">
-              <p className="text-white">
-                You have used all your attempts for this month. Your score wont
-                be recorded. Wait for next month.
-              </p>
+          <div className="relative">
+            <div className="absolute top-0 left-0">
+              <h1>Score: {score}</h1>
+              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+              <GameHistory gameRecord={gameRecord} cards={cards.length} />
+              {attemptsUsed >= 8 && (
+                <div className="w-1/2 bg-red-400 rounded-md p-4">
+                  <p className="text-white">
+                    You have used all your attempts for this month. Your score
+                    wont be recorded. Wait for next month.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-          <div className="w-1/2 m-auto my-4">
+          </div>
+
+          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
             <Progress
               value={(answer / cards.length) * 100}
               classNames={{
@@ -288,122 +293,134 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
           <h1 className="text-2xl font-bold text-center my-4">
             Choose the correct image(s)
           </h1>
-          <Swiper
-            modules={[Navigation, Pagination, Scrollbar, A11y]}
-            navigation
-            spaceBetween={50}
-            slidesPerView={1}
-            onSwiper={(swiper) => setSwiperInstance(swiper)}
-            onSlideChange={() => console.log("slide change")}
-          >
-            {shuffledCards.map((card, index) => (
-              <SwiperSlide key={index}>
-                <div className="m-auto h-screen">
-                  <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
-                    <CardBody className="flex flex-col gap-4">
-                      <div className="flex justify-center flex-col gap-2 items-center">
-                        <h1>Word:</h1>
+          <div>
+            <Swiper
+              modules={[Navigation, Pagination, Scrollbar, A11y]}
+              navigation
+              spaceBetween={50}
+              slidesPerView={1}
+              onSwiper={(swiper) => setSwiperInstance(swiper)}
+              onSlideChange={() => console.log("slide change")}
+            >
+              {shuffledCards.map((card, index) => (
+                <SwiperSlide key={index}>
+                  <div className="m-auto h-screen">
+                    <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+                      <CardBody className="flex flex-col gap-4 px-28 pt-7 items-center justify-center">
                         <p>Attempts left: {3 - (attempts[index] || 0)}</p>
-
-                        <h1>{card.word}</h1>
-
-                        {card.word && (
-                          <Button
-                            className="mb-4"
-                            color="secondary"
-                            onPress={() => handleTextToSpeech(card.word)}
-                          >
-                            <Volume2 />
-                          </Button>
-                        )}
-                      </div>
-                      <div
-                        className={`grid ${
-                          [
+                        <div className="flex justify-center items-center gap-2">
+                          <div className="text-2xl font-extrabold">
+                            <h1>{card.word}</h1>
+                          </div>
+                          <div className="flex justify-center items-center">
+                            {card.word && (
+                              <Button
+                                isIconOnly
+                                className="text-[#7469B6]"
+                                variant="light"
+                                onPress={() => handleTextToSpeech(card.word)}
+                              >
+                                <Volume2 />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        <div
+                          className={`grid ${
+                            [
+                              card.image1,
+                              card.image2,
+                              card.image3,
+                              card.image4,
+                            ].filter((image) => image !== null).length === 4
+                              ? "grid-cols-2 grid-rows-2"
+                              : [
+                                  card.image1,
+                                  card.image2,
+                                  card.image3,
+                                  card.image4,
+                                ].filter((image) => image !== null).length === 3
+                              ? "grid-cols-3"
+                              : "grid-cols-2"
+                          } gap-2`}
+                        >
+                          {[
                             card.image1,
                             card.image2,
                             card.image3,
                             card.image4,
-                          ].filter((image) => image !== null).length === 4
-                            ? "grid-cols-2 grid-rows-2"
-                            : [
-                                card.image1,
-                                card.image2,
-                                card.image3,
-                                card.image4,
-                              ].filter((image) => image !== null).length === 3
-                            ? "grid-cols-3"
-                            : "grid-cols-2"
-                        } gap-2`}
-                      >
-                        {[
-                          card.image1,
-                          card.image2,
-                          card.image3,
-                          card.image4,
-                        ].map(
-                          (image, idx) =>
-                            image && (
-                              <div
-                                key={idx}
-                                className="hover:cursor-pointer hover:border-2 hover:border-purple-300 rounded-md"
-                              >
-                                <img
-                                  aria-disabled={
-                                    attempts[index] >= 3 ||
-                                    feedback[index]?.includes("Correct")
-                                  }
-                                  radius="none"
-                                  onClick={() =>
-                                    attempts[index] < 3 &&
-                                    !feedback[index]?.includes("Correct")
-                                      ? handleImageSelect(idx, index)
-                                      : null
-                                  }
-                                  src={`${image}`}
-                                  alt={`Image ${idx + 1}`}
-                                  className={`w-full h-full object-cover ${
-                                    attempts[index] >= 3 ||
-                                    feedback[index]?.includes("Correct")
-                                      ? "opacity-50 cursor-not-allowed"
-                                      : ""
-                                  }`}
-                                />
-                                <Checkbox
-                                  isSelected={selectedImages[index].includes(
-                                    idx
-                                  )}
-                                  onChange={() => handleImageSelect(idx, index)}
-                                  isDisabled={
-                                    attempts[index] >= 3 ||
-                                    feedback[index]?.includes("Correct")
-                                  }
-                                />
-                              </div>
-                            )
+                          ].map(
+                            (image, idx) =>
+                              image && (
+                                <div
+                                  key={idx}
+                                  className="relative hover:cursor-pointer hover:border-2 hover:border-purple-300 rounded-md"
+                                >
+                                  <img
+                                    aria-disabled={
+                                      attempts[index] >= 3 ||
+                                      feedback[index]?.includes("Correct")
+                                    }
+                                    radius="none"
+                                    onClick={() =>
+                                      attempts[index] < 3 &&
+                                      !feedback[index]?.includes("Correct")
+                                        ? handleImageSelect(idx, index)
+                                        : null
+                                    }
+                                    src={`${image}`}
+                                    alt={`Image ${idx + 1}`}
+                                    className={`w-full h-full object-cover rounded-md ${
+                                      attempts[index] >= 3 ||
+                                      feedback[index]?.includes("Correct")
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                    }`}
+                                  />
+                                  <Checkbox
+                                    color="secondary"
+                                    className="absolute top-2 right-1"
+                                    isSelected={selectedImages[index].includes(
+                                      idx
+                                    )}
+                                    onChange={() =>
+                                      handleImageSelect(idx, index)
+                                    }
+                                    isDisabled={
+                                      attempts[index] >= 3 ||
+                                      feedback[index]?.includes("Correct")
+                                    }
+                                  />
+                                </div>
+                              )
+                          )}
+                        </div>
+                        {feedback[index] && (
+                          <p
+                            className={
+                              feedback[index].includes("Correct")
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }
+                          >
+                            {feedback[index]}
+                          </p>
                         )}
-                      </div>
-                      {feedback[index] && (
-                        <p
-                          className={
-                            feedback[index].includes("Correct")
-                              ? "text-green-500"
-                              : "text-red-500"
-                          }
-                        >
-                          {feedback[index]}
-                        </p>
-                      )}
-                    </CardBody>
-                  </Card>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-          <div className="flex justify-center mt-4">
-            <Button onClick={handleCheckAnswers} color="primary">
-              Check Answers
-            </Button>
+
+                        <div className="flex justify-center mt-4">
+                          <Button
+                            onClick={handleCheckAnswers}
+                            color="secondary"
+                          >
+                            Check Answers
+                          </Button>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </>
       )}

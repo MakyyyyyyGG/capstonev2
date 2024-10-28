@@ -244,21 +244,25 @@ const DecisionMakerStudent = ({ cards }) => {
         </>
       ) : (
         <>
-          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-          <GameHistory gameRecord={gameRecord} cards={cards.length} />
-          {attemptsUsed >= 8 && (
-            <div className="w-1/2 bg-red-400 rounded-md p-4">
-              <p className="text-white">
-                You have used all your attempts for this month. Your score wont
-                be recorded. Wait for next month.
-              </p>
+          <div className="relative">
+            <div className="absolute top-0 left-0">
+              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+              <GameHistory gameRecord={gameRecord} cards={cards.length} />
+              {attemptsUsed >= 8 && (
+                <div className="w-1/2 bg-red-400 rounded-md p-4">
+                  <p className="text-white">
+                    You have used all your attempts for this month. Your score
+                    wont be recorded. Wait for next month.
+                  </p>
+                </div>
+              )}
+              <h1>Score: {score}</h1>
+              <Button variant="flat" color="secondary" onPress={changeIconPair}>
+                Change Icons
+              </Button>
             </div>
-          )}
-          <h1>Score: {score}</h1>
-          <Button variant="flat" color="secondary" onPress={changeIconPair}>
-            Change Icons
-          </Button>
-          <div className="w-1/2 m-auto my-4">
+          </div>
+          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
             <Progress
               value={(answer / cards.length) * 100}
               classNames={{
@@ -269,66 +273,71 @@ const DecisionMakerStudent = ({ cards }) => {
               color="success"
             />
           </div>
-          <Swiper
-            modules={[Navigation, Pagination, Scrollbar, A11y]}
-            navigation
-            spaceBetween={50}
-            slidesPerView={1}
-            onSwiper={(swiper) => setSwiperInstance(swiper)}
-            onSlideChange={() => console.log("slide change")}
-            onSwiperSlideChange={() => console.log("swiper slide change")}
-          >
-            {shuffledCards.map((card) => (
-              <SwiperSlide key={card.decision_maker_id}>
-                <Card key={card.decision_maker_id} className="w-1/2 m-auto">
-                  <CardBody>
-                    <h1 className="m-auto font-bold text-xl my-4">
-                      {card.word}
-                    </h1>
-                    <div className="">
-                      <Image
-                        src={card.image}
-                        alt={card.title}
-                        width="100%"
-                        height="100%"
-                      />
-                    </div>
-                    <div className="flex gap-2 m-auto my-4">
-                      <Button
-                        onPress={() => handleVote(card, "positive")}
-                        color="success"
-                        variant="flat"
-                        isDisabled={feedback[card.decision_maker_id]}
-                      >
-                        {buttonPairs[currentPairIndex].positive}
-                      </Button>
-                      <Button
-                        onPress={() => handleVote(card, "negative")}
-                        color="danger"
-                        variant="flat"
-                        isDisabled={feedback[card.decision_maker_id]}
-                      >
-                        {buttonPairs[currentPairIndex].negative}
-                      </Button>
-                    </div>
-                    {feedback[card.decision_maker_id] && (
-                      <div className="flex justify-center">
-                        <h1
-                          className={
-                            feedback[card.decision_maker_id] === "Correct!"
-                              ? "text-green-500"
-                              : "text-red-500"
-                          }
-                        >
-                          {feedback[card.decision_maker_id]}
-                        </h1>
+          <div>
+            <Swiper
+              modules={[Navigation, Pagination, Scrollbar, A11y]}
+              navigation
+              spaceBetween={50}
+              slidesPerView={1}
+              onSwiper={(swiper) => setSwiperInstance(swiper)}
+              onSlideChange={() => console.log("slide change")}
+              onSwiperSlideChange={() => console.log("swiper slide change")}
+            >
+              {shuffledCards.map((card) => (
+                <SwiperSlide key={card.decision_maker_id}>
+                  <Card
+                    key={card.decision_maker_id}
+                    className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto"
+                  >
+                    <CardBody className="flex flex-col gap-4 px-28 py-7 items-center justify-center">
+                      <h1 className="text-2xl font-extrabold justify-center items-center capitalize my-4">
+                        {card.word}
+                      </h1>
+                      <div className="max-w-[30rem]">
+                        <Image
+                          src={card.image}
+                          alt={card.title}
+                          width="100%"
+                          height="100%"
+                        />
                       </div>
-                    )}
-                  </CardBody>
-                </Card>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                      <div className="flex gap-2 m-auto my-4">
+                        <Button
+                          onPress={() => handleVote(card, "positive")}
+                          color="success"
+                          variant="flat"
+                          isDisabled={feedback[card.decision_maker_id]}
+                        >
+                          {buttonPairs[currentPairIndex].positive}
+                        </Button>
+                        <Button
+                          onPress={() => handleVote(card, "negative")}
+                          color="danger"
+                          variant="flat"
+                          isDisabled={feedback[card.decision_maker_id]}
+                        >
+                          {buttonPairs[currentPairIndex].negative}
+                        </Button>
+                      </div>
+                      {feedback[card.decision_maker_id] && (
+                        <div className="flex justify-center">
+                          <h1
+                            className={
+                              feedback[card.decision_maker_id] === "Correct!"
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }
+                          >
+                            {feedback[card.decision_maker_id]}
+                          </h1>
+                        </div>
+                      )}
+                    </CardBody>
+                  </Card>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </>
       )}
     </div>

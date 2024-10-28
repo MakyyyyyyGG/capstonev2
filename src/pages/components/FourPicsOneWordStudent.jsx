@@ -238,22 +238,27 @@ const FourPicsOneWordStudent = ({ cards }) => {
         </>
       ) : (
         <>
-          <h1>
-            Score: {score} / {cards.length}
-          </h1>
-          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-          <GameHistory gameRecord={gameRecord} cards={cards.length} />
-          {attemptsUsed >= 8 && (
-            <div className="w-1/2 bg-red-400 rounded-md p-4">
-              <p className="text-white">
-                You have used all your attempts for this month. Your score wont
-                be recorded. Wait for next month.
-              </p>
+          <div className="relative">
+            <div className="absolute top-0 left-0">
+              <h1>
+                Score: {score} / {cards.length}
+              </h1>
+              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
+              <GameHistory gameRecord={gameRecord} cards={cards.length} />
+              {attemptsUsed >= 8 && (
+                <div className="w-1/2 bg-red-400 rounded-md p-4">
+                  <p className="text-white">
+                    You have used all your attempts for this month. Your score
+                    wont be recorded. Wait for next month.
+                  </p>
+                </div>
+              )}
+              <h1>Questions Answered: {answeredQuestions}</h1>
+              <h1>cards length: {cards.length}</h1>
             </div>
-          )}
-          <h1>Questions Answered: {answeredQuestions}</h1>
-          <h1>cards length: {cards.length}</h1>
-          <div className="flex justify-center items-center w-1/2 m-auto my-4">
+          </div>
+
+          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
             <Progress
               value={(answeredQuestions / cards.length) * 100}
               classNames={{
@@ -264,18 +269,18 @@ const FourPicsOneWordStudent = ({ cards }) => {
               color="success"
             />
           </div>
-          <Swiper
-            modules={[Navigation, Pagination, Scrollbar, A11y]}
-            navigation
-            spaceBetween={50}
-            slidesPerView={1}
-            onSwiper={(swiper) => setSwiperInstance(swiper)}
-          >
-            {shuffledCards.map((card, index) => (
-              <SwiperSlide key={index}>
-                <div className="m-auto h-screen">
-                  <Card className="w-1/2 h-[calc(100%-50px)] m-auto">
-                    <CardBody className="flex flex-col gap-4">
+          <div>
+            <Swiper
+              modules={[Navigation, Pagination, Scrollbar, A11y]}
+              navigation
+              spaceBetween={50}
+              slidesPerView={1}
+              onSwiper={(swiper) => setSwiperInstance(swiper)}
+            >
+              {shuffledCards.map((card, index) => (
+                <SwiperSlide key={index}>
+                  <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+                    <CardBody className="flex flex-col gap-4 px-28 pt-7 items-center justify-center">
                       <p>Attempts left: {3 - (attempts[index] || 0)}</p>
 
                       <div className={`grid grid-cols-2 grid-rows-2 gap-2`}>
@@ -291,15 +296,15 @@ const FourPicsOneWordStudent = ({ cards }) => {
                                 key={idx}
                                 src={`${image}`}
                                 alt={`Image ${idx + 1}`}
-                                className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square"
+                                className="w-full h-auto border-2 border-[#7469B6] rounded-md aspect-square"
                               />
                             )
                         )}
                       </div>
-                      <div className="flex flex-col items-center gap-2">
-                        <h1>Question: {card.question}</h1>
+                      <div className="w-full flex flex-col items-center gap-2 rounded-xl shadow">
+                        {/* <h1>Question: {card.question}</h1> */}
 
-                        <div className="max-w-md mx-auto text-center bg-white px-4 sm:px-8 py-10 rounded-xl shadow">
+                        <div className="max-w-md mx-auto text-center bg-white px-4 sm:px-8 py-10">
                           <header className="mb-8">
                             <h1 className="text-2xl font-bold mb-1">
                               Enter Your Answer
@@ -374,10 +379,10 @@ const FourPicsOneWordStudent = ({ cards }) => {
                       </div>
                     </CardBody>
                   </Card>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </>
       )}
     </div>
