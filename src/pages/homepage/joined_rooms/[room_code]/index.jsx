@@ -8,7 +8,7 @@ import ClassWorkList from "@/pages/components/ClassWorkList";
 import SidebarStudent from "@/pages/components/SidebarStudent";
 import Header from "@/pages/components/Header";
 import Scores from "@/pages/components/Scores";
-
+import ScoresIndiv from "@/pages/components/ScoresIndiv";
 const fetchRoomDetails = async (room_code, setRoomData) => {
   try {
     const res = await fetch(
@@ -29,11 +29,14 @@ const IndividualRoom = () => {
     setIsCollapsedSidebar((prev) => !prev);
   }
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  // console.log(session);
   const [roomData, setRoomData] = useState(null);
   const router = useRouter();
   const { room_code } = router.query;
   const [games, setGames] = useState([]);
+  const accountId = session?.user?.id;
+  const [studentRecords, setStudentRecords] = useState([]);
   const fetchGames = async () => {
     const response = await fetch(
       `/api/games/fetch_games?room_code=${room_code}`
@@ -48,6 +51,7 @@ const IndividualRoom = () => {
     if (room_code) {
       fetchRoomDetails(room_code, setRoomData);
       fetchGames();
+      fetchStudentRecord();
     }
   }, [room_code]);
 
@@ -57,6 +61,27 @@ const IndividualRoom = () => {
   //     setDifficulty(roomData[0]?.room_difficulty || "");
   //   }
   // }, [roomData]);
+
+  const fetchStudentRecord = async () => {
+    if (session) {
+      try {
+        const response = await fetch(
+          `/api/student_game_record/individual_student_game_records?account_id=${accountId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("records", data);
+        setStudentRecords(data);
+      } catch (error) {
+        console.error("Error fetching student record:", error);
+      }
+    }
+  };
 
   if (!roomData) return <p>Loading...</p>;
 
@@ -139,7 +164,7 @@ const IndividualRoom = () => {
             )}
             {selectedTab === "scores" && (
               <div className="flex items-center gap-4 w-full">
-                <Scores room_code={room_code} />
+                <ScoresIndiv studentRecords={studentRecords} />
               </div>
             )}
 

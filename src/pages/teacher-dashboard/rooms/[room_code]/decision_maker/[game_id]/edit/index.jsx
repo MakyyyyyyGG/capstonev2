@@ -256,6 +256,7 @@ const index = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         } else {
           fetchCards();
+          alert("Decision maker updated successfully");
         }
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -298,135 +299,203 @@ const index = () => {
       fetchCards();
     }
   }, [game_id]);
+
+  const handleInsertImageFromUrl = (index) => {
+    const newCards = [...cards];
+    newCards[index].image = newCards[index].imageUrl;
+    setCards(newCards);
+  };
   return (
-    <div className="flex flex-col gap-4">
-      <h1>Edit Decision Maker</h1>
-      <Input
-        label="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+    <div>
+      <Header
+        isCollapsed={isCollapsedSidebar}
+        toggleCollapse={toggleSidebarCollapseHandler}
       />
-      <div className="grid grid-cols-3 gap-4">
-        {cards.map((card, index) => (
-          <div key={index} className="flex flex-col gap-4">
-            <div>
-              <Card className="w-full">
-                <CardBody>
-                  <Input
-                    label="Word"
-                    value={card.word}
-                    onChange={(e) =>
-                      handleCardChange(index, "word", e.target.value)
-                    }
-                  />
-                  {!card.image ? (
-                    <Button
-                      className="my-4"
-                      onPress={() => {
-                        setCurrentIndex(index);
-                        onOpen();
-                      }}
-                    >
-                      Insert Image
-                    </Button>
-                  ) : (
-                    <Button
-                      className="my-4"
-                      onPress={() => {
-                        setCurrentIndex(index);
-                        onOpen();
-                      }}
-                    >
-                      Change Image
-                    </Button>
-                  )}
-                  <Modal
-                    isOpen={isOpen && currentIndex === index}
-                    onOpenChange={onOpenChange}
-                  >
-                    <ModalContent>
-                      <ModalHeader>
-                        <h1>Crop Image</h1>
-                      </ModalHeader>
-                      <ModalBody>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleCardImageChange(index, e)}
-                        />
-                        {tempImage && (
-                          <div className="w-full h-full">
-                            <ReactCrop
-                              src={tempImage}
-                              crop={crop}
-                              onChange={(newCrop) => setCrop(newCrop)}
-                              aspect={1}
+      <div className="flex border-2">
+        <Sidebar
+          isCollapsed={isCollapsedSidebar}
+          toggleCollapse={toggleSidebarCollapseHandler}
+        />
+        <div className="flex flex-col gap-4">
+          <h1>Edit Decision Maker</h1>
+          <Input
+            label="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <div className="grid grid-cols-3 gap-4">
+            {cards.map((card, index) => (
+              <div key={index} className="flex flex-col gap-4">
+                <div>
+                  <Card className="w-full">
+                    <CardBody>
+                      <Input
+                        label="Word"
+                        value={card.word}
+                        onChange={(e) =>
+                          handleCardChange(index, "word", e.target.value)
+                        }
+                      />
+                      {!card.image ? (
+                        <>
+                          <Button
+                            className="my-4"
+                            onPress={() => {
+                              setCurrentIndex(index);
+                              onOpen();
+                            }}
+                          >
+                            Insert Image
+                          </Button>
+                          <div className="flex gap-4 items-center justify-center">
+                            <Input
+                              label="Image URL"
+                              variant="underlined"
+                              color="secondary"
+                              className="text-[#7469B6] px-2 z-0"
+                              value={card.imageUrl}
+                              onChange={(e) => {
+                                handleCardChange(
+                                  index,
+                                  "imageUrl",
+                                  e.target.value
+                                );
+                              }}
+                            />
+                            <Button
+                              color="secondary"
+                              onClick={() => handleInsertImageFromUrl(index)}
                             >
-                              <img
-                                src={tempImage}
-                                onLoad={onImageLoad}
-                                alt="Crop preview"
-                                className="w-full h-full object-contain"
-                                // style={{
-                                //   transform: `scale(${zoom})`,
-                                // }}
-                              />
-                            </ReactCrop>
+                              Add
+                            </Button>
                           </div>
-                        )}
-                      </ModalBody>
-                      <ModalFooter>
+                        </>
+                      ) : (
                         <Button
-                          onClick={() => {
-                            confirmImage(currentIndex);
-                            onOpenChange();
+                          className="my-4"
+                          onPress={() => {
+                            setCurrentIndex(index);
+                            onOpen();
                           }}
                         >
-                          Confirm Image
+                          Change Image
                         </Button>
-                      </ModalFooter>
-                    </ModalContent>
-                  </Modal>
-                  {card.image && (
-                    <div className="w-full h-full">
-                      <img
-                        src={card.imageBlob || card.image}
-                        alt="Crop preview"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  )}
-                  <RadioGroup
-                    label="Decision"
-                    value={card.correct_answer}
-                    onChange={(e) =>
-                      handleCardChange(index, "correct_answer", e.target.value)
-                    }
-                  >
-                    <div className="flex gap-4">
-                      <Radio value="positive">Positive</Radio>
-                      <Radio value="negative">Negative</Radio>
-                    </div>
-                  </RadioGroup>
-                  <Button
-                    color="danger"
-                    onClick={() => removeCard(index)}
-                    className="mt-4"
-                  >
-                    Remove Card
-                  </Button>
-                </CardBody>
-              </Card>
-            </div>
-          </div>
-        ))}
-      </div>{" "}
-      <Button onPress={addCard} color="primary">
-        Add Card
-      </Button>
-      <Button onPress={handleSubmit} color="secondary">
-        Save
-      </Button>
+                      )}
+                      <Modal
+                        isOpen={isOpen && currentIndex === index}
+                        onOpenChange={onOpenChange}
+                      >
+                        <ModalContent>
+                          <ModalHeader>
+                            <h1>Crop Image</h1>
+                          </ModalHeader>
+                          <ModalBody>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleCardImageChange(index, e)}
+                            />
+                            {tempImage && (
+                              <div className="w-full h-full">
+                                <ReactCrop
+                                  src={tempImage}
+                                  crop={crop}
+                                  onChange={(newCrop) => setCrop(newCrop)}
+                                  aspect={1}
+                                >
+                                  <img
+                                    src={tempImage}
+                                    onLoad={onImageLoad}
+                                    alt="Crop preview"
+                                    className="w-full h-full object-contain"
+                                    // style={{
+                                    //   transform: `scale(${zoom})`,
+                                    // }}
+                                  />
+                                </ReactCrop>
+                              </div>
+                            )}
+                          </ModalBody>
+                          <ModalFooter>
+                            <Button
+                              onClick={() => {
+                                confirmImage(currentIndex);
+                                onOpenChange();
+                              }}
+                            >
+                              Confirm Image
+                            </Button>
+                          </ModalFooter>
+                        </ModalContent>
+                      </Modal>
+                      {card.image && (
+                        <div className="w-full h-full">
+                          <div className="flex gap-4 items-center justify-center">
+                            <Input
+                              label="Image URL"
+                              variant="underlined"
+                              color="secondary"
+                              className="text-[#7469B6] px-2 z-0"
+                              value={card.imageUrl}
+                              onChange={(e) => {
+                                handleCardChange(
+                                  index,
+                                  "imageUrl",
+                                  e.target.value
+                                );
+                              }}
+                            />
+                            <Button
+                              color="secondary"
+                              onClick={() => handleInsertImageFromUrl(index)}
+                            >
+                              Add
+                            </Button>
+                          </div>
+                          <img
+                            src={card.imageBlob || card.image}
+                            alt="Crop preview"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+                      <RadioGroup
+                        label="Decision"
+                        value={card.correct_answer}
+                        onChange={(e) =>
+                          handleCardChange(
+                            index,
+                            "correct_answer",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <div className="flex gap-4">
+                          <Radio value="positive">Positive</Radio>
+                          <Radio value="negative">Negative</Radio>
+                        </div>
+                      </RadioGroup>
+                      <Button
+                        color="danger"
+                        onClick={() => removeCard(index)}
+                        className="mt-4"
+                      >
+                        Remove Card
+                      </Button>
+                    </CardBody>
+                  </Card>
+                </div>
+              </div>
+            ))}
+          </div>{" "}
+          <Button onPress={addCard} color="primary">
+            Add Card
+          </Button>
+          <Button onPress={handleSubmit} color="secondary">
+            Save
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

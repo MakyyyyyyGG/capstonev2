@@ -27,7 +27,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-const Scores = ({ studentRecords, students }) => {
+const StudentScores = ({ studentRecords, students }) => {
   const [processedData, setProcessedData] = useState([]);
   const [viewChart, setViewChart] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,36 +35,16 @@ const Scores = ({ studentRecords, students }) => {
     key: null,
     direction: "ascending",
   });
-  const [selectedMonth, setSelectedMonth] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("all");
-  const [availableMonths, setAvailableMonths] = useState([]);
-  const [availableYears, setAvailableYears] = useState([]);
 
   const recordsPerPage = 10;
 
   useEffect(() => {
     if (studentRecords && students) {
       const processedData = processStudentRecords(studentRecords, students);
+      console.log("Processed Data:", processedData); // Debugging undefined issue
       setProcessedData(processedData);
-      const { months, years } = getAvailableMonthsAndYears(studentRecords);
-      setAvailableMonths(months);
-      setAvailableYears(years);
     }
-  }, [studentRecords, students, selectedMonth, selectedYear]);
-
-  const getAvailableMonthsAndYears = (records) => {
-    const months = new Set();
-    const years = new Set();
-    records.forEach((record) => {
-      const recordDate = new Date(record.created_at);
-      months.add(recordDate.getMonth() + 1);
-      years.add(recordDate.getFullYear());
-    });
-    return {
-      months: ["all", ...Array.from(months).sort((a, b) => a - b)],
-      years: ["all", ...Array.from(years).sort((a, b) => a - b)],
-    };
-  };
+  }, [studentRecords, students]);
 
   const processStudentRecords = (records, studentList) => {
     if (!records || !studentList) {
@@ -76,18 +56,8 @@ const Scores = ({ studentRecords, students }) => {
       studentList.map((student) => [student.account_id, student])
     );
 
-    // Filter records by selected month and year
-    const filteredRecords = records.filter((record) => {
-      const recordDate = new Date(record.created_at);
-      return (
-        (selectedMonth === "all" ||
-          recordDate.getMonth() + 1 === selectedMonth) &&
-        (selectedYear === "all" || recordDate.getFullYear() === selectedYear)
-      );
-    });
-
     // Group records by account_id and game_type
-    const groupedRecords = filteredRecords.reduce((acc, record) => {
+    const groupedRecords = records.reduce((acc, record) => {
       if (record && record.account_id && record.game_type) {
         const key = `${record.account_id}-${record.game_type}`;
         if (!acc[key]) {
@@ -106,18 +76,24 @@ const Scores = ({ studentRecords, students }) => {
       // Filter and sort the scores, take up to 8 attempts
       const scores = records
         .filter((r) => r && r.score !== undefined)
-        .map((r) =>
-          r.score !== undefined ? (r.score / r.set_length) * 100 : "TBA"
-        )
+        .map((r) => (r.score !== undefined ? r.score : "TBA"))
+        .sort((a, b) => {
+          if (a === "TBA" && b === "TBA") return 0;
+          if (a === "TBA") return 1;
+          if (b === "TBA") return -1;
+          return b - a;
+        })
         .slice(0, 8);
 
-      // Calculate the average score
+      // Calculate the average score as a percentage
       const average =
         scores.filter((score) => score !== "TBA").length > 0
-          ? scores.reduce(
+          ? (scores.reduce(
               (sum, score) => sum + (score !== "TBA" ? score : 0),
               0
-            ) / scores.filter((score) => score !== "TBA").length
+            ) /
+              scores.filter((score) => score !== "TBA").length) *
+            100
           : 0;
 
       return {
@@ -132,7 +108,9 @@ const Scores = ({ studentRecords, students }) => {
                 month: "short",
               })
             : "Unknown",
-        scores,
+        scores: scores.map((score) =>
+          score !== "TBA" ? (score * 100).toFixed(2) : "TBA"
+        ),
         average: average.toFixed(2),
       };
     });
@@ -181,48 +159,6 @@ const Scores = ({ studentRecords, students }) => {
 
   return (
     <div className="w-full">
-      <div className="flex justify-between mb-4">
-        <div>
-          <label htmlFor="month-select">Select Month: </label>
-          <select
-            id="month-select"
-            value={selectedMonth}
-            onChange={(e) =>
-              setSelectedMonth(
-                e.target.value === "all" ? "all" : parseInt(e.target.value)
-              )
-            }
-          >
-            {availableMonths.map((month) => (
-              <option key={month} value={month}>
-                {month === "all"
-                  ? "All"
-                  : new Date(0, month - 1).toLocaleString("en-US", {
-                      month: "long",
-                    })}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="year-select">Select Year: </label>
-          <select
-            id="year-select"
-            value={selectedYear}
-            onChange={(e) =>
-              setSelectedYear(
-                e.target.value === "all" ? "all" : parseInt(e.target.value)
-              )
-            }
-          >
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year === "all" ? "All" : year}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
       {processedData && processedData.length > 0 ? (
         <>
           <Table className="w-full bg-white rounded-lg">
@@ -248,7 +184,6 @@ const Scores = ({ studentRecords, students }) => {
                   {sortConfig.key === "date" &&
                     (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </TableHead>
-                <TableHead>Attempts Taken</TableHead>
                 <TableHead onClick={() => sortData("average")}>
                   Average
                   {sortConfig.key === "average" &&
@@ -264,8 +199,7 @@ const Scores = ({ studentRecords, students }) => {
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.gameType}</TableCell>
                     <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.scores.length}</TableCell>
-                    <TableCell>{row.average} %</TableCell>
+                    <TableCell>{row.average}%</TableCell>
                     <TableCell>
                       <button onClick={() => toggleViewChart(index)}>
                         {viewChart[index] ? "View Less" : "View More"}
@@ -279,15 +213,12 @@ const Scores = ({ studentRecords, students }) => {
                           <LineChart
                             data={row.scores.map((score, i) => ({
                               name: `Attempt ${i + 1}`,
-                              score:
-                                score === "TBA"
-                                  ? null
-                                  : parseFloat(score.toFixed(2)),
+                              score: score === "TBA" ? null : parseFloat(score),
                             }))}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
-                            <YAxis domain={[0, 100]} />
+                            <YAxis />
                             <Tooltip />
                             <Legend />
                             <Line
@@ -339,4 +270,4 @@ const Scores = ({ studentRecords, students }) => {
   );
 };
 
-export default Scores;
+export default StudentScores;

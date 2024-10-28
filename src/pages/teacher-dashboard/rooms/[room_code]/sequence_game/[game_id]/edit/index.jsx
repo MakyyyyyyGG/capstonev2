@@ -41,6 +41,10 @@ const Index = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [flashcardData, setFlashcardData] = useState([]);
   const [newFlashcards, setNewFlashcards] = useState([]);
+  const [videoURL, setVideoURL] = useState("");
+
+  const [title, setTitle] = useState("");
+  const [video, setVideo] = useState("");
   const [tempImage, setTempImage] = useState(null);
   const [crop, setCrop] = useState({
     unit: "%",
@@ -59,20 +63,27 @@ const Index = () => {
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
   const [isImageViewOpen, setIsImageViewOpen] = useState(false);
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
+  const [difficulty, setDifficulty] = useState("");
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
   }
   const fetchFlashcards = async () => {
     try {
-      const res = await fetch(`/api/flashcard/flashcard?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/sequence_game/sequence_game?game_id=${game_id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
       setFlashcardData(data);
+      setTitle(data[0].title);
+      setVideo(data[0].video);
+      setDifficulty(data[0].difficulty);
       if (res.ok) {
         console.log("Flashcards fetched successfully");
         console.log("data:", data);
@@ -98,35 +109,34 @@ const Index = () => {
 
   const setupNewFlashcards = async (flashcardData) => {
     const newFlashcards = flashcardData.filter((f) => f.isNew === true);
-    console.log("ins etup fucntion newFlashcards", newFlashcards);
+    console.log("setup fucntion newFlashcards", newFlashcards);
     if (newFlashcards.length > 0) {
       for (const flashcard of newFlashcards) {
-        flashcard.flashcard_set_id = flashcardData[0].flashcard_set_id;
-        flashcard.term;
-        flashcard.description;
+        flashcard.sequence_game_set_id = flashcardData[0].sequence_game_set_id;
+        flashcard.step;
         flashcard.image || null;
         flashcard.audio || null;
 
         try {
           const response = await fetch(
-            "/api/flashcard/update_flashcard/update_flashcard",
+            "/api/sequence_game/update_sequence_game",
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ flashcards: [flashcard] }), // Wrap in an array
+              body: JSON.stringify({ sequences: [flashcard] }), // Wrap in an array
             }
           );
           if (response.ok) {
-            console.log("Flashcard created successfully");
+            console.log("Sequence created successfully");
             const data = await response.json();
-            console.log("Flashcard data:", data);
+            console.log("Sequence data:", data);
           } else {
-            console.error("Error creating flashcard");
+            console.error("Error creating sequence");
           }
         } catch (error) {
-          console.error("Error creating flashcard:", error);
+          console.error("Error creating sequence:", error);
         }
       }
       console.log("newFlashcards", newFlashcards);
@@ -143,13 +153,19 @@ const Index = () => {
 
       for (const flashcard of flashcardsToUpdate) {
         const response = await fetch(
-          `/api/flashcard/flashcard?flashcard_id=${flashcard.flashcard_id}`,
+          `/api/sequence_game/sequence_game?sequence_id=${flashcard.sequence_game_id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ flashcards: flashcard }),
+            body: JSON.stringify({
+              sequence: flashcard,
+              title: title,
+              game_id: game_id,
+              video: video,
+              difficulty: difficulty,
+            }),
           }
         );
 
@@ -348,10 +364,13 @@ const Index = () => {
       console.log("Removing flashcard at index:", index);
       const newFlashcards = flashcardData.filter((_, i) => i !== index);
       setFlashcardData(newFlashcards);
-      console.log("removed flashcard id:", flashcardData[index].flashcard_id);
+      console.log(
+        "removed flashcard id:",
+        flashcardData[index].sequence_game_id
+      );
       try {
         const response = await fetch(
-          `/api/flashcard/flashcard?flashcard_id=${flashcardData[index].flashcard_id}`,
+          `/api/sequence_game/update_sequence_game?sequence_game_id=${flashcardData[index].sequence_game_id}`,
           {
             method: "DELETE",
           }
@@ -372,12 +391,18 @@ const Index = () => {
   const addFlashcard = () => {
     const newFlashcard = {
       flashcard_id: Date.now(),
-      term: "",
-      description: "",
+      step: "",
       image: null,
       audio: null,
       isNew: true,
     };
+    if (flashcardData.length >= 10) {
+      setDifficulty("hard");
+    } else if (flashcardData.length >= 5) {
+      setDifficulty("medium");
+    } else {
+      setDifficulty("easy");
+    }
     setFlashcardData([...flashcardData, newFlashcard]);
   };
 
@@ -413,10 +438,40 @@ const Index = () => {
     updatedCards[index].image = flashcard.imageUrl;
     setFlashcardData(updatedCards);
   };
+
+  const handleAddVideo = (video) => {
+    let embeddableVideoURL;
+
+    if (video.includes("youtu.be")) {
+      // Handle short YouTube URL (e.g., https://youtu.be/<video-id>)
+      const videoId = video.split("/")[3].split("?")[0];
+      const queryParams = video.split("?")[1] ? `?${video.split("?")[1]}` : "";
+      embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+    } else if (video.includes("youtube.com/watch")) {
+      // Handle standard YouTube URL (e.g., https://www.youtube.com/watch?v=<video-id>)
+      const videoId = video.split("v=")[1].split("&")[0];
+      const queryParams = video.split("&").slice(1).join("&")
+        ? `?${video.split("&").slice(1).join("&")}`
+        : "";
+      embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+    }
+
+    console.log("embeddableVideoURL:", embeddableVideoURL);
+    setVideo(embeddableVideoURL);
+  };
+
+  const handleVideoChange = (e) => {
+    const newVideo = e.target.value;
+    setVideo(newVideo);
+    handleAddVideo(newVideo);
+  };
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-        <h1>Edit Flashcards Page</h1>
+        <h1>Edit Sequence Game Page</h1>
+      </div>
+      <div className="flex flex-col gap-4 justify-between items-center">
         <div>
           <Button
             onClick={handleSave}
@@ -425,6 +480,45 @@ const Index = () => {
             Save Changes
           </Button>
         </div>
+        {flashcardData && flashcardData.length > 0 && (
+          <>
+            <Input
+              value={title}
+              label="Game Title"
+              onChange={(e) => setTitle(e.target.value)}
+              className="text-[#7469B6] z-0"
+            />
+            <Input
+              value={video}
+              placeholder={video}
+              label="Video URL"
+              onChange={handleVideoChange}
+              variant="underlined"
+              color="secondary"
+              className="text-[#7469B6] z-0"
+            />
+            {/* {videoURL && (
+              <iframe
+                src={videoURL}
+                frameBorder="0"
+                width="100%"
+                height="400"
+                allowFullScreen
+                title="Sequence Game Video"
+              />
+            )} */}
+            <iframe
+              src={video}
+              frameBorder="0"
+              width="100%"
+              height="400"
+              allowFullScreen
+              title="Sequence Game Video"
+            />
+            <h1 className="text-2xl font-bold">{title}</h1>
+            <h1 className="text-2xl font-bold">Difficulty: {difficulty}</h1>
+          </>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -503,12 +597,6 @@ const Index = () => {
                                 Drag or upload your image here
                               </label>
                             </div>
-                            {/* <Input
-                              type="file"
-                              accept="image/*"
-                              label="Image"
-                              onChange={(e) => handleImageChange(e)}
-                            /> */}
                             {tempImage && (
                               <div
                                 className="w-full h-full"
@@ -565,41 +653,23 @@ const Index = () => {
                 <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
                   <div className="flex shrink flex-col w-[45%] gap-2 max-sm:w-full">
                     <Input
-                      label="Term"
+                      label="Step"
                       variant="underlined"
                       color="secondary"
                       className="text-[#7469B6] z-0"
-                      value={flashcard.term}
+                      value={flashcard.step}
                       onChange={(e) =>
-                        handleInputChange(index, "term", e.target.value)
+                        handleInputChange(index, "step", e.target.value)
                       }
                     />
-                    {/* {flashcard.term ? (
-                      <Button
-                        className="bg-[#7469B6] text-white border-0"
-                        onPress={() => handleTextToSpeech(flashcard.term)}
-                      >
-                        <Volume2 /> Play Term
-                      </Button>
-                    ) : null} */}
                   </div>
                   <div className="flex w-[55%] gap-2 max-sm:w-full">
-                    <Textarea
-                      label="Description"
-                      variant="underlined"
-                      color="secondary"
-                      className="text-[#7469B6] z-0"
-                      value={flashcard.description}
-                      onChange={(e) =>
-                        handleInputChange(index, "description", e.target.value)
-                      }
-                    />
                     <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
                       <div className="relative flex flex-col gap-2">
                         <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
                           <img
                             src={flashcard.image}
-                            alt={flashcard.term}
+                            alt={flashcard.step}
                             className="w-full h-auto"
                           />
                         </div>
@@ -635,7 +705,7 @@ const Index = () => {
                             <ModalBody>
                               <img
                                 src={flashcard.image}
-                                alt={flashcard.term}
+                                alt={flashcard.step}
                                 className="w-full h-auto"
                               />
                             </ModalBody>
@@ -648,7 +718,6 @@ const Index = () => {
               </CardBody>
               <Divider className="m-0 h-0.5 bg-slate-300" />
               <CardFooter className="flex px-3 gap-2 items-center justify-between">
-                {/* <h1>flashcard ID: {flashcard.flashcard_id}</h1> */}
                 <div className="flex gap-2 w-full items-center max-sm:flex-col">
                   {flashcard.audio ? (
                     <div className="flex gap-2">

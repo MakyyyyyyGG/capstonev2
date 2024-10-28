@@ -125,6 +125,21 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           console.log("Error deleting game:", error);
         }
       }
+    } else if (game_type === "Sequence Game") {
+      if (confirm("Are you sure you want to delete this Sequence Game?")) {
+        console.log("deleting sequence game", game_id);
+        try {
+          const res = await fetch(
+            `/api/sequence_game/sequence_game?game_id=${game_id}`,
+            delWorkData
+          );
+          const data = await res.json();
+          console.log(data);
+          setGameList(gameList.filter((game) => game.game_id !== game_id));
+        } catch (error) {
+          console.log("Error deleting game:", error);
+        }
+      }
     }
   };
 
@@ -157,6 +172,8 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       return `${roleRedirect}/${room_code}/color_game_advanced/${game.game_id}`;
     } else if (game.game_type === "Decision Maker") {
       return `${roleRedirect}/${room_code}/decision_maker/${game.game_id}`;
+    } else if (game.game_type === "Sequence Game") {
+      return `${roleRedirect}/${room_code}/sequence_game/${game.game_id}`;
     } else return "#";
   };
 
@@ -196,6 +213,12 @@ const ClassWorkList = ({ room_code, games = [] }) => {
         return (
           <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
             <FaRegLightbulb className="text-3xl text-white -rotate-[15deg]" />
+          </div>
+        );
+      case "sequence game":
+        return (
+          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+            <TbCards className="text-4xl text-white" />
           </div>
         );
       default:
@@ -321,6 +344,9 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             </SelectItem>
             <SelectItem key="Decision Maker" value="decision_maker">
               Decision Maker
+            </SelectItem>
+            <SelectItem key="Sequence Game" value="sequence_game">
+              Sequence Game
             </SelectItem>
           </Select>
 

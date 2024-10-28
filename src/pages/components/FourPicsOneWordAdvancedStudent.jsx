@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Button, Image, Progress } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  Button,
+  Image,
+  Progress,
+  Checkbox,
+} from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Volume2 } from "lucide-react";
 import {
@@ -13,8 +20,10 @@ import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
+import Summary from "./Summary";
 import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
+
 const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
   const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
@@ -24,16 +33,22 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   const { data: session } = useSession();
   const router = useRouter();
   const { game_id } = router.query;
-  const [playedGames, setPlayedGames] = useState(1); // times played
-  const [attempts, setAttempts] = useState(Array(cards.length).fill(0)); // New state for attempts
+  const [playedGames, setPlayedGames] = useState(1);
+  const [attempts, setAttempts] = useState(Array(cards.length).fill(0));
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [selectedImages, setSelectedImages] = useState(
+    Array(cards.length).fill([])
+  );
+
   useEffect(() => {
     setShuffledCards(shuffleArray(cards));
     setFeedback(Array(cards.length).fill(""));
-    setAttempts(Array(cards.length).fill(0)); // Reset attempts when cards change
+    setAttempts(Array(cards.length).fill(0));
+    setSelectedImages(Array(cards.length).fill([]));
     getStudentTries();
+    console.log(cards);
   }, [cards]);
 
   useEffect(() => {
@@ -55,65 +70,96 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
     const utterance = new SpeechSynthesisUtterance(text);
     const synth = window.speechSynthesis;
 
-    // Get available voices
     let voices = synth.getVoices();
 
-    // Ensure voices are loaded, this may run before voices are loaded, so handle this event
     if (!voices.length) {
       synth.onvoiceschanged = () => {
         voices = synth.getVoices();
-        setVoiceAndSpeak(voices[1]); // Set default voice
+        setVoiceAndSpeak(voices[1]);
       };
     } else {
-      setVoiceAndSpeak(voices[1]); // Set default voice
+      setVoiceAndSpeak(voices[1]);
     }
 
     function setVoiceAndSpeak(selectedVoice) {
-      // Choose a different voice if needed (e.g., second voice in the list)
-      utterance.voice = selectedVoice; // Select your desired voice
+      utterance.voice = selectedVoice;
       utterance.rate = 0.7;
       speechSynthesis.speak(utterance);
     }
   };
 
-  const handleImageClick = (idx, cardIndex) => {
-    if (attempts[cardIndex] >= 3) return; // If 3 attempts are used, do nothing
+  const handleImageSelect = (idx, cardIndex) => {
+    const newSelectedImages = [...selectedImages];
+    if (newSelectedImages[cardIndex].includes(idx)) {
+      newSelectedImages[cardIndex] = newSelectedImages[cardIndex].filter(
+        (imageIdx) => imageIdx !== idx
+      );
+    } else {
+      newSelectedImages[cardIndex] = [...newSelectedImages[cardIndex], idx];
+    }
+    setSelectedImages(newSelectedImages);
 
-    const newAttempts = [...attempts];
-    newAttempts[cardIndex]++;
+    const correctAnswers = shuffledCards[cardIndex].correct_answer
+      .split(",")
+      .map(Number);
+    if (correctAnswers.includes(idx)) {
+      console.log(
+        `Selected image index: ${idx} for card index: ${cardIndex} is correct`
+      );
+    } else {
+      console.log(
+        `Selected image index: ${idx} for card index: ${cardIndex} is incorrect`
+      );
+    }
+  };
+
+  const handleCheckAnswers = () => {
+    const newFeedback = [...feedback];
+    let newScore = score;
+    let newAnswer = answer;
+    let newAttempts = [...attempts];
+
+    selectedImages.forEach((selectedIdxs, cardIndex) => {
+      if (selectedIdxs.length > 0) {
+        const correctAnswers = shuffledCards[cardIndex].correct_answer
+          .split(",")
+          .map(Number);
+        const isCorrect =
+          selectedIdxs.length === correctAnswers.length &&
+          selectedIdxs.every((idx) => correctAnswers.includes(idx));
+
+        newAttempts[cardIndex]++;
+
+        if (isCorrect) {
+          newScore++;
+          newFeedback[cardIndex] = "Correct!";
+          newAnswer++;
+          if (swiperInstance) {
+            swiperInstance.slideNext();
+          }
+        } else if (newAttempts[cardIndex] >= 3) {
+          newFeedback[cardIndex] = "Incorrect. Moving to next question.";
+          newAnswer++;
+          if (swiperInstance) {
+            swiperInstance.slideNext();
+          }
+        } else {
+          newFeedback[cardIndex] = "Incorrect. Try again.";
+        }
+      }
+    });
+
+    setScore(newScore);
+    setAnswer(newAnswer);
+    setFeedback(newFeedback);
     setAttempts(newAttempts);
 
-    const correctAnswer = shuffledCards[cardIndex].correct_answer;
-    const newFeedback = [...feedback];
-    if (correctAnswer == idx) {
-      setScore((prevScore) => prevScore + 1);
-      newFeedback[cardIndex] = "Correct!";
-      setAnswer((prevAnswer) => prevAnswer + 1);
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
-    } else {
-      if (newAttempts[cardIndex] >= 3) {
-        newFeedback[cardIndex] = "Out of attempts. Moving to next question.";
-        setAnswer((prevAnswer) => prevAnswer + 1);
-        if (swiperInstance) {
-          swiperInstance.slideNext();
-        }
-      } else {
-        newFeedback[cardIndex] = `Incorrect. ${
-          3 - newAttempts[cardIndex]
-        } attempts left.`;
-      }
-    }
-    setFeedback(newFeedback);
-
-    // Check if all cards have been answered or are out of attempts
-    const allAnswered = newFeedback.every(
-      (fb) => fb.includes("Correct") || fb.includes("Out of attempts")
-    );
+    const allAnswered = newAnswer === cards.length;
     if (allAnswered) {
       setIsGameFinished(true);
     }
+
+    setSelectedImages(Array(cards.length).fill([]));
   };
 
   const getStudentTries = async () => {
@@ -134,7 +180,6 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
         const latestAttempts = getLatestAttempts(data.data);
         console.log("latest attempts", latestAttempts);
 
-        // Calculate attempts used
         const currentDate = new Date();
         const currentYearMonth = `${currentDate.getFullYear()}-${
           currentDate.getMonth() + 1
@@ -147,39 +192,34 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
       console.log(error);
     }
   };
+
   const getLatestAttempts = (data) => {
-    // Group by month and year
     const attemptsByMonth = {};
 
     data.forEach((attempt) => {
-      // Get year and month from created_at
       const date = new Date(attempt.created_at);
-      const yearMonth = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format as "YYYY-MM"
+      const yearMonth = `${date.getFullYear()}-${date.getMonth() + 1}`;
 
-      // Add attempt to the correct month
       if (!attemptsByMonth[yearMonth]) {
         attemptsByMonth[yearMonth] = [];
       }
       attemptsByMonth[yearMonth].push(attempt);
     });
 
-    // Get the latest 8 attempts for each month
     const latestAttempts = {};
     Object.keys(attemptsByMonth).forEach((month) => {
-      // Sort by created_at (newest first)
       const sortedAttempts = attemptsByMonth[month].sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
 
-      // Keep only the latest 8 attempts
       latestAttempts[month] = sortedAttempts.slice(0, 8);
     });
 
-    // setLatestAttempts(latestAttempts);
     return latestAttempts;
   };
 
   const handleResult = async () => {
+    console.log("game finished  ");
     const data = {
       account_id: session.user.id,
       game_id: game_id,
@@ -201,7 +241,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
       const result = await response.json();
 
       if (response.status === 403) {
-        alert(result.message); // Show the limit message
+        alert(result.message);
       } else {
         console.log(result);
         await getStudentTries();
@@ -218,7 +258,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <BarChart gameRecord={gameRecord} questions={cards.length} />
+            <Summary gameRecord={gameRecord} questions={cards.length} />
           )}
         </>
       ) : (
@@ -238,7 +278,6 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
             <Progress
               value={(answer / cards.length) * 100}
               classNames={{
-                // label: "tracking-wider",
                 value: "text-foreground/60",
               }}
               label="Progress"
@@ -247,7 +286,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
             />
           </div>
           <h1 className="text-2xl font-bold text-center my-4">
-            Choose the correct image
+            Choose the correct image(s)
           </h1>
           <Swiper
             modules={[Navigation, Pagination, Scrollbar, A11y]}
@@ -318,7 +357,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
                                   onClick={() =>
                                     attempts[index] < 3 &&
                                     !feedback[index]?.includes("Correct")
-                                      ? handleImageClick(idx, index)
+                                      ? handleImageSelect(idx, index)
                                       : null
                                   }
                                   src={`${image}`}
@@ -329,6 +368,16 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
                                       ? "opacity-50 cursor-not-allowed"
                                       : ""
                                   }`}
+                                />
+                                <Checkbox
+                                  isSelected={selectedImages[index].includes(
+                                    idx
+                                  )}
+                                  onChange={() => handleImageSelect(idx, index)}
+                                  isDisabled={
+                                    attempts[index] >= 3 ||
+                                    feedback[index]?.includes("Correct")
+                                  }
                                 />
                               </div>
                             )
@@ -351,6 +400,11 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
               </SwiperSlide>
             ))}
           </Swiper>
+          <div className="flex justify-center mt-4">
+            <Button onClick={handleCheckAnswers} color="primary">
+              Check Answers
+            </Button>
+          </div>
         </>
       )}
     </div>
