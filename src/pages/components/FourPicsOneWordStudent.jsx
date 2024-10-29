@@ -257,14 +257,16 @@ const FourPicsOneWordStudent = ({ cards }) => {
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
               <div>
                 <h1 className="text-2xl font-bold">ThinkPic</h1>
-                <p className="text-sm text-muted-foreground">
-                  Score: {score} / {cards.length}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Attempts this month: {attemptsUsed} / 8
-                </p>
               </div>
-              <div>
+              <div className="flex gap-4 items-center">
+                <div className="flex gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    Score: {score} / {cards.length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Attempts this month: {attemptsUsed} / 8
+                  </p>
+                </div>
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
                 {attemptsUsed >= 8 && (
                   <div className="w-1/2 bg-red-400 rounded-md p-4">
