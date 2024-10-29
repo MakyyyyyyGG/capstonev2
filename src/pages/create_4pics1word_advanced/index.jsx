@@ -24,11 +24,13 @@ import {
   SelectItem,
   Checkbox,
   CheckboxGroup,
+  Spinner,
 } from "@nextui-org/react";
 
 const Index = () => {
   const { data: session } = useSession();
-  const [difficulty, setDifficulty] = useState("");
+  const [difficulty, setDifficulty] = useState("easy");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { room_code } = router.query;
   const [title, setTitle] = useState("");
@@ -245,6 +247,7 @@ const Index = () => {
     console.log("Cards data:", cardsFromFormData);
 
     try {
+      setIsLoading(true);
       const response = await fetch(
         "/api/4pics1word_advanced/4pics1word_advanced",
         {
@@ -273,6 +276,8 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -297,7 +302,7 @@ const Index = () => {
     function setVoiceAndSpeak(selectedVoice) {
       // Choose a different voice if needed (e.g., second voice in the list)
       utterance.voice = selectedVoice; // Select your desired voice
-      utterance.rate = 0.7;
+      utterance.rate = 1;
       speechSynthesis.speak(utterance);
     }
   };
@@ -311,13 +316,19 @@ const Index = () => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create a new ThinkPic+ Set</h1>
         <div>
-          <Button
-            color="secondary"
-            onPress={handleSubmit}
-            isDisabled={!title || !difficulty || cards.length < 2}
-          >
-            Create
-          </Button>
+          {isLoading ? (
+            <Button isLoading isDisabled color="secondary">
+              Create
+            </Button>
+          ) : (
+            <Button
+              color="secondary"
+              onPress={handleSubmit}
+              isDisabled={!title || !difficulty || cards.length < 2}
+            >
+              Create
+            </Button>
+          )}
         </div>
       </div>
       <h1>room code {room_code}</h1>

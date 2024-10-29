@@ -42,11 +42,13 @@ const index = () => {
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(null);
   const imgRef = useRef(null);
+  const [difficulty, setDifficulty] = useState("easy");
   const [title, setTitle] = useState("");
   const [gameData, setGameData] = useState({
     room_code: "",
     cards: [],
   });
+  const [isLoading, setIsLoading] = useState(false);
   const { room_code } = router.query;
   const [tempImage, setTempImage] = useState(null);
   const [crop, setCrop] = useState({
@@ -65,10 +67,6 @@ const index = () => {
       imageUrl: "",
     },
   ]);
-
-  useEffect(() => {
-    // Add an initial card on first load
-  }, []);
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
@@ -148,6 +146,13 @@ const index = () => {
       ...cards,
       { word: "", image: null, correct_answer: "", imageUrl: "" },
     ]);
+    if (cards.length + 1 >= 10) {
+      setDifficulty("hard");
+    } else if (cards.length + 1 >= 5) {
+      setDifficulty("medium");
+    } else {
+      setDifficulty("easy");
+    }
   };
 
   const removeCard = (index) => {
@@ -181,6 +186,7 @@ const index = () => {
         return;
       }
     }
+    setIsLoading(true);
     try {
       const response = await fetch("/api/decision_maker/decision_maker", {
         method: "POST",
@@ -189,6 +195,7 @@ const index = () => {
         },
         body: JSON.stringify({
           title,
+          difficulty,
           account_id: session.user.id,
           room_code,
           cards,
@@ -196,6 +203,10 @@ const index = () => {
       });
       const data = await response.json();
       if (response.ok) {
+        router.push(
+          `/teacher-dashboard/rooms/${room_code}/decision_maker/${data.gameId}`
+        );
+
         console.log("POST success", data);
         alert("Game created successfully");
       } else {
@@ -203,6 +214,8 @@ const index = () => {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -216,9 +229,19 @@ const index = () => {
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Decision Maker</h1>
-        <Button color="secondary" onPress={handleSubmit}>
-          Create
-        </Button>
+        {isLoading ? (
+          <Button isLoading isDisabled color="secondary">
+            Create
+          </Button>
+        ) : (
+          <Button
+            color="secondary"
+            onPress={handleSubmit}
+            isDisabled={!title || cards.length === 0}
+          >
+            Create
+          </Button>
+        )}
       </div>
       {/* <h1>Room Code: {room_code}</h1> */}
       <div className="items-center z-0">
@@ -229,7 +252,7 @@ const index = () => {
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
-
+      <h1>Difficulty: {difficulty}</h1>
       <div className="flex flex-wrap gap-4">
         {cards.map((card, index) => (
           <Card
@@ -273,16 +296,36 @@ const index = () => {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    color="secondary"
-                    onPress={() => {
-                      setCurrentIndex(index);
-                      onOpen();
-                    }}
-                    startContent={<Pencil size={22} />}
-                  >
-                    Change Image
-                  </Button>
+                  <>
+                    <div className="flex gap-4 items-center justify-center">
+                      <Input
+                        label="Image URL"
+                        variant="underlined"
+                        color="secondary"
+                        className="text-[#7469B6] px-2 z-0"
+                        value={card.imageUrl}
+                        onChange={(e) => {
+                          handleCardChange(index, "imageUrl", e.target.value);
+                        }}
+                      />
+                      <Button
+                        color="secondary"
+                        onClick={() => handleInsertImageFromUrl(index)}
+                      >
+                        Change
+                      </Button>
+                    </div>
+                    <Button
+                      color="secondary"
+                      onPress={() => {
+                        setCurrentIndex(index);
+                        onOpen();
+                      }}
+                      startContent={<Pencil size={22} />}
+                    >
+                      Change Image
+                    </Button>
+                  </>
                 )}
                 <Button
                   isIconOnly

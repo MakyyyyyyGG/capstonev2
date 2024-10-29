@@ -50,6 +50,7 @@ const Index = ({ images }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [difficulty, setDifficulty] = useState("");
   const displayImages = images;
+  const [isLoading, setIsLoading] = useState(false);
 
   const groupImagesByColor = (images) => {
     return images.reduce((acc, image) => {
@@ -129,6 +130,7 @@ const Index = ({ images }) => {
       difficulty,
       cards: cards.map((card) => ({ ...card, color: card.color })),
     });
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/color_game/color_game", {
@@ -146,15 +148,22 @@ const Index = ({ images }) => {
       });
 
       if (!response.ok) {
+        setIsLoading(false);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("Color game created successfully");
+      setIsLoading(false);
       console.log("Color game created successfully:", data);
       alert("Color game created successfully");
+      router.push(
+        `/teacher-dashboard/rooms/${room_code}/color_game/${data.gameId}`
+      );
     } catch (error) {
+      setIsLoading(false);
       console.error("Error creating color game:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -199,20 +208,26 @@ const Index = ({ images }) => {
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Color Game</h1>
-        <Button
-          // type="submit"
-          onClick={handleSubmit}
-          color="secondary"
-          radius="sm"
-          isDisabled={
-            !title ||
-            cards.some(
-              (card) => card.images.some((img) => img === null) || !card.color
-            )
-          }
-        >
-          Create
-        </Button>
+        {isLoading ? (
+          <Button isDisabled isLoading color="secondary">
+            Create
+          </Button>
+        ) : (
+          <Button
+            // type="submit"
+            onClick={handleSubmit}
+            color="secondary"
+            radius="sm"
+            isDisabled={
+              !title ||
+              cards.some(
+                (card) => card.images.some((img) => img === null) || !card.color
+              )
+            }
+          >
+            Create
+          </Button>
+        )}
       </div>
       <h1>room code: {room_code}</h1>
 

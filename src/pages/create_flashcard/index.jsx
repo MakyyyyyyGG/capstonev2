@@ -18,6 +18,7 @@ import {
   useDisclosure,
   Divider,
   Tooltip,
+  Spinner,
 } from "@nextui-org/react";
 import {
   Mic,
@@ -29,9 +30,11 @@ import {
   Trash2,
   ScanSearch,
 } from "lucide-react";
+import { message, theme } from "antd";
+
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-
+import Loader from "@/pages/components/Loader";
 const Index = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const {
@@ -57,7 +60,7 @@ const Index = () => {
     x: 25,
     y: 25,
   });
-
+  const [isLoading, setIsLoading] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [audioBlob, setAudioBlob] = useState(null);
   const [insertedAudio, setInsertedAudio] = useState(null);
@@ -102,17 +105,17 @@ const Index = () => {
       return;
     }
     if (flashcards.length < 2) {
-      alert("You need to add at least 2 flashcards");
+      message.error("You need to add at least 2 flashcards");
       return;
     }
     if (
       flashcards.some((flashcard) => !flashcard.term || !flashcard.description)
     ) {
-      alert("All flashcards must have a term and description");
+      message.error("All flashcards must have a term and description");
       return;
     }
     if (flashcards.some((flashcard) => !flashcard.image)) {
-      alert("All flashcards must have an image");
+      message.error("All flashcards must have an image");
       return;
     }
     try {
@@ -128,7 +131,7 @@ const Index = () => {
           flashcards: flashcards,
         }),
       });
-
+      setIsLoading(true);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -141,8 +144,10 @@ const Index = () => {
         `/teacher-dashboard/rooms/${room_code}/flashcard/${data.gameId}`
       );
       // console.log("Flashcards data:", flashcards);
-      alert("Flashcard created successfully");
+      message.success("Flashcard created successfully");
     } catch (error) {
+      setIsLoading(false);
+      message.error("Error creating flashcard");
       console.error("Error creating flashcard:", error.message);
     }
   };
@@ -363,13 +368,25 @@ const Index = () => {
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
             <h1 className="">Create a new flashcard set</h1>
             <div>
-              <Button
-                color="secondary"
-                isDisabled={!title}
-                onClick={handleCreateFlashcard}
-              >
-                Create
-              </Button>
+              {isLoading ? (
+                <Button
+                  isIconOnly
+                  color="secondary"
+                  isDisabled
+                  isLoading
+                  spinner={<Spinner />}
+                >
+                  Create
+                </Button>
+              ) : (
+                <Button
+                  color="secondary"
+                  isDisabled={!title}
+                  onClick={handleCreateFlashcard}
+                >
+                  Create
+                </Button>
+              )}
             </div>
           </div>
           <div className="items-center z-0">
@@ -408,6 +425,7 @@ const Index = () => {
                     <Button
                       color="secondary"
                       onClick={() => handleInsertImageFromUrl(flashcard, index)}
+                      isDisabled={!flashcard.imageUrl}
                     >
                       Add
                     </Button>
@@ -658,6 +676,9 @@ const Index = () => {
                       <Mic />
                       Record Audio
                     </Button>
+                    {/* <Button onClick={() => message.success("Button clicked!")}>
+                      Click me
+                    </Button> */}
                     <Modal
                       isOpen={isRecordingOpen}
                       onOpenChange={(isOpen) => {

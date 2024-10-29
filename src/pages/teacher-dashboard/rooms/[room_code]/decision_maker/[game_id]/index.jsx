@@ -41,15 +41,15 @@ const index = () => {
     <div>
       <h1>Decision Maker Page</h1>
       <h1>game id: {game_id}</h1>
-      <Button color="primary">
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
-          }}
-        >
-          Edit Decision Maker
-        </Link>
-      </Button>
+
+      <Link
+        href={{
+          pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
+        }}
+      >
+        <Button color="primary">Edit Decision Maker</Button>
+      </Link>
+
       <DecisionMaker cards={cards} />
     </div>
   );

@@ -11,6 +11,7 @@ const Index = () => {
   const router = useRouter();
   const { game_id } = router.query;
   const [flashcards, setFlashcards] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { room_code } = router.query;
 
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
@@ -20,6 +21,7 @@ const Index = () => {
   }
 
   const fetchFlashcards = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(`/api/flashcard/flashcard?game_id=${game_id}`, {
         method: "GET",
@@ -29,6 +31,7 @@ const Index = () => {
       });
       const data = await res.json();
       setFlashcards(data);
+      setIsLoading(false);
       if (res.ok) {
         console.log("Flashcards fetched successfully");
         console.log("data:", data);
@@ -48,17 +51,18 @@ const Index = () => {
 
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
-      <Flashcards flashcards={flashcards} />
+      <Flashcards flashcards={flashcards} isLoading={isLoading} />
       <div className="w-full flex justify-end">
-        <Button isIconOnly className="bg-[#7469B6] text-white border-0">
-          <Link
-            href={{
-              pathname: `/teacher-dashboard/rooms/${room_code}/flashcard/${game_id}/edit`,
-            }}
-          >
+        <Link
+          href={{
+            pathname: `/teacher-dashboard/rooms/${room_code}/flashcard/${game_id}/edit`,
+          }}
+        >
+          {" "}
+          <Button isIconOnly className="bg-[#7469B6] text-white border-0">
             <Pencil size={22} />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   );

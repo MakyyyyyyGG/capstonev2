@@ -371,9 +371,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       </div>
 
       <div className="flex w-full">
-        <ul className="w-full flex flex-col gap-4">
-          {gameList.length > 0 ? renderGames() : <p>Loading games...</p>}
-        </ul>
+        <ul className="w-full flex flex-col gap-4">{renderGames()}</ul>
       </div>
     </div>
   );

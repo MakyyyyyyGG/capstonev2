@@ -128,8 +128,15 @@ WHERE four_pics_one_word.four_pics_one_word_set_id = ?`,
           res.status(404).json({ error: "Cards not found" });
           return;
         }
-
-        res.status(200).json(cardsResults);
+        // Add imageUrl field with same value as image
+        const cardsWithImageUrl = cardsResults.map((card) => ({
+          ...card,
+          image1Url: card.image,
+          image2Url: card.image2,
+          image3Url: card.image3,
+          image4Url: card.image4,
+        }));
+        res.status(200).json(cardsWithImageUrl);
       } catch (cardsError) {
         console.error("Error fetching cards:", cardsError);
         res.status(500).json({ error: "Error fetching cards" });
