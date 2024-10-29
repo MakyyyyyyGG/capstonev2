@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Card, CardBody, Button, Progress, Input } from "@nextui-org/react";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Button,
+  Progress,
+  Input,
+} from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  Scrollbar,
+  A11y,
+  EffectCreative,
+} from "swiper/modules";
 import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
+import "swiper/css/effect-creative";
 import BarChart from "./BarChart";
 import {
   InputOTP,
@@ -228,7 +243,7 @@ const FourPicsOneWordStudent = ({ cards }) => {
   };
 
   return (
-    <div>
+    <div className="relative flex flex-col justify-center">
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -238,52 +253,71 @@ const FourPicsOneWordStudent = ({ cards }) => {
         </>
       ) : (
         <>
-          <div className="relative">
-            <div className="absolute top-0 left-0">
-              <h1>
-                Score: {score} / {cards.length}
-              </h1>
-              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-              <GameHistory gameRecord={gameRecord} cards={cards.length} />
-              {attemptsUsed >= 8 && (
-                <div className="w-1/2 bg-red-400 rounded-md p-4">
-                  <p className="text-white">
-                    You have used all your attempts for this month. Your score
-                    wont be recorded. Wait for next month.
-                  </p>
-                </div>
-              )}
-              <h1>Questions Answered: {answeredQuestions}</h1>
-              <h1>cards length: {cards.length}</h1>
+          <div className="flex w-full justify-center items-center">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+              <div>
+                <h1 className="text-2xl font-bold">ThinkPic</h1>
+                <p className="text-sm text-muted-foreground">
+                  Score: {score} / {cards.length}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Attempts this month: {attemptsUsed} / 8
+                </p>
+              </div>
+              <div>
+                <GameHistory gameRecord={gameRecord} cards={cards.length} />
+                {attemptsUsed >= 8 && (
+                  <div className="w-1/2 bg-red-400 rounded-md p-4">
+                    <p className="text-white">
+                      You have used all your attempts for this month. Your score
+                      wont be recorded. Wait for next month.
+                    </p>
+                  </div>
+                )}
+                {/* <h1>Questions Answered: {answeredQuestions}</h1>
+              <h1>cards length: {cards.length}</h1> */}
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
-            <Progress
-              value={(answeredQuestions / cards.length) * 100}
-              classNames={{
-                value: "text-foreground/60",
-              }}
-              label="Progress"
-              showValueLabel={true}
-              color="success"
-            />
+          <div className="flex w-full justify-center items-center ">
+            <div className="w-full max-w-[50rem] my-4">
+              <Progress
+                value={(answeredQuestions / cards.length) * 100}
+                classNames={{
+                  value: "text-foreground/60",
+                  indicator: "bg-[#7469B6]",
+                  track: "bg-purple-50",
+                }}
+              />
+            </div>
           </div>
-          <div>
+
+          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
             <Swiper
-              modules={[Navigation, Pagination, Scrollbar, A11y]}
-              navigation
-              spaceBetween={50}
-              slidesPerView={1}
+              grabCursor={true}
+              effect={"creative"}
+              creativeEffect={{
+                prev: {
+                  shadow: true,
+                  translate: [0, 0, -400],
+                },
+                next: {
+                  translate: ["100%", 0, 0],
+                },
+              }}
+              modules={[EffectCreative]}
+              className="mySwiper w-full drop-shadow-lg rounded-md"
               onSwiper={(swiper) => setSwiperInstance(swiper)}
             >
               {shuffledCards.map((card, index) => (
                 <SwiperSlide key={index}>
                   <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                    <CardBody className="flex flex-col gap-4 px-28 pt-7 items-center justify-center">
-                      <p>Attempts left: {3 - (attempts[index] || 0)}</p>
-
-                      <div className={`grid grid-cols-2 grid-rows-2 gap-2`}>
+                    <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                      {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
+                      <div
+                        className={`grid grid-cols-4 gap-2 max-sm:grid-cols-2`}
+                      >
                         {[
                           card.image1 || "",
                           card.image2 || "",
@@ -296,20 +330,20 @@ const FourPicsOneWordStudent = ({ cards }) => {
                                 key={idx}
                                 src={`${image}`}
                                 alt={`Image ${idx + 1}`}
-                                className="w-full h-auto border-2 border-[#7469B6] rounded-md aspect-square"
+                                className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
                               />
                             )
                         )}
                       </div>
-                      <div className="w-full flex flex-col items-center gap-2 rounded-xl shadow">
+                      <div className="flex flex-col items-center gap-2 w-full">
                         {/* <h1>Question: {card.question}</h1> */}
 
-                        <div className="max-w-md mx-auto text-center bg-white px-4 sm:px-8 py-10">
-                          <header className="mb-8">
-                            <h1 className="text-2xl font-bold mb-1">
+                        <div className="w-full text-center bg-white">
+                          <header className="mb-4">
+                            <h1 className="text-xl font-bold mb-1">
                               Enter Your Answer
                             </h1>
-                            <p className="text-[15px] text-slate-500">
+                            <p className="text-xs text-slate-500">
                               Enter the answer based on the images above.
                             </p>
                           </header>
@@ -320,7 +354,7 @@ const FourPicsOneWordStudent = ({ cards }) => {
                                   <input
                                     key={idx}
                                     type="text"
-                                    className="w-14 h-14 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                    className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                                     maxLength="1"
                                     value={userAnswers[index]?.[idx] || ""}
                                     onChange={(e) => {
@@ -347,9 +381,9 @@ const FourPicsOneWordStudent = ({ cards }) => {
                                 )
                               )}
                             </div>
-                            <div className="max-w-[260px] mx-auto mt-4">
+                            <div className="w-full mt-4">
                               <Button
-                                color="secondary"
+                                radius="md"
                                 onClick={() => checkAnswer(index)}
                                 isDisabled={
                                   feedback[index]?.includes("Correct") ||
@@ -357,26 +391,34 @@ const FourPicsOneWordStudent = ({ cards }) => {
                                   userAnswers[index]?.length !==
                                     card.word.length
                                 }
-                                className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-indigo-500 px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                                className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
                               >
                                 Check Answer
                               </Button>
                             </div>
                           </form>
                         </div>
-
-                        {feedback[index] && (
-                          <p
-                            className={
-                              feedback[index].includes("Correct")
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }
-                          >
-                            {feedback[index]}
-                          </p>
-                        )}
                       </div>
+                      {feedback[index] && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.1 }}
+                          className="flex w-full justify-center rounded-md"
+                        >
+                          <div className="w-full text-center rounded-md">
+                            <p
+                              className={
+                                feedback[index].includes("Correct")
+                                  ? "text-white bg-green-500 p-2 rounded-md"
+                                  : "text-white bg-red-500 p-2 rounded-md"
+                              }
+                            >
+                              {feedback[index]}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
                     </CardBody>
                   </Card>
                 </SwiperSlide>
