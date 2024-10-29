@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import toast, { Toaster } from "react-hot-toast";
 
 const Index = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -105,18 +106,19 @@ const Index = () => {
       return;
     }
     if (sequence.length < 2) {
-      alert("You need to add at least 2 flashcards");
+      toast.error("You need to add at least 2 flashcards");
       return;
     }
     if (sequence.some((flashcard) => !flashcard.step)) {
-      alert("All flashcards must have a step");
+      toast.error("All flashcards must have a step");
       return;
     }
     if (sequence.some((flashcard) => !flashcard.image)) {
-      alert("All flashcards must have an image");
+      toast.error("All flashcards must have an image");
       return;
     }
     setIsLoading(true);
+    const toastId = toast.loading("Creating flashcard...");
     try {
       const response = await fetch("/api/sequence_game/sequence_game", {
         method: "POST",
@@ -138,15 +140,14 @@ const Index = () => {
       }
 
       const data = await response.json();
-      // console.log("Flashcard created successfully");
-      console.log("Flashcard created successfullyasjdhasjdasgh:", data);
+      console.log("Flashcard created successfully:", data);
       router.push(
         `/teacher-dashboard/rooms/${room_code}/sequence_game/${data.gameId}`
       );
-      // console.log("Flashcards data:", flashcards);
-      alert("Flashcard created successfully");
+      toast.success("Flashcard created successfully", { id: toastId });
     } catch (error) {
       console.error("Error creating flashcard:", error.message);
+      toast.error("Error creating flashcard", { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -391,6 +392,7 @@ const Index = () => {
 
   return (
     <div className="w-full">
+      <Toaster />
       <div className="flex border-2">
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           {/* <h1>room_code: {room_code}</h1>

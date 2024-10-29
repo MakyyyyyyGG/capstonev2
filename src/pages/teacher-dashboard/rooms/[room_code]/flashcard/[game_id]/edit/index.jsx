@@ -3,6 +3,7 @@ import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import toast, { Toaster } from "react-hot-toast";
 import {
   Card,
   CardHeader,
@@ -42,7 +43,7 @@ const Index = () => {
   const { data: session } = useSession();
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [flashcardData, setFlashcardData] = useState([]);
@@ -86,7 +87,9 @@ const Index = () => {
     } catch (error) {
       console.error("Error fetching flashcards:", error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500); // Add a slight delay to get the skeleton effect
     }
   };
 
@@ -158,39 +161,49 @@ const Index = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
-    try {
-      await setupNewFlashcards(flashcardData);
-      // Filter out flashcards with 'isNew' as true, so they are not updated via PUT request
-      const flashcardsToUpdate = flashcardData.filter((f) => !f.isNew);
+    toast
+      .promise(
+        (async () => {
+          await setupNewFlashcards(flashcardData);
+          // Filter out flashcards with 'isNew' as true, so they are not updated via PUT request
+          const flashcardsToUpdate = flashcardData.filter((f) => !f.isNew);
 
-      for (const flashcard of flashcardsToUpdate) {
-        const response = await fetch(
-          `/api/flashcard/flashcard?flashcard_id=${flashcard.flashcard_id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ flashcards: flashcard }),
+          for (const flashcard of flashcardsToUpdate) {
+            const response = await fetch(
+              `/api/flashcard/flashcard?flashcard_id=${flashcard.flashcard_id}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ flashcards: flashcard }),
+              }
+            );
+
+            if (response.ok) {
+              console.log(
+                `Flashcard ${flashcard.flashcard_id} updated successfully`
+              );
+            } else {
+              console.error(
+                `Error updating flashcard ${flashcard.flashcard_id}`
+              );
+              throw new Error(
+                `Error updating flashcard ${flashcard.flashcard_id}`
+              );
+            }
           }
-        );
-
-        if (response.ok) {
-          console.log(
-            `Flashcard ${flashcard.flashcard_id} updated successfully`
-          );
-        } else {
-          console.error(`Error updating flashcard ${flashcard.flashcard_id}`);
+          setHasUnsavedChanges(false);
+        })(),
+        {
+          loading: "Saving flashcards...",
+          success: "Flashcards updated successfully",
+          error: "Error updating flashcards",
         }
-      }
-      alert("Flashcards updated successfully");
-      setHasUnsavedChanges(false);
-    } catch (error) {
-      console.error("Error updating flashcards:", error);
-      alert("Error updating flashcards");
-    } finally {
-      setIsSaving(false);
-    }
+      )
+      .finally(() => {
+        setIsSaving(false);
+      });
   };
 
   const handleImageChange = (event) => {
@@ -455,43 +468,55 @@ const Index = () => {
     setHasUnsavedChanges(true);
   };
 
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const notify = (message, type) => {
+    toast(message, {
+      type: type,
+    });
+  };
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
-      {isLoading ? (
-        <div className="flex justify-center items-center h-screen w-full">
-          {/* <Loader /> */}
-        </div>
-      ) : (
-        <>
-          <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-            <h1>Edit Flashcards Page</h1>
-            <div>
-              {isSaving ? (
-                <Button
-                  isDisabled
-                  isLoading
-                  onClick={handleSave}
-                  className="mt-5 bg-[#7469B6] text-white border-0"
-                >
-                  Save Changes
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleSave}
-                  className="mt-5 bg-[#7469B6] text-white border-0"
-                  disabled={!hasUnsavedChanges}
-                >
-                  Save Changes
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-4">
-            {!flashcardData.length ? (
-              <Skeleton className="w-full h-[300px] rounded-md" />
+      <Toaster />
+      <>
+        <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+          <h1>Edit Flashcards Page</h1>
+          <div>
+            {isSaving ? (
+              <Button
+                isDisabled
+                isLoading
+                onClick={handleSave}
+                className="mt-5 bg-[#7469B6] text-white border-0"
+              >
+                Save Changes
+              </Button>
             ) : (
-              flashcardData.map((flashcard, index) => (
+              <Button
+                onClick={handleSave}
+                className="mt-5 bg-[#7469B6] text-white border-0"
+                disabled={!hasUnsavedChanges}
+              >
+                Save Changes
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-4">
+          {isLoading
+            ? Array.from({ length: flashcardData.length }).map((_, index) => (
+                <Skeleton key={index} className="w-full h-[300px] rounded-md" />
+              ))
+            : flashcardData.map((flashcard, index) => (
                 <div key={flashcard.flashcard_id} className="w-full">
                   <Card className="w-full border border-slate-800 rounded-md flex">
                     <CardHeader className="flex px-3 justify-between items-center z-0">
@@ -860,20 +885,18 @@ const Index = () => {
                     </CardFooter>
                   </Card>
                 </div>
-              ))
-            )}
-          </div>
-          <Button
-            size="lg"
-            radius="sm"
-            className="my-4 text-sm bg-[#7469B6] text-white border-0"
-            onClick={addFlashcard}
-            startContent={<Plus size={22} />}
-          >
-            Add Flashcard
-          </Button>
-        </>
-      )}
+              ))}
+        </div>
+        <Button
+          size="lg"
+          radius="sm"
+          className="my-4 text-sm bg-[#7469B6] text-white border-0"
+          onClick={addFlashcard}
+          startContent={<Plus size={22} />}
+        >
+          Add Flashcard
+        </Button>
+      </>
     </div>
   );
 };

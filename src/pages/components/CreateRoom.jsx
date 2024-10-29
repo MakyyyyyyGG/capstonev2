@@ -15,8 +15,9 @@ import {
   Button,
   useDisclosure,
 } from "@nextui-org/react";
-
-const CreateRoom = ({ onRoomCreated }) => {
+import { useRouter } from "next/navigation";
+const CreateRoom = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [roomName, setRoomName] = useState("");
@@ -42,36 +43,34 @@ const CreateRoom = ({ onRoomCreated }) => {
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
-    if (difficulty === "") {
+
+    if (!difficulty) {
       alert("Difficulty is required");
       return;
     }
 
-    const generatedRoomCode = await generateRoomCode();
-
-    const roomData = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    try {
+      const generatedRoomCode = await generateRoomCode();
+      const roomData = {
         account_id: session.user.id,
         room_name: roomName,
-        difficulty: difficulty,
+        difficulty,
         room_code: generatedRoomCode,
-      }),
-    };
+      };
 
-    try {
-      const response = await fetch(
-        "/api/accounts_teacher/room/create_room",
-        roomData
-      );
+      const response = await fetch("/api/accounts_teacher/room/create_room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(roomData),
+      });
+
       const result = await response.json();
 
       if (response.ok) {
+        router.push(`/teacher-dashboard/rooms/${generatedRoomCode}`);
         console.log("Room created successfully", result);
-        onRoomCreated(); // Call the function passed as a prop
       } else {
         console.error("Error creating room:", result.error);
       }

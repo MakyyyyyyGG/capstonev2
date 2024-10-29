@@ -1,6 +1,14 @@
 import fs from "fs";
 import path from "path";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb", // Accept more than 10mb
+    },
+  },
+};
+
 export const getImages = () => {
   const imagesDirectory = path.join(process.cwd(), "public/color_game/images");
 
@@ -14,7 +22,7 @@ export const getImages = () => {
       id: index + 1,
       image: `/color_game/images/${filename.toLowerCase()}`,
       color,
-      name: name.replace(".png", ""),
+      name: name ? name.replace(".png", "") : "",
     };
   });
 
