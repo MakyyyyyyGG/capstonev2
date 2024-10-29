@@ -21,6 +21,7 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@nextui-org/react";
+import { History } from "lucide-react";
 
 const GameHistory = ({ gameRecord, cards }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -83,8 +84,12 @@ const GameHistory = ({ gameRecord, cards }) => {
 
   return (
     <div>
-      <Button onPress={onOpen} color="primary">
-        Open History
+      <Button
+        isIconOnly
+        onPress={onOpen}
+        className="bg-[#7469B6] text-white border-0"
+      >
+        <History size={20} />
       </Button>
       <Modal
         isOpen={isOpen}
