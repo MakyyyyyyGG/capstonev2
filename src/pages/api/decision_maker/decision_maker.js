@@ -39,14 +39,14 @@ const saveFileToPublic = async (base64String, fileName, folder) => {
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { title, account_id, room_code, cards } = req.body;
+    const { title, account_id, room_code, cards, difficulty } = req.body;
     // console.log("POST data", title, account_id, room_code, cards);
     try {
       const gameType = "Decision Maker";
       const gameResult = await query({
         query:
-          "INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)",
-        values: [title, room_code, account_id, gameType],
+          "INSERT INTO games (title, room_code, account_id, game_type, difficulty) VALUES (?, ?, ?, ?, ?)",
+        values: [title, room_code, account_id, gameType, difficulty],
       });
 
       const gameId = gameResult.insertId;
@@ -57,16 +57,22 @@ export default async function handler(req, res) {
         });
         const groupId = groupResult.insertId;
         const cardPromises = cards.map(async (card) => {
-          if (card.image && card.image.startsWith("data:")) {
-            const imageFileName = `${Date.now()}-${Math.random()
-              .toString(36)
-              .substr(2, 9)}.png`;
-            card.image = await saveFileToPublic(
-              card.image,
-              imageFileName,
-              "decision_maker/images"
-            );
-            console.log(`Image URI: ${card.image}`);
+          if (card.image) {
+            if (card.image.startsWith("data:")) {
+              const imageFileName = `${Date.now()}-${Math.random()
+                .toString(36)
+                .substr(2, 9)}.png`;
+              card.image = await saveFileToPublic(
+                card.image,
+                imageFileName,
+                "decision_maker/images"
+              );
+              console.log(`Image URI: ${card.image}`);
+            } else if (!card.image.startsWith("http")) {
+              // If not http/https and not data URI, image is invalid
+              card.image = null;
+            }
+            // If http/https URL, use as-is
           }
           console.log("card", card);
           return query({
@@ -75,9 +81,11 @@ export default async function handler(req, res) {
           });
         });
         await Promise.all(cardPromises);
-        res
-          .status(200)
-          .json({ message: "Game and group created successfully" });
+        res.status(200).json({
+          message: "Game and group created successfully",
+          gameId,
+          groupId,
+        });
       } catch (error) {
         console.error("Decision Maker set not created", error);
         res.status(500).json({ error: "Decision Maker set not created" });
@@ -119,14 +127,21 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Cards not found" });
       }
 
-      res.status(200).json(cardsResults);
+      // Add imageUrl field with same value as image
+      const cardsWithImageUrl = cardsResults.map((card) => ({
+        ...card,
+        imageUrl: card.image,
+      }));
+
+      res.status(200).json(cardsWithImageUrl);
     } catch (error) {
       console.error("Error fetching game:", error);
       res.status(500).json({ error: "Error fetching game" });
     }
   } else if (req.method === "PUT") {
-    const { title, game_id, cards } = req.body;
+    const { title, game_id, cards, difficulty } = req.body;
     const { decision_maker_id } = req.query;
+    console.log("req.body:", req.body);
     // console.log("PUT request received", title, game_id, cards);
     try {
       const currentCardResults = await query({
@@ -139,14 +154,20 @@ export default async function handler(req, res) {
       const currentCard = currentCardResults[0];
 
       if (cards.imageBlob) {
-        const imageFileName = `${Date.now()}-${Math.random()
-          .toString(36)
-          .substr(2, 9)}.png`;
-        cards.imageBlob = await saveFileToPublic(
-          cards.imageBlob,
-          imageFileName,
-          "decision_maker/images"
-        );
+        // If it's a https URL, use it directly
+        if (cards.imageBlob.startsWith("https://")) {
+          cards.imageBlob = cards.imageBlob;
+        } else {
+          // Otherwise save the file locally
+          const imageFileName = `${Date.now()}-${Math.random()
+            .toString(36)
+            .substr(2, 9)}.png`;
+          cards.imageBlob = await saveFileToPublic(
+            cards.imageBlob,
+            imageFileName,
+            "decision_maker/images"
+          );
+        }
         console.log(`Image URI: ${cards.imageBlob}`);
       }
       await query({
@@ -160,8 +181,8 @@ export default async function handler(req, res) {
         ],
       });
       const updateTitleResult = await query({
-        query: "UPDATE games SET title = ? WHERE game_id = ?",
-        values: [title, game_id],
+        query: "UPDATE games SET title = ?, difficulty = ? WHERE game_id = ?",
+        values: [title, difficulty, game_id],
       });
       if (updateTitleResult.affectedRows > 0) {
         return res

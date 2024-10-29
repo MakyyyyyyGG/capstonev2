@@ -34,17 +34,57 @@ export default async function handler(req, res) {
   if (req.method === "DELETE") {
     const { sequence_game_id } = req.query;
     console.log("Sequence ID:", sequence_game_id);
-
     try {
-      const flashcardResults = await query({
-        query: "DELETE FROM sequence_game WHERE sequence_game_id = ?",
+      // Get the sequence game set id
+      const sequenceGameSetResult = await query({
+        query:
+          "SELECT sequence_game_set_id FROM sequence_game WHERE sequence_game_id = ?",
         values: [sequence_game_id],
       });
 
-      if (flashcardResults.affectedRows > 0) {
-        res.status(200).json({ message: "Sequence deleted successfully" });
+      if (!sequenceGameSetResult.length) {
+        throw new Error("Sequence game set not found");
+      }
+
+      const sequence_game_set_id =
+        sequenceGameSetResult[0].sequence_game_set_id;
+      console.log("sequence_game_set_id", sequence_game_set_id);
+      const result = await query({
+        query: "DELETE FROM sequence_game WHERE sequence_game_id = ?",
+        values: [sequence_game_id],
+      });
+      if (result.affectedRows > 0) {
+        console.log(`Sequence deleted successfully: ${sequence_game_id}`);
+
+        // Fetch remaining sequences in the set
+        const remainingSequences = await query({
+          query: "SELECT * FROM sequence_game WHERE sequence_game_set_id = ?",
+          values: [sequence_game_set_id],
+        });
+
+        console.log("remainingSequences", remainingSequences.length);
+        // Update difficulty based on remaining sequences
+        let newDifficulty;
+        if (remainingSequences.length >= 10) {
+          newDifficulty = "hard";
+        } else if (remainingSequences.length >= 5) {
+          newDifficulty = "medium";
+        } else {
+          newDifficulty = "easy";
+        }
+
+        // Update the difficulty in the games table
+        await query({
+          query:
+            "UPDATE games SET difficulty = ? WHERE game_id = (SELECT game_id FROM sequence_game_sets WHERE sequence_game_sets_id = ?)",
+          values: [newDifficulty, sequence_game_set_id],
+        });
+        console.log("newDifficulty", newDifficulty);
+        res.status(200).json({
+          message: "Sequence deleted successfully and difficulty updated",
+        });
       } else {
-        res.status(404).json({ error: "Sequence not found" });
+        throw new Error("Failed to delete sequence");
       }
     } catch (error) {
       console.error("Error deleting sequence:", error);

@@ -14,6 +14,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Spinner,
+  Skeleton,
   useDisclosure,
 } from "@nextui-org/react";
 import { useSession } from "next-auth/react";
@@ -26,6 +28,10 @@ const index = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: session } = useSession();
   const [currentIndex, setCurrentIndex] = useState(null);
+  const [imageURL, setImageURL] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [difficulty, setDifficulty] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const imgRef = useRef(null);
   const [title, setTitle] = useState("");
   const [tempImage, setTempImage] = useState(null);
@@ -117,7 +123,7 @@ const index = () => {
   };
 
   const addCard = () => {
-    setCards([
+    const newCards = [
       ...cards,
       {
         word: "",
@@ -126,43 +132,62 @@ const index = () => {
         imageBlob: null,
         isNew: true,
       },
-    ]);
-  };
-
-  const removeCard = (index) => {
-    const newCards = cards.filter((_, i) => i !== index);
-    handleDeleteCard(index);
+    ];
     setCards(newCards);
+
+    // Update difficulty based on new card count
+    if (newCards.length >= 10) {
+      setDifficulty("hard");
+    } else if (newCards.length >= 5) {
+      setDifficulty("medium");
+    } else {
+      setDifficulty("easy");
+    }
   };
 
-  const handleDeleteCard = async (cardIndex) => {
+  const removeCard = async (index) => {
     const userConfirmed = confirm(
       "Are you sure you want to delete this color game advanced card?"
     );
     if (userConfirmed) {
-      const updatedCards = [...cards];
-      const removedCard = updatedCards.splice(cardIndex, 1)[0];
-      setCards(updatedCards);
-      console.log(
-        "removed decision maker card id:",
-        removedCard.decision_maker_id
-      );
-      try {
-        const response = await fetch(
-          `/api/decision_maker/update_decision_maker?decision_maker_id=${removedCard.decision_maker_id}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (response.ok) {
-          console.log("Card deleted successfully");
-          fetchCards();
-        } else {
-          console.error("Error deleting card");
-        }
-      } catch (error) {
-        console.error("Error deleting card:", error);
+      const newCards = cards.filter((_, i) => i !== index);
+      handleDeleteCard(index);
+      setCards(newCards);
+
+      // Update difficulty based on remaining cards
+      if (newCards.length >= 10) {
+        setDifficulty("hard");
+      } else if (newCards.length >= 5) {
+        setDifficulty("medium");
+      } else {
+        setDifficulty("easy");
       }
+    }
+  };
+
+  const handleDeleteCard = async (cardIndex) => {
+    const updatedCards = [...cards];
+    const removedCard = updatedCards.splice(cardIndex, 1)[0];
+    setCards(updatedCards);
+    console.log(
+      "removed decision maker card id:",
+      removedCard.decision_maker_id
+    );
+    try {
+      const response = await fetch(
+        `/api/decision_maker/update_decision_maker?decision_maker_id=${removedCard.decision_maker_id}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (response.ok) {
+        console.log("Card deleted successfully");
+        fetchCards();
+      } else {
+        console.error("Error deleting card");
+      }
+    } catch (error) {
+      console.error("Error deleting card:", error);
     }
   };
   const handleCardChange = (index, field, value) => {
@@ -204,9 +229,8 @@ const index = () => {
       }
     }
   };
-
   const handleSubmit = async () => {
-    // console.log(title, room_code, cards);
+    console.log("difficulty", difficulty);
     if (!title) {
       alert("Please enter a title");
       return;
@@ -225,22 +249,23 @@ const index = () => {
         return;
       }
     }
-    console.log(cards);
     await setupNewCards(cards);
 
     const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
+    setIsSaving(true);
 
-    for (const card of cardsToUpdate) {
-      const body = JSON.stringify({
-        title: title, // Pass the title for the card set
-        cards: card, // Pass the modified card details (with images and word)
-        game_id: game_id,
-        image: card.image,
-        updated_image: card.image,
-      });
-      //   console.log("body", body);
-
-      try {
+    try {
+      // Update difficulty based on current cards length
+      console.log("difficulty before updating cards:", difficulty);
+      for (const card of cardsToUpdate) {
+        const body = JSON.stringify({
+          title: title,
+          cards: card,
+          game_id: game_id,
+          image: card.image,
+          updated_image: card.image,
+          difficulty: difficulty, // Ensure difficulty is included in the body
+        });
         const response = await fetch(
           `/api/decision_maker/decision_maker?decision_maker_id=${card.decision_maker_id}`,
           {
@@ -254,17 +279,21 @@ const index = () => {
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
-        } else {
-          fetchCards();
-          alert("Decision maker updated successfully");
         }
-      } catch (error) {
-        console.error("Error submitting form:", error);
       }
+
+      // Only alert and fetch once after all updates succeed
+      alert("Decision maker updated successfully");
+      fetchCards();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const fetchCards = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(
         `/api/decision_maker/decision_maker?game_id=${game_id}`,
@@ -281,6 +310,14 @@ const index = () => {
       }));
       setCards(transformedData);
       setTitle(transformedData[0].title);
+
+      if (data.length >= 10) {
+        setDifficulty("hard");
+      } else if (data.length >= 5) {
+        setDifficulty("medium");
+      } else {
+        setDifficulty("easy");
+      }
       console.log("transformedData", transformedData);
 
       if (res.ok) {
@@ -291,6 +328,8 @@ const index = () => {
       }
     } catch (error) {
       console.error("Error fetching cards:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -303,198 +342,215 @@ const index = () => {
   const handleInsertImageFromUrl = (index) => {
     const newCards = [...cards];
     newCards[index].image = newCards[index].imageUrl;
+    newCards[index].imageBlob = newCards[index].imageUrl;
     setCards(newCards);
   };
   return (
     <div>
-      <Header
-        isCollapsed={isCollapsedSidebar}
-        toggleCollapse={toggleSidebarCollapseHandler}
-      />
       <div className="flex border-2">
-        <Sidebar
-          isCollapsed={isCollapsedSidebar}
-          toggleCollapse={toggleSidebarCollapseHandler}
-        />
-        <div className="flex flex-col gap-4">
-          <h1>Edit Decision Maker</h1>
-          <Input
-            label="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <div className="grid grid-cols-3 gap-4">
-            {cards.map((card, index) => (
-              <div key={index} className="flex flex-col gap-4">
-                <div>
-                  <Card className="w-full">
-                    <CardBody>
-                      <Input
-                        label="Word"
-                        value={card.word}
-                        onChange={(e) =>
-                          handleCardChange(index, "word", e.target.value)
-                        }
-                      />
-                      {!card.image ? (
-                        <>
-                          <Button
-                            className="my-4"
-                            onPress={() => {
-                              setCurrentIndex(index);
-                              onOpen();
-                            }}
-                          >
-                            Insert Image
-                          </Button>
-                          <div className="flex gap-4 items-center justify-center">
-                            <Input
-                              label="Image URL"
-                              variant="underlined"
-                              color="secondary"
-                              className="text-[#7469B6] px-2 z-0"
-                              value={card.imageUrl}
-                              onChange={(e) => {
-                                handleCardChange(
-                                  index,
-                                  "imageUrl",
-                                  e.target.value
-                                );
-                              }}
-                            />
+        {isLoading ? (
+          <>
+            <h1>Loading...</h1>
+            <Skeleton className="w-full h-[500px]" />
+          </>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <h1>Edit Decision Maker</h1>
+            <Input
+              label="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <h1>Difficulty: {difficulty}</h1>
+            <div className="grid grid-cols-3 gap-4">
+              {cards.map((card, index) => (
+                <div key={index} className="flex flex-col gap-4">
+                  <div>
+                    <Card className="w-full">
+                      <CardBody>
+                        {/* <h1>{card.image}</h1> */}
+                        <Input
+                          label="Word"
+                          value={card.word}
+                          onChange={(e) =>
+                            handleCardChange(index, "word", e.target.value)
+                          }
+                        />
+                        {!card.image ? (
+                          <>
                             <Button
-                              color="secondary"
-                              onClick={() => handleInsertImageFromUrl(index)}
+                              className="my-4"
+                              onPress={() => {
+                                setCurrentIndex(index);
+                                onOpen();
+                              }}
                             >
-                              Add
+                              Insert Image
                             </Button>
-                          </div>
-                        </>
-                      ) : (
-                        <Button
-                          className="my-4"
-                          onPress={() => {
-                            setCurrentIndex(index);
-                            onOpen();
-                          }}
+                            <div className="flex gap-4 items-center justify-center">
+                              <Input
+                                label="Image URL"
+                                value={card.imageUrl}
+                                variant="underlined"
+                                color="secondary"
+                                className="text-[#7469B6] px-2 z-0"
+                                onChange={(e) => {
+                                  handleCardChange(
+                                    index,
+                                    "imageUrl",
+                                    e.target.value
+                                  );
+                                }}
+                              />
+                              <Button
+                                color="secondary"
+                                onClick={() => handleInsertImageFromUrl(index)}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              className="my-4"
+                              onPress={() => {
+                                setCurrentIndex(index);
+                                onOpen();
+                              }}
+                            >
+                              Change Image
+                            </Button>
+                            <div className="flex gap-4 items-center justify-center">
+                              <Input
+                                label="Image URL"
+                                variant="underlined"
+                                value={card.imageUrl}
+                                color="secondary"
+                                className="text-[#7469B6] px-2 z-0"
+                                onChange={(e) => {
+                                  handleCardChange(
+                                    index,
+                                    "imageUrl",
+                                    e.target.value
+                                  );
+                                }}
+                              />
+                              <Button
+                                color="secondary"
+                                onClick={() => handleInsertImageFromUrl(index)}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                        <Modal
+                          isOpen={isOpen && currentIndex === index}
+                          onOpenChange={onOpenChange}
                         >
-                          Change Image
-                        </Button>
-                      )}
-                      <Modal
-                        isOpen={isOpen && currentIndex === index}
-                        onOpenChange={onOpenChange}
-                      >
-                        <ModalContent>
-                          <ModalHeader>
-                            <h1>Crop Image</h1>
-                          </ModalHeader>
-                          <ModalBody>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleCardImageChange(index, e)}
-                            />
-                            {tempImage && (
-                              <div className="w-full h-full">
-                                <ReactCrop
-                                  src={tempImage}
-                                  crop={crop}
-                                  onChange={(newCrop) => setCrop(newCrop)}
-                                  aspect={1}
-                                >
-                                  <img
+                          <ModalContent>
+                            <ModalHeader>
+                              <h1>Crop Image</h1>
+                            </ModalHeader>
+                            <ModalBody>
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) =>
+                                  handleCardImageChange(index, e)
+                                }
+                              />
+                              {tempImage && (
+                                <div className="w-full h-full">
+                                  <ReactCrop
                                     src={tempImage}
-                                    onLoad={onImageLoad}
-                                    alt="Crop preview"
-                                    className="w-full h-full object-contain"
-                                    // style={{
-                                    //   transform: `scale(${zoom})`,
-                                    // }}
-                                  />
-                                </ReactCrop>
-                              </div>
-                            )}
-                          </ModalBody>
-                          <ModalFooter>
-                            <Button
-                              onClick={() => {
-                                confirmImage(currentIndex);
-                                onOpenChange();
-                              }}
-                            >
-                              Confirm Image
-                            </Button>
-                          </ModalFooter>
-                        </ModalContent>
-                      </Modal>
-                      {card.image && (
-                        <div className="w-full h-full">
-                          <div className="flex gap-4 items-center justify-center">
-                            <Input
-                              label="Image URL"
-                              variant="underlined"
-                              color="secondary"
-                              className="text-[#7469B6] px-2 z-0"
-                              value={card.imageUrl}
-                              onChange={(e) => {
-                                handleCardChange(
-                                  index,
-                                  "imageUrl",
-                                  e.target.value
-                                );
-                              }}
+                                    crop={crop}
+                                    onChange={(newCrop) => setCrop(newCrop)}
+                                    aspect={1}
+                                  >
+                                    <img
+                                      src={tempImage}
+                                      onLoad={onImageLoad}
+                                      alt="Crop preview"
+                                      className="w-full h-full object-contain"
+                                      // style={{
+                                      //   transform: `scale(${zoom})`,
+                                      // }}
+                                    />
+                                  </ReactCrop>
+                                </div>
+                              )}
+                            </ModalBody>
+                            <ModalFooter>
+                              <Button
+                                onClick={() => {
+                                  confirmImage(currentIndex);
+                                  onOpenChange();
+                                }}
+                              >
+                                Confirm Image
+                              </Button>
+                            </ModalFooter>
+                          </ModalContent>
+                        </Modal>
+                        {card.image && (
+                          <div className="w-full h-full">
+                            <img
+                              src={card.imageBlob || card.image}
+                              alt="Crop preview"
+                              className="w-full h-full object-contain"
                             />
-                            <Button
-                              color="secondary"
-                              onClick={() => handleInsertImageFromUrl(index)}
-                            >
-                              Add
-                            </Button>
                           </div>
-                          <img
-                            src={card.imageBlob || card.image}
-                            alt="Crop preview"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      )}
-                      <RadioGroup
-                        label="Decision"
-                        value={card.correct_answer}
-                        onChange={(e) =>
-                          handleCardChange(
-                            index,
-                            "correct_answer",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <div className="flex gap-4">
-                          <Radio value="positive">Positive</Radio>
-                          <Radio value="negative">Negative</Radio>
-                        </div>
-                      </RadioGroup>
-                      <Button
-                        color="danger"
-                        onClick={() => removeCard(index)}
-                        className="mt-4"
-                      >
-                        Remove Card
-                      </Button>
-                    </CardBody>
-                  </Card>
+                        )}
+                        <RadioGroup
+                          label="Decision"
+                          value={card.correct_answer}
+                          onChange={(e) =>
+                            handleCardChange(
+                              index,
+                              "correct_answer",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <div className="flex gap-4">
+                            <Radio value="positive">Positive</Radio>
+                            <Radio value="negative">Negative</Radio>
+                          </div>
+                        </RadioGroup>
+                        <Button
+                          color="danger"
+                          onClick={() => removeCard(index)}
+                          className="mt-4"
+                        >
+                          Remove Card
+                        </Button>
+                      </CardBody>
+                    </Card>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>{" "}
-          <Button onPress={addCard} color="primary">
-            Add Card
-          </Button>
-          <Button onPress={handleSubmit} color="secondary">
-            Save
-          </Button>
-        </div>
+              ))}
+            </div>
+            <Button onPress={addCard} color="primary">
+              Add Card
+            </Button>
+            {isSaving ? (
+              <Button
+                onPress={handleSubmit}
+                color="secondary"
+                isLoading
+                isDisabled
+              >
+                Save
+              </Button>
+            ) : (
+              <Button onPress={handleSubmit} color="secondary">
+                Save
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

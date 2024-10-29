@@ -47,6 +47,7 @@
     "rechart": "^0.0.1",
     "recharts": "^2.13.0",
     "shadcn": "^2.1.0",
+    "styled-components": "^6.1.13",
     "sweetalert2": "^11.12.4",
     "swiper": "^11.1.14",
     "tailwind-merge": "^2.5.4",

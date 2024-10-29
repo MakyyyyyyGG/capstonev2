@@ -19,8 +19,11 @@ import {
   ModalFooter,
   Select,
   SelectItem,
+  Skeleton,
 } from "@nextui-org/react";
 import { Image, Pencil, Plus, Trash2, ScanSearch } from "lucide-react";
+import Loader from "@/pages/components/Loader";
+
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -34,6 +37,8 @@ const index = () => {
   const [tempImage, setTempImage] = useState(null);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [crop, setCrop] = useState({
     unit: "%",
     width: 10,
@@ -44,6 +49,7 @@ const index = () => {
   const imgRef = useRef(null);
 
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
@@ -58,14 +64,9 @@ const index = () => {
     for (let i = 0; i < totalSlots; i++) {
       if (!fileInputRefs.current[i]) {
         fileInputRefs.current[i] = React.createRef();
-        // console.log(`Ref initialized at index ${i}`); // Debugging line
       }
     }
   };
-
-  //   useEffect(() => {
-  //     initializeRefs(cards.length);
-  //   }, [cards]);
 
   const handleFileChange = (e, cardIndex, imageIndex) => {
     const file = e.target.files[0];
@@ -76,6 +77,7 @@ const index = () => {
         setSelectedCardIndex(cardIndex);
         setSelectedImageIndex(imageIndex);
         setIsOpen(true); // Open modal for cropping
+        setHasUnsavedChanges(true); // Mark as having unsaved changes
       };
       reader.readAsDataURL(file);
     }
@@ -98,11 +100,13 @@ const index = () => {
       {
         word: "",
         images: [null, null, null, null],
+        imageUrls: [null, null, null, null], // Initialize imageUrls array
         isNew: true,
       },
     ];
     setCards(newCards);
     initializeRefs(newCards.length); // Initialize refs for the new card
+    setHasUnsavedChanges(true); // Mark as having unsaved changes
   };
 
   const onImageLoad = (e) => {
@@ -165,6 +169,7 @@ const index = () => {
           y: 25,
         });
         setIsOpen(false); // Close modal
+        setHasUnsavedChanges(true); // Mark as having unsaved changes
       };
     } catch (error) {
       console.error("Error cropping image:", error);
@@ -194,6 +199,7 @@ const index = () => {
         setSelectedCardIndex(cardIndex);
         setSelectedImageIndex(imageIndex);
         setIsOpen(true); // Open modal for cropping
+        setHasUnsavedChanges(true); // Mark as having unsaved changes
       };
       reader.readAsDataURL(file);
     }
@@ -218,6 +224,7 @@ const index = () => {
         );
         if (response.ok) {
           console.log("Card deleted successfully");
+          setHasUnsavedChanges(true); // Mark as having unsaved changes
         } else {
           console.error("Error deleting card");
         }
@@ -228,6 +235,7 @@ const index = () => {
   };
 
   const fetchCards = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(`/api/4pics1word/4pics1word?game_id=${game_id}`, {
         method: "GET",
@@ -243,6 +251,7 @@ const index = () => {
           title: card.title,
           word: card.word,
           images: [card.image1, card.image2, card.image3, card.image4],
+          imageUrls: [card.image1, card.image2, card.image3, card.image4],
           four_pics_one_word_id: card.four_pics_one_word_id,
           four_pics_one_word_set_id: card.four_pics_one_word_set_id,
         }));
@@ -265,6 +274,7 @@ const index = () => {
     } catch (error) {
       console.error("Error fetching cards:", error);
     }
+    setIsLoading(false);
   };
 
   const setupNewCards = async (cards) => {
@@ -328,6 +338,7 @@ const index = () => {
     }
 
     try {
+      setIsSaving(true);
       await setupNewCards(cards); // Handle new cards creation if necessary
       const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
       console.log("cardsToUpdate", cardsToUpdate);
@@ -351,15 +362,18 @@ const index = () => {
         );
 
         if (response.ok) {
-          //   console.log("Card updated successfully");
-          fetchCards(); // Refresh cards after updating
+          console.log("Card updated successfully");
         } else {
           console.error("Error updating card");
         }
       }
       alert("Cards updated successfully");
+      setHasUnsavedChanges(false); // Reset unsaved changes flag
     } catch (error) {
       console.error("Error saving cards:", error);
+    } finally {
+      fetchCards(); // Refresh cards after updating
+      setIsSaving(false);
     }
   };
 
@@ -391,6 +405,7 @@ const index = () => {
         return "default"; // fallback if the difficulty is not recognized
     }
   };
+
   const getImageHolders = (card, cardIndex) => {
     let imageCount;
     if (selectedDifficulty === "easy") {
@@ -406,9 +421,9 @@ const index = () => {
       const updatedCards = [...cards];
       updatedCards[cardIndex].images[imageIndex] = tempImage;
       setCards(updatedCards);
+      setHasUnsavedChanges(true); // Mark as having unsaved changes
     };
     return (
-      // <div className={`grid ${gridCols} gap-4`}>
       <div className="flex flex-wrap gap-4 justify-center max-sm:gap-2">
         {card.images.slice(0, imageCount).map((image, imageIndex) => (
           <div
@@ -447,6 +462,7 @@ const index = () => {
                       updatedCards[cardIndex].images[imageIndex] = null;
                       setCards(updatedCards);
                       console.log("updatedCards", updatedCards);
+                      setHasUnsavedChanges(true); // Mark as having unsaved changes
                     }}
                     color="danger"
                     size="sm"
@@ -460,8 +476,15 @@ const index = () => {
                     variant="underlined"
                     color="secondary"
                     className="text-[#7469B6] px-2 z-0"
-                    value={card.images[imageIndex]}
+                    value={card.imageUrls?.[imageIndex] || ""}
                     onChange={(e) => {
+                      const updatedCards = [...cards];
+                      if (!updatedCards[cardIndex].imageUrls) {
+                        updatedCards[cardIndex].imageUrls = [];
+                      }
+                      updatedCards[cardIndex].imageUrls[imageIndex] =
+                        e.target.value;
+                      setCards(updatedCards);
                       setTempImage(e.target.value);
                     }}
                   />
@@ -473,6 +496,7 @@ const index = () => {
                   >
                     Edit
                   </Button>
+                  {/* <h1>{card.imageUrls[imageIndex]}</h1> */}
                 </div>
               </div>
             ) : (
@@ -490,8 +514,15 @@ const index = () => {
                     variant="underlined"
                     color="secondary"
                     className="text-[#7469B6] px-2 z-0"
-                    value={card.images[imageIndex]}
+                    value={card.imageUrls?.[imageIndex] || ""}
                     onChange={(e) => {
+                      const updatedCards = [...cards];
+                      if (!updatedCards[cardIndex].imageUrls) {
+                        updatedCards[cardIndex].imageUrls = [];
+                      }
+                      updatedCards[cardIndex].imageUrls[imageIndex] =
+                        e.target.value;
+                      setCards(updatedCards);
                       setTempImage(e.target.value);
                     }}
                   />
@@ -519,170 +550,209 @@ const index = () => {
     );
   };
 
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (hasUnsavedChanges) {
+        const confirmationMessage =
+          "You have unsaved changes. Are you sure you want to leave?";
+        event.returnValue = confirmationMessage; // For most browsers
+        return confirmationMessage; // For some browsers
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
-      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-        <h1>Edit ThinkPic Set</h1>
-        <Button
-          color="secondary"
-          onPress={handleSave}
-          isDisabled={!title}
-          className="mt-5"
-        >
-          Save Changes
-        </Button>
-      </div>
-      <div className="flex gap-2 items-center">
-        <h1 className="text-lg font-bold">Difficulty:</h1>
-        <Chip
-          color={getChipColor(difficulty)}
-          radius="sm"
-          className="text-base text-white py-4 capitalize"
-        >
-          {difficulty}
-        </Chip>
-      </div>
-      <div className="flex gap-2 items-center z-0 max-sm:flex-col">
-        <Input
-          isRequired
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full"
-        />
-        <div className="flex gap-2 justify-end items-center max-sm:w-full">
-          {updateDifficulty ? (
-            <>
-              <Select
-                isRequired
-                label="Difficulty"
-                defaultSelectedKeys={[selectedDifficulty]}
-                onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="w-[15rem] max-sm:w-full"
-              >
-                <SelectItem value="easy" key="easy">
-                  Easy
-                </SelectItem>
-                <SelectItem value="medium" key="medium">
-                  Medium
-                </SelectItem>
-                <SelectItem value="hard" key="hard">
-                  Hard
-                </SelectItem>
-              </Select>
-              <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
-            </>
-          ) : (
-            <Button
-              onClick={() => setUpdateDifficulty(!updateDifficulty)}
-              color="secondary"
-            >
-              Edit Difficulty
-            </Button>
-          )}
+      {isLoading ? (
+        <div className="flex justify-center items-center h-screen w-full">
+          <Skeleton className="w-full h-[800px] rounded-md" />
         </div>
-      </div>
-      {/* <h1>room code {room_code}</h1> */}
-      <div className="flex flex-wrap gap-4">
-        {cards.map((card, cardIndex) => (
-          <Card
-            key={cardIndex}
-            className="w-full border border-slate-800 rounded-md flex"
-          >
-            <CardHeader className="flex px-3 justify-between items-center z-0">
-              <div className="pl-2 text-xl font-bold">
-                <h1>{cardIndex + 1}</h1>
-              </div>
-              <div className="flex">
-                <Button
-                  isIconOnly
-                  onPress={() => handleRemoveCard(cardIndex)}
-                  color="danger"
-                >
-                  <Trash2 size={22} />
-                </Button>
-              </div>
-            </CardHeader>
-            <Divider className="m-0 h-0.5 bg-slate-300" />
-            <CardBody>
-              <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
-                <form action="" className="w-full">
-                  <div className="flex shrink w-full mb-4">
-                    <Input
-                      label="Word"
-                      variant="underlined"
-                      color="secondary"
-                      className="text-[#7469B6] px-2 z-0"
-                      value={card.word}
-                      onChange={(e) => {
-                        const updatedCards = [...cards];
-                        updatedCards[cardIndex].word = e.target.value;
-                        setCards(updatedCards);
-                      }}
-                    />
-                  </div>
-                  <div>{getImageHolders(card, cardIndex)}</div>
-                </form>
-              </div>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-
-      <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Crop Image</ModalHeader>
-          <ModalBody>
-            {tempImage && (
-              <div className="w-full h-full">
-                <ReactCrop
-                  src={tempImage}
-                  crop={crop}
-                  onChange={(newCrop) => setCrop(newCrop)}
-                  onImageLoaded={onImageLoad}
-                  aspect={1}
-                >
-                  {tempImage && (
-                    <>
-                      {" "}
-                      <img
-                        src={tempImage}
-                        onLoad={onImageLoad}
-                        alt="Crop preview"
-                        className="w-full h-full object-contain"
-                      />
-                    </>
-                  )}
-                </ReactCrop>
-              </div>
+      ) : (
+        <>
+          <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+            <h1>Edit ThinkPic Set</h1>
+            {isSaving ? (
+              <Button
+                isLoading
+                isDisabled
+                color="secondary"
+                onClick={handleSave}
+                className="mt-5"
+              >
+                Save Changes
+              </Button>
+            ) : (
+              <Button
+                color="secondary"
+                onClick={handleSave}
+                isDisabled={!title}
+                className="mt-5"
+              >
+                Save Changes
+              </Button>
             )}
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              auto
-              onClick={() => {
-                setIsOpen(false);
-              }}
-              color="secondary"
+          </div>
+          <div className="flex gap-2 items-center">
+            <h1 className="text-lg font-bold">Difficulty:</h1>
+            <Chip
+              color={getChipColor(difficulty)}
+              radius="sm"
+              className="text-base text-white py-4 capitalize"
             >
-              Close
-            </Button>
-            <Button auto onClick={handleCrop} color="primary">
-              Crop Image
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <Button
-        size="lg"
-        radius="sm"
-        color="secondary"
-        className="my-4 text-sm"
-        onClick={handleAddCard}
-        startContent={<Plus size={22} />}
-      >
-        Add
-      </Button>
+              {difficulty}
+            </Chip>
+          </div>
+          <div className="flex gap-2 items-center z-0 max-sm:flex-col">
+            <Input
+              isRequired
+              label="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full"
+            />
+            <div className="flex gap-2 justify-end items-center max-sm:w-full">
+              {updateDifficulty ? (
+                <>
+                  <Select
+                    isRequired
+                    label="Difficulty"
+                    defaultSelectedKeys={[selectedDifficulty]}
+                    onChange={(e) => setSelectedDifficulty(e.target.value)}
+                    className="w-[15rem] max-sm:w-full"
+                  >
+                    <SelectItem value="easy" key="easy">
+                      Easy
+                    </SelectItem>
+                    <SelectItem value="medium" key="medium">
+                      Medium
+                    </SelectItem>
+                    <SelectItem value="hard" key="hard">
+                      Hard
+                    </SelectItem>
+                  </Select>
+                  <Button onClick={() => setUpdateDifficulty(false)}>
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => setUpdateDifficulty(!updateDifficulty)}
+                  color="secondary"
+                >
+                  Edit Difficulty
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            {cards.map((card, cardIndex) => (
+              <Card
+                key={cardIndex}
+                className="w-full border border-slate-800 rounded-md flex"
+              >
+                <CardHeader className="flex px-3 justify-between items-center z-0">
+                  <div className="pl-2 text-xl font-bold">
+                    <h1>{cardIndex + 1}</h1>
+                  </div>
+                  <div className="flex">
+                    <Button
+                      isIconOnly
+                      onPress={() => handleRemoveCard(cardIndex)}
+                      color="danger"
+                    >
+                      <Trash2 size={22} />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <Divider className="m-0 h-0.5 bg-slate-300" />
+                <CardBody>
+                  <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                    <form action="" className="w-full">
+                      <div className="flex shrink w-full mb-4">
+                        <Input
+                          label="Word"
+                          variant="underlined"
+                          color="secondary"
+                          className="text-[#7469B6] px-2 z-0"
+                          value={card.word}
+                          onChange={(e) => {
+                            const updatedCards = [...cards];
+                            updatedCards[cardIndex].word = e.target.value;
+                            setCards(updatedCards);
+                            setHasUnsavedChanges(true); // Mark as having unsaved changes
+                          }}
+                        />
+                      </div>
+                      <div>{getImageHolders(card, cardIndex)}</div>
+                    </form>
+                  </div>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+
+          <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+            <ModalContent>
+              <ModalHeader className="flex flex-col gap-1">
+                Crop Image
+              </ModalHeader>
+              <ModalBody>
+                {tempImage && (
+                  <div className="w-full h-full">
+                    <ReactCrop
+                      src={tempImage}
+                      crop={crop}
+                      onChange={(newCrop) => setCrop(newCrop)}
+                      onImageLoaded={onImageLoad}
+                      aspect={1}
+                    >
+                      {tempImage && (
+                        <>
+                          <img
+                            src={tempImage}
+                            onLoad={onImageLoad}
+                            alt="Crop preview"
+                            className="w-full h-full object-contain"
+                          />
+                        </>
+                      )}
+                    </ReactCrop>
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  auto
+                  onClick={() => {
+                    setIsOpen(false);
+                  }}
+                  color="secondary"
+                >
+                  Close
+                </Button>
+                <Button auto onClick={handleCrop} color="primary">
+                  Crop Image
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+          <Button
+            size="lg"
+            radius="sm"
+            color="secondary"
+            className="my-4 text-sm"
+            onClick={handleAddCard}
+            startContent={<Plus size={22} />}
+          >
+            Add
+          </Button>
+        </>
+      )}
     </div>
   );
 };

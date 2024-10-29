@@ -37,15 +37,14 @@ const index = () => {
     <div>
       <h1>Color Game</h1>
       <p>{game_id}</p>
-      <Button color="primary">
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/color_game/${game_id}/edit`,
-          }}
-        >
-          Edit Color Game
-        </Link>
-      </Button>
+      <Link
+        href={{
+          pathname: `/teacher-dashboard/rooms/${room_code}/color_game/${game_id}/edit`,
+        }}
+      >
+        {" "}
+        <Button color="primary">Edit Color Game </Button>
+      </Link>
       <ColorGames cards={cards} />
     </div>
   );

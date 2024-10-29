@@ -15,12 +15,15 @@ import {
   ModalFooter,
   Select,
   SelectItem,
+  Skeleton,
 } from "@nextui-org/react";
-
+import Loader from "@/pages/components/Loader";
 const Index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
   const [cards, setCards] = useState([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRefs = useRef([]);
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState("");
@@ -30,7 +33,6 @@ const Index = () => {
   const [tempImage, setTempImage] = useState(null);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-  const [isOutOfBounds, setIsOutOfBounds] = useState(false);
   const [crop, setCrop] = useState({
     unit: "%",
     width: 10,
@@ -42,6 +44,7 @@ const Index = () => {
 
   // Track dragging state
   const [draggingIndex, setDraggingIndex] = useState(null);
+  const [loading, setLoading] = useState(true); // State to track loading
 
   const initializeRefs = (numCards) => {
     const totalSlots = numCards * 4; // 4 image refs per card
@@ -84,6 +87,7 @@ const Index = () => {
       {
         word: "",
         images: [null, null, null, null],
+        imageUrls: [null, null, null, null],
         correct_answers: [],
         isNew: true,
       },
@@ -226,13 +230,14 @@ const Index = () => {
       );
       const data = await res.json();
       console.log("data", data);
-      // const correctAnswer = cards[cardIndex].correct_answer.split(",");
       if (Array.isArray(data) && data.length > 0) {
         const formattedCards = data.map((card) => ({
           difficulty: card.difficulty,
           title: card.title,
           word: card.word,
           images: [card.image1, card.image2, card.image3, card.image4],
+          imageUrls: [card.image1, card.image2, card.image3, card.image4],
+
           four_pics_advanced_id: card.four_pics_advanced_id,
           four_pics_advanced_set_id: card.four_pics_advanced_set_id,
           correct_answers: card.correct_answer.split(",").map(Number),
@@ -256,6 +261,8 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Error fetching cards:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
@@ -267,7 +274,6 @@ const Index = () => {
       for (const card of newCards) {
         card.four_pics_advanced_set_id = cards[0].four_pics_advanced_set_id;
         card.title = cards[0].title;
-        // Log card before sending to check if correct_answers is still present
         console.log("Card being sent:", card);
 
         try {
@@ -304,17 +310,16 @@ const Index = () => {
     } else {
       imageCount = 4;
     }
-    // Check if any correct answer is out of bounds
     const outOfBounds = card.correct_answers.some((answer) => {
       return answer >= imageCount;
     });
 
-    const gridCols = imageCount === 3 ? "grid-cols-3" : "grid-cols-2";
     const handleInsertImageFromUrl = (cardIndex, imageIndex) => {
       const updatedCards = [...cards];
       updatedCards[cardIndex].images[imageIndex] = tempImage;
       setCards(updatedCards);
     };
+
     return (
       <div className={`grid ${1} gap-4`}>
         {card.word && (
@@ -360,8 +365,15 @@ const Index = () => {
                       variant="underlined"
                       color="secondary"
                       className="text-[#7469B6] px-2 z-0"
-                      value={card.images[imageIndex]}
+                      value={card.imageUrls?.[imageIndex] || ""}
                       onChange={(e) => {
+                        const updatedCards = [...cards];
+                        if (!updatedCards[cardIndex].imageUrls) {
+                          updatedCards[cardIndex].imageUrls = [];
+                        }
+                        updatedCards[cardIndex].imageUrls[imageIndex] =
+                          e.target.value;
+                        setCards(updatedCards);
                         setTempImage(e.target.value);
                       }}
                     />
@@ -371,7 +383,7 @@ const Index = () => {
                         handleInsertImageFromUrl(cardIndex, imageIndex)
                       }
                     >
-                      Add
+                      Replace
                     </Button>
                   </div>
                   <div className="flex items-center  space-x-2 m-2 p-2  w-full">
@@ -448,8 +460,15 @@ const Index = () => {
                       variant="underlined"
                       color="secondary"
                       className="text-[#7469B6] px-2 z-0"
-                      value={card.images[imageIndex]}
+                      value={card.imageUrls?.[imageIndex] || ""}
                       onChange={(e) => {
+                        const updatedCards = [...cards];
+                        if (!updatedCards[cardIndex].imageUrls) {
+                          updatedCards[cardIndex].imageUrls = [];
+                        }
+                        updatedCards[cardIndex].imageUrls[imageIndex] =
+                          e.target.value;
+                        setCards(updatedCards);
                         setTempImage(e.target.value);
                       }}
                     />
@@ -483,14 +502,12 @@ const Index = () => {
       alert("Please enter a title.");
       return;
     }
-    //if theres  word return an error
     for (const card of cards) {
       if (!card.word) {
         alert("Please enter a word for each card.");
         return;
       }
     }
-    // Ensure each card has the required number of images
     for (const card of cards) {
       let requiredImages = 4; // Default to 4 images for "hard" difficulty
       const currentDifficulty = selectedDifficulty || difficulty;
@@ -517,7 +534,6 @@ const Index = () => {
       }
     }
 
-    // Prevent save if there is an out of bounds answer
     for (const card of cards) {
       let imagesToRender = card.images;
       if (difficulty === "easy" || selectedDifficulty === "easy") {
@@ -546,6 +562,7 @@ const Index = () => {
         return;
       }
     }
+    setIsSaving(true);
 
     try {
       await setupNewCards(cards); // Handle new cards creation if necessary
@@ -559,7 +576,6 @@ const Index = () => {
           difficulty: selectedDifficulty || difficulty,
           game_id: game_id,
         });
-        // console.log("body", body);
         const response = await fetch(
           `/api/4pics1word_advanced/4pics1word_advanced?four_pics_advanced_id=${card.four_pics_advanced_id}`,
           {
@@ -584,21 +600,20 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Error saving cards:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   useEffect(() => {
-    // Ensure refs are initialized once cards are fetched
     if (game_id) {
       fetchCards().then(() => {
-        // Initialize refs after cards have been set
         initializeRefs(cards.length);
       });
     }
   }, [game_id]);
 
   useEffect(() => {
-    // Reinitialize refs whenever cards length changes (e.g., after adding a card)
     initializeRefs(cards.length);
   }, [cards.length]);
 
@@ -606,23 +621,20 @@ const Index = () => {
     const utterance = new SpeechSynthesisUtterance(text);
     const synth = window.speechSynthesis;
 
-    // Get available voices
     let voices = synth.getVoices();
 
-    // Ensure voices are loaded, this may run before voices are loaded, so handle this event
     if (!voices.length) {
       synth.onvoiceschanged = () => {
         voices = synth.getVoices();
-        setVoiceAndSpeak(voices[1]); // Set default voice
+        setVoiceAndSpeak(voices[1]);
       };
     } else {
       console.log("voices:", voices);
-      setVoiceAndSpeak(voices[1]); // Set default voice
+      setVoiceAndSpeak(voices[1]);
     }
 
     function setVoiceAndSpeak(selectedVoice) {
-      // Choose a different voice if needed (e.g., second voice in the list)
-      utterance.voice = selectedVoice; // Select your desired voice
+      utterance.voice = selectedVoice;
       utterance.rate = 0.7;
       speechSynthesis.speak(utterance);
     }
@@ -630,150 +642,174 @@ const Index = () => {
 
   return (
     <div>
-      <h1>edit 4pics1word</h1>
-      <h1>room code {room_code}</h1>
-      <h1>difficulty: {difficulty}</h1>
-
-      {updateDifficulty ? (
-        <>
-          <Select
-            isRequired
-            label="Difficulty"
-            defaultSelectedKeys={[selectedDifficulty]}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="mb-4 w-80"
-          >
-            <SelectItem value="easy" key="easy">
-              Easy
-            </SelectItem>
-            <SelectItem value="medium" key="medium">
-              Medium
-            </SelectItem>
-            <SelectItem value="hard" key="hard">
-              Hard
-            </SelectItem>
-          </Select>
-          <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
-        </>
-      ) : (
-        <Button
-          onClick={() => setUpdateDifficulty(!updateDifficulty)}
-          color="secondary"
-        >
-          Edit Difficulty
-        </Button>
-      )}
-
-      <div className="w-80 border">
-        <Input
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="mb-4 w-80 "
-        />
-      </div>
-      <div className="p-4">
-        <div className="grid grid-cols-3 gap-4">
-          {cards.map((card, cardIndex) => {
-            let imagesToRender = card.images;
-            if (difficulty === "easy" || selectedDifficulty === "easy") {
-              imagesToRender = card.images.slice(0, 2);
-            } else if (
-              difficulty === "medium" ||
-              selectedDifficulty === "medium"
-            ) {
-              imagesToRender = card.images.slice(0, 3);
-            } else if (difficulty === "hard" || selectedDifficulty === "hard") {
-              imagesToRender = card.images.slice(0, 4);
-            }
-
-            return (
-              <Card key={cardIndex} className="w-full ">
-                <CardBody>
-                  <div className="flex items-center justify-between">
-                    <h1 className="mb-4 text-lg font-semibold">
-                      4 Pics 1 Word
-                    </h1>
-                    <Button
-                      onPress={() => handleRemoveCard(cardIndex)}
-                      color="danger"
-                      className="mb-4"
-                    >
-                      Remove Card
-                    </Button>
-                  </div>
-
-                  <form action="">
-                    <Input
-                      label="Word"
-                      className="mb-4"
-                      color="secondary"
-                      value={card.word}
-                      onChange={(e) => {
-                        const updatedCards = [...cards];
-                        updatedCards[cardIndex].word = e.target.value;
-                        setCards(updatedCards);
-                      }}
-                    />
-                    {getImageHolders(card, cardIndex)}
-                  </form>
-                </CardBody>
-              </Card>
-            );
-          })}
-
-          <div className="col-span-3 mt-4 flex justify-between">
-            <Button color="secondary" onClick={handleAddCard}>
-              Add +
-            </Button>
-            <Button color="secondary" onPress={handleSave} isDisabled={!title}>
-              Save Changes
-            </Button>
-          </div>
+      {loading ? (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* <Loader /> */}
+          <Skeleton className="w-full h-[900px] rounded-md" />
         </div>
-      </div>
+      ) : (
+        <>
+          <h1>edit 4pics1word</h1>
+          <h1>room code {room_code}</h1>
+          <h1>difficulty: {difficulty}</h1>
 
-      <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Crop Image</ModalHeader>
-          <ModalBody>
-            {tempImage && (
-              <div className="w-full h-full">
-                <ReactCrop
-                  src={tempImage}
-                  crop={crop}
-                  onChange={(newCrop) => setCrop(newCrop)}
-                  onImageLoaded={onImageLoad}
-                  aspect={1}
-                >
-                  {tempImage && (
-                    <img
-                      src={tempImage}
-                      onLoad={onImageLoad}
-                      alt="Crop preview"
-                      className="w-full h-full object-contain"
-                    />
-                  )}
-                </ReactCrop>
-              </div>
-            )}
-          </ModalBody>
-          <ModalFooter>
+          {updateDifficulty ? (
+            <>
+              <Select
+                isRequired
+                label="Difficulty"
+                defaultSelectedKeys={[selectedDifficulty]}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                className="mb-4 w-80"
+              >
+                <SelectItem value="easy" key="easy">
+                  Easy
+                </SelectItem>
+                <SelectItem value="medium" key="medium">
+                  Medium
+                </SelectItem>
+                <SelectItem value="hard" key="hard">
+                  Hard
+                </SelectItem>
+              </Select>
+              <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
+            </>
+          ) : (
             <Button
-              auto
-              onClick={() => {
-                setIsOpen(false);
-              }}
+              onClick={() => setUpdateDifficulty(!updateDifficulty)}
               color="secondary"
             >
-              Close
+              Edit Difficulty
             </Button>
-            <Button auto onClick={handleCrop} color="primary">
-              Crop Image
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          )}
+
+          <div className="w-80 border">
+            <Input
+              label="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="mb-4 w-80 "
+            />
+          </div>
+          <div className="p-4">
+            <div className="grid grid-cols-3 gap-4">
+              {cards.map((card, cardIndex) => {
+                let imagesToRender = card.images;
+                if (difficulty === "easy" || selectedDifficulty === "easy") {
+                  imagesToRender = card.images.slice(0, 2);
+                } else if (
+                  difficulty === "medium" ||
+                  selectedDifficulty === "medium"
+                ) {
+                  imagesToRender = card.images.slice(0, 3);
+                } else if (
+                  difficulty === "hard" ||
+                  selectedDifficulty === "hard"
+                ) {
+                  imagesToRender = card.images.slice(0, 4);
+                }
+
+                return (
+                  <Card key={cardIndex} className="w-full ">
+                    <CardBody>
+                      <div className="flex items-center justify-between">
+                        <h1 className="mb-4 text-lg font-semibold">
+                          4 Pics 1 Word
+                        </h1>
+                        <Button
+                          onPress={() => handleRemoveCard(cardIndex)}
+                          color="danger"
+                          className="mb-4"
+                        >
+                          Remove Card
+                        </Button>
+                      </div>
+
+                      <form action="">
+                        <Input
+                          label="Word"
+                          className="mb-4"
+                          color="secondary"
+                          value={card.word}
+                          onChange={(e) => {
+                            const updatedCards = [...cards];
+                            updatedCards[cardIndex].word = e.target.value;
+                            setCards(updatedCards);
+                          }}
+                        />
+                        {getImageHolders(card, cardIndex)}
+                      </form>
+                    </CardBody>
+                  </Card>
+                );
+              })}
+
+              <div className="col-span-3 mt-4 flex justify-between">
+                <Button color="secondary" onClick={handleAddCard}>
+                  Add +
+                </Button>
+                {isSaving ? (
+                  <Button color="secondary" isLoading isDisabled>
+                    Save Changes
+                  </Button>
+                ) : (
+                  <Button
+                    color="secondary"
+                    onPress={handleSave}
+                    isDisabled={!title}
+                  >
+                    Save Changes
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+            <ModalContent>
+              <ModalHeader className="flex flex-col gap-1">
+                Crop Image
+              </ModalHeader>
+              <ModalBody>
+                {tempImage && (
+                  <div className="w-full h-full">
+                    <ReactCrop
+                      src={tempImage}
+                      crop={crop}
+                      onChange={(newCrop) => setCrop(newCrop)}
+                      onImageLoaded={onImageLoad}
+                      aspect={1}
+                    >
+                      {tempImage && (
+                        <img
+                          src={tempImage}
+                          onLoad={onImageLoad}
+                          alt="Crop preview"
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </ReactCrop>
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  auto
+                  onClick={() => {
+                    setIsOpen(false);
+                  }}
+                  color="secondary"
+                >
+                  Close
+                </Button>
+                <Button auto onClick={handleCrop} color="primary">
+                  Crop Image
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        </>
+      )}
     </div>
   );
 };

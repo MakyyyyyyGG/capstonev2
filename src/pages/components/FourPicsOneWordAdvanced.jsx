@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/input-otp";
 
 const FourPicsOneWordAdvanced = ({ cards }) => {
+  console.log(cards);
   const [selectedImages, setSelectedImages] = useState(
-    Array(cards.length).fill([])
+    Array(cards.length).fill([]) // Initialize with empty arrays for each card
   );
   const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
 
@@ -35,13 +36,19 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
     function setVoiceAndSpeak(selectedVoice) {
       // Choose a different voice if needed (e.g., second voice in the list)
       utterance.voice = selectedVoice; // Select your desired voice
-      utterance.rate = 0.7;
+      utterance.rate = 1;
       speechSynthesis.speak(utterance);
     }
   };
 
   const handleImageSelect = (idx, cardIndex) => {
     const newSelectedImages = [...selectedImages];
+
+    // Ensure the selectedImages array for the cardIndex is initialized
+    if (!newSelectedImages[cardIndex]) {
+      newSelectedImages[cardIndex] = [];
+    }
+
     if (newSelectedImages[cardIndex].includes(idx)) {
       newSelectedImages[cardIndex] = newSelectedImages[cardIndex].filter(
         (imageIdx) => imageIdx !== idx
@@ -69,6 +76,8 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
         } else {
           newFeedback[cardIndex] = "Incorrect. Try again.";
         }
+      } else {
+        newFeedback[cardIndex] = ""; // Reset feedback if no images are selected
       }
     });
 
@@ -129,9 +138,13 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
                         src={`${card.image1}`}
                         alt="Image 1"
                         className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                        onClick={() => handleImageSelect(0, index)} // Add onClick to image
                       />
                       <Checkbox
-                        isSelected={selectedImages[index].includes(0)}
+                        isSelected={
+                          selectedImages[index] &&
+                          selectedImages[index].includes(0)
+                        }
                         onChange={() => handleImageSelect(0, index)}
                         className="absolute top-2 left-2"
                       />
@@ -143,9 +156,13 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
                         src={`${card.image2}`}
                         alt="Image 2"
                         className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                        onClick={() => handleImageSelect(1, index)} // Add onClick to image
                       />
                       <Checkbox
-                        isSelected={selectedImages[index].includes(1)}
+                        isSelected={
+                          selectedImages[index] &&
+                          selectedImages[index].includes(1)
+                        }
                         onChange={() => handleImageSelect(1, index)}
                         className="absolute top-2 left-2"
                       />
@@ -157,9 +174,13 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
                         src={`${card.image3}`}
                         alt="Image 3"
                         className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                        onClick={() => handleImageSelect(2, index)} // Add onClick to image
                       />
                       <Checkbox
-                        isSelected={selectedImages[index].includes(2)}
+                        isSelected={
+                          selectedImages[index] &&
+                          selectedImages[index].includes(2)
+                        }
                         onChange={() => handleImageSelect(2, index)}
                         className="absolute top-2 left-2"
                       />
@@ -171,9 +192,13 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
                         src={`${card.image4}`}
                         alt="Image 4"
                         className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
+                        onClick={() => handleImageSelect(3, index)} // Add onClick to image
                       />
                       <Checkbox
-                        isSelected={selectedImages[index].includes(3)}
+                        isSelected={
+                          selectedImages[index] &&
+                          selectedImages[index].includes(3)
+                        }
                         onChange={() => handleImageSelect(3, index)}
                         className="absolute top-2 left-2"
                       />

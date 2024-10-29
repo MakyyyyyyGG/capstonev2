@@ -169,10 +169,10 @@ const CreateClassWork = ({ room_code }) => {
                 >
                   <CardHeader className="flex gap-5 pt-5 items-center justify-start">
                     <div className="flex items-center">
-                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#f31260] p-1 rounded-full">
+                      <div className="flex items-center justify-center w-[30px] h-[30px] bg-[#7469B6] p-1 rounded-full">
                         <Palette className="w-4 h-4 text-white" />
                       </div>
-                      <p className="font-bold text-xl ml-3">Color Game+</p>
+                      <p className="font-bold text-xl ml-3">Sequence Game</p>
                     </div>
                   </CardHeader>
                   <CardBody className="overflow-visible pt-0 pb-5 text-left">

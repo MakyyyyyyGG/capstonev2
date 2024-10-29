@@ -19,6 +19,7 @@ import {
   ModalFooter,
   Select,
   SelectItem,
+  Spinner,
 } from "@nextui-org/react";
 import { Image, Plus, Trash2, ScanSearch, Pencil, Link } from "lucide-react";
 
@@ -27,7 +28,8 @@ const Index = () => {
   const router = useRouter();
   const { room_code } = router.query;
   const [title, setTitle] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [difficulty, setDifficulty] = useState("easy");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [cards, setCards] = useState([
     { word: "", images: [null, null, null, null] },
@@ -238,6 +240,7 @@ const Index = () => {
     // Extract the "cards" key from the FormData
     const cardsFromFormData = JSON.parse(formData.get("cards"));
     console.log("Cards data:", cardsFromFormData);
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/4pics1word/4pics1word", {
@@ -255,15 +258,18 @@ const Index = () => {
       });
       const data = await response.json();
       if (response.ok) {
+        setIsLoading(false);
         alert("Game created successfully");
         console.log("Response data:", data);
         router.push(
           `/teacher-dashboard/rooms/${room_code}/4pics1word/${data.gameId}`
         );
       } else {
+        setIsLoading(false);
         alert("Error creating game");
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error:", error);
     }
   };
@@ -282,9 +288,24 @@ const Index = () => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1 className="">Create a new ThinkPic Set</h1>
         <div>
-          <Button color="secondary" onPress={handleSubmit} isDisabled={!title}>
-            Create
-          </Button>
+          {isLoading ? (
+            <Button
+              isDisabled
+              isLoading
+              color="secondary"
+              onPress={handleSubmit}
+            >
+              Create
+            </Button>
+          ) : (
+            <Button
+              color="secondary"
+              onPress={handleSubmit}
+              isDisabled={!title}
+            >
+              Create
+            </Button>
+          )}
         </div>
       </div>
       <h1>room code {room_code}</h1>
