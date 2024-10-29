@@ -115,7 +115,9 @@ const index = () => {
     } catch (error) {
       console.error("Error fetching cards:", error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500); // Add a slight delay to get the skeleton effect
     }
   };
 
@@ -342,61 +344,57 @@ const index = () => {
 
   return (
     <div>
-      {isLoading ? (
-        <div className="w-full h-screen flex items-center justify-center">
-          <Skeleton className="w-full h-[900px] rounded-md" />
-        </div>
-      ) : (
-        <>
-          <h1>Create Color Game</h1>
-          <h1>room code: {room_code}</h1>
-          <form onSubmit={handleSubmit}>
-            <div className="w-80">
-              <Input
-                isRequired
-                label="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="mb-4 w-80"
-              />
+      <h1>Create Color Game</h1>
+      <h1>room code: {room_code}</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="w-80">
+          <Input
+            isRequired
+            label="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mb-4 w-80"
+          />
 
-              {updateDifficulty ? (
-                <>
-                  <Select
-                    isRequired
-                    label="Difficulty"
-                    defaultSelectedKeys={[selectedDifficulty]}
-                    onChange={handleDifficultyChange}
-                    className="mb-4 w-80"
-                  >
-                    <SelectItem value="easy" key="easy">
-                      Easy (2 images)
-                    </SelectItem>
-                    <SelectItem value="medium" key="medium">
-                      Medium (3 images)
-                    </SelectItem>
-                    <SelectItem value="hard" key="hard">
-                      Hard (4 images)
-                    </SelectItem>
-                  </Select>
-                  <Button onClick={() => setUpdateDifficulty(false)}>
-                    Cancel
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  onClick={() => setUpdateDifficulty(!updateDifficulty)}
-                  color="secondary"
-                >
-                  Edit Difficulty
-                </Button>
-              )}
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-3 gap-4">
-                {cards.map((card, cardIndex) => (
-                  <Card key={cardIndex} className="w-full">
-                    <CardBody>
+          {updateDifficulty ? (
+            <>
+              <Select
+                isRequired
+                label="Difficulty"
+                defaultSelectedKeys={[selectedDifficulty]}
+                onChange={handleDifficultyChange}
+                className="mb-4 w-80"
+              >
+                <SelectItem value="easy" key="easy">
+                  Easy (2 images)
+                </SelectItem>
+                <SelectItem value="medium" key="medium">
+                  Medium (3 images)
+                </SelectItem>
+                <SelectItem value="hard" key="hard">
+                  Hard (4 images)
+                </SelectItem>
+              </Select>
+              <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
+            </>
+          ) : (
+            <Button
+              onClick={() => setUpdateDifficulty(!updateDifficulty)}
+              color="secondary"
+            >
+              Edit Difficulty
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            {cards.map((card, cardIndex) => (
+              <Card key={cardIndex} className="w-full">
+                <CardBody>
+                  {isLoading ? (
+                    <Skeleton className="w-full h-64" />
+                  ) : (
+                    <>
                       <div className="flex items-center justify-between">
                         <h2 className="mb-4 text-lg font-semibold">
                           Color Card {cardIndex + 1}
@@ -577,116 +575,111 @@ const index = () => {
                           )
                         )}
                       </div>
-                    </CardBody>
-                  </Card>
-                ))}
-              </div>
-              <div className="mt-4 flex justify-between">
-                <Button color="secondary" onClick={handleAddCard} type="button">
-                  Add Card
-                </Button>
-                {isSaving ? (
-                  <Button color="primary" type="submit" isDisabled isLoading>
-                    Save Changes
-                  </Button>
-                ) : (
-                  <Button color="primary" type="submit" isDisabled={!title}>
-                    Save Changes
-                  </Button>
-                )}
-              </div>
-            </div>
-          </form>
+                    </>
+                  )}
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-between">
+            <Button color="secondary" onClick={handleAddCard} type="button">
+              Add Card
+            </Button>
+            {isSaving ? (
+              <Button color="primary" type="submit" isDisabled isLoading>
+                Save Changes
+              </Button>
+            ) : (
+              <Button color="primary" type="submit" isDisabled={!title}>
+                Save Changes
+              </Button>
+            )}
+          </div>
+        </div>
+      </form>
 
-          <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="full">
-            <ModalContent>
-              {(onClose) => (
-                <>
-                  <ModalHeader className="flex flex-col gap-1">
-                    Image Library
-                  </ModalHeader>
-                  <ModalBody>
-                    <h2 className="mb-4 text-lg font-semibold">
-                      Select{" "}
-                      {difficulty === "easy"
-                        ? 2
-                        : difficulty === "medium"
-                        ? 3
-                        : 4}{" "}
-                      Images
-                    </h2>
-                    <div className="grid grid-cols-3 gap-4">
-                      {Object.entries(groupedImages).map(([color, images]) => (
-                        <div
-                          key={color}
-                          className="flex flex-col border rounded-md border-purple-400 p-4"
-                        >
-                          <h3 className="mb-2 text-md font-semibold capitalize">
-                            {color}
-                          </h3>
-                          <div className="grid grid-cols-3 gap-2">
-                            {images.map((item) => (
-                              <div
-                                key={item.id}
-                                className="p-2 border rounded-md border-purple-400 relative overflow-hidden"
-                              >
-                                <Checkbox
-                                  color="secondary"
-                                  className="absolute top-2 right-2 z-99"
-                                  isSelected={
-                                    selectedImages.includes(item.id) ||
-                                    defaultImages.includes(item.image)
-                                  }
-                                  onChange={() => handleImageSelect(item.id)}
-                                  isDisabled={
-                                    selectedImages.length >=
-                                      (difficulty === "easy"
-                                        ? 2
-                                        : difficulty === "medium"
-                                        ? 3
-                                        : 4) &&
-                                    !selectedImages.includes(item.id)
-                                    // !defaultImages.includes(item.image)
-                                  }
-                                />
-                                <Image
-                                  src={item.image}
-                                  alt={`Color game image ${item.id}`}
-                                  className="w-full h-full object-cover"
-                                  onClick={() => handleImageSelect(item.id)}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button color="danger" variant="light" onPress={onClose}>
-                      Close
-                    </Button>
-                    <Button
-                      color="primary"
-                      onPress={insertImages}
-                      isDisabled={
-                        selectedImages.length !==
-                        (difficulty === "easy"
-                          ? 2
-                          : difficulty === "medium"
-                          ? 3
-                          : 4)
-                      }
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="full">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Image Library
+              </ModalHeader>
+              <ModalBody>
+                <h2 className="mb-4 text-lg font-semibold">
+                  Select{" "}
+                  {difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4}{" "}
+                  Images
+                </h2>
+                <div className="grid grid-cols-3 gap-4">
+                  {Object.entries(groupedImages).map(([color, images]) => (
+                    <div
+                      key={color}
+                      className="flex flex-col border rounded-md border-purple-400 p-4"
                     >
-                      Insert
-                    </Button>
-                  </ModalFooter>
-                </>
-              )}
-            </ModalContent>
-          </Modal>
-        </>
-      )}
+                      <h3 className="mb-2 text-md font-semibold capitalize">
+                        {color}
+                      </h3>
+                      <div className="grid grid-cols-3 gap-2">
+                        {images.map((item) => (
+                          <div
+                            key={item.id}
+                            className="p-2 border rounded-md border-purple-400 relative overflow-hidden"
+                          >
+                            <Checkbox
+                              color="secondary"
+                              className="absolute top-2 right-2 z-99"
+                              isSelected={
+                                selectedImages.includes(item.id) ||
+                                defaultImages.includes(item.image)
+                              }
+                              onChange={() => handleImageSelect(item.id)}
+                              isDisabled={
+                                selectedImages.length >=
+                                  (difficulty === "easy"
+                                    ? 2
+                                    : difficulty === "medium"
+                                    ? 3
+                                    : 4) && !selectedImages.includes(item.id)
+                                // !defaultImages.includes(item.image)
+                              }
+                            />
+                            <Image
+                              src={item.image}
+                              alt={`Color game image ${item.id}`}
+                              className="w-full h-full object-cover"
+                              onClick={() => handleImageSelect(item.id)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={insertImages}
+                  isDisabled={
+                    selectedImages.length !==
+                    (difficulty === "easy"
+                      ? 2
+                      : difficulty === "medium"
+                      ? 3
+                      : 4)
+                  }
+                >
+                  Insert
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

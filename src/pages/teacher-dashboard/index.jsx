@@ -35,6 +35,7 @@ const Dashboard = () => {
         );
         const data = await res.json();
         setRooms(data.roomsData);
+        console.log("fetching rooms");
       } catch (error) {
         console.error("Error fetching rooms:", error);
       } finally {
@@ -45,7 +46,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchRooms();
-  }, [session?.user?.id]);
+  }, []);
 
   return (
     <div className="p-4 w-full">

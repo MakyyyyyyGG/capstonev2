@@ -25,6 +25,7 @@ import {
   cn,
 } from "@nextui-org/react";
 import { getImages } from "@/pages/api/getImages";
+import toast, { Toaster } from "react-hot-toast";
 
 export async function getStaticProps() {
   const images = getImages();
@@ -131,6 +132,35 @@ const Index = ({ images }) => {
       cards: cards.map((card) => ({ ...card, color: card.color })),
     });
     setIsLoading(true);
+    //error if theres no selected color
+    if (cards.some((card) => !card.color)) {
+      toast.error("Please select a color");
+      setIsLoading(false);
+      return;
+    }
+
+    //error if theres no selected image
+    if (cards.some((card) => card.images.some((img) => img === null))) {
+      toast.error("Please select an image");
+      setIsLoading(false);
+      return;
+    }
+
+    //error if theres no title
+    if (!title) {
+      toast.error("Please enter a title");
+      setIsLoading(false);
+      return;
+    }
+
+    //error if theres no difficulty
+    if (!difficulty) {
+      toast.error("Please select a difficulty");
+      setIsLoading(false);
+      return;
+    }
+
+    const toastId = toast.loading("Creating color game...");
 
     try {
       const response = await fetch("/api/color_game/color_game", {
@@ -148,20 +178,18 @@ const Index = ({ images }) => {
       });
 
       if (!response.ok) {
-        setIsLoading(false);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      setIsLoading(false);
       console.log("Color game created successfully:", data);
-      alert("Color game created successfully");
+      toast.success("Color game created successfully", { id: toastId });
       router.push(
         `/teacher-dashboard/rooms/${room_code}/color_game/${data.gameId}`
       );
     } catch (error) {
-      setIsLoading(false);
       console.error("Error creating color game:", error);
+      toast.error("Error creating color game", { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -206,6 +234,7 @@ const Index = ({ images }) => {
 
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Color Game</h1>
         {isLoading ? (

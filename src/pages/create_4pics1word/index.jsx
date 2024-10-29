@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import toast, { Toaster } from "react-hot-toast";
 import {
   Card,
   CardHeader,
@@ -242,37 +243,47 @@ const Index = () => {
     console.log("Cards data:", cardsFromFormData);
     setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/4pics1word/4pics1word", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Set the Content-Type header
-        },
-        body: JSON.stringify({
-          title: title,
-          room_code: room_code,
-          account_id: session?.user?.id,
-          cards: cards,
-          difficulty: difficulty,
-        }),
-      });
-      const data = await response.json();
-      if (response.ok) {
+    toast
+      .promise(
+        (async () => {
+          const response = await fetch("/api/4pics1word/4pics1word", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json", // Set the Content-Type header
+            },
+            body: JSON.stringify({
+              title: title,
+              room_code: room_code,
+              account_id: session?.user?.id,
+              cards: cards,
+              difficulty: difficulty,
+            }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          console.log("Response data:", data);
+          return data;
+        })(),
+        {
+          loading: "Creating game...",
+          success: "Game created successfully",
+          error: "Error creating game",
+        }
+      )
+      .then((data) => {
         setIsLoading(false);
-        alert("Game created successfully");
-        console.log("Response data:", data);
         router.push(
           `/teacher-dashboard/rooms/${room_code}/4pics1word/${data.gameId}`
         );
-      } else {
+      })
+      .catch((error) => {
         setIsLoading(false);
-        alert("Error creating game");
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error:", error);
-    }
+        console.error("Error:", error);
+      });
   };
+
   const handleInsertImageFromUrl = (cardIndex, imageIndex) => {
     const updatedCards = [...cards];
     updatedCards[cardIndex].images[imageIndex] = tempImage;
@@ -285,6 +296,7 @@ const Index = () => {
   };
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1 className="">Create a new ThinkPic Set</h1>
         <div>

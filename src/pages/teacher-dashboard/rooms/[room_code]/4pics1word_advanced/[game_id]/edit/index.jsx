@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { CircleCheck, Volume2 } from "lucide-react";
 import ReactCrop from "react-image-crop";
+import toast, { Toaster } from "react-hot-toast";
 import "react-image-crop/dist/ReactCrop.css";
 import {
   Card,
@@ -16,6 +17,8 @@ import {
   Select,
   SelectItem,
   Skeleton,
+  Divider,
+  CardHeader,
 } from "@nextui-org/react";
 import Loader from "@/pages/components/Loader";
 const Index = () => {
@@ -262,7 +265,9 @@ const Index = () => {
     } catch (error) {
       console.error("Error fetching cards:", error);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setTimeout(() => {
+        setLoading(false);
+      }, 500); // Add a slight delay to get the skeleton effect
     }
   };
 
@@ -499,12 +504,12 @@ const Index = () => {
 
   const handleSave = async () => {
     if (!title) {
-      alert("Please enter a title.");
+      toast.error("Please enter a title.");
       return;
     }
     for (const card of cards) {
       if (!card.word) {
-        alert("Please enter a word for each card.");
+        toast.error("Please enter a word for each card.");
         return;
       }
     }
@@ -522,14 +527,14 @@ const Index = () => {
       if (
         card.images.filter((image) => image !== null).length < requiredImages
       ) {
-        alert(`Please upload all  images slots for each card.`);
+        toast.error(`Please upload all images slots for each card.`);
         return;
       }
     }
 
     for (const card of cards) {
       if (card.correct_answers.length === 0) {
-        alert("Please select the correct answer for each card.");
+        toast.error("Please select the correct answer for each card.");
         return;
       }
     }
@@ -556,7 +561,7 @@ const Index = () => {
       });
 
       if (outOfBounds) {
-        alert(
+        toast.error(
           "One or more correct answers are out of bounds for the selected difficulty."
         );
         return;
@@ -564,45 +569,54 @@ const Index = () => {
     }
     setIsSaving(true);
 
-    try {
-      await setupNewCards(cards); // Handle new cards creation if necessary
-      const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
-      console.log("cardsToUpdate", cardsToUpdate);
-      let allUpdatesSuccessful = true;
-      for (const card of cardsToUpdate) {
-        const body = JSON.stringify({
-          title: title, // Pass the title for the card set
-          cards: card, // Pass the modified card details (with images and word)
-          difficulty: selectedDifficulty || difficulty,
-          game_id: game_id,
-        });
-        const response = await fetch(
-          `/api/4pics1word_advanced/4pics1word_advanced?four_pics_advanced_id=${card.four_pics_advanced_id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: body,
-          }
-        );
+    toast.promise(
+      (async () => {
+        try {
+          await setupNewCards(cards); // Handle new cards creation if necessary
+          const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
+          console.log("cardsToUpdate", cardsToUpdate);
+          let allUpdatesSuccessful = true;
+          for (const card of cardsToUpdate) {
+            const body = JSON.stringify({
+              title: title, // Pass the title for the card set
+              cards: card, // Pass the modified card details (with images and word)
+              difficulty: selectedDifficulty || difficulty,
+              game_id: game_id,
+            });
+            const response = await fetch(
+              `/api/4pics1word_advanced/4pics1word_advanced?four_pics_advanced_id=${card.four_pics_advanced_id}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: body,
+              }
+            );
 
-        if (response.ok) {
-          console.log("Card updated successfully");
-        } else {
-          console.error("Error updating card");
-          allUpdatesSuccessful = false;
+            if (response.ok) {
+              console.log("Card updated successfully");
+            } else {
+              console.error("Error updating card");
+              allUpdatesSuccessful = false;
+            }
+          }
+          if (allUpdatesSuccessful) {
+            fetchCards(); // Refresh cards after updating
+          }
+        } catch (error) {
+          console.error("Error saving cards:", error);
+          throw error;
+        } finally {
+          setIsSaving(false);
         }
+      })(),
+      {
+        loading: "Saving cards...",
+        success: "All cards updated successfully!",
+        error: "Error saving cards.",
       }
-      if (allUpdatesSuccessful) {
-        alert("All cards updated successfully!");
-        fetchCards(); // Refresh cards after updating
-      }
-    } catch (error) {
-      console.error("Error saving cards:", error);
-    } finally {
-      setIsSaving(false);
-    }
+    );
   };
 
   useEffect(() => {
@@ -642,16 +656,35 @@ const Index = () => {
 
   return (
     <div>
+      <Toaster />
       {loading ? (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          {/* <Loader /> */}
-          <Skeleton className="w-full h-[900px] rounded-md" />
-        </div>
+        Array.from({ length: cards.length }).map((_, index) => (
+          <Card
+            key={index}
+            className="w-full border border-slate-800 rounded-md flex"
+          >
+            <CardHeader className="flex px-3 justify-between items-center z-0">
+              <Skeleton className="w-1/4 h-6 rounded-md" />
+            </CardHeader>
+            <Divider className="m-0 h-0.5 bg-slate-300" />
+            <CardBody>
+              <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                <Skeleton className="w-full h-6 rounded-md mb-4" />
+                <div className="flex flex-wrap gap-4 justify-center max-sm:gap-2">
+                  {Array.from({ length: 4 }).map((_, imgIndex) => (
+                    <Skeleton
+                      key={imgIndex}
+                      className="w-[18rem] aspect-square bg-gray-100 rounded-lg max-sm:w-[14rem]"
+                    />
+                  ))}
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        ))
       ) : (
         <>
           <h1>edit 4pics1word</h1>
-          <h1>room code {room_code}</h1>
-          <h1>difficulty: {difficulty}</h1>
 
           {updateDifficulty ? (
             <>

@@ -26,6 +26,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
+import { cache } from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import JoinRoom from "./JoinRoom";
@@ -89,18 +90,18 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
 
   // Function to fetch rooms
   const [rooms, setRooms] = useState([]);
-  const fetchRooms = async () => {
-    if (session?.user?.id) {
-      const res = await fetch(
-        `/api/accounts_teacher/room/create_room?account_id=${session.user.id}`
-      );
-      const data = await res.json();
-      setRooms(data.roomsData);
-    }
-  };
-  useEffect(() => {
-    fetchRooms();
-  }, [session?.user?.id]);
+  // const fetchRooms = async () => {
+  //   if (session?.user?.id) {
+  //     const res = await fetch(
+  //       `/api/accounts_teacher/room/create_room?account_id=${session.user.id}`
+  //     );
+  //     const data = await res.json();
+  //     setRooms(data.roomsData);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchRooms();
+  // }, [session?.user?.id]);
 
   const fetchRegions = async () => {
     try {
@@ -516,6 +517,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   };
 
   async function getUserData() {
+    console.log("fetching user data");
     const getData = {
       method: "GET",
       headers: {
@@ -555,10 +557,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   }
 
   useEffect(() => {
-    if (session) {
-      getUserData();
-    }
-  }, [session]);
+    getUserData();
+  }, []);
 
   if (status === "loading") {
     return <p>Loading...</p>;
@@ -581,9 +581,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
           <div className="flex gap-4">
-            {session.user.role === "teacher" && (
-              <CreateRoom onRoomCreated={fetchRooms} />
-            )}
+            {session.user.role === "teacher" && <CreateRoom />}
             <Dropdown
               isOpen={isDropdownOpen}
               onOpenChange={setIsDropdownOpen}
