@@ -30,7 +30,8 @@ import {
   Trash2,
   ScanSearch,
 } from "lucide-react";
-import { message, theme } from "antd";
+import { message } from "antd";
+import toast, { Toaster } from "react-hot-toast";
 
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -105,51 +106,63 @@ const Index = () => {
       return;
     }
     if (flashcards.length < 2) {
-      message.error("You need to add at least 2 flashcards");
+      toast.error("You need to add at least 2 flashcards");
       return;
     }
     if (
       flashcards.some((flashcard) => !flashcard.term || !flashcard.description)
     ) {
-      message.error("All flashcards must have a term and description");
+      toast.error("All flashcards must have a term and description");
       return;
     }
     if (flashcards.some((flashcard) => !flashcard.image)) {
-      message.error("All flashcards must have an image");
+      toast.error("All flashcards must have an image");
       return;
     }
-    try {
-      const response = await fetch("/api/flashcard/flashcard", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Set the Content-Type header
-        },
-        body: JSON.stringify({
-          title: title,
-          room_code: room_code,
-          account_id: session?.user?.id,
-          flashcards: flashcards,
-        }),
-      });
-      setIsLoading(true);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
-      const data = await response.json();
-      // console.log("Flashcard created successfully");
-      console.log("Flashcard created successfullyasjdhasjdasgh:", data);
-      console.log("flashcard set id:", data.group_id);
-      router.push(
-        `/teacher-dashboard/rooms/${room_code}/flashcard/${data.gameId}`
-      );
-      // console.log("Flashcards data:", flashcards);
-      message.success("Flashcard created successfully");
-    } catch (error) {
-      setIsLoading(false);
-      message.error("Error creating flashcard");
-      console.error("Error creating flashcard:", error.message);
-    }
+    toast
+      .promise(
+        (async () => {
+          const response = await fetch("/api/flashcard/flashcard", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json", // Set the Content-Type header
+            },
+            body: JSON.stringify({
+              title: title,
+              room_code: room_code,
+              account_id: session?.user?.id,
+              flashcards: flashcards,
+            }),
+          });
+          setIsLoading(true);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          // console.log("Flashcard created successfully");
+          console.log("Flashcard created successfullyasjdhasjdasgh:", data);
+          console.log("flashcard set id:", data.group_id);
+
+          return data;
+        })(),
+        {
+          loading: "Creating flashcard...",
+          success: "Flashcard created successfully",
+          error: "Error creating flashcard",
+        }
+      )
+      .then((data) => {
+        router.push(
+          `/teacher-dashboard/rooms/${room_code}/flashcard/${data.gameId}`
+        );
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        console.error("Error creating flashcard:", error.message);
+        toast.error("Error creating flashcard");
+      });
   };
 
   const startRecording = async () => {
@@ -361,6 +374,7 @@ const Index = () => {
 
   return (
     <div className="w-full">
+      <Toaster />
       <div className="flex border-2">
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           {/* <h1>room_code: {room_code}</h1>

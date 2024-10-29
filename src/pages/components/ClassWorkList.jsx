@@ -7,6 +7,7 @@ import {
   Select,
   SelectItem,
   Input,
+  Skeleton,
 } from "@nextui-org/react";
 import Link from "next/link";
 import { Trash2, Edit, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
@@ -20,10 +21,15 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   const [filterByGameType, setFilterByGameType] = useState("");
   const [filterByTitle, setFilterByTitle] = useState("");
   const [gameList, setGameList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
 
   useEffect(() => {
-    setGameList(games);
+    setLoading(true);
+    setTimeout(() => {
+      setGameList(games);
+      setLoading(false);
+    }, 500); // 1 seconds delay
   }, [games]);
 
   const handleDeleteGame = async (game_id, game_type) => {
@@ -34,111 +40,52 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       },
       body: JSON.stringify({ game_id: game_id }),
     };
-    if (game_type === "Flashcard") {
-      if (confirm("Are you sure you want to delete this flashcard game?")) {
-        try {
-          const res = await fetch(
+
+    if (confirm(`Are you sure you want to delete this ${game_type} game?`)) {
+      try {
+        let res;
+        if (game_type === "Flashcard") {
+          res = await fetch(
             `/api/flashcard/flashcard?game_id=${game_id}`,
             delWorkData
           );
-          const data = await res.json();
-          console.log(data);
-          setGameList(gameList.filter((game) => game.game_id !== game_id));
-        } catch (error) {
-          console.log("Error deleting game:", error);
-        }
-      }
-    } else if (game_type === "ThinkPic") {
-      if (confirm("Are you sure you want to delete this ThinkPic game?")) {
-        console.log("deleting thinkpic game", game_id);
-        try {
-          const res = await fetch(
+        } else if (game_type === "ThinkPic") {
+          res = await fetch(
             `/api/4pics1word/4pics1word?game_id=${game_id}`,
             delWorkData
           );
-          const data = await res.json();
-          console.log(data);
-          setGameList(gameList.filter((game) => game.game_id !== game_id));
-        } catch (error) {
-          console.log("Error deleting game:", error);
-        }
-      }
-    } else if (game_type === "ThinkPic +") {
-      if (confirm("Are you sure you want to delete this ThinkPic + game?")) {
-        console.log("deleting four pics one word advanced game", game_id);
-        try {
-          const res = await fetch(
+        } else if (game_type === "ThinkPic +") {
+          res = await fetch(
             `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}`,
             delWorkData
           );
-          const data = await res.json();
-          console.log(data);
-          setGameList(gameList.filter((game) => game.game_id !== game_id));
-        } catch (error) {
-          console.log("Error deleting game:", error);
-        }
-      }
-    } else if (game_type === "Color Game") {
-      if (confirm("Are you sure you want to delete this Color Game?")) {
-        console.log("deleting color game", game_id);
-        try {
-          const res = await fetch(
+        } else if (game_type === "Color Game") {
+          res = await fetch(
             `/api/color_game/color_game?game_id=${game_id}`,
             delWorkData
           );
-          const data = await res.json();
-          console.log(data);
-          setGameList(gameList.filter((game) => game.game_id !== game_id));
-        } catch (error) {
-          console.log("Error deleting game:", error);
-        }
-      }
-    } else if (game_type === "Color Game Advanced") {
-      if (
-        confirm("Are you sure you want to delete this Color Game Advanced?")
-      ) {
-        console.log("deleting color game advanced", game_id);
-        try {
-          const res = await fetch(
+        } else if (game_type === "Color Game Advanced") {
+          res = await fetch(
             `/api/color_game_advanced/color_game_advanced?game_id=${game_id}`,
             delWorkData
           );
-          const data = await res.json();
-          console.log(data);
-          setGameList(gameList.filter((game) => game.game_id !== game_id));
-        } catch (error) {
-          console.log("Error deleting game:", error);
-        }
-      }
-    } else if (game_type === "Decision Maker") {
-      if (confirm("Are you sure you want to delete this Decision Maker?")) {
-        console.log("deleting decision maker", game_id);
-        try {
-          const res = await fetch(
+        } else if (game_type === "Decision Maker") {
+          res = await fetch(
             `/api/decision_maker/decision_maker?game_id=${game_id}`,
             delWorkData
           );
-          const data = await res.json();
-          console.log(data);
-          setGameList(gameList.filter((game) => game.game_id !== game_id));
-        } catch (error) {
-          console.log("Error deleting game:", error);
-        }
-      }
-    } else if (game_type === "Sequence Game") {
-      if (confirm("Are you sure you want to delete this Sequence Game?")) {
-        console.log("deleting sequence game", game_id);
-        try {
-          const res = await fetch(
+        } else if (game_type === "Sequence Game") {
+          res = await fetch(
             `/api/sequence_game/sequence_game?game_id=${game_id}`,
             delWorkData
           );
-          const data = await res.json();
-          console.log(data);
-          setGameList(gameList.filter((game) => game.game_id !== game_id));
-        } catch (error) {
-          console.log("Error deleting game:", error);
         }
+
+        const data = await res.json();
+        console.log(data);
+        setGameList(gameList.filter((game) => game.game_id !== game_id));
+      } catch (error) {
+        console.log("Error deleting game:", error);
       }
     }
   };
@@ -258,54 +205,58 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       );
     });
 
-    return filteredGames.map((game) => (
-      <li key={game.game_id} className="flex w-full items-center ">
-        <div className="flex w-full items-center">
-          <Card
-            isPressable
-            radius="sm"
-            className="flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 max-sm:px-4 max-sm:py-3"
-          >
-            <Link href={getRedirectUrl(game)} className="w-full">
-              <div className="flex w-full h-[70px] items-center justify-between max-sm:scale-[95%]">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-                    {getGameTypeIcon(game.game_type)}
-                  </div>
-                  <div className="text-left ml-4">
-                    <div className="text-lg font-bold">
-                      <h1>{game.title}</h1>
+    return filteredGames.length ? (
+      filteredGames.map((game) => (
+        <li key={game.game_id} className="flex w-full items-center ">
+          <div className="flex w-full items-center">
+            <Card
+              isPressable
+              radius="sm"
+              className="flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 max-sm:px-4 max-sm:py-3"
+            >
+              <Link href={getRedirectUrl(game)} className="w-full">
+                <div className="flex w-full h-[70px] items-center justify-between max-sm:scale-[95%]">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+                      {getGameTypeIcon(game.game_type)}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p>{game.game_type}</p>
-                      {game.difficulty && (
-                        <Chip
-                          color={getChipColor(game.difficulty)}
-                          radius="sm"
-                          className="text-sm text-white capitalize"
-                        >
-                          {game.difficulty}
-                        </Chip>
-                      )}
-                      <p>ID {game.game_id}</p>
+                    <div className="text-left ml-4">
+                      <div className="text-lg font-bold">
+                        <h1>{game.title}</h1>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p>{game.game_type}</p>
+                        {game.difficulty && (
+                          <Chip
+                            color={getChipColor(game.difficulty)}
+                            radius="sm"
+                            className="text-sm text-white capitalize"
+                          >
+                            {game.difficulty}
+                          </Chip>
+                        )}
+                        <p>ID {game.game_id}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </Link>
+              <div>
+                <Button
+                  isIconOnly
+                  color="danger"
+                  onPress={() => handleDeleteGame(game.game_id, game.game_type)}
+                >
+                  <Trash2 />
+                </Button>
               </div>
-            </Link>
-            <div>
-              <Button
-                isIconOnly
-                color="danger"
-                onPress={() => handleDeleteGame(game.game_id, game.game_type)}
-              >
-                <Trash2 />
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </li>
-    ));
+            </Card>
+          </div>
+        </li>
+      ))
+    ) : (
+      <div>No games found</div>
+    );
   };
 
   return (
@@ -371,7 +322,13 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       </div>
 
       <div className="flex w-full">
-        <ul className="w-full flex flex-col gap-4">{renderGames()}</ul>
+        <ul className="w-full flex flex-col gap-4">
+          {loading
+            ? Array.from({ length: games.length }).map((_, index) => (
+                <Skeleton key={index} className="w-full h-[100px] rounded-md" />
+              ))
+            : renderGames()}
+        </ul>
       </div>
     </div>
   );

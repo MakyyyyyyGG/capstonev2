@@ -22,6 +22,7 @@ import {
   Skeleton,
 } from "@nextui-org/react";
 import { Image, Pencil, Plus, Trash2, ScanSearch } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 import Loader from "@/pages/components/Loader";
 
 const index = () => {
@@ -273,8 +274,11 @@ const index = () => {
       }
     } catch (error) {
       console.error("Error fetching cards:", error);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500); // Add a slight delay to get the skeleton effect
     }
-    setIsLoading(false);
   };
 
   const setupNewCards = async (cards) => {
@@ -311,11 +315,11 @@ const index = () => {
   const handleSave = async () => {
     //if there is no word return
     if (cards.some((card) => card.word === "")) {
-      alert("Please enter a word for each card.");
+      toast.error("Please enter a word for each card.");
       return;
     }
     if (!title) {
-      alert("Please enter a title.");
+      toast.error("Please enter a title.");
       return;
     }
     for (const card of cards) {
@@ -332,49 +336,56 @@ const index = () => {
       if (
         card.images.filter((image) => image !== null).length < requiredImages
       ) {
-        alert(`Please upload all  images slots for each card.`);
+        toast.error(`Please upload all images slots for each card.`);
         return;
       }
     }
+    setIsSaving(true);
 
-    try {
-      setIsSaving(true);
-      await setupNewCards(cards); // Handle new cards creation if necessary
-      const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
-      console.log("cardsToUpdate", cardsToUpdate);
-      for (const card of cardsToUpdate) {
-        const body = JSON.stringify({
-          title: title, // Pass the title for the card set
-          cards: card, // Pass the modified card details (with images and word)
-          difficulty: selectedDifficulty || difficulty,
-          game_id: game_id,
-        });
+    toast.promise(
+      (async () => {
+        try {
+          await setupNewCards(cards); // Handle new cards creation if necessary
+          const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
+          console.log("cardsToUpdate", cardsToUpdate);
+          for (const card of cardsToUpdate) {
+            const body = JSON.stringify({
+              title: title, // Pass the title for the card set
+              cards: card, // Pass the modified card details (with images and word)
+              difficulty: selectedDifficulty || difficulty,
+              game_id: game_id,
+            });
 
-        const response = await fetch(
-          `/api/4pics1word/4pics1word?four_pics_one_word_id=${card.four_pics_one_word_id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: body,
+            const response = await fetch(
+              `/api/4pics1word/4pics1word?four_pics_one_word_id=${card.four_pics_one_word_id}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: body,
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error("Error updating card");
+            }
           }
-        );
-
-        if (response.ok) {
-          console.log("Card updated successfully");
-        } else {
-          console.error("Error updating card");
+          setHasUnsavedChanges(false); // Reset unsaved changes flag
+        } catch (error) {
+          console.error("Error saving cards:", error);
+          throw error;
+        } finally {
+          fetchCards(); // Refresh cards after updating
+          setIsSaving(false);
         }
+      })(),
+      {
+        loading: "Saving cards...",
+        success: "Cards updated successfully",
+        error: "Error updating cards",
       }
-      alert("Cards updated successfully");
-      setHasUnsavedChanges(false); // Reset unsaved changes flag
-    } catch (error) {
-      console.error("Error saving cards:", error);
-    } finally {
-      fetchCards(); // Refresh cards after updating
-      setIsSaving(false);
-    }
+    );
   };
 
   useEffect(() => {
@@ -423,8 +434,19 @@ const index = () => {
       setCards(updatedCards);
       setHasUnsavedChanges(true); // Mark as having unsaved changes
     };
+
+    // useEffect(() => {
+    //   // Simulate loading
+    //   const timer = setTimeout(() => {
+    //     setIsLoading(false);
+    //   }, 1000);
+
+    //   return () => clearTimeout(timer);
+    // }, []);
+
     return (
       <div className="flex flex-wrap gap-4 justify-center max-sm:gap-2">
+        <Toaster />
         {card.images.slice(0, imageCount).map((image, imageIndex) => (
           <div
             key={imageIndex}
@@ -567,11 +589,32 @@ const index = () => {
   }, [hasUnsavedChanges]);
 
   return (
-    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+    <div className="w-full flex flex-col gap-4 p-4  mx-auto">
       {isLoading ? (
-        <div className="flex justify-center items-center h-screen w-full">
-          <Skeleton className="w-full h-[800px] rounded-md" />
-        </div>
+        Array.from({ length: cards.length }).map((_, index) => (
+          <Card
+            key={index}
+            className="w-full border border-slate-800 rounded-md flex"
+          >
+            <CardHeader className="flex px-3 justify-between items-center z-0">
+              <Skeleton className="w-1/4 h-6 rounded-md" />
+            </CardHeader>
+            <Divider className="m-0 h-0.5 bg-slate-300" />
+            <CardBody>
+              <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                <Skeleton className="w-full h-6 rounded-md mb-4" />
+                <div className="flex flex-wrap gap-4 justify-center max-sm:gap-2">
+                  {Array.from({ length: 4 }).map((_, imgIndex) => (
+                    <Skeleton
+                      key={imgIndex}
+                      className="w-[18rem] aspect-square bg-gray-100 rounded-lg max-sm:w-[14rem]"
+                    />
+                  ))}
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        ))
       ) : (
         <>
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">

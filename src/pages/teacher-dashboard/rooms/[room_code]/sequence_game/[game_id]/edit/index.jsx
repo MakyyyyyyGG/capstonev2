@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import toast, { Toaster } from "react-hot-toast";
 
 const Index = () => {
   const router = useRouter();
@@ -108,7 +109,9 @@ const Index = () => {
     } catch (error) {
       console.error("Error fetching flashcards:", error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500); // Add a slight delay to get the skeleton effect
     }
   };
 
@@ -163,6 +166,7 @@ const Index = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
+    const toastId = toast.loading("Saving flashcards...");
     try {
       await setupNewFlashcards(flashcardData);
 
@@ -205,9 +209,10 @@ const Index = () => {
           console.error(`Error updating flashcard ${flashcard.flashcard_id}`);
         }
       }
-      alert("Flashcards updated successfully");
+      toast.success("Flashcards updated successfully", { id: toastId });
     } catch (error) {
       console.error("Error updating flashcards:", error);
+      toast.error("Error updating flashcards", { id: toastId });
     } finally {
       setIsSaving(false);
     }
@@ -508,8 +513,11 @@ const Index = () => {
 
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <Toaster />
       {isLoading ? (
-        <Skeleton className="w-full h-[900px] rounded-md" />
+        Array.from({ length: flashcardData.length }).map((_, index) => (
+          <Skeleton key={index} className="w-full h-[300px] rounded-md" />
+        ))
       ) : (
         <>
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">

@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import toast, { Toaster } from "react-hot-toast";
 
 const index = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -169,24 +170,25 @@ const index = () => {
   const handleSubmit = async () => {
     // console.log(title, room_code, cards);
     if (!title) {
-      alert("Please enter a title");
+      toast.error("Please enter a title");
       return;
     }
     for (const card of cards) {
       if (!card.image) {
-        alert("Please insert an image for all cards");
+        toast.error("Please insert an image for all cards");
         return;
       }
       if (!card.correct_answer) {
-        alert("Please select a decision answer for all cards");
+        toast.error("Please select a decision answer for all cards");
         return;
       }
       if (!card.word) {
-        alert("Please enter a word for all cards");
+        toast.error("Please enter a word for all cards");
         return;
       }
     }
     setIsLoading(true);
+    const toastId = toast.loading("Creating game...");
     try {
       const response = await fetch("/api/decision_maker/decision_maker", {
         method: "POST",
@@ -208,12 +210,14 @@ const index = () => {
         );
 
         console.log("POST success", data);
-        alert("Game created successfully");
+        toast.success("Game created successfully", { id: toastId });
       } else {
         console.log("POST failed", data.error);
+        toast.error("Failed to create game", { id: toastId });
       }
     } catch (error) {
       console.error(error);
+      toast.error("An error occurred while creating the game", { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -226,7 +230,8 @@ const index = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+    <div className="w-full flex flex-col gap-4 p-4  mx-auto">
+      <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Decision Maker</h1>
         {isLoading ? (
