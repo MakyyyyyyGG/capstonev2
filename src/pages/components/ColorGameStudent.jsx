@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Card,
   CardBody,
@@ -9,12 +10,19 @@ import {
   Progress,
 } from "@nextui-org/react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  Scrollbar,
+  A11y,
+  EffectCreative,
+} from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Summary from "./Summary";
 import BarChart from "./BarChart";
 import "swiper/swiper-bundle.css";
+import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
 const ColorGames = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -278,7 +286,7 @@ const ColorGames = ({ cards }) => {
   };
 
   return (
-    <div className="w-full m-auto my-4">
+    <div className="relative flex flex-col justify-center">
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -288,62 +296,97 @@ const ColorGames = ({ cards }) => {
         </>
       ) : (
         <>
-          <div className="relative">
-            <div className="absolute top-0 left-0">
-              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-              {attemptsUsed >= 8 && (
-                <div className="w-1/2 bg-red-400 rounded-md p-4">
-                  <p className="text-white">
-                    You have used all your attempts for this month. Your score
-                    wont be recorded. Wait for next month.
+          <div className="flex w-full justify-center items-center">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+              <div>
+                <h1 className="text-2xl font-bold">Color Game</h1>
+              </div>
+              <div className="flex gap-4 items-center">
+                <div className="flex gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    Score: {score} / {cards.length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
-              )}
-              <h1>Score: {score}</h1>
-              <GameHistory gameRecord={gameRecord} cards={cards.length} />
+                <GameHistory gameRecord={gameRecord} cards={cards.length} />
+                {attemptsUsed >= 8 && (
+                  <div className="w-1/2 bg-red-400 rounded-md p-4">
+                    <p className="text-white">
+                      You have used all your attempts for this month. Your score
+                      wont be recorded. Wait for next month.
+                    </p>
+                  </div>
+                )}
+                {/* <h1>Questions Answered: {answeredQuestions}</h1>
+              <h1>cards length: {cards.length}</h1> */}
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
-            <Progress
-              value={(answer / cards.length) * 100}
-              classNames={{
-                value: "text-foreground/60",
-              }}
-              label="Progress"
-              showValueLabel={true}
-              color="success"
-            />
+          <div className="flex w-full justify-center items-center ">
+            <div className="w-full max-w-[50rem] my-4">
+              <Progress
+                value={(answer / cards.length) * 100}
+                classNames={{
+                  value: "text-foreground/60",
+                  indicator: "bg-[#7469B6]",
+                  track: "bg-purple-50",
+                }}
+              />
+            </div>
           </div>
-          <Swiper
-            modules={[Navigation, Pagination, Scrollbar, A11y]}
-            navigation
-            spaceBetween={50}
-            slidesPerView={1}
-            onSwiper={(swiper) => setSwiperInstance(swiper)}
-            onSlideChange={() => console.log("slide change")}
-            onSwiperSlideChange={() => console.log("swiper slide change")}
-          >
-            {shuffledCards.map((card, index) => (
-              <SwiperSlide key={card.color_game_id}>
-                <div className="flex justify-center w-1/2 m-auto">
+          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
+            <Swiper
+              grabCursor={true}
+              effect={"creative"}
+              creativeEffect={{
+                prev: {
+                  shadow: true,
+                  translate: [0, 0, -400],
+                },
+                next: {
+                  translate: ["100%", 0, 0],
+                },
+              }}
+              modules={[EffectCreative]}
+              className="mySwiper w-full drop-shadow-lg rounded-md"
+              onSwiper={(swiper) => setSwiperInstance(swiper)}
+              onSlideChange={() => console.log("slide change")}
+              onSwiperSlideChange={() => console.log("swiper slide change")}
+            >
+              {shuffledCards.map((card, index) => (
+                <SwiperSlide key={card.color_game_id}>
                   <div key={card.color_game_id}>
                     <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                      <CardBody className="flex flex-col gap-4 px-20 py-7 items-center justify-center">
-                        <p>Attempts left: {3 - (attempts[index] || 0)}</p>
-                        <div className="text-2xl font-extrabold justify-center items-center capitalize">
+                      <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                        {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
+                        <div className="text-3xl font-extrabold my-5 capitalize">
                           <p>{card.color}</p>
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                           {[card.image1, card.image2, card.image3].map(
                             (image, imageIndex) => (
-                              <div
+                              <motion.div
                                 key={imageIndex}
-                                className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer ${
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 items-center justify-center cursor-pointer ${
                                   (attempts[index] || 0) >= 3
                                     ? "opacity-50 pointer-events-none"
                                     : ""
+                                } ${
+                                  (
+                                    selectedImages[card.color_game_id] || []
+                                  ).includes(imageIndex)
+                                    ? "border-[#17C964] border-2"
+                                    : "border-[#7469B6]"
                                 }`}
+                                style={{
+                                  transition:
+                                    "border-color 0.3s ease, transform 0.3s ease", // Smooth transition for border and scaling effects
+                                }}
                                 onClick={() =>
                                   handleImageSelect(
                                     card.color_game_id,
@@ -355,6 +398,7 @@ const ColorGames = ({ cards }) => {
                                 {image && (
                                   <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
                                     <Checkbox
+                                      color="success"
                                       isSelected={(
                                         selectedImages[card.color_game_id] || []
                                       ).includes(imageIndex)}
@@ -375,43 +419,55 @@ const ColorGames = ({ cards }) => {
                                     />
                                   </div>
                                 )}
-                              </div>
+                              </motion.div>
                             )
                           )}
                         </div>
-
-                        <Button
-                          color="secondary"
-                          onClick={() => handleSubmit(index)}
-                          isDisabled={
-                            (attempts[index] || 0) >= 3 ||
-                            !(selectedImages[card.color_game_id] || []).length
-                          }
-                        >
-                          Submit
-                        </Button>
-                        {submissionResults[card.color_game_id] && (
-                          <p
-                            className={
-                              submissionResults[card.color_game_id] ===
-                              "Correct!"
-                                ? "text-green-500"
-                                : submissionResults[card.color_game_id] ===
-                                  "Almost there!"
-                                ? "text-yellow-500"
-                                : "text-red-500"
+                        <div className="w-full mt-8">
+                          <Button
+                            radius="sm"
+                            className="w-full justify-center text-white bg-[#7469B6]"
+                            onClick={() => handleSubmit(index)}
+                            isDisabled={
+                              (attempts[index] || 0) >= 3 ||
+                              !(selectedImages[card.color_game_id] || []).length
                             }
                           >
-                            {submissionResults[card.color_game_id]}
-                          </p>
+                            Check Answers
+                          </Button>
+                        </div>
+
+                        {submissionResults[card.color_game_id] && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.1 }}
+                            className="flex w-full justify-center rounded-md"
+                          >
+                            <div className="w-full text-center rounded-md">
+                              <p
+                                className={
+                                  submissionResults[card.color_game_id] ===
+                                  "Correct!"
+                                    ? "text-white bg-green-500 p-2 rounded-md"
+                                    : submissionResults[card.color_game_id] ===
+                                      "Almost there!"
+                                    ? "text-white bg-yellow-500 p-2 rounded-md"
+                                    : "text-white bg-red-500 p-2 rounded-md"
+                                }
+                              >
+                                {submissionResults[card.color_game_id]}
+                              </p>
+                            </div>
+                          </motion.div>
                         )}
                       </CardBody>
                     </Card>
                   </div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
         </>
       )}
     </div>
