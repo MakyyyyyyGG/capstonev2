@@ -32,13 +32,14 @@ const saveFileToPublic = async (base64String, fileName, folder) => {
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { title, room_code, account_id, sequence, video } = req.body;
+    const { title, room_code, account_id, sequence, video, difficulty } =
+      req.body;
     // console.log(req.body);
     try {
       const gameType = "Sequence Game";
       const gameResult = await query({
-        query: `INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)`,
-        values: [title, room_code, account_id, gameType],
+        query: `INSERT INTO games (title, room_code, account_id, game_type, difficulty) VALUES (?, ?, ?, ?, ?)`,
+        values: [title, room_code, account_id, gameType, difficulty],
       });
       const gameId = gameResult.insertId;
 
@@ -166,7 +167,6 @@ WHERE sequence_game.sequence_game_set_id = ?;
     const { sequence_id } = req.query;
     // console.log("Sequence ID:", sequence_id);
     const { sequence, title, difficulty, video, game_id } = req.body;
-    // console.log("Sequence:", sequence);
 
     try {
       // Get the current flashcard data

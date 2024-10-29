@@ -58,6 +58,7 @@ const Index = () => {
     x: 25,
     y: 25,
   });
+  const [isLoading, setIsLoading] = useState(false);
   const [videoURL, setVideoURL] = useState("");
   const [video, setVideo] = useState(null);
   const [zoom, setZoom] = useState(1);
@@ -115,6 +116,7 @@ const Index = () => {
       alert("All flashcards must have an image");
       return;
     }
+    setIsLoading(true);
     try {
       const response = await fetch("/api/sequence_game/sequence_game", {
         method: "POST",
@@ -138,14 +140,15 @@ const Index = () => {
       const data = await response.json();
       // console.log("Flashcard created successfully");
       console.log("Flashcard created successfullyasjdhasjdasgh:", data);
-      console.log("flashcard set id:", data.group_id);
-      // router.push(
-      //     `/teacher-dashboard/rooms/${room_code}/flashcard/${data.group_id}`
-      // );
+      router.push(
+        `/teacher-dashboard/rooms/${room_code}/sequence_game/${data.gameId}`
+      );
       // console.log("Flashcards data:", flashcards);
       alert("Flashcard created successfully");
     } catch (error) {
       console.error("Error creating flashcard:", error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -395,13 +398,19 @@ const Index = () => {
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
             <h1 className="">Create a new sequence set</h1>
             <div>
-              <Button
-                color="secondary"
-                isDisabled={!title}
-                onClick={handleCreateFlashcard}
-              >
-                Create
-              </Button>
+              {isLoading ? (
+                <Button isLoading isDisabled>
+                  Create
+                </Button>
+              ) : (
+                <Button
+                  color="secondary"
+                  isDisabled={!title}
+                  onClick={handleCreateFlashcard}
+                >
+                  Create
+                </Button>
+              )}
             </div>
           </div>
           <div className="items-center z-0">
@@ -422,6 +431,7 @@ const Index = () => {
             </div>
             {video && <iframe src={video} frameborder="0"></iframe>}
             <h1>difficulty {difficulty}</h1>
+            <h1 className="bg-red-400">NOTE: Make sure each image is unique</h1>
           </div>
           <div className="flex flex-wrap gap-4">
             {sequence.map((flashcard, index) => (
@@ -810,7 +820,7 @@ const Index = () => {
             onClick={addFlashcard}
             startContent={<Plus size={22} />}
           >
-            Add Flashcard
+            Add Sequence
           </Button>
         </div>
       </div>

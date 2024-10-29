@@ -43,15 +43,14 @@ const index = () => {
       <p>game_id: {game_id}</p>
       <p>room_code: {room_code}</p>
 
-      <Button color="primary">
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${game_id}/edit`,
-          }}
-        >
-          Edit 4 Pics 1 Word Advanced
-        </Link>
-      </Button>
+      <Link
+        href={{
+          pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${game_id}/edit`,
+        }}
+      >
+        {" "}
+        <Button color="primary">Edit 4 Pics 1 Word Advanced </Button>
+      </Link>
       <FourPicsOneWordAdvanced cards={cards} />
     </div>
   );

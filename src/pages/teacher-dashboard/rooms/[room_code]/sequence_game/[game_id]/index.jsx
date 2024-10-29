@@ -19,8 +19,10 @@ const index = () => {
   const [video, setVideo] = useState("");
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchSequenceGame = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch(
         `/api/sequence_game/sequence_game?game_id=${game_id}`,
@@ -38,6 +40,7 @@ const index = () => {
       // setDifficulty(data[0].difficulty);
       if (res.ok) {
         console.log("Sequence game fetched successfully");
+        setIsLoading(false);
         // console.log("data:", data);
       } else {
         console.error("Error fetching sequence game:", data.error);
@@ -55,16 +58,18 @@ const index = () => {
 
   return (
     <div className="w-full">
-      <SequenceGame sequenceGame={sequenceGame} />
-      <Button isIconOnly className="bg-[#7469B6] text-white border-0">
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/sequence_game/${game_id}/edit`,
-          }}
-        >
-          <Pencil size={22} />
-        </Link>
-      </Button>
+      <SequenceGame sequenceGame={sequenceGame} isLoading={isLoading} />
+
+      <Link
+        href={{
+          pathname: `/teacher-dashboard/rooms/${room_code}/sequence_game/${game_id}/edit`,
+        }}
+      >
+        {" "}
+        <Button isIconOnly className="bg-[#7469B6] text-white border-0">
+          <Pencil size={22} />{" "}
+        </Button>
+      </Link>
     </div>
   );
 };

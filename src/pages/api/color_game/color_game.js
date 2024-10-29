@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       });
 
       await Promise.all(cardPromises);
-      res.status(200).json({ message: "Game and group created successfully" });
+      res.status(200).json({ groupId, gameId });
     } catch (error) {
       console.error("Error creating game:", error);
       res.status(500).json({ error: "Error creating game" });

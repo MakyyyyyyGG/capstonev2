@@ -43,29 +43,34 @@ export default async function handler(req, res) {
     }
     try {
       const cardPromises = cards.map(async (card) => {
-        // console.log("POST NEW CARDSs cards", req.body);
+        let imageToSave;
 
         if (card.imageBlob) {
-          const imageFileName = `${Date.now()}-${Math.random()
-            .toString(36)
-            .substr(2, 9)}.png`;
-          card.imageBlob = await saveFileToPublic(
-            card.imageBlob,
-            imageFileName,
-            "decision_maker/images"
-          );
-          console.log(`Image URI: ${card.imageBlob}`);
+          // Check if it's a https URL
+          if (card.imageBlob.startsWith("https://")) {
+            imageToSave = card.imageBlob;
+          } else {
+            // Handle base64 image
+            const imageFileName = `${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)}.png`;
+            imageToSave = await saveFileToPublic(
+              card.imageBlob,
+              imageFileName,
+              "decision_maker/images"
+            );
+          }
+          console.log(`Image saved: ${imageToSave}`);
         } else if (card.imageUrl) {
-          card.imageBlob = card.imageUrl;
-          console.log(`Image URL: ${card.imageUrl}`);
+          imageToSave = card.imageUrl;
+          console.log(`Using image URL: ${imageToSave}`);
         }
 
         return query({
           query: `INSERT INTO decision_maker (decision_maker_set_id, image, correct_answer, word ) VALUES (?, ?, ?, ?)`,
           values: [
             decision_maker_set_id,
-
-            card.imageBlob || card.image,
+            imageToSave || card.image,
             card.correct_answer,
             card.word,
           ],
@@ -81,13 +86,54 @@ export default async function handler(req, res) {
     const { decision_maker_id } = req.query;
     console.log("decision_maker_id", decision_maker_id);
     try {
+      // Get the decision maker set id
+      const decisionMakerSetResult = await query({
+        query:
+          "SELECT decision_maker_set_id FROM decision_maker WHERE decision_maker_id = ?",
+        values: [decision_maker_id],
+      });
+
+      if (!decisionMakerSetResult.length) {
+        throw new Error("Decision maker set not found");
+      }
+
+      const decision_maker_set_id =
+        decisionMakerSetResult[0].decision_maker_set_id;
+      console.log("decision_maker_set_id", decision_maker_set_id);
       const result = await query({
         query: "DELETE FROM decision_maker WHERE decision_maker_id = ?",
         values: [decision_maker_id],
       });
       if (result.affectedRows > 0) {
         console.log(`Card deleted successfully: ${decision_maker_id}`);
-        res.status(200).json({ message: "Card deleted successfully" });
+
+        // Fetch remaining cards in the set
+        const remainingCards = await query({
+          query: "SELECT * FROM decision_maker WHERE decision_maker_set_id = ?",
+          values: [decision_maker_set_id],
+        });
+
+        console.log("remainingCards", remainingCards.length);
+        // Update difficulty based on remaining cards
+        let newDifficulty;
+        if (remainingCards.length >= 10) {
+          newDifficulty = "hard";
+        } else if (remainingCards.length >= 5) {
+          newDifficulty = "medium";
+        } else {
+          newDifficulty = "easy";
+        }
+
+        // Update the difficulty in the games table
+        await query({
+          query:
+            "UPDATE games SET difficulty = ? WHERE game_id = (SELECT game_id FROM decision_maker_sets WHERE decision_maker_set_id = ?)",
+          values: [newDifficulty, decision_maker_set_id],
+        });
+        console.log("newDifficulty", newDifficulty);
+        res.status(200).json({
+          message: "Card deleted successfully and difficulty updated",
+        });
       } else {
         throw new Error("Failed to delete card");
       }
