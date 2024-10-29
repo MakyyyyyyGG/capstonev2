@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Card,
   CardBody,
@@ -16,10 +17,17 @@ import {
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  Scrollbar,
+  A11y,
+  EffectCreative,
+} from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
+import "swiper/css/effect-creative";
 import Summary from "./Summary";
 import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
@@ -254,7 +262,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   };
 
   return (
-    <div>
+    <div className="relative flex flex-col justify-center">
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -263,161 +271,199 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
         </>
       ) : (
         <>
-          <div className="relative">
-            <div className="absolute top-0 left-0">
-              <h1>Score: {score}</h1>
-              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-              <GameHistory gameRecord={gameRecord} cards={cards.length} />
-              {attemptsUsed >= 8 && (
-                <div className="w-1/2 bg-red-400 rounded-md p-4">
-                  <p className="text-white">
-                    You have used all your attempts for this month. Your score
-                    wont be recorded. Wait for next month.
+          <div className="flex w-full justify-center items-center">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+              <div>
+                <h1 className="text-2xl font-bold">ThinkPic+</h1>
+              </div>
+              <div className="flex gap-4 items-center">
+                <div className="flex gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    Score: {score} / {cards.length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
-              )}
+                <GameHistory gameRecord={gameRecord} cards={cards.length} />
+                {attemptsUsed >= 8 && (
+                  <div className="w-1/2 bg-red-400 rounded-md p-4">
+                    <p className="text-white">
+                      You have used all your attempts for this month. Your score
+                      wont be recorded. Wait for next month.
+                    </p>
+                  </div>
+                )}
+                {/* <h1>Questions Answered: {answeredQuestions}</h1>
+              <h1>cards length: {cards.length}</h1> */}
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
-            <Progress
-              value={(answer / cards.length) * 100}
-              classNames={{
-                value: "text-foreground/60",
-              }}
-              label="Progress"
-              showValueLabel={true}
-              color="success"
-            />
+          <div className="flex w-full justify-center items-center ">
+            <div className="w-full max-w-[50rem] my-4">
+              <Progress
+                value={(answer / cards.length) * 100}
+                classNames={{
+                  value: "text-foreground/60",
+                  indicator: "bg-[#7469B6]",
+                  track: "bg-purple-50",
+                }}
+              />
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-center my-4">
+          <h1 className="text-2xl font-bold text-center mb-6">
             Choose the correct image(s)
           </h1>
-          <div>
+          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
             <Swiper
-              modules={[Navigation, Pagination, Scrollbar, A11y]}
-              navigation
-              spaceBetween={50}
-              slidesPerView={1}
+              grabCursor={true}
+              effect={"creative"}
+              creativeEffect={{
+                prev: {
+                  shadow: true,
+                  translate: [0, 0, -400],
+                },
+                next: {
+                  translate: ["100%", 0, 0],
+                },
+              }}
+              modules={[EffectCreative]}
+              className="mySwiper w-full drop-shadow-lg rounded-md"
               onSwiper={(swiper) => setSwiperInstance(swiper)}
               onSlideChange={() => console.log("slide change")}
             >
               {shuffledCards.map((card, index) => (
                 <SwiperSlide key={index}>
-                  <div className="m-auto h-screen">
-                    <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                      <CardBody className="flex flex-col gap-4 px-28 pt-7 items-center justify-center">
-                        <p>Attempts left: {3 - (attempts[index] || 0)}</p>
-                        <div className="flex justify-center items-center gap-2">
-                          <div className="text-2xl font-extrabold">
-                            <h1>{card.word}</h1>
-                          </div>
-                          <div className="flex justify-center items-center">
-                            {card.word && (
-                              <Button
-                                isIconOnly
-                                className="text-[#7469B6]"
-                                variant="light"
-                                onPress={() => handleTextToSpeech(card.word)}
-                              >
-                                <Volume2 />
-                              </Button>
-                            )}
-                          </div>
+                  <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+                    <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                      {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
+                      <div className="flex justify-center items-center gap-2">
+                        <div className="text-3xl font-extrabold my-5">
+                          <h1>{card.word}</h1>
                         </div>
-                        <div
-                          className={`grid ${
-                            [
-                              card.image1,
-                              card.image2,
-                              card.image3,
-                              card.image4,
-                            ].filter((image) => image !== null).length === 4
-                              ? "grid-cols-2 grid-rows-2"
-                              : [
-                                  card.image1,
-                                  card.image2,
-                                  card.image3,
-                                  card.image4,
-                                ].filter((image) => image !== null).length === 3
-                              ? "grid-cols-3"
-                              : "grid-cols-2"
-                          } gap-2`}
-                        >
-                          {[
+                        <div className="flex justify-center items-center">
+                          {card.word && (
+                            <Button
+                              isIconOnly
+                              className="text-[#7469B6]"
+                              variant="light"
+                              onPress={() => handleTextToSpeech(card.word)}
+                            >
+                              <Volume2 />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className={`grid ${
+                          [
                             card.image1,
                             card.image2,
                             card.image3,
                             card.image4,
-                          ].map(
-                            (image, idx) =>
-                              image && (
-                                <div
-                                  key={idx}
-                                  className="relative hover:cursor-pointer hover:border-2 hover:border-purple-300 rounded-md"
-                                >
-                                  <img
-                                    aria-disabled={
-                                      attempts[index] >= 3 ||
-                                      feedback[index]?.includes("Correct")
-                                    }
-                                    radius="none"
-                                    onClick={() =>
-                                      attempts[index] < 3 &&
-                                      !feedback[index]?.includes("Correct")
-                                        ? handleImageSelect(idx, index)
-                                        : null
-                                    }
-                                    src={`${image}`}
-                                    alt={`Image ${idx + 1}`}
-                                    className={`w-full h-full object-cover rounded-md ${
-                                      attempts[index] >= 3 ||
-                                      feedback[index]?.includes("Correct")
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : ""
-                                    }`}
-                                  />
-                                  <Checkbox
-                                    color="secondary"
-                                    className="absolute top-2 right-1"
-                                    isSelected={selectedImages[index].includes(
-                                      idx
-                                    )}
-                                    onChange={() =>
-                                      handleImageSelect(idx, index)
-                                    }
-                                    isDisabled={
-                                      attempts[index] >= 3 ||
-                                      feedback[index]?.includes("Correct")
-                                    }
-                                  />
-                                </div>
-                              )
-                          )}
-                        </div>
-                        {feedback[index] && (
-                          <p
-                            className={
-                              feedback[index].includes("Correct")
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }
-                          >
-                            {feedback[index]}
-                          </p>
+                          ].filter((image) => image !== null).length === 4
+                            ? "grid-cols-4"
+                            : [
+                                card.image1,
+                                card.image2,
+                                card.image3,
+                                card.image4,
+                              ].filter((image) => image !== null).length === 3
+                            ? "grid-cols-3"
+                            : "grid-cols-2"
+                        } gap-2`}
+                      >
+                        {[
+                          card.image1,
+                          card.image2,
+                          card.image3,
+                          card.image4,
+                        ].map(
+                          (image, idx) =>
+                            image && (
+                              <motion.div
+                                key={idx}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`relative hover:cursor-pointer rounded-md ${
+                                  selectedImages[index].includes(idx)
+                                    ? "border-3 border-[#17C964]"
+                                    : ""
+                                }`}
+                                style={{
+                                  transition:
+                                    "border-color 0.3s ease, transform 0.3s ease",
+                                }}
+                              >
+                                <img
+                                  aria-disabled={
+                                    attempts[index] >= 3 ||
+                                    feedback[index]?.includes("Correct")
+                                  }
+                                  radius="none"
+                                  onClick={() =>
+                                    attempts[index] < 3 &&
+                                    !feedback[index]?.includes("Correct")
+                                      ? handleImageSelect(idx, index)
+                                      : null
+                                  }
+                                  src={`${image}`}
+                                  alt={`Image ${idx + 1}`}
+                                  className={`max-w-50 h-auto object-cover rounded-md ${
+                                    attempts[index] >= 3 ||
+                                    feedback[index]?.includes("Correct")
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }`}
+                                />
+                                <Checkbox
+                                  color="success"
+                                  className="absolute top-2 right-1 text-white"
+                                  isSelected={selectedImages[index].includes(
+                                    idx
+                                  )}
+                                  onChange={() => handleImageSelect(idx, index)}
+                                  isDisabled={
+                                    attempts[index] >= 3 ||
+                                    feedback[index]?.includes("Correct")
+                                  }
+                                />
+                              </motion.div>
+                            )
                         )}
-
-                        <div className="flex justify-center mt-4">
-                          <Button
-                            onClick={handleCheckAnswers}
-                            color="secondary"
-                          >
-                            Check Answers
-                          </Button>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </div>
+                      </div>
+                      <div className="w-full mt-8">
+                        <Button
+                          radius="sm"
+                          onClick={handleCheckAnswers}
+                          className="w-full justify-center text-white bg-[#7469B6]"
+                        >
+                          Check Answers
+                        </Button>
+                      </div>
+                      {feedback[index] && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.1 }}
+                          className="flex w-full justify-center rounded-md"
+                        >
+                          <div className="w-full text-center rounded-md">
+                            <p
+                              className={
+                                feedback[index].includes("Correct")
+                                  ? "text-white bg-green-500 p-2 rounded-md"
+                                  : "text-white bg-red-500 p-2 rounded-md"
+                              }
+                            >
+                              {feedback[index]}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </CardBody>
+                  </Card>
                 </SwiperSlide>
               ))}
             </Swiper>
