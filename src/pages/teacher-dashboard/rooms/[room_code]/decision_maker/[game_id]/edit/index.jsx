@@ -19,8 +19,6 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useSession } from "next-auth/react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Link from "next/link";
@@ -29,7 +27,6 @@ const index = () => {
   const { game_id, room_code } = router.query;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: session } = useSession();
-  const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(null);
   const [imageURL, setImageURL] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -54,9 +51,7 @@ const index = () => {
       imageBlob: null,
     },
   ]);
-  function toggleSidebarCollapseHandler() {
-    setIsCollapsedSidebar((prev) => !prev);
-  }
+
   const handleCardImageChange = (index, e) => {
     setCurrentIndex(index);
     handleImageChange(e);
