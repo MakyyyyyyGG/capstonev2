@@ -4,7 +4,12 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const { account_id } = req.query;
     const roomsData = await query({
-      query: "SELECT * FROM rooms WHERE account_id = ?",
+      query: `SELECT rooms.*, teachers.profile_image
+FROM rooms
+JOIN teachers ON rooms.account_id = teachers.account_id
+WHERE rooms.account_id = ?
+ORDER BY rooms.created_at DESC;
+`,
       values: [account_id],
     });
     res.status(200).json({ roomsData });
@@ -26,7 +31,7 @@ export default async function handler(req, res) {
     // If the room code does not exist, insert the new room
     const roomsData = await query({
       query:
-        "INSERT INTO rooms (account_id, room_name, room_difficulty, room_code) VALUES (?, ?, ?, ?)",
+        "INSERT INTO rooms (account_id, room_name, room_difficulty, room_code, created_at) VALUES (?, ?, ?, ?, NOW())",
       values: [account_id, room_name, difficulty, room_code],
     });
     res.status(200).json({ roomsData });
@@ -44,7 +49,7 @@ export default async function handler(req, res) {
     const { room_name, room_difficulty } = req.body;
     const roomsData = await query({
       query:
-        "UPDATE rooms SET room_name = ?, room_difficulty = ? WHERE room_code = ?",
+        "UPDATE rooms SET room_name = ?, room_difficulty = ?, created_at = NOW() WHERE room_code = ? ",
       values: [room_name, room_difficulty, room_code],
     });
     res.status(200).json({ roomsData });

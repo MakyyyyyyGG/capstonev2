@@ -183,15 +183,12 @@ const IndividualRoom = () => {
                     <CreateClassWork room_code={room_code} />
                     <Button
                       isIconOnly
-                      className="bg-[#7469B6] text-white border-0"
+                      radius="sm"
+                      color="secondary"
                       onPress={onOpen}
                     >
                       <Settings />
                     </Button>
-                    <DeleteRoom
-                      room={roomData[0]}
-                      onRoomDeleted={() => router.back()}
-                    />
                   </div>
                 </div>
                 <Tabs
@@ -337,14 +334,21 @@ const IndividualRoom = () => {
                         </CardBody>
                         <CardFooter className="flex justify-end gap-2">
                           <Button
+                            color="danger"
+                            size="md"
+                            variant="flat"
+                            radius="sm"
+                            onPress={onClose}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
                             className="bg-[#7469B6] text-white border-0"
                             size="md"
+                            radius="sm"
                             onClick={handleUpdateRoom}
                           >
                             Update
-                          </Button>
-                          <Button color="danger" size="md" onPress={onClose}>
-                            Cancel
                           </Button>
                         </CardFooter>
                       </Card>

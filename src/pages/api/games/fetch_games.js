@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     try {
       const { room_code } = req.query;
       const games = await query({
-        query: `SELECT * FROM games WHERE room_code = ?`,
+        query: `SELECT * FROM games WHERE room_code = ? ORDER BY created_at DESC`,
         values: [room_code],
       });
       res.status(200).json(games);

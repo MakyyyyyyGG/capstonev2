@@ -10,10 +10,16 @@ import {
   Select,
   SelectItem,
   Skeleton,
+  Avatar,
+  CardBody,
 } from "@nextui-org/react";
+import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/router";
 import DeleteRoom from "@/pages/components/DeleteRoom";
+import { Search, Copy } from "lucide-react";
 
 const Rooms = ({ rooms, onRoomDeleted }) => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -49,87 +55,142 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Function to copy room code to clipboard
+  const copyToClipboard = (roomCode) => {
+    navigator.clipboard.writeText(roomCode);
+    toast.success("Room code copied to clipboard!");
+  };
+
   return (
-    <div>
-      <div className="flex gap-4 mb-6">
+    <div className="  m-auto">
+      <Toaster />
+      <div className="flex gap-4 w-full">
         <Input
-          clearable
+          classNames={{
+            label: "text-white",
+            inputWrapper: "bg-[#ffffff]",
+          }}
+          isClearable
+          onClear={() => setSearchQuery("")}
+          startContent={<Search size={22} color="#6B7280" />}
           type="text"
           placeholder="Search Room"
           radius="sm"
           size="lg"
           color="secondary"
-          variant="faded"
+          variant="bordered"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-grow"
         />
-        <Select
-          placeholder="Filter by Difficulty"
-          size="lg"
-          color="secondary"
-          variant="faded"
-          value={difficultyFilter}
-          onChange={(e) => setDifficultyFilter(e.target.value)}
-        >
-          <SelectItem key="all" value="all">
-            All Difficulties
-          </SelectItem>
-          <SelectItem key="easy" value="easy">
-            Easy
-          </SelectItem>
-          <SelectItem key="moderate" value="moderate">
-            Moderate
-          </SelectItem>
-          <SelectItem key="hard" value="hard">
-            Hard
-          </SelectItem>
-        </Select>
+        <div className="w-full max-w-[300px]">
+          <Select
+            classNames={{
+              label: "text-white",
+              mainWrapper: "bg-[#ffffff] border-purple-400",
+            }}
+            placeholder="Filter by Difficulty"
+            size="lg"
+            radius="sm"
+            color="secondary"
+            variant="bordered"
+            value={difficultyFilter}
+            onChange={(e) => setDifficultyFilter(e.target.value)}
+          >
+            <SelectItem key="all" value="all">
+              All Difficulties
+            </SelectItem>
+            <SelectItem key="easy" value="easy">
+              Easy
+            </SelectItem>
+            <SelectItem key="moderate" value="moderate">
+              Moderate
+            </SelectItem>
+            <SelectItem key="hard" value="hard">
+              Hard
+            </SelectItem>
+          </Select>
+        </div>
       </div>
-      <h1 className="text-4xl my-6 font-bold">Your Rooms</h1>
-      <ul className="flex flex-wrap gap-5">
-        {filteredRooms.map((room) => (
-          <li key={room.room_id}>
-            {isLoading ? (
-              <Skeleton className="w-[380px] h-[300px] rounded-lg" />
-            ) : (
-              <Card className="shrink w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-7 hover:shadow-gray-400 shadow-lg">
-                <CardHeader
-                  href={`/teacher-dashboard/rooms/${room.room_code}`}
-                  as={Link}
-                  className="relative w-full p-5 row-span-5 items-center text-center"
-                >
-                  <div className="absolute top-0 left-0 p-5">
-                    <Chip
-                      color={getChipColor(room.room_difficulty)}
-                      radius="sm"
-                      className="text-base text-white py-4"
-                    >
-                      {room.room_difficulty}
-                    </Chip>
+      <h1 className="text-4xl my-6 font-bold ">Your Rooms</h1>
+      {filteredRooms.length === 0 ? (
+        <div className="flex flex-col items-center justify-center w-full  rounded-lg p-4">
+          <img
+            src="/no-room.svg"
+            alt="empty-room"
+            className="w-[40%] h-[40%] m-auto object-cover"
+          />
+        </div>
+      ) : (
+        <>
+          <ul className="grid grid-cols-4 gap-5 rounded-lg mr-4">
+            {filteredRooms.map((room) => (
+              <li key={room.room_id}>
+                {isLoading ? (
+                  <Skeleton className=" h-[300px]  rounded-lg" />
+                ) : (
+                  <div className="relative">
+                    <div className="block w-full">
+                      <Card
+                        isPressable
+                        className=" w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
+                        onClick={() =>
+                          router.push(
+                            `/teacher-dashboard/rooms/${room.room_code}`
+                          )
+                        }
+                      >
+                        <CardHeader className="relative w-full  items-center text-center  flex justify-between">
+                          <Chip
+                            color={getChipColor(room.room_difficulty)}
+                            radius="xl"
+                            className="text-base text-white py-4"
+                          >
+                            {room.room_difficulty}
+                          </Chip>
+
+                          <DeleteRoom
+                            room={room}
+                            onRoomDeleted={onRoomDeleted}
+                          />
+                        </CardHeader>
+
+                        <CardBody className="flex flex-col justify-center items-center w-full">
+                          <h1 className="text-2xl text-bold  text-white font-bold">
+                            {room.room_name}
+                          </h1>
+                        </CardBody>
+
+                        <CardFooter className="row-span-2  justify-between bg-white mt-auto flex-1">
+                          <div className="p-2 text-[#7469B6] flex items-center justify-between  w-full">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                color="transparent"
+                                isIconOnly
+                                onClick={() => copyToClipboard(room.room_code)}
+                              >
+                                <Copy size={22} />
+                              </Button>
+                              <h1 className="font-bold">
+                                Code: {room.room_code}
+                              </h1>
+                            </div>
+
+                            <Avatar
+                              src={room.profile_image}
+                              className="w-10 h-10"
+                            />
+                          </div>
+                        </CardFooter>
+                        {/* </a> */}
+                      </Card>
+                    </div>
                   </div>
-                  <div className="flex w-full justify-center items-center text-center">
-                    <h1 className="text-2xl text-bold text-white hover:underline">
-                      {room.room_name}
-                    </h1>
-                  </div>
-                </CardHeader>
-                <CardFooter className="row-span-2 row-start-6 row-end-8 grid grid-cols-2 justify-between bg-white">
-                  <div className="p-2 text-[#7469B6] flex items-center">
-                    <p>Code: {room.room_code}</p>
-                  </div>
-                  <div className="p-2 text-white flex items-center justify-end">
-                    <DeleteRoom room={room} onRoomDeleted={onRoomDeleted} />
-                    {/* <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
-                      <Button>View Room</Button>
-                    </Link> */}
-                  </div>
-                </CardFooter>
-              </Card>
-            )}
-          </li>
-        ))}
-      </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 };

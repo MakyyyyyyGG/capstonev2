@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Divider } from "@nextui-org/react";
 import { Code, Input, Button, Spinner } from "@nextui-org/react";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, Eye, EyeOff } from "lucide-react";
 
 function Signup() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,6 +14,7 @@ function Signup() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleCaptchaChange = (value) => {
     setCaptchaVerified(!!value);
@@ -64,19 +65,19 @@ function Signup() {
     <div className="flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
       <div className="sticky top-0 min-w-[60%] h-screen overflow-hidden  hidden sm:block ">
         <img
-          src="noteeee.svg"
+          src="landing.svg"
           alt=""
           className="w-full h-full m-auto object-cover"
         />
       </div>
       <div className="w-full py-7 bg-[#f5f5f5] overflow-auto">
-        <div className="logo absolute top-0">
+        {/* <div className="logo absolute top-0">
           <img
-            src="logo.svg"
+            src="logoFin.png"
             alt=""
-            className="w-[200px] h-[100px] object-cover"
+            className="w-[100px] h-[100px] object-cover"
           />
-        </div>
+        </div> */}
         <div className="card flex flex-col justify-center items-center h-full w-full">
           <div className="greet flex flex-col gap-4 min-w-[80%] sm:w-6/12">
             <h1 className="sm:text-5xl font-bold text-[#7469b6]  text-[35px] ">
@@ -114,32 +115,53 @@ function Signup() {
               placeholder="Enter username"
               type="text"
               name="email"
-              className="w-full p-3 bg-blue-600 rounded-xl border border-[#7469b6] bg-transparent text-[#7469b6]  transition ease relative inline-flex items-center justify-center"
+              className="w-full p-3 bg-blue-600 rounded-lg border border-[#7469b6] bg-transparent text-[#7469b6]  transition ease relative inline-flex items-center justify-center"
             />
 
             <label htmlFor="password" className="font-bold text-[#3b3b3b]">
               Password
             </label>
-            <input
-              name="password"
-              size="lg"
-              className="w-full p-3 bg-blue-600 rounded-xl border border-[#7469b6] bg-transparent text-[#7469b6]  transition ease relative inline-flex items-center justify-center "
-              label="Password"
-              placeholder="Enter password"
-              type="password"
-              variant="bordered"
-            />
+            <div className="relative w-full">
+              <input
+                name="password"
+                size="lg"
+                className="w-full p-3 bg-blue-600 rounded-lg border border-[#7469b6] bg-transparent text-[#7469b6]  transition ease relative inline-flex items-center justify-center "
+                label="Password"
+                placeholder="Enter password"
+                type={passwordVisible ? "text" : "password"}
+                variant="bordered"
+              />
+              <div
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+              >
+                {passwordVisible ? (
+                  <EyeOff className="text-[#7469b6]" />
+                ) : (
+                  <Eye className="text-[#7469b6]" />
+                )}
+              </div>
+            </div>
 
-            <Button
-              type="submit"
-              className={`my-5 rounded-xl p-7 bg-[#7469b6] text-slate-50 text-lg hover:bg-[#473f7e] transition ease-in-out `}
-            >
-              {loading ? (
-                <Spinner size="md" color="secondary" labelColor="secondary" />
-              ) : (
-                "Sign In"
-              )}
-            </Button>
+            {loading ? (
+              <Button
+                isLoading
+                isDisabled
+                type="submit"
+                radius="sm"
+                className={`my-5 p-7 text-slate-50 text-lg bg-violet-600 hover:bg-violet-700 transition ease-in-out `}
+              >
+                Sign In
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                radius="sm"
+                className={`my-5 p-7 text-slate-50 text-lg font-bold bg-violet-600 hover:bg-violet-700 transition ease-in-out `}
+              >
+                Sign In
+              </Button>
+            )}
             <Link
               href="/reset_password"
               className=" text-[#7469b6] font-bold text-right"
@@ -153,7 +175,7 @@ function Signup() {
             </div>
           </form>
           <button
-            className="min-w-[80%] sm:w-6/12  mt-2  w-11/12 p-3 bg-blue-600 rounded-xl border border-[#7469b6] bg-transparent text-slate-700  font-bold hover:bg-[#7469b6] hover:text-white transition ease relative inline-flex items-center justify-center"
+            className="min-w-[80%] sm:w-6/12  mt-2  w-11/12 p-3 bg-blue-600 rounded-lg border border-[#7469b6] bg-transparent text-slate-700  font-bold hover:bg-[#7469b6] hover:text-white transition ease relative inline-flex items-center justify-center"
             onClick={handleGoogleSignIn}
           >
             <svg
@@ -198,7 +220,7 @@ function Signup() {
           </button>
 
           <button
-            className="min-w-[80%] w-11/12 sm:w-6/12 mt-2 p-3 rounded-xl border  bg-[#1f7bf2]  font-bold hover:bg-[#4762b1] text-white transition ease relative inline-flex items-center justify-center"
+            className="min-w-[80%] w-11/12 sm:w-6/12 mt-2 p-3 rounded-lg border  bg-[#1f7bf2]  font-bold hover:bg-[#4762b1] text-white transition ease relative inline-flex items-center justify-center"
             onClick={handleFacebookSignIn}
           >
             <svg
@@ -219,7 +241,7 @@ function Signup() {
             </svg>
             <span className="mx-auto">Continue with Facebook</span>
           </button>
-          <div className="min-w-[80%] footer flex justify-center mt-4">
+          <div className="min-w-[80%] footer flex justify-left mt-4">
             <p>New to Noted? </p>
             <Link href="/signup" className="ml-1 text-[#7469b6] font-bold">
               Create an account.

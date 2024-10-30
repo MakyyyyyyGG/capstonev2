@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Button, message, Steps, theme } from "antd";
+import { Button, Steps, theme } from "antd";
 import { Input } from "@nextui-org/react";
 import { useRouter } from "next/router";
+import toast, { Toaster } from "react-hot-toast";
 const Index = () => {
   // Initialize state variables
   const [email, setEmail] = useState("");
@@ -19,10 +20,11 @@ const Index = () => {
       title: "First",
       content: (
         <Input
+          radius="sm"
           type="email"
-          label="Username"
+          label="Email"
           variant="bordered"
-          className="text-[#7469b6]"
+          className="text-[#7469b6] r"
           value={email} // Bind input value to state
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -104,17 +106,16 @@ const Index = () => {
       return data.userFound;
     } catch (error) {
       console.log(error);
-      message.error("An error occurred while checking the user.");
+      toast.error("An error occurred while checking the user.");
       return false;
     }
   };
 
   const checkAdminPassword = () => {
-    // if (adminPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
     if (adminPassword === "admin") {
       return true;
     } else {
-      message.error("Incorrect password");
+      toast.error("Incorrect password");
       return false;
     }
   };
@@ -123,7 +124,7 @@ const Index = () => {
     if (newPassword === confirmPassword) {
       return true;
     } else {
-      message.error("Passwords do not match");
+      toast.error("Passwords do not match");
       return false;
     }
   };
@@ -132,29 +133,32 @@ const Index = () => {
     if (!checkPasswordsMatch()) {
       return;
     }
-    try {
-      const res = await fetch(`/api/resetPassword?email=${email}`, {
+    toast.promise(
+      fetch(`/api/resetPassword?email=${email}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ newPassword }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        message.success("Password reset successful");
-        setEmail("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setAdminPassword("");
-        router.push("/");
-      } else {
-        message.error(data.message || "Failed to reset password.");
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setEmail("");
+            setNewPassword("");
+            setConfirmPassword("");
+            setAdminPassword("");
+            router.push("/");
+          } else {
+            toast.error(data.message || "Failed to reset password.");
+          }
+        }),
+      {
+        loading: "Resetting password...",
+        success: "Password reset successful",
+        error: "An error occurred while resetting the password.",
       }
-    } catch (error) {
-      console.log(error);
-      message.error("An error occurred while resetting the password.");
-    }
+    );
   };
 
   const handleNextClick = async () => {
@@ -164,7 +168,7 @@ const Index = () => {
       if (userExists) {
         next();
       } else {
-        message.error("User not found");
+        toast.error("User not found");
       }
     } else if (current === 1) {
       // Check if the admin password is correct for the second step
@@ -176,9 +180,10 @@ const Index = () => {
 
   return (
     <div className="flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
+      <Toaster />
       <div className="min-w-[60%] h-screen overflow-hidden  hidden sm:block ">
         <img
-          src="noteeee.svg"
+          src="reset-pw.svg"
           alt=""
           className="w-full  h-full m-auto object-cover"
         />
@@ -199,10 +204,20 @@ const Index = () => {
                 className="flex justify-start gap-2"
                 style={{ marginTop: 10 }}
               >
+                {current > 0 && (
+                  <Button
+                    radius="lg"
+                    type="secondary"
+                    className={`font-bold rounded-lg w-[35%] p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
+                    onClick={() => prev()}
+                  >
+                    Previous
+                  </Button>
+                )}
                 {current < steps.length - 1 && (
                   <Button
                     type="secondary"
-                    className={`w-[35%] rounded-xl p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
+                    className={`font-bold w-[35%] rounded-lg p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
                     onClick={handleNextClick}
                   >
                     Next
@@ -211,19 +226,10 @@ const Index = () => {
                 {current === steps.length - 1 && (
                   <Button
                     type="secondary"
-                    className={`w-[35%] rounded-xl p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
+                    className={`font-bold w-[35%] rounded-lg p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
                     onClick={handleResetPassword} // Call handleResetPassword on "Done"
                   >
                     Done
-                  </Button>
-                )}
-                {current > 0 && (
-                  <Button
-                    type="secondary"
-                    className={`w-[35%] rounded-xl p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
-                    onClick={() => prev()}
-                  >
-                    Previous
                   </Button>
                 )}
               </div>
