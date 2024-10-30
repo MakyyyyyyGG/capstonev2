@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
   Dropdown,
@@ -19,9 +20,16 @@ import {
   Progress,
 } from "@nextui-org/react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  Scrollbar,
+  A11y,
+  EffectCreative,
+} from "swiper/modules";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
+import "swiper/css/effect-creative";
 import Summary from "./Summary";
 import {
   ThumbsUp,
@@ -30,7 +38,7 @@ import {
   Frown,
   Check,
   X,
-  RefreshCw,
+  ArrowLeftRight,
 } from "lucide-react";
 import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
@@ -234,7 +242,7 @@ const DecisionMakerStudent = ({ cards }) => {
   };
 
   return (
-    <div>
+    <div className="relative flex flex-col justify-center">
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -244,41 +252,72 @@ const DecisionMakerStudent = ({ cards }) => {
         </>
       ) : (
         <>
-          <div className="relative">
-            <div className="absolute top-0 left-0">
-              <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-              <GameHistory gameRecord={gameRecord} cards={cards.length} />
-              {attemptsUsed >= 8 && (
-                <div className="w-1/2 bg-red-400 rounded-md p-4">
-                  <p className="text-white">
-                    You have used all your attempts for this month. Your score
-                    wont be recorded. Wait for next month.
+          <div className="flex w-full justify-center items-center">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+              <div>
+                <h1 className="text-2xl font-bold">Decision Game</h1>
+              </div>
+              <div className="flex gap-4 items-center">
+                <div className="flex gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    Score: {score} / {cards.length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
-              )}
-              <h1>Score: {score}</h1>
-              <Button variant="flat" color="secondary" onPress={changeIconPair}>
-                Change Icons
-              </Button>
+                <Button
+                  variant="flat"
+                  color="secondary"
+                  onPress={changeIconPair}
+                >
+                  <ArrowLeftRight className="h-4 w-4 mr-1" />
+                  Change Icons
+                </Button>
+                <GameHistory gameRecord={gameRecord} cards={cards.length} />
+
+                {/* <h1>Questions Answered: {answeredQuestions}</h1>
+              <h1>cards length: {cards.length}</h1> */}
+              </div>
             </div>
           </div>
-          <div className="flex justify-center items-center max-w-[50rem] m-auto my-4">
-            <Progress
-              value={(answer / cards.length) * 100}
-              classNames={{
-                value: "text-foreground/60",
-              }}
-              label="Progress"
-              showValueLabel={true}
-              color="success"
-            />
+          {attemptsUsed >= 8 && (
+            <div className="flex w-full justify-center items-center">
+              <div className="w-full max-w-[50rem] bg-red-400 rounded-lg mt-3 p-3">
+                <p className="text-sm text-white text-center">
+                  You have used all your attempts for this month. Your score
+                  wont be recorded. Wait for next month.
+                </p>
+              </div>
+            </div>
+          )}
+          <div className="flex w-full justify-center items-center ">
+            <div className="w-full max-w-[50rem] my-4">
+              <Progress
+                value={(answer / cards.length) * 100}
+                classNames={{
+                  value: "text-foreground/60",
+                  indicator: "bg-[#7469B6]",
+                  track: "bg-purple-50",
+                }}
+              />
+            </div>
           </div>
-          <div>
+          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
             <Swiper
-              modules={[Navigation, Pagination, Scrollbar, A11y]}
-              navigation
-              spaceBetween={50}
-              slidesPerView={1}
+              grabCursor={true}
+              effect={"creative"}
+              creativeEffect={{
+                prev: {
+                  shadow: true,
+                  translate: [0, 0, -400],
+                },
+                next: {
+                  translate: ["100%", 0, 0],
+                },
+              }}
+              modules={[EffectCreative]}
+              className="mySwiper w-full drop-shadow-lg rounded-md"
               onSwiper={(swiper) => setSwiperInstance(swiper)}
               onSlideChange={() => console.log("slide change")}
               onSwiperSlideChange={() => console.log("swiper slide change")}
@@ -289,11 +328,11 @@ const DecisionMakerStudent = ({ cards }) => {
                     key={card.decision_maker_id}
                     className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto"
                   >
-                    <CardBody className="flex flex-col gap-4 px-28 py-7 items-center justify-center">
-                      <h1 className="text-2xl font-extrabold justify-center items-center capitalize my-4">
+                    <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                      <h1 className="text-3xl font-extrabold my-5 capitalize">
                         {card.word}
                       </h1>
-                      <div className="max-w-[30rem]">
+                      <div className="max-w-[15rem]">
                         <Image
                           src={card.image}
                           alt={card.title}
@@ -301,37 +340,57 @@ const DecisionMakerStudent = ({ cards }) => {
                           height="100%"
                         />
                       </div>
-                      <div className="flex gap-2 m-auto my-4">
-                        <Button
-                          onPress={() => handleVote(card, "positive")}
-                          color="success"
-                          variant="flat"
-                          isDisabled={feedback[card.decision_maker_id]}
+                      <div className="flex justify-center gap-4 pt-4">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          {buttonPairs[currentPairIndex].positive}
-                        </Button>
-                        <Button
-                          onPress={() => handleVote(card, "negative")}
-                          color="danger"
-                          variant="flat"
-                          isDisabled={feedback[card.decision_maker_id]}
-                        >
-                          {buttonPairs[currentPairIndex].negative}
-                        </Button>
-                      </div>
-                      {feedback[card.decision_maker_id] && (
-                        <div className="flex justify-center">
-                          <h1
-                            className={
-                              feedback[card.decision_maker_id] === "Correct!"
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }
+                          <Button
+                            onPress={() => handleVote(card, "positive")}
+                            color="success"
+                            variant="flat"
+                            isDisabled={feedback[card.decision_maker_id]}
                           >
-                            {feedback[card.decision_maker_id]}
-                          </h1>
-                        </div>
-                      )}
+                            {buttonPairs[currentPairIndex].positive}
+                          </Button>
+                        </motion.div>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            onPress={() => handleVote(card, "negative")}
+                            color="danger"
+                            variant="flat"
+                            isDisabled={feedback[card.decision_maker_id]}
+                          >
+                            {buttonPairs[currentPairIndex].negative}
+                          </Button>
+                        </motion.div>
+                      </div>
+                      <AnimatePresence>
+                        {feedback[card.decision_maker_id] && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            className="flex w-full justify-center rounded-md"
+                          >
+                            <div className="w-full text-center rounded-md">
+                              <p
+                                className={
+                                  feedback[card.decision_maker_id] ===
+                                  "Correct!"
+                                    ? "text-white bg-green-500 p-2 rounded-md"
+                                    : "text-white bg-red-500 p-2 rounded-md"
+                                }
+                              >
+                                {feedback[card.decision_maker_id]}
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </CardBody>
                   </Card>
                 </SwiperSlide>
