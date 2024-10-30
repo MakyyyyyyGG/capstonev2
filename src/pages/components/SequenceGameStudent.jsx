@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Card,
-  CardBody,
-  Button,
   CardHeader,
+  CardBody,
+  CardFooter,
+  Button,
   Progress,
 } from "@nextui-org/react";
-import { motion } from "framer-motion";
+import { X, Check, RefreshCw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
 import Summary from "./Summary";
+// import { CardFooter } from "keep-react";
 const SequenceGameStudent = ({ sequenceGame }) => {
   const [gameData, setGameData] = useState(sequenceGame);
   const [selectedImages, setSelectedImages] = useState([]);
@@ -234,7 +237,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   };
 
   return (
-    <div>
+    <div div className="relative flex flex-col justify-center">
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -246,138 +249,199 @@ const SequenceGameStudent = ({ sequenceGame }) => {
         <>
           {gameData && gameData.length > 0 && gameData[0].video && (
             <>
-              <iframe
-                src={gameData[0].video}
-                frameBorder="0"
-                width="100%"
-                height="400"
-                allowFullScreen
-                title="Sequence Game Video"
-              />
-              <h1>{gameData[0].title}</h1>
+              <div className="flex w-full justify-center">
+                <div className="aspect-video w-full max-w-[50rem] h-auto rounded-lg overflow-hidden 'bg-black'">
+                  <iframe
+                    src={gameData[0].video}
+                    frameBorder="0"
+                    allowFullScreen
+                    title="Sequence Game Video"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* <h1 className="text-2xl font-bold">{gameData[0].title}</h1> */}
             </>
           )}
-          <h1>Score: {score}</h1>
-          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-
-          <GameHistory gameRecord={gameRecord} cards={gameData.length} />
-
+          <div className="flex w-full justify-center items-center">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+              <div>
+                <h1 className="text-2xl font-bold">Sequence Game</h1>
+              </div>
+              <div className="flex gap-4 items-center">
+                <div className="flex gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    Score: {score} / {gameData.length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Attempts used this month: {attemptsUsed} / 8
+                  </p>
+                </div>
+                <GameHistory gameRecord={gameRecord} cards={gameData.length} />
+              </div>
+            </div>
+          </div>
           {attemptsUsed >= 8 && (
-            <div className="w-1/2 bg-red-400 rounded-md p-4">
-              <p className="text-white">
-                You have used all your attempts for this month. Your score wont
-                be recorded. Wait for next month.
-              </p>
+            <div className="flex w-full justify-center items-center">
+              <div className="w-full max-w-[50rem] bg-red-400 rounded-lg mt-3 p-3">
+                <p className="text-sm text-white text-center">
+                  You have used all your attempts for this month. Your score
+                  wont be recorded. Wait for next month.
+                </p>
+              </div>
             </div>
           )}
-          <Progress
-            value={(answer / gameData.length) * 100}
-            classNames={{
-              // label: "tracking-wider",
-              value: "text-foreground/60",
-            }}
-            label="Progress"
-            showValueLabel={true}
-            color="success"
-          />
-          <div className="grid grid-cols-2 w-full">
-            <div className="border-2 border-gray-300 rounded-md p-4 relative h-[600px] w-[600px]">
-              {sequenceGame.map(
-                (item, index) =>
-                  !selectedImages.includes(item.image) && (
-                    <motion.div
-                      key={index}
-                      className="absolute"
-                      style={randomPositions[index]}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => handleImageSelect(item.image, index)}
-                    >
-                      <img
-                        src={item.image}
-                        alt={`Image ${index + 1}`}
-                        className="w-24 h-24 object-cover cursor-pointer"
-                      />
-                    </motion.div>
-                  )
-              )}
+          <div className="flex w-full justify-center items-center ">
+            <div className="w-full max-w-[50rem] my-4">
+              <Progress
+                value={(answer / gameData.length) * 100}
+                classNames={{
+                  value: "text-foreground/60",
+                  indicator: "bg-[#7469B6]",
+                  track: "bg-purple-50",
+                }}
+              />
             </div>
-            <div>
-              <div className="border-2 p-4">
-                {sequenceGame.map((item, index) => (
-                  <Card key={index}>
-                    <CardBody>
-                      <p>Step {index + 1}</p>
-                      {item.audio && <audio src={item.audio} controls />}
-                      <p>{item.step}</p>
-                      {/* display the available attems here */}
-                      <div>
-                        {selectedImages[index] ? (
-                          <motion.img
-                            src={selectedImages[index]}
-                            alt={`Selected Image ${index + 1}`}
-                            className="w-24 h-24 object-cover"
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
+          </div>
+          <div className="flex justify-center items-center">
+            <div className="w-full max-w-[50rem] grid md:grid-cols-2 gap-3">
+              <Card className="p-4">
+                <CardHeader>
+                  <h1 className="text-xl font-bold">Available Steps</h1>
+                </CardHeader>
+                <CardBody className="relative border rounded-lg shadow-inner">
+                  {sequenceGame.map(
+                    (item, index) =>
+                      !selectedImages.includes(item.image) && (
+                        <motion.div
+                          key={index}
+                          style={randomPositions[index]}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleImageSelect(item.image, index)}
+                          className="absolute w-24 h-24 m-4 aspect-square rounded-lg overflow-hidden border"
+                        >
+                          <img
+                            src={item.image}
+                            alt={`Image ${index + 1}`}
+                            className="w-full h-full object-cover cursor-pointer"
                           />
-                        ) : (
-                          <div className="w-24 h-24 border-2 border-gray-300 flex items-center justify-center">
-                            <p>Placeholder</p>
-                          </div>
-                        )}
+                        </motion.div>
+                      )
+                  )}
+                </CardBody>
+              </Card>
+              <Card className="p-4">
+                <CardHeader>
+                  <h1 className="text-xl font-bold">Arrange the Sequence</h1>
+                </CardHeader>
+                <CardBody className="flex flex-col gap-3">
+                  {sequenceGame.map((item, index) => (
+                    <Card
+                      key={index}
+                      className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg border shadow-sm"
+                    >
+                      {/* display the available attems here */}
+                      <div className="flex w-full gap-4 justify-between items-center">
+                        <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
+                          {selectedImages[index] ? (
+                            <motion.img
+                              src={selectedImages[index]}
+                              alt={`Selected Image ${index + 1}`}
+                              className="w-24 h-24 object-cover"
+                              initial={{ opacity: 0, y: 50 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.25 }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              Step {index + 1}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1">
+                          <h3 className="font-medium">Step {index + 1}</h3>
+                          {item.audio && <audio src={item.audio} controls />}
+                          <p className="text-sm text-muted-foreground">
+                            {item.step}
+                          </p>
+                        </div>
+
                         {selectedImages[index] && (
                           <>
-                            <Button
-                              onClick={() => handleRemoveImage(index)}
-                              isDisabled={
-                                attempts[index] >= 3 ||
-                                feedback[index] === "Correct!"
-                              }
-                            >
-                              Remove
-                            </Button>
-                            <Button
-                              onClick={() =>
-                                attempts[index] < 3 &&
-                                !feedback[index]?.includes("Correct")
-                                  ? handleCheckStep(index, index)
-                                  : null
-                              }
-                              // className={`w-full h-full object-cover ${
-                              //   attempts[index] >= 3 ||
-                              //   feedback[index]?.includes("Correct")
-                              //     ? "opacity-50 cursor-not-allowed"
-                              //     : ""
-                              // }`}
-                              //disbaled if its correct or attempts are over
-                              isDisabled={
-                                feedback[index] === "Correct!" ||
-                                attempts[index] >= 3
-                              }
-                            >
-                              Check
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button
+                                isIconOnly
+                                radius="sm"
+                                variant="flat"
+                                onClick={() => handleRemoveImage(index)}
+                                isDisabled={
+                                  attempts[index] >= 3 ||
+                                  feedback[index] === "Correct!"
+                                }
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                isIconOnly
+                                radius="sm"
+                                variant="flat"
+                                color="success"
+                                onClick={() =>
+                                  attempts[index] < 3 &&
+                                  !feedback[index]?.includes("Correct")
+                                    ? handleCheckStep(index, index)
+                                    : null
+                                }
+                                // className={`w-full h-full object-cover ${
+                                //   attempts[index] >= 3 ||
+                                //   feedback[index]?.includes("Correct")
+                                //     ? "opacity-50 cursor-not-allowed"
+                                //     : ""
+                                // }`}
+                                //disbaled if its correct or attempts are over
+                                isDisabled={
+                                  feedback[index] === "Correct!" ||
+                                  attempts[index] >= 3
+                                }
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </>
                         )}
-                        {feedback[index] && (
-                          <p
-                            className={
-                              feedback[index].includes("Correct")
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }
-                          >
-                            {feedback[index]}
-                          </p>
-                        )}
                       </div>
-                    </CardBody>
-                  </Card>
-                ))}
-                <Button onClick={handleReset}>Reset</Button>
-                <p>Score: {score}</p>
-              </div>
+                      <AnimatePresence>
+                        {feedback[index] && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            className="flex w-full text-center justify-center rounded-md"
+                          >
+                            <p
+                              className={
+                                feedback[index].includes("Correct")
+                                  ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                  : "text-white w-full bg-red-500 p-2 rounded-md"
+                              }
+                            >
+                              {feedback[index]}
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </Card>
+                  ))}
+                </CardBody>
+                <CardFooter className="flex justify-between items-center py-4">
+                  <Button onClick={handleReset} variant="bordered" radius="sm">
+                    <RefreshCw className="h-4 w-4 mr-2" /> Reset
+                  </Button>
+                </CardFooter>
+              </Card>
             </div>
           </div>
         </>
