@@ -70,6 +70,11 @@ const ColorGames = ({ cards }) => {
   };
 
   const getColorFromImageUrl = (url) => {
+    if (!url) {
+      console.error("URL is null or undefined");
+      return "";
+    }
+    console.log("url", url);
     const parts = url.split("/");
     const filename = parts[parts.length - 1];
     return filename.split("-")[0];
@@ -87,7 +92,7 @@ const ColorGames = ({ cards }) => {
           ...prev,
           [cardId]: newSelection.filter((id) => id !== imageIndex),
         };
-      } else if (newSelection.length < 3) {
+      } else if (newSelection.length < 4) {
         return { ...prev, [cardId]: [...newSelection, imageIndex] };
       }
       return prev;
@@ -97,7 +102,7 @@ const ColorGames = ({ cards }) => {
   useEffect(() => {
     const newCorrectSelections = {};
     shuffledCards.forEach((card) => {
-      const cardImages = [card.image1, card.image2, card.image3];
+      const cardImages = [card.image1, card.image2, card.image3, card.image4];
       const selectedCardImages = selectedImages[card.color_game_id] || [];
       const allSelectedImagesCorrect = selectedCardImages.every(
         (index) => getColorFromImageUrl(cardImages[index]) === card.color
@@ -135,13 +140,17 @@ const ColorGames = ({ cards }) => {
     newAttempts[index]++;
     setAttempts(newAttempts);
 
-    const correctImageCount = [card.image1, card.image2, card.image3].filter(
-      (image) => getColorFromImageUrl(image) === card.color
-    ).length;
+    const correctImageCount = [
+      card.image1,
+      card.image2,
+      card.image3,
+      card.image4,
+    ].filter((image) => getColorFromImageUrl(image) === card.color).length;
     const correctSelectionsCount = selectedCardImages.filter(
       (index) =>
-        getColorFromImageUrl([card.image1, card.image2, card.image3][index]) ===
-        card.color
+        getColorFromImageUrl(
+          [card.image1, card.image2, card.image3, card.image4][index]
+        ) === card.color
     ).length;
 
     let newFeedback = "";
@@ -365,9 +374,14 @@ const ColorGames = ({ cards }) => {
                         <div className="text-3xl font-extrabold my-5 capitalize">
                           <p>{card.color}</p>
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
-                          {[card.image1, card.image2, card.image3].map(
-                            (image, imageIndex) => (
+                        <div className="grid grid-cols-2 grid-rows-2 gap-4">
+                          {[
+                            card.image1,
+                            card.image2,
+                            card.image3,
+                            card.image4,
+                          ].map((image, imageIndex) =>
+                            image ? (
                               <motion.div
                                 key={imageIndex}
                                 whileHover={{ scale: 1.05 }}
@@ -395,32 +409,30 @@ const ColorGames = ({ cards }) => {
                                   )
                                 }
                               >
-                                {image && (
-                                  <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
-                                    <Checkbox
-                                      color="success"
-                                      isSelected={(
-                                        selectedImages[card.color_game_id] || []
-                                      ).includes(imageIndex)}
-                                      onChange={() =>
-                                        handleImageSelect(
-                                          card.color_game_id,
-                                          imageIndex,
-                                          image
-                                        )
-                                      }
-                                      className="absolute top-2 left-2 z-99"
-                                      isDisabled={(attempts[index] || 0) >= 3}
-                                    />
-                                    <Image
-                                      src={image}
-                                      alt={`Image ${imageIndex + 1}`}
-                                      className="h-full w-full object-cover rounded-lg"
-                                    />
-                                  </div>
-                                )}
+                                <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
+                                  <Checkbox
+                                    color="success"
+                                    isSelected={(
+                                      selectedImages[card.color_game_id] || []
+                                    ).includes(imageIndex)}
+                                    onChange={() =>
+                                      handleImageSelect(
+                                        card.color_game_id,
+                                        imageIndex,
+                                        image
+                                      )
+                                    }
+                                    className="absolute top-2 left-2 z-99"
+                                    isDisabled={(attempts[index] || 0) >= 3}
+                                  />
+                                  <Image
+                                    src={image}
+                                    alt={`Image ${imageIndex + 1}`}
+                                    className="h-full w-full object-cover rounded-lg"
+                                  />
+                                </div>
                               </motion.div>
-                            )
+                            ) : null
                           )}
                         </div>
                         <div className="w-full mt-8">

@@ -28,3 +28,12 @@ export const getImages = () => {
 
   return imageObjects;
 };
+
+export default function handler(req, res) {
+  if (req.method === "GET") {
+    const images = getImages();
+    res.status(200).json(images);
+  } else {
+    res.status(405).json({ message: "Method not allowed" });
+  }
+}

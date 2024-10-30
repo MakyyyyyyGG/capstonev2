@@ -10,11 +10,11 @@ import {
   Skeleton,
 } from "@nextui-org/react";
 import Link from "next/link";
-import { Trash2, Edit, LayoutGrid, Grid2X2Plus, Palette } from "lucide-react";
+import { Trash2, Edit, LayoutGrid, Grid2x2, Palette } from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { FaRegLightbulb } from "react-icons/fa";
 import { useSession } from "next-auth/react";
-
+import { Search } from "lucide-react";
 const ClassWorkList = ({ room_code, games = [] }) => {
   const [roleRedirect, setRoleRedirect] = useState("");
   const [filterByDifficulty, setFilterByDifficulty] = useState("");
@@ -124,54 +124,86 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     } else return "#";
   };
 
+  const getTypeColor = (type) => {
+    switch (type) {
+      case "Flashcard":
+        return "bg-[#7C3AED]/10 text-[#7C3AED]";
+      case "Decision Maker":
+        return "bg-[#7C3AED]/10 text-[#7C3AED]";
+      case "ThinkPic":
+        return "bg-[#7C3AED]/10  text-[#7C3AED]";
+      case "Color Game Advanced":
+        return "bg-[#7C3AED]/10 text-[#7C3AED]";
+      default:
+        return "bg-[#7C3AED]/10 text-[#7C3AED]"; // Default color
+    }
+  };
+
   const getGameTypeIcon = (game_type) => {
+    const typeColor = getTypeColor(game_type);
     switch (game_type.toLowerCase()) {
       case "flashcard":
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-            <TbCards className="text-4xl text-white" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <TbCards className="text-4xl" />
           </div>
         );
       case "thinkpic":
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-            <LayoutGrid className="w-7 h-7 text-white" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <Grid2x2 className="w-7 h-7" />
           </div>
         );
       case "thinkpic +":
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#F31260] rounded-full">
-            <LayoutGrid className="w-7 h-7 text-white" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <LayoutGrid className="w-7 h-7" />
           </div>
         );
       case "color game":
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-            <Palette className="w-8 h-8 text-white" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <Palette className="w-8 h-8" />
           </div>
         );
       case "color game advanced":
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#F31260] rounded-full">
-            <Palette className="w-8 h-8 text-white" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <Palette className="w-8 h-8" />
           </div>
         );
       case "decision maker":
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-            <FaRegLightbulb className="text-3xl text-white -rotate-[15deg]" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <FaRegLightbulb className="text-3xl -rotate-[15deg]" />
           </div>
         );
       case "sequence game":
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-            <TbCards className="text-4xl text-white" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <TbCards className="text-4xl" />
           </div>
         );
       default:
         return (
-          <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
-            <TbCards className="text-4xl text-white" />
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
+          >
+            <TbCards className="text-4xl" />
           </div>
         ); // Default to flashcards if game type is unknown
     }
@@ -212,21 +244,31 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             <Card
               isPressable
               radius="sm"
-              className="flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 max-sm:px-4 max-sm:py-3"
+              className=" flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200   hover:border-purple-700 max-sm:px-4 max-sm:py-3"
             >
               <Link href={getRedirectUrl(game)} className="w-full">
                 <div className="flex w-full h-[70px] items-center justify-between max-sm:scale-[95%]">
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7469B6] rounded-full">
+                    <div className="flex items-center justify-center w-[60px] h-[60px]  rounded-xl">
                       {getGameTypeIcon(game.game_type)}
                     </div>
                     <div className="text-left ml-4">
-                      <div className="text-lg font-bold">
-                        <h1>{game.title}</h1>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <p>{game.game_type}</p>
+                      <div className="text-lg font-bold flex items-center gap-2">
+                        <h1>{game.title} </h1>
                         {game.difficulty && (
+                          <Chip
+                            color={getChipColor(game.difficulty)}
+                            radius="xl"
+                            className="text-sm text-white capitalize"
+                          >
+                            {game.difficulty}
+                          </Chip>
+                        )}
+                      </div>
+                      <div className="">
+                        <p>{game.game_type}</p>
+
+                        {/* {game.difficulty && (
                           <Chip
                             color={getChipColor(game.difficulty)}
                             radius="sm"
@@ -234,8 +276,8 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                           >
                             {game.difficulty}
                           </Chip>
-                        )}
-                        <p>ID {game.game_id}</p>
+                        )} */}
+                        {/* <p>ID {game.game_id}</p> */}
                       </div>
                     </div>
                   </div>
@@ -244,10 +286,10 @@ const ClassWorkList = ({ room_code, games = [] }) => {
               <div>
                 <Button
                   isIconOnly
-                  color="danger"
+                  color="transparent"
                   onPress={() => handleDeleteGame(game.game_id, game.game_type)}
                 >
-                  <Trash2 />
+                  <Trash2 color="red" />
                 </Button>
               </div>
             </Card>
@@ -255,7 +297,13 @@ const ClassWorkList = ({ room_code, games = [] }) => {
         </li>
       ))
     ) : (
-      <div>No games found</div>
+      <div className="flex flex-col items-center justify-center w-full rounded-lg p-4  h-[700px] ">
+        <img
+          src="/no-game.svg"
+          alt="empty-game"
+          className="object-cover h-full"
+        />
+      </div>
     );
   };
 
@@ -264,18 +312,35 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       <div className="flex w-full items-center justify-between my-4 gap-4 max-sm:flex-col">
         <div className="w-1/2 z-0 max-sm:w-full">
           <Input
+            startContent={<Search size={20} color="#6B7280" />}
+            isClearable
+            size="lg"
+            onClear={() => setFilterByTitle("")}
             radius="sm"
-            label="Search Title"
+            color="secondary"
+            variant="bordered"
+            placeholder="Search Game"
             value={filterByTitle}
+            classNames={{
+              label: "text-white",
+              inputWrapper: "bg-[#ffffff] ",
+            }}
             onChange={(e) => setFilterByTitle(e.target.value)}
           />
         </div>
         <div className="flex gap-4 w-1/2 max-sm:w-full">
           <Select
             radius="sm"
+            size="lg"
+            variant="bordered"
+            color="secondary"
             className="flex-auto w-1/2 z-0"
-            label="Game Type"
+            placeholder="Game Type"
             value={filterByGameType}
+            classNames={{
+              label: "text-white",
+              mainWrapper: "bg-[#ffffff] rounded-lg border-purple-400",
+            }}
             onChange={(e) => setFilterByGameType(e.target.value)}
           >
             <SelectItem key="flashcard" value="flashcard">
@@ -302,9 +367,16 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           </Select>
 
           <Select
+            classNames={{
+              label: "text-white",
+              mainWrapper: "  bg-[#ffffff] rounded-lg border-purple-400",
+            }}
             radius="sm"
+            size="lg"
+            variant="bordered"
+            color="secondary"
             className="flex-auto w-1/2 z-0"
-            label="Difficulty"
+            placeholder="Difficulty"
             value={filterByDifficulty}
             onChange={(e) => setFilterByDifficulty(e.target.value)}
           >

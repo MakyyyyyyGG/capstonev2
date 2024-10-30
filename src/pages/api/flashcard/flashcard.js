@@ -34,7 +34,7 @@ const handlePostRequest = async (req, res) => {
   try {
     const gameType = "Flashcard";
     const gameResult = await query({
-      query: `INSERT INTO games (title, room_code, account_id, game_type) VALUES (?, ?, ?, ?)`,
+      query: `INSERT INTO games (title, room_code, account_id, game_type, created_at) VALUES (?, ?, ?, ?, NOW())`,
       values: [title, room_code, account_id, gameType],
     });
     const gameId = gameResult.insertId;

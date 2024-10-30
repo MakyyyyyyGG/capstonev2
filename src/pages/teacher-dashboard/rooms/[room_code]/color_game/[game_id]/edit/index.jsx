@@ -19,6 +19,7 @@ import {
   SelectItem,
   Skeleton,
 } from "@nextui-org/react";
+import toast, { Toaster } from "react-hot-toast";
 
 const index = () => {
   const { data: session } = useSession();
@@ -37,53 +38,25 @@ const index = () => {
   const [updateDifficulty, setUpdateDifficulty] = useState(false);
   const [tempImage, setTempImage] = useState();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [displayImages, setDisplayImages] = useState([]);
 
-  const displayImages = [
-    {
-      id: 1,
-      image: "/color_game/images/blue-book.png",
-    },
-    {
-      id: 2,
-      image: "/color_game/images/blue-cap.png",
-    },
-    {
-      id: 3,
-      image: "/color_game/images/blue-cup.png",
-    },
-    {
-      id: 4,
-      image: "/color_game/images/red-ball.png",
-    },
-    {
-      id: 5,
-      image: "/color_game/images/red-strawberry.png",
-    },
-    {
-      id: 6,
-      image: "/color_game/images/red-watermelon.png",
-    },
-    {
-      id: 7,
-      image: "/color_game/images/yellow-bee.png",
-    },
-    {
-      id: 8,
-      image: "/color_game/images/yellow-duck.png",
-    },
-    {
-      id: 9,
-      image: "/color_game/images/yellow-star.png",
-    },
-    {
-      id: 10,
-      image: "/color_game/images/yellow-star.png",
-    },
-    {
-      id: 11,
-      image: "/color_game/images/yellow-star.png",
-    },
-  ];
+  //fetch images
+  const fetchImages = async () => {
+    const res = await fetch("/api/getImages", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+    console.log("data", data);
+    setDisplayImages(data);
+  };
+
+  useEffect(() => {
+    fetchImages();
+  }, []);
+
   const fetchCards = async () => {
     setIsLoading(true);
     try {
@@ -229,7 +202,29 @@ const index = () => {
   };
 
   const handleSubmit = async (e) => {
+    //prevent default form submission
     e.preventDefault();
+    //return if no title
+    if (!title) {
+      toast.error("Please enter a title");
+      return;
+    }
+    //return if no selected color
+    for (const card of cards) {
+      if (!card.color) {
+        toast.error("Please select a color for each card");
+        return;
+      }
+    }
+
+    //return if no images
+    for (const card of cards) {
+      if (!card.images) {
+        toast.error("Please select images for each card");
+        return;
+      }
+    }
+
     await setupNewCards(cards);
     console.log("Submitting:", {
       title,
@@ -239,42 +234,51 @@ const index = () => {
     });
     setIsSaving(true);
 
-    try {
-      const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
-      // console.log("cardsToUpdate", cardsToUpdate);
-      for (const card of cardsToUpdate) {
-        const body = JSON.stringify({
-          title: title, // Pass the title for the card set
-          cards: card, // Pass the modified card details (with images and word)
-          difficulty: difficulty,
-          game_id: game_id,
-        });
-        console.log("body", body);
-        const response = await fetch(
-          `/api/color_game/color_game?color_game_id=${card.color_game_id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: body,
+    toast.promise(
+      (async () => {
+        try {
+          const cardsToUpdate = cards.filter((c) => !c.isNew); // Filter out new cards
+          // console.log("cardsToUpdate", cardsToUpdate);
+          for (const card of cardsToUpdate) {
+            const body = JSON.stringify({
+              title: title, // Pass the title for the card set
+              cards: card, // Pass the modified card details (with images and word)
+              difficulty: difficulty,
+              game_id: game_id,
+            });
+            console.log("body", body);
+            const response = await fetch(
+              `/api/color_game/color_game?color_game_id=${card.color_game_id}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: body,
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Color game created successfully:", data);
           }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        } catch (error) {
+          console.error("Error creating color game:", error);
+          throw error;
+        } finally {
+          setIsSaving(false);
+          fetchCards();
         }
-
-        const data = await response.json();
-        alert("Color game created successfully");
-        console.log("Color game created successfully:", data);
+      })(),
+      {
+        loading: "Saving changes...",
+        success: "Color game created successfully!",
+        error: "Error creating color game",
       }
-    } catch (error) {
-      console.error("Error creating color game:", error);
-    } finally {
-      setIsSaving(false);
-      fetchCards();
-    }
+    );
   };
 
   const handleDeleteCard = async (cardIndex) => {
@@ -344,7 +348,9 @@ const index = () => {
 
   return (
     <div>
+      <Toaster />
       <h1>Create Color Game</h1>
+      {/* <ImagesModal onImageSelect={handleImageSelect} images={displayImages} /> */}
       <h1>room code: {room_code}</h1>
       <form onSubmit={handleSubmit}>
         <div className="w-80">
@@ -598,7 +604,12 @@ const index = () => {
         </div>
       </form>
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="full">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="full"
+        scrollBehavior="inside"
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -650,6 +661,7 @@ const index = () => {
                               className="w-full h-full object-cover"
                               onClick={() => handleImageSelect(item.id)}
                             />
+                            <p className="text-sm text-gray-500">{item.name}</p>
                           </div>
                         ))}
                       </div>

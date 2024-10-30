@@ -2,10 +2,6 @@ import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Plus } from "lucide-react";
 import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   Input,
   Modal,
   ModalContent,
@@ -14,6 +10,8 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 const CreateRoom = () => {
@@ -21,7 +19,7 @@ const CreateRoom = () => {
   const { data: session } = useSession();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [roomName, setRoomName] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [difficulty, setDifficulty] = useState("easy");
 
   // Function to generate a unique 4-digit room code
   const generateRoomCode = async () => {
@@ -79,51 +77,38 @@ const CreateRoom = () => {
     }
 
     setRoomName("");
-    setDifficulty("");
+    setDifficulty("Easy");
     onOpenChange(false);
   };
 
-  const handleDifficultyChange = (key) => {
-    setDifficulty(key);
-  };
-
-  // Function to dynamically set dropdown color based on room difficulty
-  const getDropdownBtnColor = (difficulty) => {
-    switch (difficulty.toLowerCase()) {
-      case "easy":
-        return "success";
-      case "moderate":
-        return "warning";
-      case "hard":
-        return "danger";
-      default:
-        return "default"; // fallback if the difficulty is not recognized
-    }
+  const handleDifficultyChange = (e) => {
+    setDifficulty(e.target.value);
   };
 
   return (
     <div>
       <Button
-        isIconOnly
         onPress={onOpen}
         radius="sm"
         color="secondary"
         startContent={<Plus size={22} />}
-      ></Button>
+      >
+        Room
+      </Button>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="center"
         size="3xl"
         radius="sm"
-        classNames={{
-          body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
-          header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
-          footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
-          base: "bg-[#7469B6] text-[#a8b0d3]",
-          closeButton:
-            "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
-        }}
+        // classNames={{
+        //   body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
+        //   header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
+        //   footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
+        //   base: " text-[#a8b0d3]",
+        //   closeButton:
+        //     "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
+        // }}
       >
         <ModalContent>
           {(onClose) => (
@@ -136,75 +121,57 @@ const CreateRoom = () => {
 
               <ModalBody>
                 <form action="" className="grid grid-cols-4 grid-rows-2 gap-4">
-                  <div className="col-span-4 row-span-1">
+                  <div className="col-span-4 row-span-1 gap-2 flex flex-col">
+                    <h1>Room Name</h1>
                     <Input
-                      placeholder="Room Name"
+                      color="secondary"
+                      placeholder="Enter room name"
                       radius="sm"
+                      variant="bordered"
                       size="lg"
                       value={roomName}
                       onChange={(e) => setRoomName(e.target.value)}
                     />
                   </div>
-                  <div className="grid col-span-2 col-start-3 justify-items-end">
-                    <Dropdown showArrow placement="left-start">
-                      <DropdownTrigger>
-                        {difficulty ? (
-                          <Button
-                            radius="sm"
-                            color={getDropdownBtnColor(difficulty)}
-                            size="lg"
-                            variant="flat"
-                            className="bg-white"
-                          >
-                            {difficulty}
-                          </Button>
-                        ) : (
-                          <Button
-                            radius="sm"
-                            size="lg"
-                            variant="flat"
-                            className="bg-white"
-                          >
-                            Choose Difficulty
-                          </Button>
-                        )}
-                      </DropdownTrigger>
-                      <DropdownMenu
-                        aria-label="Static Actions"
-                        onAction={handleDifficultyChange}
+                  <div className="w-full">
+                    <label htmlFor="difficulty" className="block mb-2">
+                      Difficulty
+                    </label>
+                    <div className="w-full flex">
+                      <Select
+                        className="flex-grow w-full"
+                        id="difficulty"
+                        radius="sm"
+                        size="lg"
+                        variant="bordered"
+                        value={difficulty}
+                        onChange={handleDifficultyChange}
                       >
-                        <DropdownItem
-                          key="Easy"
-                          color="success"
-                          className="text-success"
-                        >
+                        <SelectItem key="Easy" value="Easy">
                           Easy
-                        </DropdownItem>
-                        <DropdownItem
-                          key="Moderate"
-                          color="warning"
-                          className="text-warning"
-                        >
+                        </SelectItem>
+                        <SelectItem key="Moderate" value="Moderate">
                           Moderate
-                        </DropdownItem>
-                        <DropdownItem
-                          key="Hard"
-                          color="danger"
-                          className="text-danger"
-                        >
+                        </SelectItem>
+                        <SelectItem key="Hard" value="Hard">
                           Hard
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
+                        </SelectItem>
+                      </Select>
+                    </div>
                   </div>
                 </form>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" radius="sm" onPress={onClose}>
+                <Button
+                  color="danger"
+                  variant="flat"
+                  radius="sm"
+                  onPress={onClose}
+                >
                   Close
                 </Button>
                 <Button
-                  color="success"
+                  color="secondary"
                   radius="sm"
                   onPress={onClose}
                   onClick={handleCreateRoom}
