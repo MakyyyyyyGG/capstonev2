@@ -264,12 +264,27 @@ const Index = ({ images }) => {
         <div className="flex gap-2 items-center z-0 mb-4 max-sm:flex-col">
           <Input
             isRequired
-            label="Title"
+            placeholder="Title"
+            size="lg"
+            radius="md"
+            classNames={{
+              label: "text-white",
+              inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+            }}
+            variant="bordered"
+            color="secondary"
             onChange={(e) => setTitle(e.target.value)}
             className="w-3/5 max-sm:w-full"
           />
           <Select
-            label="Difficulty"
+            size="lg"
+            radius="md"
+            classNames={{
+              label: "text-white",
+              mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
+            }}
+            placeholder="Difficulty"
+            variant="bordered"
             onChange={handleDifficultyChange}
             isRequired
             className="w-2/5 max-sm:w-full"
@@ -280,11 +295,11 @@ const Index = ({ images }) => {
           </Select>
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {cards.map((card, cardIndex) => (
             <Card
               key={cardIndex}
-              className="w-full border border-slate-800 rounded-md flex"
+              className="w-full border  border-[#7469B6] rounded-md flex p-4"
             >
               <CardHeader className="flex px-3 justify-between items-center z-0">
                 <div className="pl-2 text-xl font-bold">
@@ -295,98 +310,141 @@ const Index = ({ images }) => {
                   onPress={() => handleRemoveCard(cardIndex)}
                   color="danger"
                 >
-                  <Trash2 size={22} />
+                  <Trash2 size={20} />
                 </Button>
               </CardHeader>
-              <Divider className="m-0 h-0.5 bg-slate-300" />
               <CardBody>
                 <div className="mb-2">
                   <h1 className="mb-4 font-bold text-lg">Choose a color</h1>
-                  <div className="flex flex-wrap gap-6 mx-2 my-2 max-sm:gap-4 max-sm:max-0">
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-red-500 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "red"}
-                      onChange={() => handleColorChange(cardIndex, "red")}
-                    >
-                      <span className="text-white">Red</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-blue-500 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "blue"}
-                      onChange={() => handleColorChange(cardIndex, "blue")}
-                    >
-                      <span className="text-white">Blue</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-yellow-500 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "yellow"}
-                      onChange={() => handleColorChange(cardIndex, "yellow")}
-                    >
-                      <span className="text-white">Yellow</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-green-500 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "green"}
-                      onChange={() => handleColorChange(cardIndex, "green")}
-                    >
-                      <span className="text-white">Green</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-purple-500 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "purple"}
-                      onChange={() => handleColorChange(cardIndex, "purple")}
-                    >
-                      <span className="text-white">Purple</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-orange-500 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "orange"}
-                      onChange={() => handleColorChange(cardIndex, "orange")}
-                    >
-                      <span className="text-white">Orange</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-pink-400 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "pink"}
-                      onChange={() => handleColorChange(cardIndex, "pink")}
-                    >
-                      <span className="text-white">Pink</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-yellow-700 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "brown"}
-                      onChange={() => handleColorChange(cardIndex, "brown")}
-                    >
-                      <span className="text-white">Brown</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-gray-900 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "black"}
-                      onChange={() => handleColorChange(cardIndex, "black")}
-                    >
-                      <span className="text-white">Black</span>
-                    </Checkbox>
-                    <Checkbox
-                      color="secondary"
-                      className="border bg-gray-100 rounded-md max-sm:scale-[90%]"
-                      isSelected={card.color === "white"}
-                      onChange={() => handleColorChange(cardIndex, "white")}
-                    >
-                      White
-                    </Checkbox>
+                  <div className="grid grid-cols-5 gap-6 mx-2 my-2 max-sm:gap-4 max-sm:max-0">
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "red")}
+                          className={`rounded-full w-12 h-12 bg-red-500 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "red" ? "ring-4 ring-[#7469B6]" : ""
+                          }`}
+                        ></div>
+                        <span className="text-sm mt-1">Red</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "blue")}
+                          className={`rounded-full w-12 h-12 bg-blue-500 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "blue" ? "ring-4 ring-[#7469B6]" : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Blue</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "yellow")}
+                          className={`rounded-full w-12 h-12 bg-yellow-500 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "yellow"
+                              ? "ring-4 ring-[#7469B6]"
+                              : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Yellow</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "green")}
+                          className={`rounded-full w-12 h-12 bg-green-500 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "green"
+                              ? "ring-4 ring-[#7469B6]"
+                              : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Green</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "purple")}
+                          className={`rounded-full w-12 h-12 bg-purple-500 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "purple"
+                              ? "ring-4 ring-[#7469B6]"
+                              : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Purple</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "orange")}
+                          className={`rounded-full w-12 h-12 bg-orange-500 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "orange"
+                              ? "ring-4 ring-[#7469B6]"
+                              : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Orange</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "pink")}
+                          className={`rounded-full w-12 h-12 bg-pink-400 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "pink" ? "ring-4 ring-[#7469B6]" : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Pink</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "brown")}
+                          className={`rounded-full w-12 h-12 bg-yellow-700 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "brown"
+                              ? "ring-4 ring-[#7469B6]"
+                              : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Brown</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "black")}
+                          className={`rounded-full w-12 h-12 bg-gray-900 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "black"
+                              ? "ring-4 ring-[#7469B6]"
+                              : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">Black</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="flex flex-col items-center">
+                        <div
+                          onClick={() => handleColorChange(cardIndex, "white")}
+                          className={`rounded-full w-12 h-12 bg-gray-100 max-sm:scale-[90%] cursor-pointer ${
+                            card.color === "white"
+                              ? "ring-4 ring-[#7469B6]"
+                              : ""
+                          }`}
+                        />
+                        <span className="text-sm mt-1">White</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
                   {Array.from(
                     {
                       length:
@@ -399,7 +457,7 @@ const Index = ({ images }) => {
                     (_, imageIndex) => (
                       <div
                         key={imageIndex}
-                        className={`flex relative block w-full aspect-square bg-gray-100 rounded-lg border-2 border-dashed items-center justify-center cursor-pointer`}
+                        className={`flex  relative  w-full aspect-square bg-gray-100 rounded-lg border-2 border-dashed items-center justify-center cursor-pointer`}
                       >
                         {card.images[imageIndex] ? (
                           <>
@@ -437,7 +495,10 @@ const Index = ({ images }) => {
                         ) : (
                           <div className="flex flex-col items-center space-y-2">
                             <Button
+                              radius="sm"
+                              variant="bordered"
                               color="secondary"
+                              className="border-1"
                               onPress={() => handleEdit(cardIndex, imageIndex)}
                             >
                               <LibraryBig /> Select
@@ -459,14 +520,15 @@ const Index = ({ images }) => {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         size="full"
-        scrollBehavior="inside"
-        backdrop="opaque"
+        scrollBehavior="outside"
+        backdrop="blur"
         placement="center"
         classNames={{
+          backdrop: "bg-[#7469B6] opacity-50",
           body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
           header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
           footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
-          base: "bg-[#7469B6] text-[#a8b0d3]",
+          base: "bg-[#7469B6] text-[#a8b0d3] h-full",
           closeButton:
             "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
         }}
@@ -483,7 +545,7 @@ const Index = ({ images }) => {
                   {difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4}{" "}
                   Images
                 </h2>
-                <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1 max-md:grid-cols-2">
+                <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1 max-md:grid-cols-2">
                   {Object.entries(groupedImages).map(([color, images]) => (
                     <Card key={color} className="flex flex-col rounded-md p-4">
                       <h3 className="mb-2 text-md font-semibold capitalize">

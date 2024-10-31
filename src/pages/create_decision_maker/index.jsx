@@ -20,6 +20,12 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Chip,
+  Tabs,
+  Tab,
 } from "@nextui-org/react";
 import {
   Smile,
@@ -28,8 +34,11 @@ import {
   ThumbsDown,
   Plus,
   X,
+  Info,
   Image,
   Pencil,
+  ScanSearch,
+  Upload,
   Trash2,
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
@@ -49,6 +58,11 @@ const index = () => {
     room_code: "",
     cards: [],
   });
+  const {
+    isOpen: isImageViewOpen,
+    onOpen: onImageViewOpen,
+    onOpenChange: onImageViewOpenChange,
+  } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
   const { room_code } = router.query;
   const [tempImage, setTempImage] = useState(null);
@@ -223,17 +237,55 @@ const index = () => {
     }
   };
 
-  const handleInsertImageFromUrl = (index) => {
+  const handleInsertImageFromUrl = (card, index) => {
     const newCards = [...cards];
     newCards[index].image = newCards[index].imageUrl;
     setCards(newCards);
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 p-4  mx-auto">
+    <div className="w-full flex flex-col gap-4 p-4  mx-auto  max-w-[80rem]">
       <Toaster />
-      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-        <h1>Create Decision Maker</h1>
+      <div className="flex my-5 justify-between items-center text-3xl font-extrabold ">
+        <div className="flex gap-4 items-center ">
+          <h1 className="">Create a new Decision Game Set</h1>
+          <Popover placement="bottom">
+            <PopoverTrigger>
+              <Chip
+                endContent={<Info size={20} />}
+                variant="flat"
+                color={
+                  cards.length < 5
+                    ? "success"
+                    : cards.length >= 10
+                    ? "danger"
+                    : "warning"
+                }
+                className="cursor-pointer"
+              >
+                <span>
+                  {cards.length < 5
+                    ? "Easy"
+                    : cards.length >= 10
+                    ? "Hard"
+                    : "Medium"}
+                </span>
+              </Chip>
+            </PopoverTrigger>
+            <PopoverContent className="w-[350px]">
+              <div className="px-4 py-3">
+                <div className="text-base font-bold mb-2">
+                  Difficulty Levels:
+                </div>
+                <div className="text-sm space-y-2">
+                  <p>• Easy: Less than 5 sequences</p>
+                  <p>• Medium: 5-9 sequences</p>
+                  <p>• Hard: 10 or more sequences</p>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>{" "}
         {isLoading ? (
           <Button isLoading isDisabled color="secondary">
             Create
@@ -251,25 +303,34 @@ const index = () => {
       {/* <h1>Room Code: {room_code}</h1> */}
       <div className="items-center z-0">
         <Input
-          label="Title"
-          variant="faded"
+          isRequired
+          placeholder="Enter title"
+          classNames={{
+            label: "text-white",
+            inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+          }}
+          variant="bordered"
+          color="secondary"
+          isClearable
+          radius="md"
+          size="lg"
+          onClear={() => setTitle("")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
-      <h1>Difficulty: {difficulty}</h1>
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {cards.map((card, index) => (
           <Card
             key={index}
-            className="w-full border border-slate-800 rounded-md flex"
+            className="w-full border  border-[#7469B6] rounded-md flex p-4"
           >
             <CardHeader className="flex px-3 justify-between items-center z-0">
               <div className="pl-2 text-xl font-bold">
                 <h1>{index + 1}</h1>
               </div>
               <div className="flex gap-2">
-                {!card.image ? (
+                {/*{!card.image ? (
                   <>
                     <div className="flex gap-4 items-center justify-center">
                       <Input
@@ -331,7 +392,7 @@ const index = () => {
                       Change Image
                     </Button>
                   </>
-                )}
+                )}*/}
                 <Button
                   isIconOnly
                   color="danger"
@@ -341,14 +402,170 @@ const index = () => {
                 </Button>
               </div>
             </CardHeader>
-            <Divider className="m-0 h-0.5 bg-slate-300" />
             <CardBody>
               <div className="flex gap-4 w-full items-center max-sm:flex-col">
+                <Modal
+                  isOpen={card.isUploadModalOpen}
+                  onOpenChange={(isOpen) => {
+                    const newCards = [...cards];
+                    newCards[index].isUploadModalOpen = isOpen;
+                    setCards(newCards);
+                    if (!isOpen) {
+                      setTempImage(null);
+                    }
+                  }}
+                  size="lg"
+                >
+                  <ModalContent>
+                    {(onClose) => (
+                      <>
+                        <ModalHeader className="flex flex-col gap-1">
+                          Upload Image
+                        </ModalHeader>
+                        <ModalBody>
+                          <div className="w-full">
+                            <Tabs aria-label="Options" fullWidth>
+                              <Tab key="drag" title="Drag & Drop">
+                                <div
+                                  className=" rounded-lg border-2 border-dashed border-gray-400 p-8 text-center cursor-pointer"
+                                  onDragOver={(e) => e.preventDefault()}
+                                  onDrop={(e) => {
+                                    e.preventDefault();
+                                    const file = e.dataTransfer.files[0];
+                                    if (file) {
+                                      handleCardImageChange(index, {
+                                        target: { files: [file] },
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id={`imageUpload-${index}`}
+                                    onChange={(e) =>
+                                      handleCardImageChange(index, e)
+                                    }
+                                  />
+                                  <label
+                                    htmlFor={`imageUpload-${index}`}
+                                    className="block"
+                                  >
+                                    Drag or upload your image here
+                                  </label>
+                                  <Button
+                                    radius="sm"
+                                    variant="bordered"
+                                    color="secondary"
+                                    className="mt-4"
+                                    onClick={() => {
+                                      document
+                                        .getElementById(`imageUpload-${index}`)
+                                        .click();
+                                    }}
+                                  >
+                                    <Upload size={20} />
+                                    Upload Image
+                                  </Button>
+                                </div>
+                              </Tab>
+                              <Tab key="url" title="Image URL">
+                                <div className="flex gap-2">
+                                  <Input
+                                    radius="sm"
+                                    placeholder="Image URL"
+                                    variant="bordered"
+                                    color="secondary"
+                                    className="text-[#7469B6]  w-full "
+                                    value={card.imageUrl || ""}
+                                    onChange={(e) => {
+                                      handleCardChange(
+                                        index,
+                                        "imageUrl",
+                                        e.target.value
+                                      );
+                                    }}
+                                  />
+                                  <Button
+                                    radius="sm"
+                                    color="secondary"
+                                    isDisabled={!card.imageUrl}
+                                    onClick={() => {
+                                      handleInsertImageFromUrl(card, index);
+                                      onClose();
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
+                              </Tab>
+                            </Tabs>
+                          </div>
+
+                          {tempImage && (
+                            <div className="w-full h-full">
+                              <ReactCrop
+                                className="w-full h-full"
+                                src={tempImage}
+                                crop={crop}
+                                onChange={(newCrop) => setCrop(newCrop)}
+                                aspect={1}
+                              >
+                                {tempImage && !card.image && (
+                                  <img
+                                    src={tempImage}
+                                    onLoad={onImageLoad}
+                                    alt="Crop preview"
+                                    className="w-full h-full object-contain"
+                                    // style={{
+                                    //   transform: `scale(${zoom})`,
+                                    // }}
+                                  />
+                                )}
+                              </ReactCrop>
+                            </div>
+                          )}
+                        </ModalBody>
+                        <ModalFooter>
+                          <Button
+                            variant="flat"
+                            radius="sm"
+                            color="danger"
+                            onPress={onClose}
+                            onClick={() => {
+                              setTempImage(null);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            radius="sm"
+                            isDisabled={!tempImage}
+                            color="secondary"
+                            onClick={() => {
+                              confirmImage(index);
+                              onClose();
+                            }}
+                          >
+                            Insert
+                          </Button>
+                        </ModalFooter>
+                      </>
+                    )}
+                  </ModalContent>
+                </Modal>
                 <div className="flex w-full flex-col gap-4">
                   <Input
+                    size="lg"
+                    radius="md"
+                    placeholder="Enter Description"
+                    classNames={{
+                      label: "text-white",
+                      inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    }}
+                    variant="bordered"
                     color="secondary"
-                    variant="underlined"
-                    label="Word"
                     value={card.word}
                     onChange={(e) =>
                       handleCardChange(index, "word", e.target.value)
@@ -382,7 +599,7 @@ const index = () => {
                                 src={tempImage}
                                 onLoad={onImageLoad}
                                 alt="Crop preview"
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-contain "
                                 // style={{
                                 //   transform: `scale(${zoom})`,
                                 // }}
@@ -418,8 +635,83 @@ const index = () => {
                       <Radio value="negative">Negative</Radio>
                     </div>
                   </RadioGroup>
+                  <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
+                    {card.image ? (
+                      <div className="relative flex flex-col gap-2 ">
+                        <div className=" w-full h-full object-cover">
+                          <img
+                            src={card.image}
+                            alt="flashcard image"
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
+
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          onClick={() => {
+                            handleCardChange(index, "image", null);
+                          }}
+                          color="danger"
+                          className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
+                        >
+                          <Trash2 size={18} />
+                        </Button>
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          color="secondary"
+                          className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                          aria-label="View Image"
+                          onPress={() => {
+                            onImageViewOpen();
+                            setCurrentIndex(index);
+                          }}
+                        >
+                          <ScanSearch size={18} />
+                        </Button>
+                        <Modal
+                          isOpen={isImageViewOpen}
+                          onOpenChange={onImageViewOpenChange}
+                        >
+                          <ModalContent>
+                            {(onClose) => (
+                              <>
+                                <ModalHeader>View Image</ModalHeader>
+                                <ModalBody>
+                                  <div className="w-full h-full">
+                                    <img
+                                      src={card.image}
+                                      alt="flashcard image"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                </ModalBody>
+                              </>
+                            )}
+                          </ModalContent>
+                        </Modal>
+                      </div>
+                    ) : (
+                      <Button
+                        radius="sm"
+                        variant="bordered"
+                        color="secondary"
+                        className="border-1 "
+                        onClick={() => {
+                          const newCards = [...cards];
+                          newCards[index].isUploadModalOpen = true;
+                          setCards(newCards);
+                          setCurrentIndex(index);
+                        }}
+                      >
+                        <Upload size={20} />
+                        Upload Image
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[150px] h-[150px] max-sm:w-[150px] max-sm:h-[150px]">
+                {/* <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[150px] h-[150px] max-sm:w-[150px] max-sm:h-[150px]">
                   {card.image && (
                     <div className=" w-[150px] h-[150px] max-sm:w-[100px] max-sm:h-[100px]">
                       <img
@@ -429,7 +721,7 @@ const index = () => {
                       />
                     </div>
                   )}
-                </div>
+                </div> */}
               </div>
             </CardBody>
           </Card>
