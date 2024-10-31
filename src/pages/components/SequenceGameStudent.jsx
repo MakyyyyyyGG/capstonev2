@@ -249,8 +249,8 @@ const SequenceGameStudent = ({ sequenceGame }) => {
         <>
           {gameData && gameData.length > 0 && gameData[0].video && (
             <>
-              <div className="flex w-full justify-center">
-                <div className="aspect-video w-full max-w-[50rem] h-auto rounded-lg overflow-hidden 'bg-black'">
+              <div className="flex w-full justify-center pt-2">
+                <div className="aspect-video w-full max-w-[50rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
                   <iframe
                     src={gameData[0].video}
                     frameBorder="0"
