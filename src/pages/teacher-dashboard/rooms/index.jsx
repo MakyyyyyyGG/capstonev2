@@ -68,7 +68,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
         <Input
           classNames={{
             label: "text-white",
-            inputWrapper: "bg-[#ffffff]",
+            inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
           }}
           isClearable
           onClear={() => setSearchQuery("")}
@@ -86,7 +86,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
           <Select
             classNames={{
               label: "text-white",
-              mainWrapper: "bg-[#ffffff] border-purple-400",
+              mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
             }}
             placeholder="Filter by Difficulty"
             size="lg"
