@@ -18,6 +18,13 @@ import {
   useDisclosure,
   Divider,
   Tooltip,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Chip,
+  Tabs,
+  Tab,
+  Textarea,
 } from "@nextui-org/react";
 import {
   Mic,
@@ -28,6 +35,9 @@ import {
   VolumeX,
   Trash2,
   ScanSearch,
+  Info,
+  Video,
+  Upload,
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -213,48 +223,48 @@ const Index = () => {
       y: 25,
     });
   };
-  const confirmImage = () => {
-    if (!imgRef.current) {
-      console.error("Image is not loaded yet.");
-      return;
-    }
+  // const confirmImage = () => {
+  //   if (!imgRef.current) {
+  //     console.error("Image is not loaded yet.");
+  //     return;
+  //   }
 
-    const canvas = document.createElement("canvas");
-    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
-    canvas.width = crop.width * scaleX;
-    canvas.height = crop.height * scaleY;
-    const ctx = canvas.getContext("2d");
+  //   const canvas = document.createElement("canvas");
+  //   const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+  //   const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+  //   canvas.width = crop.width * scaleX;
+  //   canvas.height = crop.height * scaleY;
+  //   const ctx = canvas.getContext("2d");
 
-    ctx.drawImage(
-      imgRef.current,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width * scaleX,
-      crop.height * scaleY
-    );
+  //   ctx.drawImage(
+  //     imgRef.current,
+  //     crop.x * scaleX,
+  //     crop.y * scaleY,
+  //     crop.width * scaleX,
+  //     crop.height * scaleY,
+  //     0,
+  //     0,
+  //     crop.width * scaleX,
+  //     crop.height * scaleY
+  //   );
 
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        console.error("Canvas is empty");
-        return;
-      }
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => {
-        const base64data = reader.result;
-        const newSequence = [...sequence];
-        newSequence[currentIndex].image = base64data;
-        setSequence(newSequence);
-        setTempImage(null);
-        onOpenChange(false);
-      };
-    }, "image/jpeg");
-  };
+  //   canvas.toBlob((blob) => {
+  //     if (!blob) {
+  //       console.error("Canvas is empty");
+  //       return;
+  //     }
+  //     const reader = new FileReader();
+  //     reader.readAsDataURL(blob);
+  //     reader.onloadend = () => {
+  //       const base64data = reader.result;
+  //       const newSequence = [...sequence];
+  //       newSequence[currentIndex].image = base64data;
+  //       setSequence(newSequence);
+  //       setTempImage(null);
+  //       onOpenChange(false);
+  //     };
+  //   }, "image/jpeg");
+  // };
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -298,10 +308,10 @@ const Index = () => {
     setSequence(newSequence);
   };
 
-  const handleFlashcardImageChange = (index, e) => {
-    setCurrentIndex(index);
-    handleImageChange(e);
-  };
+  // const handleFlashcardImageChange = (index, e) => {
+  //   setCurrentIndex(index);
+  //   handleImageChange(e);
+  // };
 
   const handleFlashcardAudioChange = (index, audioBlob) => {
     const newSequence = [...sequence];
@@ -328,12 +338,6 @@ const Index = () => {
   const removeFlashcard = (index) => {
     const newSequence = sequence.filter((_, i) => i !== index);
     setSequence(newSequence);
-  };
-
-  const handleWheel = (event) => {
-    event.preventDefault();
-    const newZoom = zoom + event.deltaY * -0.01;
-    setZoom(Math.min(Math.max(1, newZoom), 3)); // Clamp zoom between 1 and 3
   };
 
   const handleTextToSpeech = (text) => {
@@ -389,6 +393,71 @@ const Index = () => {
     console.log("embeddableVideoURL:", embeddableVideoURL);
     setVideo(embeddableVideoURL);
   };
+  // Track which modal is open
+  const [openModalIndices, setOpenModalIndices] = useState({
+    cardIndex: null,
+    imageIndex: null,
+  });
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const newZoom = zoom + (e.deltaY > 0 ? -0.1 : 0.1);
+    setZoom(Math.min(Math.max(0.1, newZoom), 3));
+  };
+
+  const handleFlashcardImageChange = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setTempImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const confirmImage = () => {
+    if (!imgRef.current) {
+      console.error("Image is not loaded yet.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(
+      imgRef.current,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width * scaleX,
+      crop.height * scaleY
+    );
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        console.error("Canvas is empty");
+        return;
+      }
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        const newSequence = [...sequence];
+        newSequence[currentIndex].image = base64data;
+        setSequence(newSequence);
+        setTempImage(null);
+        onOpenChange(false);
+      };
+    }, "image/jpeg");
+  };
 
   return (
     <div className="w-full">
@@ -398,7 +467,45 @@ const Index = () => {
           {/* <h1>room_code: {room_code}</h1>
           <h1>session: {session?.user?.id}</h1> */}
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-            <h1 className="">Create a new sequence set</h1>
+            <div className="flex gap-4 items-center">
+              <h1 className="">Create a new sequence set</h1>
+              <Popover placement="bottom">
+                <PopoverTrigger>
+                  <Chip
+                    endContent={<Info size={20} />}
+                    variant="flat"
+                    color={
+                      sequence.length < 5
+                        ? "success"
+                        : sequence.length >= 10
+                        ? "danger"
+                        : "warning"
+                    }
+                    className="cursor-pointer"
+                  >
+                    <span>
+                      {sequence.length < 5
+                        ? "Easy"
+                        : sequence.length >= 10
+                        ? "Hard"
+                        : "Medium"}
+                    </span>
+                  </Chip>
+                </PopoverTrigger>
+                <PopoverContent className="w-[350px]">
+                  <div className="px-4 py-3">
+                    <div className="text-base font-bold mb-2">
+                      Difficulty Levels:
+                    </div>
+                    <div className="text-sm space-y-2">
+                      <p>• Easy: Less than 5 sequences</p>
+                      <p>• Medium: 5-9 sequences</p>
+                      <p>• Hard: 10 or more sequences</p>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
             <div>
               {isLoading ? (
                 <Button isLoading isDisabled>
@@ -415,74 +522,116 @@ const Index = () => {
               )}
             </div>
           </div>
-          <div className="items-center z-0">
-            <Input
-              label="Sequence Title"
-              value={title}
-              variant="faded"
-              onChange={(e) => setTitle(e.target.value)}
-            />
+          <div className="flex flex-col gap-4">
             <div className="flex gap-2">
               <Input
-                label="Video URL"
+                size="lg"
+                radius="md"
+                placeholder="Enter title"
+                classNames={{
+                  label: "text-white",
+                  inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                }}
+                variant="bordered"
+                color="secondary"
+                isClearable
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Input
+                variant="bordered"
+                color="secondary"
+                isClearable
+                radius="md"
+                size="lg"
+                isRequired
+                onClear={() => setVideoURL("")}
+                placeholder="Enter YouTube URL"
+                classNames={{
+                  label: "text-white",
+                  inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                }}
                 value={videoURL}
-                variant="underlined"
                 onChange={(e) => setVideoURL(e.target.value)}
               />
-              <Button onClick={handleAddVideo}>Add Video</Button>
+              {!video ? (
+                <Button
+                  isDisabled={!videoURL}
+                  onClick={handleAddVideo}
+                  radius="sm"
+                  className="border-1 "
+                  size="lg"
+                  variant="bordered"
+                  color="secondary"
+                >
+                  <div className="flex gap-2 items-center">
+                    <Video size={20} />
+                    Add Video
+                  </div>
+                </Button>
+              ) : (
+                <Button
+                  radius="sm"
+                  className="border-1 "
+                  size="lg"
+                  variant="bordered"
+                  color="danger"
+                  onClick={() => {
+                    setVideoURL("");
+                    setVideo(null);
+                  }}
+                >
+                  Clear
+                </Button>
+              )}
             </div>
-            {video && <iframe src={video} frameborder="0"></iframe>}
-            <h1>difficulty {difficulty}</h1>
-            <h1 className="bg-red-400">NOTE: Make sure each image is unique</h1>
+            {video && (
+              <iframe
+                src={video}
+                height={500}
+                frameBorder="0"
+                className="w-full aspect-video rounded-lg border border-[#7469B6] mt-4"
+                allowFullScreen
+              />
+            )}
+            <h1 className="bg-red-400 text-white font-semibold px-4 py-4 rounded-md ">
+              NOTE: Make sure each image is unique
+            </h1>
           </div>
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             {sequence.map((flashcard, index) => (
               <Card
                 key={index}
-                className="w-full border border-slate-800 rounded-md flex"
+                className="w-full border  border-[#7469B6] rounded-md flex p-4"
               >
                 <CardHeader className="flex px-3 justify-between items-center z-0">
                   <div className="pl-2 text-xl font-bold">
                     <h1>{index + 1}</h1>
                   </div>
-                  <div className="flex gap-2">
-                    <Input
-                      label="Image URL"
-                      variant="underlined"
-                      color="secondary"
-                      className="text-[#7469B6] px-2 z-0"
-                      value={flashcard.imageUrl || ""}
-                      onChange={(e) => {
-                        handleFlashcardChange(
-                          index,
-                          "imageUrl",
-                          e.target.value
-                        );
-                      }}
-                    />
+                  <div className="flex">
                     <Button
-                      color="secondary"
-                      onClick={() => handleInsertImageFromUrl(flashcard, index)}
+                      isIconOnly
+                      color="danger"
+                      onPress={() => removeFlashcard(index)}
                     >
-                      Add
+                      <Trash2 size={20} />
                     </Button>
-                    <Button
-                      color="secondary"
-                      onPress={() => {
-                        onOpen();
-                        setCurrentIndex(index);
-                      }}
-                    >
-                      <Image />
-                      Add Image
-                    </Button>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
                     <Modal
-                      isOpen={isOpen}
-                      onOpenChange={onOpenChange}
-                      size="lg"
-                      onClose={() => {
-                        setTempImage(null);
+                      isOpen={flashcard.isUploadModalOpen}
+                      onOpenChange={(isOpen) => {
+                        const newSequence = [...sequence];
+                        newSequence[index].isUploadModalOpen = isOpen;
+                        setSequence(newSequence);
+                        if (!isOpen) {
+                          setTempImage(null);
+                        }
                       }}
+                      size="lg"
                     >
                       <ModalContent>
                         {(onClose) => (
@@ -491,46 +640,91 @@ const Index = () => {
                               Upload Image
                             </ModalHeader>
                             <ModalBody>
-                              <div
-                                className="border-2 border-dashed border-gray-400 rounded-md p-8 text-center cursor-pointer"
-                                onDragOver={(e) => e.preventDefault()}
-                                onDrop={(e) => {
-                                  e.preventDefault();
-                                  const file = e.dataTransfer.files[0];
-                                  if (file) {
-                                    handleFlashcardImageChange(currentIndex, {
-                                      target: { files: [file] },
-                                    });
-                                  }
-                                }}
-                              >
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  id="imageUpload"
-                                  onChange={(e) =>
-                                    handleFlashcardImageChange(currentIndex, e)
-                                  }
-                                />
-                                <label htmlFor="imageUpload" className="block">
-                                  Drag or upload your image here
-                                </label>
+                              <div className="w-full">
+                                <Tabs aria-label="Options" fullWidth>
+                                  <Tab key="drag" title="Drag & Drop">
+                                    <div
+                                      className=" rounded-lg border-2 border-dashed border-gray-400 p-8 text-center cursor-pointer"
+                                      onDragOver={(e) => e.preventDefault()}
+                                      onDrop={(e) => {
+                                        e.preventDefault();
+                                        const file = e.dataTransfer.files[0];
+                                        if (file) {
+                                          handleFlashcardImageChange(index, {
+                                            target: { files: [file] },
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        id={`imageUpload-${index}`}
+                                        onChange={(e) =>
+                                          handleFlashcardImageChange(index, e)
+                                        }
+                                      />
+                                      <label
+                                        htmlFor={`imageUpload-${index}`}
+                                        className="block"
+                                      >
+                                        Drag or upload your image here
+                                      </label>
+                                      <Button
+                                        radius="sm"
+                                        variant="bordered"
+                                        color="secondary"
+                                        className="mt-4"
+                                        onClick={() => {
+                                          document
+                                            .getElementById(
+                                              `imageUpload-${index}`
+                                            )
+                                            .click();
+                                        }}
+                                      >
+                                        <Upload size={20} />
+                                        Upload Image
+                                      </Button>
+                                    </div>
+                                  </Tab>
+                                  <Tab key="url" title="Image URL">
+                                    <div className="flex gap-2">
+                                      <Input
+                                        radius="sm"
+                                        placeholder="Image URL"
+                                        variant="bordered"
+                                        color="secondary"
+                                        className="text-[#7469B6]  w-full "
+                                        value={flashcard.imageUrl || ""}
+                                        onChange={(e) => {
+                                          handleFlashcardChange(
+                                            index,
+                                            "imageUrl",
+                                            e.target.value
+                                          );
+                                        }}
+                                      />
+                                      <Button
+                                        radius="sm"
+                                        color="secondary"
+                                        isDisabled={!flashcard.imageUrl}
+                                        onClick={() => {
+                                          handleInsertImageFromUrl(
+                                            flashcard,
+                                            index
+                                          );
+                                          onClose();
+                                        }}
+                                      >
+                                        Add
+                                      </Button>
+                                    </div>
+                                  </Tab>
+                                </Tabs>
                               </div>
-                              <Input
-                                label="Image URL"
-                                variant="underlined"
-                                color="secondary"
-                                className="text-[#7469B6] px-2 z-0"
-                                value={flashcard.imageUrl || ""}
-                                onChange={(e) => {
-                                  handleFlashcardChange(
-                                    currentIndex,
-                                    "imageUrl",
-                                    e.target.value
-                                  );
-                                }}
-                              />
+
                               {tempImage && (
                                 <div
                                   className="w-full h-full"
@@ -560,6 +754,8 @@ const Index = () => {
                             </ModalBody>
                             <ModalFooter>
                               <Button
+                                variant="flat"
+                                radius="sm"
                                 color="danger"
                                 onPress={onClose}
                                 onClick={() => {
@@ -568,7 +764,15 @@ const Index = () => {
                               >
                                 Cancel
                               </Button>
-                              <Button color="secondary" onPress={confirmImage}>
+                              <Button
+                                radius="sm"
+                                isDisabled={!tempImage}
+                                color="secondary"
+                                onClick={() => {
+                                  confirmImage(index);
+                                  onClose();
+                                }}
+                              >
                                 Insert
                               </Button>
                             </ModalFooter>
@@ -576,25 +780,20 @@ const Index = () => {
                         )}
                       </ModalContent>
                     </Modal>
-                    <Button
-                      isIconOnly
-                      color="danger"
-                      onClick={() => removeFlashcard(index)}
-                    >
-                      <Trash2 size={22} />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <Divider className="m-0 h-0.5 bg-slate-300" />
-                <CardBody>
-                  <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
                     <div className="flex shrink flex-col w-[45%] gap-2 max-sm:w-full">
-                      <Input
+                      <Textarea
+                        rows={13}
+                        radius="sm"
                         type="text"
-                        variant="underlined"
+                        variant="bordered"
                         color="secondary"
-                        className="text-[#7469B6] z-0"
-                        label={`Step ${index + 1}`}
+                        disableAnimation
+                        disableAutosize
+                        classNames={{
+                          input: "resize-y min-h-[40px]",
+                          inputWrapper: "border-1 border-[#7469B6]",
+                        }}
+                        label={`Describe Step ${index + 1}`}
                         value={flashcard.step}
                         onChange={(e) =>
                           handleFlashcardChange(index, "step", e.target.value)
@@ -625,10 +824,10 @@ const Index = () => {
                           )
                         }
                       /> */}
-                      <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
-                        {flashcard.image && (
+                      <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-[300px] h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
+                        {flashcard.image ? (
                           <div className="relative flex flex-col gap-2">
-                            <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
+                            <div className=" w-[300px] h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
                               <img
                                 src={flashcard.image}
                                 alt="flashcard image"
@@ -694,15 +893,30 @@ const Index = () => {
                               </ModalContent>
                             </Modal>
                           </div>
+                        ) : (
+                          <Button
+                            radius="sm"
+                            variant="bordered"
+                            color="secondary"
+                            className="border-1 "
+                            onClick={() => {
+                              const newSequence = [...sequence];
+                              newSequence[index].isUploadModalOpen = true;
+                              setSequence(newSequence);
+                              setCurrentIndex(index);
+                            }}
+                          >
+                            <Upload size={20} />
+                            Upload Image
+                          </Button>
                         )}
                       </div>
                     </div>
                   </div>
                 </CardBody>
-                <Divider className="m-0 h-0.5 bg-slate-300" />
-                <CardFooter className="flex px-5 gap-2 items-center justify-between">
-                  <div>
-                    <Button
+                <CardFooter className="flex gap-2 items-center justify-between">
+                  <div className=" w-full ">
+                    {/* <Button
                       color="secondary"
                       className="my-2"
                       onPress={() => {
@@ -712,7 +926,50 @@ const Index = () => {
                     >
                       <Mic />
                       Record Audio
-                    </Button>
+                    </Button> */}
+                    {flashcard.audio ? (
+                      <div className="flex gap-3  w-full ">
+                        <div className="flex gap-2 w-full justify-between">
+                          <Button
+                            className="border-1 w-full"
+                            variant="bordered"
+                            radius="sm"
+                            onClick={() => {
+                              const audio = new Audio(flashcard.audio);
+                              audio.play();
+                            }}
+                            color="secondary"
+                          >
+                            <Volume2 size={20} />
+                            Play Audio
+                          </Button>
+                          <Button
+                            isIconOnly
+                            radius="sm"
+                            onClick={() =>
+                              handleFlashcardChange(index, "audio", null)
+                            }
+                            color="danger"
+                          >
+                            <VolumeX size={20} />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <Button
+                        radius="sm"
+                        variant="bordered"
+                        color="secondary"
+                        className="border-1 w-full"
+                        onPress={() => {
+                          onRecordingOpen();
+                          setCurrentIndex(index);
+                        }}
+                      >
+                        <Mic size={20} />
+                        Record Audio
+                      </Button>
+                    )}
                     <Modal
                       isOpen={isRecordingOpen}
                       onOpenChange={(isOpen) => {
@@ -793,7 +1050,7 @@ const Index = () => {
                       </ModalContent>
                     </Modal>
                   </div>
-                  <div>
+                  {/* <div>
                     {flashcard.audio && (
                       <div className="flex gap-3">
                         <audio controls src={flashcard.audio}></audio>
@@ -809,7 +1066,7 @@ const Index = () => {
                         </Button>
                       </div>
                     )}
-                  </div>
+                  </div> */}
                 </CardFooter>
               </Card>
             ))}

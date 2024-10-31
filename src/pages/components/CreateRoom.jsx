@@ -13,13 +13,14 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
+import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 const CreateRoom = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [roomName, setRoomName] = useState("");
-  const [difficulty, setDifficulty] = useState("easy");
+  const [difficulty, setDifficulty] = useState("");
 
   // Function to generate a unique 4-digit room code
   const generateRoomCode = async () => {
@@ -43,11 +44,11 @@ const CreateRoom = () => {
     e.preventDefault();
 
     if (!difficulty) {
-      alert("Difficulty is required");
+      toast.error("Difficulty are required");
       return;
     }
 
-    try {
+    const createRoomPromise = async () => {
       const generatedRoomCode = await generateRoomCode();
       const roomData = {
         account_id: session.user.id,
@@ -66,19 +67,22 @@ const CreateRoom = () => {
 
       const result = await response.json();
 
-      if (response.ok) {
-        router.push(`/teacher-dashboard/rooms/${generatedRoomCode}`);
-        console.log("Room created successfully", result);
-      } else {
-        console.error("Error creating room:", result.error);
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create room");
       }
-    } catch (error) {
-      console.error("Error creating room:", error);
-    }
 
-    setRoomName("");
-    setDifficulty("Easy");
-    onOpenChange(false);
+      setRoomName("");
+      setDifficulty("Easy");
+      onOpenChange(false);
+      router.push(`/teacher-dashboard/rooms/${generatedRoomCode}`);
+      return result;
+    };
+
+    toast.promise(createRoomPromise(), {
+      loading: "Creating room...",
+      success: "Room created successfully!",
+      error: (err) => `Error: ${err.message}`,
+    });
   };
 
   const handleDifficultyChange = (e) => {
@@ -87,6 +91,7 @@ const CreateRoom = () => {
 
   return (
     <div>
+      <Toaster />
       <Button
         onPress={onOpen}
         radius="sm"
