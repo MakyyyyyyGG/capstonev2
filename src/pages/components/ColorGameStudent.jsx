@@ -311,20 +311,21 @@ const ColorGames = ({ cards }) => {
                   </p>
                 </div>
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
-                {attemptsUsed >= 8 && (
-                  <div className="w-1/2 bg-red-400 rounded-md p-4">
-                    <p className="text-white">
-                      You have used all your attempts for this month. Your score
-                      wont be recorded. Wait for next month.
-                    </p>
-                  </div>
-                )}
                 {/* <h1>Questions Answered: {answeredQuestions}</h1>
               <h1>cards length: {cards.length}</h1> */}
               </div>
             </div>
           </div>
-
+          {attemptsUsed >= 8 && (
+            <div className="flex w-full justify-center items-center">
+              <div className="w-full max-w-[50rem] bg-red-400 rounded-lg mt-3 p-3">
+                <p className="text-sm text-white text-center">
+                  You have used all your attempts for this month. Your score
+                  wont be recorded. Wait for next month.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="flex w-full justify-center items-center ">
             <div className="w-full max-w-[50rem] my-4">
               <Progress
