@@ -422,7 +422,7 @@ const Index = () => {
               variant="bordered"
               color="secondary"
               isClearable
-              radius="md"
+              radius="sm"
               size="lg"
               onClear={() => setTitle("")}
               value={title}

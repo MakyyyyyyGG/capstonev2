@@ -393,7 +393,7 @@ const Index = () => {
           isRequired
           placeholder="Title"
           size="lg"
-          radius="md"
+          radius="sm"
           classNames={{
             label: "text-white",
             inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
@@ -405,7 +405,7 @@ const Index = () => {
         />
         <Select
           size="lg"
-          radius="md"
+          radius="sm"
           classNames={{
             label: "text-white",
             mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
@@ -447,6 +447,7 @@ const Index = () => {
                   <div className="flex shrink w-full mb-4 items-center">
                     <Input
                       label="Word"
+                      radius="sm"
                       variant="bordered"
                       color="secondary"
                       classNames={{

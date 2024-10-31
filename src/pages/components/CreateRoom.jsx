@@ -104,7 +104,7 @@ const CreateRoom = () => {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="center"
-        size="3xl"
+        size="xl"
         radius="sm"
         // classNames={{
         //   body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
@@ -120,7 +120,7 @@ const CreateRoom = () => {
             <>
               <ModalHeader className="flex flex-col gap-1 ">
                 <div>
-                  <h1>Create Room</h1>
+                  <h1 className="text-2xl font-bold">Create Room</h1>
                 </div>
               </ModalHeader>
 
@@ -138,19 +138,20 @@ const CreateRoom = () => {
                       onChange={(e) => setRoomName(e.target.value)}
                     />
                   </div>
-                  <div className="w-full">
+                  <div className="col-span-4">
                     <label htmlFor="difficulty" className="block mb-2">
                       Difficulty
                     </label>
-                    <div className="w-full flex">
+                    <div className="w-full">
                       <Select
-                        className="flex-grow w-full"
                         id="difficulty"
                         radius="sm"
+                        placeholder="Select difficulty"
                         size="lg"
                         variant="bordered"
                         value={difficulty}
                         onChange={handleDifficultyChange}
+                        className="w-full"
                       >
                         <SelectItem key="Easy" value="Easy">
                           Easy

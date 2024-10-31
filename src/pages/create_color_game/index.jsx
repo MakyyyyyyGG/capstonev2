@@ -264,9 +264,9 @@ const Index = ({ images }) => {
         <div className="flex gap-2 items-center z-0 mb-4 max-sm:flex-col">
           <Input
             isRequired
-            placeholder="Title"
+            placeholder="Enter Title"
             size="lg"
-            radius="md"
+            radius="sm"
             classNames={{
               label: "text-white",
               inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
@@ -278,7 +278,7 @@ const Index = ({ images }) => {
           />
           <Select
             size="lg"
-            radius="md"
+            radius="sm"
             classNames={{
               label: "text-white",
               mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
@@ -545,7 +545,7 @@ const Index = ({ images }) => {
                   {difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4}{" "}
                   Images
                 </h2>
-                <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1 max-md:grid-cols-2">
+                <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1 max-md:grid-cols-2">
                   {Object.entries(groupedImages).map(([color, images]) => (
                     <Card key={color} className="flex flex-col rounded-md p-4">
                       <h3 className="mb-2 text-md font-semibold capitalize">

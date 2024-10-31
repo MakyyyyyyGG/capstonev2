@@ -526,7 +526,7 @@ const Index = () => {
             <div className="flex gap-2">
               <Input
                 size="lg"
-                radius="md"
+                radius="sm"
                 placeholder="Enter title"
                 classNames={{
                   label: "text-white",
@@ -543,7 +543,7 @@ const Index = () => {
                 variant="bordered"
                 color="secondary"
                 isClearable
-                radius="md"
+                radius="sm"
                 size="lg"
                 isRequired
                 onClear={() => setVideoURL("")}

@@ -385,7 +385,7 @@ const Index = () => {
         <Input
           placeholder="Enter title"
           size="lg"
-          radius="md"
+          radius="sm"
           onChange={(e) => setTitle(e.target.value)}
           isRequired
           classNames={{
@@ -398,7 +398,7 @@ const Index = () => {
         />
         <Select
           size="lg"
-          radius="md"
+          radius="sm"
           classNames={{
             label: "text-white",
             mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",

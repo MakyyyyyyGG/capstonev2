@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardBody,
-  Chip,
-  Button,
-  Select,
-  SelectItem,
-  Input,
-  Skeleton,
-} from "@nextui-org/react";
+import { Card, CardBody, Chip, Button, Skeleton } from "@nextui-org/react";
 import Link from "next/link";
 import { Trash2, Edit, LayoutGrid, Grid2x2, Palette } from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { FaRegLightbulb } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import { Search } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const ClassWorkList = ({ room_code, games = [] }) => {
   const [roleRedirect, setRoleRedirect] = useState("");
-  const [filterByDifficulty, setFilterByDifficulty] = useState("");
-  const [filterByGameType, setFilterByGameType] = useState("");
+  const [filterByDifficulty, setFilterByDifficulty] = useState("all");
+  const [filterByGameType, setFilterByGameType] = useState("all");
   const [filterByTitle, setFilterByTitle] = useState("");
   const [gameList, setGameList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +43,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     };
 
     if (confirm(`Are you sure you want to delete this ${game_type} game?`)) {
-      try {
+      const deleteGamePromise = async () => {
         let res;
         if (game_type === "Flashcard") {
           res = await fetch(
@@ -82,11 +83,19 @@ const ClassWorkList = ({ room_code, games = [] }) => {
         }
 
         const data = await res.json();
-        console.log(data);
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to delete game");
+        }
+
         setGameList(gameList.filter((game) => game.game_id !== game_id));
-      } catch (error) {
-        console.log("Error deleting game:", error);
-      }
+        return data;
+      };
+
+      toast.promise(deleteGamePromise(), {
+        loading: "Deleting game...",
+        success: "Game deleted successfully!",
+        error: (err) => `Error: ${err.message}`,
+      });
     }
   };
 
@@ -229,8 +238,9 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   const renderGames = () => {
     const filteredGames = gameList.filter((game) => {
       return (
-        (!filterByDifficulty || game.difficulty === filterByDifficulty) &&
-        (!filterByGameType ||
+        (filterByDifficulty === "all" ||
+          game.difficulty === filterByDifficulty) &&
+        (filterByGameType === "all" ||
           game.game_type.toLowerCase() === filterByGameType.toLowerCase()) &&
         (!filterByTitle ||
           game.title.toLowerCase().includes(filterByTitle.toLowerCase()))
@@ -244,7 +254,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             <Card
               isPressable
               radius="sm"
-              className=" flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200   hover:border-purple-700 max-sm:px-4 max-sm:py-3"
+              className=" shadow-none border-gray-300 border flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200   hover:border-purple-700 max-sm:px-4 max-sm:py-3"
             >
               <Link href={getRedirectUrl(game)} className="w-full">
                 <div className="flex w-full h-[70px] items-center justify-between max-sm:scale-[95%]">
@@ -309,86 +319,56 @@ const ClassWorkList = ({ room_code, games = [] }) => {
 
   return (
     <div className="w-full">
+      <Toaster />
       <div className="flex w-full items-center justify-between my-4 gap-4 max-sm:flex-col">
         <div className="w-1/2 z-0 max-sm:w-full">
-          <Input
-            startContent={<Search size={20} color="#6B7280" />}
-            isClearable
-            size="lg"
-            onClear={() => setFilterByTitle("")}
-            radius="sm"
-            color="secondary"
-            variant="bordered"
-            placeholder="Search Game"
-            value={filterByTitle}
-            classNames={{
-              label: "text-white",
-              inputWrapper: "bg-[#ffffff] ",
-            }}
-            onChange={(e) => setFilterByTitle(e.target.value)}
-          />
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground mx-2" />
+            <Input
+              placeholder="Search Game"
+              value={filterByTitle}
+              onChange={(e) => setFilterByTitle(e.target.value)}
+              className="pl-10 bg-white h-[50px] border-gray-300"
+            />
+          </div>
         </div>
         <div className="flex gap-4 w-1/2 max-sm:w-full">
           <Select
-            radius="sm"
-            size="lg"
-            variant="bordered"
-            color="secondary"
-            className="flex-auto w-1/2 z-0"
-            placeholder="Game Type"
             value={filterByGameType}
-            classNames={{
-              label: "text-white",
-              mainWrapper: "bg-[#ffffff] rounded-lg border-purple-400",
-            }}
-            onChange={(e) => setFilterByGameType(e.target.value)}
+            onValueChange={(value) => setFilterByGameType(value)}
+            defaultValue="all"
           >
-            <SelectItem key="flashcard" value="flashcard">
-              Flashcard
-            </SelectItem>
-            <SelectItem key="ThinkPic" value="thinkpic">
-              ThinkPic
-            </SelectItem>
-            <SelectItem key="ThinkPic +" value="thinkpic_plus">
-              ThinkPic +
-            </SelectItem>
-            <SelectItem key="Color Game" value="color_game">
-              Color Game
-            </SelectItem>
-            <SelectItem key="Color Game Advanced" value="color_game_advanced">
-              Color Game Advanced
-            </SelectItem>
-            <SelectItem key="Decision Maker" value="decision_maker">
-              Decision Maker
-            </SelectItem>
-            <SelectItem key="Sequence Game" value="sequence_game">
-              Sequence Game
-            </SelectItem>
+            <SelectTrigger className="w-full bg-white h-[50px] border-gray-300">
+              <SelectValue placeholder="Game Type" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="flashcard">Flashcard</SelectItem>
+              <SelectItem value="thinkpic">ThinkPic</SelectItem>
+              <SelectItem value="thinkpic_plus">ThinkPic +</SelectItem>
+              <SelectItem value="color_game">Color Game</SelectItem>
+              <SelectItem value="color_game_advanced">
+                Color Game Advanced
+              </SelectItem>
+              <SelectItem value="decision_maker">Decision Maker</SelectItem>
+              <SelectItem value="sequence_game">Sequence Game</SelectItem>
+            </SelectContent>
           </Select>
 
           <Select
-            classNames={{
-              label: "text-white",
-              mainWrapper: "  bg-[#ffffff] rounded-lg border-purple-400",
-            }}
-            radius="sm"
-            size="lg"
-            variant="bordered"
-            color="secondary"
-            className="flex-auto w-1/2 z-0"
-            placeholder="Difficulty"
             value={filterByDifficulty}
-            onChange={(e) => setFilterByDifficulty(e.target.value)}
+            onValueChange={(value) => setFilterByDifficulty(value)}
+            defaultValue="all"
           >
-            <SelectItem key="easy" value="easy">
-              Easy
-            </SelectItem>
-            <SelectItem key="medium" value="medium">
-              Medium
-            </SelectItem>
-            <SelectItem key="hard" value="hard">
-              Hard
-            </SelectItem>
+            <SelectTrigger className="w-full bg-white h-[50px] border-gray-300">
+              <SelectValue placeholder="Difficulty" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="hard">Hard</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>
