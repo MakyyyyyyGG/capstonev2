@@ -312,7 +312,7 @@ const index = () => {
           variant="bordered"
           color="secondary"
           isClearable
-          radius="md"
+          radius="sm"
           size="lg"
           onClear={() => setTitle("")}
           value={title}
@@ -558,7 +558,7 @@ const index = () => {
                 <div className="flex w-full flex-col gap-4">
                   <Input
                     size="lg"
-                    radius="md"
+                    radius="sm"
                     placeholder="Enter Description"
                     classNames={{
                       label: "text-white",

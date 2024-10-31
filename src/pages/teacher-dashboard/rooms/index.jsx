@@ -84,13 +84,13 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
         />
         <div className="w-full max-w-[300px]">
           <Select
+            placeholder="Filter by Difficulty"
+            size="lg"
+            radius="sm"
             classNames={{
               label: "text-white",
               mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
             }}
-            placeholder="Filter by Difficulty"
-            size="lg"
-            radius="sm"
             color="secondary"
             variant="bordered"
             value={difficultyFilter}
