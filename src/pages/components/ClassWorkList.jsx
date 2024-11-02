@@ -30,7 +30,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     setTimeout(() => {
       setGameList(games);
       setLoading(false);
-    }, 500); // 1 seconds delay
+    }); // 1 seconds delay
   }, [games]);
 
   const handleDeleteGame = async (game_id, game_type) => {

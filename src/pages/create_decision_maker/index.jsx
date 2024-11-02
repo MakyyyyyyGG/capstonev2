@@ -285,14 +285,15 @@ const index = () => {
               </div>
             </PopoverContent>
           </Popover>
-        </div>{" "}
+        </div>
         {isLoading ? (
-          <Button isLoading isDisabled color="secondary">
+          <Button isLoading isDisabled color="secondary" radius="sm">
             Create
           </Button>
         ) : (
           <Button
             color="secondary"
+            radius="sm"
             onPress={handleSubmit}
             isDisabled={!title || cards.length === 0}
           >
@@ -323,7 +324,7 @@ const index = () => {
         {cards.map((card, index) => (
           <Card
             key={index}
-            className="w-full border  border-[#7469B6] rounded-md flex p-4"
+            className="w-full border  border-[#7469B6]  flex p-4 rounded-lg"
           >
             <CardHeader className="flex px-3 justify-between items-center z-0">
               <div className="pl-2 text-xl font-bold">
@@ -396,6 +397,7 @@ const index = () => {
                 <Button
                   isIconOnly
                   color="danger"
+                  radius="sm"
                   onClick={() => removeCard(index)}
                 >
                   <Trash2 size={22} />
@@ -637,8 +639,8 @@ const index = () => {
                   </RadioGroup>
                   <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
                     {card.image ? (
-                      <div className="relative flex flex-col gap-2 ">
-                        <div className=" w-full h-full object-cover">
+                      <div className="relative flex flex-col gap-2 w-full h-full">
+                        <div className=" w-full h-full ">
                           <img
                             src={card.image}
                             alt="flashcard image"
@@ -677,16 +679,26 @@ const index = () => {
                           <ModalContent>
                             {(onClose) => (
                               <>
-                                <ModalHeader>View Image</ModalHeader>
+                                <ModalHeader>Image Preview</ModalHeader>
                                 <ModalBody>
                                   <div className="w-full h-full">
                                     <img
                                       src={card.image}
                                       alt="flashcard image"
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-full object-cover rounded-lg"
                                     />
                                   </div>
                                 </ModalBody>
+                                <ModalFooter>
+                                  <Button
+                                    radius="sm"
+                                    variant="flat"
+                                    color="danger"
+                                    onPress={onClose}
+                                  >
+                                    Close
+                                  </Button>
+                                </ModalFooter>
                               </>
                             )}
                           </ModalContent>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { LibraryBig } from "lucide-react";
+import { LibraryBig, Trash2, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import {
@@ -7,7 +7,9 @@ import {
   Button,
   Image,
   Card,
+  CardHeader,
   CardBody,
+  CardFooter,
   Modal,
   ModalContent,
   ModalHeader,
@@ -18,6 +20,8 @@ import {
   Select,
   SelectItem,
   Skeleton,
+  Tabs,
+  Tab,
 } from "@nextui-org/react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -39,6 +43,7 @@ const index = () => {
   const [tempImage, setTempImage] = useState();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [displayImages, setDisplayImages] = useState([]);
+  const [selectedColor, setSelectedColor] = useState(null);
 
   //fetch images
   const fetchImages = async () => {
@@ -345,155 +350,168 @@ const index = () => {
     });
     setCards(updatedCards);
   };
+  const handleColorFilterChange = (color) => {
+    setSelectedColor(color);
+  };
+
+  const filteredImages = selectedColor
+    ? groupedImages[selectedColor] || []
+    : displayImages;
+
+  const colors = [
+    { name: "Red", className: "bg-red-500", value: "red" },
+    { name: "Blue", className: "bg-blue-500", value: "blue" },
+    { name: "Yellow", className: "bg-yellow-500", value: "yellow" },
+    { name: "Green", className: "bg-green-500", value: "green" },
+    { name: "Purple", className: "bg-purple-500", value: "purple" },
+    { name: "Orange", className: "bg-orange-500", value: "orange" },
+    { name: "Pink", className: "bg-pink-400", value: "pink" },
+    { name: "Brown", className: "bg-yellow-700", value: "brown" },
+    { name: "Black", className: "bg-gray-900", value: "black" },
+    { name: "White", className: "bg-gray-100", value: "white" },
+  ];
 
   return (
-    <div>
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
-      <h1>Create Color Game</h1>
-      {/* <ImagesModal onImageSelect={handleImageSelect} images={displayImages} /> */}
-      <h1>room code: {room_code}</h1>
+      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+        <h1>Edit Color Game</h1>
+        {isSaving ? (
+          <Button isDisabled isLoading color="secondary">
+            Save Changes
+          </Button>
+        ) : (
+          <Button
+            onClick={handleSubmit}
+            color="secondary"
+            radius="sm"
+            isDisabled={
+              !title ||
+              cards.some(
+                (card) => card.images.some((img) => img === null) || !card.color
+              )
+            }
+          >
+            Save Changes
+          </Button>
+        )}
+      </div>
       <form onSubmit={handleSubmit}>
-        <div className="w-80">
+        <div className="flex gap-2 items-center z-0 mb-4 max-sm:flex-col">
           <Input
             isRequired
-            label="Title"
+            placeholder="Enter Title"
+            size="lg"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mb-4 w-80"
+            radius="sm"
+            classNames={{
+              label: "text-white",
+              inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+            }}
+            variant="bordered"
+            color="secondary"
           />
-
-          {updateDifficulty ? (
-            <>
-              <Select
-                isRequired
-                label="Difficulty"
-                defaultSelectedKeys={[selectedDifficulty]}
-                onChange={handleDifficultyChange}
-                className="mb-4 w-80"
+          <div className="flex gap-2  items-center w-full max-sm:w-full">
+            {updateDifficulty ? (
+              <>
+                <Select
+                  defaultSelectedKeys={[selectedDifficulty]}
+                  onChange={handleDifficultyChange}
+                  size="lg"
+                  radius="sm"
+                  classNames={{
+                    label: "text-white",
+                    mainWrapper:
+                      "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
+                  }}
+                  placeholder="Difficulty"
+                  variant="bordered"
+                  isRequired
+                  className="w-full max-sm:w-full"
+                >
+                  <SelectItem key="easy">Easy (2 images)</SelectItem>
+                  <SelectItem key="medium">Medium (3 images)</SelectItem>
+                  <SelectItem key="hard">Hard (4 images)</SelectItem>
+                </Select>
+                <Button
+                  size="lg"
+                  color="danger"
+                  variant="flat"
+                  radius="sm"
+                  onClick={() => setUpdateDifficulty(false)}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="lg"
+                radius="sm"
+                onClick={() => setUpdateDifficulty(!updateDifficulty)}
+                color="secondary"
               >
-                <SelectItem value="easy" key="easy">
-                  Easy (2 images)
-                </SelectItem>
-                <SelectItem value="medium" key="medium">
-                  Medium (3 images)
-                </SelectItem>
-                <SelectItem value="hard" key="hard">
-                  Hard (4 images)
-                </SelectItem>
-              </Select>
-              <Button onClick={() => setUpdateDifficulty(false)}>Cancel</Button>
-            </>
-          ) : (
-            <Button
-              onClick={() => setUpdateDifficulty(!updateDifficulty)}
-              color="secondary"
-            >
-              Edit Difficulty
-            </Button>
-          )}
+                Edit Difficulty
+              </Button>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-3 gap-4">
-            {cards.map((card, cardIndex) => (
-              <Card key={cardIndex} className="w-full">
-                <CardBody>
-                  {isLoading ? (
-                    <Skeleton className="w-full h-64" />
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <h2 className="mb-4 text-lg font-semibold">
-                          Color Card {cardIndex + 1}
-                        </h2>
-                        <p>Card ID: {card.color_game_id}</p>
-                        <Button
-                          onPress={() => handleRemoveCard(cardIndex)}
-                          color="danger"
-                          className="mb-4"
-                        >
-                          Remove Card
-                        </Button>
-                      </div>
-                      <div>
-                        <h1>Choose a color</h1>
-                        <Checkbox
-                          className="m-2 border bg-red-300 rounded-md"
-                          isSelected={card.color === "red"}
-                          onChange={() => handleColorChange(cardIndex, "red")}
-                        >
-                          Red
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-blue-300 rounded-md"
-                          isSelected={card.color === "blue"}
-                          onChange={() => handleColorChange(cardIndex, "blue")}
-                        >
-                          Blue
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-yellow-300 rounded-md"
-                          isSelected={card.color === "yellow"}
-                          onChange={() =>
-                            handleColorChange(cardIndex, "yellow")
-                          }
-                        >
-                          Yellow
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-green-300 rounded-md"
-                          isSelected={card.color === "green"}
-                          onChange={() => handleColorChange(cardIndex, "green")}
-                        >
-                          Green
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-purple-300 rounded-md"
-                          isSelected={card.color === "purple"}
-                          onChange={() =>
-                            handleColorChange(cardIndex, "purple")
-                          }
-                        >
-                          Purple
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-orange-300 rounded-md"
-                          isSelected={card.color === "orange"}
-                          onChange={() =>
-                            handleColorChange(cardIndex, "orange")
-                          }
-                        >
-                          Orange
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-pink-300 rounded-md"
-                          isSelected={card.color === "pink"}
-                          onChange={() => handleColorChange(cardIndex, "pink")}
-                        >
-                          Pink
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-yellow-700 rounded-md"
-                          isSelected={card.color === "brown"}
-                          onChange={() => handleColorChange(cardIndex, "brown")}
-                        >
-                          Brown
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-gray-900 rounded-md "
-                          isSelected={card.color === "black"}
-                          onChange={() => handleColorChange(cardIndex, "black")}
-                        >
-                          <span className="text-white">Black</span>
-                        </Checkbox>
-                        <Checkbox
-                          className="m-2 border bg-gray-100 rounded-md "
-                          isSelected={card.color === "white"}
-                          onChange={() => handleColorChange(cardIndex, "white")}
-                        >
-                          White
-                        </Checkbox>
-                      </div>
 
+        <div>
+          <div className="grid grid-cols-2 gap-4">
+            {isLoading ? (
+              Array.from({ length: cards.length }).map((_, index) => (
+                <Skeleton key={index} className="rounded-md w-full h-96	" />
+              ))
+            ) : (
+              <>
+                {cards.map((card, cardIndex) => (
+                  <Card
+                    key={cardIndex}
+                    className="w-full border  border-[#7469B6] rounded-md flex p-4"
+                  >
+                    <CardHeader className="flex px-3 justify-between items-center z-0">
+                      <div className="pl-2 text-xl font-bold">
+                        <h1>{cardIndex + 1}</h1>
+                      </div>
+                      <Button
+                        radius="sm"
+                        isIconOnly
+                        onPress={() => handleRemoveCard(cardIndex)}
+                        color="danger"
+                      >
+                        <Trash2 size={20} />
+                      </Button>
+                    </CardHeader>
+                    <CardBody>
+                      <div className="mb-2">
+                        <h1 className="mb-4 font-bold text-lg">
+                          Choose a color
+                        </h1>
+                        <div className="grid grid-cols-5 gap-6 mx-2 my-2 max-sm:gap-4 max-sm:max-0">
+                          {colors.map((color) => (
+                            <div key={color.value} className="relative">
+                              <div className="flex flex-col items-center space-y-2">
+                                <div
+                                  onClick={() =>
+                                    handleColorChange(cardIndex, color.value)
+                                  }
+                                  className={`rounded-full w-12 h-12 transition-transform duration-300 ${
+                                    color.className
+                                  } max-sm:scale-[90%] cursor-pointer ${
+                                    card.color === color.value
+                                      ? "ring-4 ring-purple-700 ring-offset-2 scale-110"
+                                      : ""
+                                  }`}
+                                ></div>
+                                <span className="text-sm mt-1">
+                                  {color.name}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {card.images
                           .slice(
@@ -507,25 +525,18 @@ const index = () => {
                           .map((image, imageIndex) => (
                             <div
                               key={imageIndex}
-                              className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2  items-center justify-center cursor-pointer group`}
+                              className={`flex  relative  w-full aspect-square bg-gray-100 rounded-lg border-2 border-dashed items-center justify-center cursor-pointer`}
                             >
                               {image ? (
-                                <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden w-full h-full">
+                                <>
                                   <img
                                     src={image}
                                     alt={`Image ${imageIndex + 1}`}
                                     className="h-full w-full object-cover rounded-lg"
                                   />
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity z-100">
+                                  <div className="absolute top-0 right-0 p-2 flex items-center justify-center space-x-2">
                                     <Button
-                                      onPress={() =>
-                                        handleEdit(cardIndex, imageIndex)
-                                      }
-                                      color="secondary"
-                                    >
-                                      Edit
-                                    </Button>
-                                    <Button
+                                      isIconOnly
                                       onClick={() => {
                                         const updatedCards = [...cards];
                                         updatedCards[cardIndex].images[
@@ -534,19 +545,24 @@ const index = () => {
                                         setCards(updatedCards);
                                       }}
                                       color="danger"
+                                      size="sm"
                                     >
-                                      Delete
+                                      <Trash2 size={18} />
                                     </Button>
                                   </div>
-                                </div>
+                                </>
                               ) : (
                                 <div className="flex flex-col items-center space-y-2">
                                   <Button
+                                    radius="sm"
+                                    variant="bordered"
+                                    color="secondary"
+                                    className="border-1"
                                     onPress={() =>
                                       handleEdit(cardIndex, imageIndex)
                                     }
                                   >
-                                    <LibraryBig />
+                                    <LibraryBig /> Select
                                   </Button>
                                 </div>
                               )}
@@ -568,6 +584,10 @@ const index = () => {
                               className="flex flex-col items-center space-y-2"
                             >
                               <Button
+                                radius="sm"
+                                variant="bordered"
+                                color="secondary"
+                                className="border-1"
                                 onPress={() =>
                                   handleEdit(
                                     cardIndex,
@@ -575,19 +595,19 @@ const index = () => {
                                   )
                                 }
                               >
-                                <LibraryBig />
+                                <LibraryBig /> Select
                               </Button>
                             </div>
                           )
                         )}
                       </div>
-                    </>
-                  )}
-                </CardBody>
-              </Card>
-            ))}
+                    </CardBody>
+                  </Card>
+                ))}
+              </>
+            )}
           </div>
-          <div className="mt-4 flex justify-between">
+          {/* <div className="mt-4 flex justify-between">
             <Button color="secondary" onClick={handleAddCard} type="button">
               Add Card
             </Button>
@@ -600,11 +620,11 @@ const index = () => {
                 Save Changes
               </Button>
             )}
-          </div>
+          </div> */}
         </div>
       </form>
 
-      <Modal
+      {/* <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         size="full"
@@ -691,7 +711,168 @@ const index = () => {
             </>
           )}
         </ModalContent>
+      </Modal> */}
+
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="5xl"
+        scrollBehavior="outside"
+        backdrop="blur"
+        placement="center"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">{""}</ModalHeader>
+              <ModalBody>
+                <div className="flex justify-between items-center">
+                  <h2 className="mb-2 text-lg font-semibold">Image Library</h2>
+                  <div className="flex items-center gap-4">
+                    <h1>
+                      Selected: {selectedImages.length}/
+                      {difficulty === "easy"
+                        ? 2
+                        : difficulty === "medium"
+                        ? 3
+                        : 4}
+                    </h1>
+                    <Button
+                      radius="sm"
+                      color="secondary"
+                      className="text-white"
+                      onPress={insertImages}
+                    >
+                      Insert
+                    </Button>
+                  </div>
+                </div>
+                <div className="w-full">
+                  <div className=" ">
+                    <Tabs
+                      aria-label="Filter by Color"
+                      variant="underlined"
+                      onChange={(e) => handleColorFilterChange(e)}
+                      selectedKey={selectedColor}
+                      onSelectionChange={setSelectedColor}
+                    >
+                      {Object.keys(groupedImages).map((color) => (
+                        <Tab
+                          key={color}
+                          title={color.charAt(0).toUpperCase() + color.slice(1)}
+                          value={color}
+                        />
+                      ))}
+                      <Tab
+                        title="All"
+                        value=""
+                        onClick={() => setSelectedColor("")}
+                      >
+                        <div className=" p-4">
+                          <div className="grid grid-cols-5 justify-center gap-4">
+                            {displayImages.map((item) => (
+                              <Card
+                                key={item.id}
+                                className={`  p-2 rounded-md relative overflow-hidden border transition-all duration-300 ${
+                                  selectedImages.includes(item.id)
+                                    ? "border-2 border-[#17C964]" // Thicker border when selected
+                                    : "border-2 border-[#7469B6]" // Default border when not selected
+                                }`}
+                              >
+                                <Checkbox
+                                  color="secondary"
+                                  isSelected={selectedImages.includes(item.id)}
+                                  onChange={() => handleImageSelect(item.id)}
+                                  isDisabled={
+                                    selectedImages.length >=
+                                      (difficulty === "easy"
+                                        ? 2
+                                        : difficulty === "medium"
+                                        ? 3
+                                        : 4) &&
+                                    !selectedImages.includes(item.id)
+                                  }
+                                  className="absolute top-2 left-2" // Floating checkbox on the top left
+                                />
+                                <CardBody className="w-full h-full">
+                                  <div>
+                                    <img
+                                      src={item.image}
+                                      alt={`Color game image ${item.id}`}
+                                      className="w-full h-full object-cover"
+                                      onClick={() => handleImageSelect(item.id)}
+                                    />
+                                  </div>
+                                </CardBody>
+                                <CardFooter className="flex justify-center items-center">
+                                  <h1 className="text-center">{item.name}</h1>
+                                </CardFooter>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
+                      </Tab>
+                    </Tabs>
+                  </div>
+                  <div className=" p-4">
+                    <div className="grid grid-cols-5 justify-center gap-4">
+                      {filteredImages.map((item) => (
+                        <Card
+                          key={item.id}
+                          className={`  p-2 rounded-md relative overflow-hidden border transition-all duration-300 ${
+                            selectedImages.includes(item.id)
+                              ? "border-2 border-[#17C964]" // Thicker border when selected
+                              : "border-2 border-[#7469B6]" // Default border when not selected
+                          }`}
+                        >
+                          <Checkbox
+                            color="secondary"
+                            isSelected={selectedImages.includes(item.id)}
+                            onChange={() => handleImageSelect(item.id)}
+                            isDisabled={
+                              selectedImages.length >=
+                                (difficulty === "easy"
+                                  ? 2
+                                  : difficulty === "medium"
+                                  ? 3
+                                  : 4) && !selectedImages.includes(item.id)
+                            }
+                            className="absolute top-2 left-2" // Floating checkbox on the top left
+                          />
+                          <CardBody className="w-full h-full">
+                            <div>
+                              <img
+                                src={item.image}
+                                alt={`Color game image ${item.id}`}
+                                className="w-full h-full object-cover"
+                                onClick={() => handleImageSelect(item.id)}
+                              />
+                            </div>
+                          </CardBody>
+                          <CardFooter className="flex justify-center items-center">
+                            <h1 className="text-center">{item.name}</h1>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
       </Modal>
+      <Button
+        size="lg"
+        radius="sm"
+        color="secondary"
+        className="mb-4 text-sm"
+        onClick={handleAddCard}
+        type="button"
+        startContent={<Plus size={22} />}
+      >
+        Add Card
+      </Button>
     </div>
   );
 };

@@ -46,7 +46,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
   return (
     <div className="sidebar__wrapper relative">
       <aside
-        className="w-64 h-[calc(100vh-66px)] bg-white transition-all border-r border-gray-300 sticky top-0 max-sm:hidden flex flex-col"
+        className="w-64 h-screen bg-white transition-all border-r border-gray-300 sticky top-0 max-sm:hidden flex flex-col"
         data-collapse={isCollapsed}
       >
         <ul className="p-1 mb-4">
@@ -70,7 +70,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
           ))}
         </ul>
 
-        <div className="mt-auto p-1">
+        {/* <div className="mt-auto p-1">
           <ul>
             <li className="hover:bg-gray-200 ease-in-out    rounded-md">
               <Button
@@ -87,7 +87,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
               </Button>
             </li>
           </ul>
-        </div>
+        </div> */}
       </aside>
 
       {/* Mobile Sidebar */}
