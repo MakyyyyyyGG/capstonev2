@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardBody,
@@ -7,6 +8,19 @@ import {
   Checkbox,
   Button,
 } from "@nextui-org/react";
+
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/effect-creative";
+
+// import required modules
+import { Pagination, Navigation } from "swiper/modules";
+import { EffectCreative } from "swiper/modules";
 
 const ColorGames = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -107,82 +121,147 @@ const ColorGames = ({ cards }) => {
   };
 
   return (
-    <div className="">
-      <div className="grid grid-cols-3 gap-4">
-        {cards.map((card) => (
-          <div key={card.color_game_id}>
-            <Card>
-              <CardBody>
-                <div
-                  className={`grid ${
-                    card.difficulty === "easy"
-                      ? "grid-cols-2"
-                      : card.difficulty === "medium"
-                      ? "grid-cols-3"
-                      : "grid-cols-2 grid-rows-2"
-                  } gap-2 border`}
-                >
-                  {[card.image1, card.image2, card.image3, card.image4].map(
-                    (image, imageIndex) =>
-                      image && (
-                        <div
-                          key={imageIndex}
-                          className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 flex items-center justify-center cursor-pointer `}
-                          onClick={() =>
-                            handleImageSelect(
-                              card.color_game_id,
-                              imageIndex,
-                              image
-                            )
+    <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+      <div className="flex mb-5 justify-between items-center text-2xl font-extrabold">
+        <div>
+          <h1 className="text-2xl font-bold">Color Game</h1>
+        </div>
+      </div>
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
+        <Swiper
+          // pagination={{
+          //   type: "progressbar",
+          // }}
+          grabCursor={true}
+          effect={"creative"}
+          creativeEffect={{
+            prev: {
+              shadow: true,
+              translate: [0, 0, -400],
+            },
+            next: {
+              translate: ["100%", 0, 0],
+            },
+          }}
+          modules={[EffectCreative]}
+          className="mySwiper w-full drop-shadow-lg rounded-md"
+        >
+          {cards.map((card) => (
+            <SwiperSlide key={card.color_game_id}>
+              <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                  <div className="flex justify-center items-center gap-2">
+                    <div className="text-3xl font-extrabold my-5 capitalize">
+                      <h1>{card.color}</h1>
+                    </div>
+                  </div>
+                  <div
+                    className={`grid ${
+                      [
+                        card.image1,
+                        card.image2,
+                        card.image3,
+                        card.image4,
+                      ].filter((image) => image !== null).length === 4
+                        ? "grid-cols-4"
+                        : [
+                            card.image1,
+                            card.image2,
+                            card.image3,
+                            card.image4,
+                          ].filter((image) => image !== null).length === 3
+                        ? "grid-cols-3"
+                        : "grid-cols-2"
+                    } gap-2`}
+                  >
+                    {[card.image1, card.image2, card.image3, card.image4].map(
+                      (image, imageIndex) =>
+                        image && (
+                          <motion.div
+                            key={imageIndex}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`relative block w-full aspect-square rounded-md items-center justify-center cursor-pointer ${
+                              selectedImages[card.color_game_id]?.includes(
+                                imageIndex
+                              )
+                                ? "border-3 border-[#17C964]"
+                                : "border border-purple-400"
+                            }`}
+                            onClick={() =>
+                              handleImageSelect(
+                                card.color_game_id,
+                                imageIndex,
+                                image
+                              )
+                            }
+                            style={{
+                              transition:
+                                "border-color 0.3s ease, transform 0.3s ease",
+                            }}
+                          >
+                            <div className="p-2 rounded-md relative overflow-hidden">
+                              <Checkbox
+                                color="success"
+                                isSelected={(
+                                  selectedImages[card.color_game_id] || []
+                                ).includes(imageIndex)}
+                                onChange={() =>
+                                  handleImageSelect(
+                                    card.color_game_id,
+                                    imageIndex,
+                                    image
+                                  )
+                                }
+                                className="absolute top-2 right-1 z-99"
+                              />
+                              <Image
+                                src={image}
+                                alt={`Image ${imageIndex + 1}`}
+                                className="h-full w-full object-cover rounded-lg"
+                              />
+                            </div>
+                          </motion.div>
+                        )
+                    )}
+                  </div>
+                  <div className="w-full mt-8">
+                    <Button
+                      radius="sm"
+                      className="w-full justify-center text-white bg-[#7469B6]"
+                      onClick={() => handleSubmit(card.color_game_id)}
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                  <AnimatePresence>
+                    {submissionResults[card.color_game_id] && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="flex w-full text-center justify-center rounded-md"
+                      >
+                        <p
+                          className={
+                            submissionResults[card.color_game_id] === "Correct!"
+                              ? "text-white w-full bg-green-500 p-2 rounded-md"
+                              : submissionResults[card.color_game_id] ===
+                                "Almost there!"
+                              ? "text-white w-full bg-yellow-500 p-2 rounded-md"
+                              : "text-white w-full bg-red-500 p-2 rounded-md"
                           }
                         >
-                          <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
-                            <Checkbox
-                              isSelected={(
-                                selectedImages[card.color_game_id] || []
-                              ).includes(imageIndex)}
-                              onChange={() =>
-                                handleImageSelect(
-                                  card.color_game_id,
-                                  imageIndex,
-                                  image
-                                )
-                              }
-                              className="absolute top-2 left-2 z-99"
-                            />
-                            <Image
-                              src={image}
-                              alt={`Image ${imageIndex + 1}`}
-                              className="h-full w-full object-cover rounded-lg"
-                            />
-                          </div>
-                        </div>
-                      )
-                  )}
-                </div>
-                <p>Color: {card.color}</p>
-
-                <Button onClick={() => handleSubmit(card.color_game_id)}>
-                  Submit
-                </Button>
-                {submissionResults[card.color_game_id] && (
-                  <p
-                    className={
-                      submissionResults[card.color_game_id] === "Correct!"
-                        ? "text-green-500"
-                        : submissionResults[card.color_game_id] ===
-                          "Almost there!"
-                        ? "text-yellow-500"
-                        : "text-red-500"
-                    }
-                  >
-                    {submissionResults[card.color_game_id]}
-                  </p>
-                )}
-              </CardBody>{" "}
-            </Card>{" "}
-          </div>
-        ))}
+                          {submissionResults[card.color_game_id]}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </CardBody>
+              </Card>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </div>
   );

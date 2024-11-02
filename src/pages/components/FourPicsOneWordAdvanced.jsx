@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardBody, Button, Image, Checkbox } from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Volume2 } from "lucide-react";
@@ -8,6 +9,19 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
+
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/effect-creative";
+
+// import required modules
+import { Pagination, Navigation } from "swiper/modules";
+import { EffectCreative } from "swiper/modules";
 
 const FourPicsOneWordAdvanced = ({ cards }) => {
   console.log(cards);
@@ -85,146 +99,228 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
   };
 
   return (
-    <div>
-      <h1>4 Pics 1 Word Game</h1>
-
-      <div className="flex flex-wrap gap-4">
-        {cards.map((card, index) => (
-          <div key={index} className="w-[500px]">
-            <Card className="w-full">
-              <CardBody className="flex flex-col gap-4">
-                <div className="flex justify-center flex-col gap-2 items-center">
-                  <h1>Word:</h1>
-                  <InputOTP
-                    maxLength={card.word.length}
-                    value={card.word}
-                    pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-                  >
-                    <InputOTPGroup>
-                      {Array.from({ length: card.word.length }).map(
-                        (_, idx) => (
-                          <React.Fragment key={idx}>
-                            <InputOTPSlot
-                              index={idx}
-                              className="text-2xl w-10 h-10 font-bold border border-purple-300"
-                            />
-                          </React.Fragment>
-                        )
+    <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+      <div className="flex mb-5 justify-between items-center text-2xl font-extrabold">
+        <div>
+          <h1 className="text-2xl font-bold">ThinkPic+</h1>
+        </div>
+      </div>
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
+        <Swiper
+          // pagination={{
+          //   type: "progressbar",
+          // }}
+          grabCursor={true}
+          effect={"creative"}
+          creativeEffect={{
+            prev: {
+              shadow: true,
+              translate: [0, 0, -400],
+            },
+            next: {
+              translate: ["100%", 0, 0],
+            },
+          }}
+          modules={[EffectCreative]}
+          className="mySwiper w-full drop-shadow-lg rounded-md"
+        >
+          {cards.map((card, index) => (
+            <SwiperSlide key={index} className="w-[500px]">
+              <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                  <div className="flex justify-center items-center gap-2">
+                    <div className="text-3xl font-extrabold my-5">
+                      <h1>{card.word}</h1>
+                    </div>
+                    <div className="flex justify-center items-center">
+                      {card.word && (
+                        <Button
+                          isIconOnly
+                          className="text-[#7469B6]"
+                          variant="light"
+                          onPress={() => handleTextToSpeech(card.word)}
+                        >
+                          <Volume2 />
+                        </Button>
                       )}
-                    </InputOTPGroup>
-                  </InputOTP>{" "}
-                  {card.word && (
-                    <Button
-                      className="mb-4"
-                      color="secondary"
-                      onPress={() => handleTextToSpeech(card.word)}
-                    >
-                      <Volume2 />
-                    </Button>
-                  )}
-                </div>
-                <div
-                  className={`grid ${
-                    card.difficulty === "easy"
-                      ? "grid-cols-2"
-                      : card.difficulty === "medium"
-                      ? "grid-cols-3"
-                      : "grid-cols-2 grid-rows-2"
-                  } gap-2 border`}
-                >
-                  {card.image1 && (
-                    <div className="relative">
-                      <img
-                        src={`${card.image1}`}
-                        alt="Image 1"
-                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                        onClick={() => handleImageSelect(0, index)} // Add onClick to image
-                      />
-                      <Checkbox
-                        isSelected={
+                    </div>
+                  </div>
+                  <div
+                    className={`grid ${
+                      card.difficulty === "easy"
+                        ? "grid-cols-2"
+                        : card.difficulty === "medium"
+                        ? "grid-cols-3"
+                        : "grid-cols-4 max-md:grid-cols-3 max-sm:grid-cols-2"
+                    } gap-2`}
+                  >
+                    {card.image1 && (
+                      <motion.div
+                        key={0}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(0)
-                        }
-                        onChange={() => handleImageSelect(0, index)}
-                        className="absolute top-2 left-2"
-                      />
-                    </div>
-                  )}
-                  {card.image2 && (
-                    <div className="relative">
-                      <img
-                        src={`${card.image2}`}
-                        alt="Image 2"
-                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                        onClick={() => handleImageSelect(1, index)} // Add onClick to image
-                      />
-                      <Checkbox
-                        isSelected={
+                            ? "border-3 border-[#17C964]"
+                            : ""
+                        }`}
+                        style={{
+                          transition:
+                            "border-color 0.3s ease, transform 0.3s ease",
+                        }}
+                        onClick={() => handleImageSelect(0, index)}
+                      >
+                        <img
+                          src={`${card.image1}`}
+                          alt="Image 1"
+                          className="w-full h-auto rounded-md aspect-square"
+                        />
+                        <Checkbox
+                          color="success"
+                          isSelected={
+                            selectedImages[index] &&
+                            selectedImages[index].includes(0)
+                          }
+                          onChange={() => handleImageSelect(0, index)}
+                          className="absolute top-2 right-1"
+                        />
+                      </motion.div>
+                    )}
+                    {card.image2 && (
+                      <motion.div
+                        key={1}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(1)
-                        }
-                        onChange={() => handleImageSelect(1, index)}
-                        className="absolute top-2 left-2"
-                      />
-                    </div>
-                  )}
-                  {card.difficulty !== "easy" && card.image3 && (
-                    <div className="relative">
-                      <img
-                        src={`${card.image3}`}
-                        alt="Image 3"
-                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                        onClick={() => handleImageSelect(2, index)} // Add onClick to image
-                      />
-                      <Checkbox
-                        isSelected={
+                            ? "border-3 border-[#17C964]"
+                            : ""
+                        }`}
+                        style={{
+                          transition:
+                            "border-color 0.3s ease, transform 0.3s ease",
+                        }}
+                        onClick={() => handleImageSelect(1, index)}
+                      >
+                        <img
+                          src={`${card.image2}`}
+                          alt="Image 2"
+                          className="w-full h-auto rounded-md aspect-square"
+                        />
+                        <Checkbox
+                          color="success"
+                          isSelected={
+                            selectedImages[index] &&
+                            selectedImages[index].includes(1)
+                          }
+                          onChange={() => handleImageSelect(1, index)}
+                          className="absolute top-2 right-1"
+                        />
+                      </motion.div>
+                    )}
+                    {card.difficulty !== "easy" && card.image3 && (
+                      <motion.div
+                        key={2}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(2)
-                        }
-                        onChange={() => handleImageSelect(2, index)}
-                        className="absolute top-2 left-2"
-                      />
-                    </div>
-                  )}
-                  {card.difficulty === "hard" && card.image4 && (
-                    <div className="relative">
-                      <img
-                        src={`${card.image4}`}
-                        alt="Image 4"
-                        className="w-full h-auto border-2 border-purple-300 rounded-md aspect-square hover:scale-125 transition-all"
-                        onClick={() => handleImageSelect(3, index)} // Add onClick to image
-                      />
-                      <Checkbox
-                        isSelected={
+                            ? "border-3 border-[#17C964]"
+                            : ""
+                        }`}
+                        style={{
+                          transition:
+                            "border-color 0.3s ease, transform 0.3s ease",
+                        }}
+                        onClick={() => handleImageSelect(2, index)}
+                      >
+                        <img
+                          src={`${card.image3}`}
+                          alt="Image 3"
+                          className="w-full h-auto rounded-md aspect-square"
+                        />
+                        <Checkbox
+                          color="success"
+                          isSelected={
+                            selectedImages[index] &&
+                            selectedImages[index].includes(2)
+                          }
+                          onChange={() => handleImageSelect(2, index)}
+                          className="absolute top-2 right-1"
+                        />
+                      </motion.div>
+                    )}
+                    {card.difficulty === "hard" && card.image4 && (
+                      <motion.div
+                        key={3}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(3)
-                        }
-                        onChange={() => handleImageSelect(3, index)}
-                        className="absolute top-2 left-2"
-                      />
-                    </div>
-                  )}
-                </div>
-                {feedback[index] && (
-                  <p
-                    className={
-                      feedback[index].includes("Correct")
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }
-                  >
-                    {feedback[index]}
-                  </p>
-                )}
-              </CardBody>
-            </Card>
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-center mt-4">
-        <Button onClick={handleCheckAnswers} color="primary">
-          Check Answers
-        </Button>
+                            ? "border-3 border-[#17C964]"
+                            : ""
+                        }`}
+                        style={{
+                          transition:
+                            "border-color 0.3s ease, transform 0.3s ease",
+                        }}
+                        onClick={() => handleImageSelect(3, index)}
+                      >
+                        <img
+                          src={`${card.image4}`}
+                          alt="Image 4"
+                          className="w-full h-auto rounded-md aspect-square"
+                        />
+                        <Checkbox
+                          color="success"
+                          isSelected={
+                            selectedImages[index] &&
+                            selectedImages[index].includes(3)
+                          }
+                          onChange={() => handleImageSelect(3, index)}
+                          className="absolute top-2 right-1"
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+
+                  <div className="w-full mt-9">
+                    <Button
+                      onClick={handleCheckAnswers}
+                      className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                    >
+                      Check Answers
+                    </Button>
+                  </div>
+                  <AnimatePresence>
+                    {feedback[index] && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="flex w-full text-center justify-center rounded-md"
+                      >
+                        <p
+                          className={
+                            feedback[index].includes("Correct")
+                              ? "text-white w-full bg-green-500 p-2 rounded-md"
+                              : "text-white w-full bg-red-500 p-2 rounded-md"
+                          }
+                        >
+                          {feedback[index]}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </CardBody>
+              </Card>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </div>
   );
