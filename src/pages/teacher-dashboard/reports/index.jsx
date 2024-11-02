@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import SampleReport from "./samplereport";
 import Scores from "@/pages/components/Scores";
 import Loader from "@/pages/components/Loader";
-import { Users, Shapes } from "lucide-react";
+import { Users, Shapes, Gamepad } from "lucide-react";
 
 const index = () => {
   const { data: session } = useSession();
@@ -31,6 +31,7 @@ const index = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedGameType, setSelectedGameType] = useState(null);
   const [selectedRoomName, setSelectedRoomName] = useState(null);
+  const [numGamesPerUser, setNumGamesPerUser] = useState(null);
   const [reportDetails, setReportDetails] = useState({
     roomName: null,
     gameType: null,
@@ -56,6 +57,15 @@ const index = () => {
         console.error("Error fetching rooms:", error);
       }
     }
+  };
+
+  const fetchNumGamesPerUser = async () => {
+    const res = await fetch(
+      `/api/games/fetchNumGamesPerUser?account_id=${session?.user?.id}`
+    );
+    const data = await res.json();
+    setNumGamesPerUser(data.numGames);
+    console.log("Number of games per user", data.numGames);
   };
 
   useEffect(() => {
@@ -99,6 +109,7 @@ const index = () => {
       setFilteredRooms(rooms);
       fetchStudentData();
       fetchStudents(session?.user?.id);
+      fetchNumGamesPerUser();
     } else {
       setFilteredRooms(
         rooms.filter((room) => room.room_difficulty === selectedDifficulty)
@@ -148,7 +159,7 @@ const index = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <Card
               radius="sm"
               className="shadow-none border-gray-300 border p-4"
@@ -160,6 +171,20 @@ const index = () => {
                     <h3 className="text-xl font-semibold ">Total Students</h3>
                   </div>
                   <p className="text-3xl font-bold">{students.length}</p>
+                </div>
+              </CardBody>
+            </Card>
+            <Card
+              radius="sm"
+              className="shadow-none border-gray-300 border p-4"
+            >
+              <CardBody>
+                <div className="flex flex-col ">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Gamepad size={24} />
+                    <h3 className="text-xl font-semibold ">Total Games</h3>
+                  </div>
+                  <p className="text-3xl font-bold">{numGamesPerUser}</p>
                 </div>
               </CardBody>
             </Card>

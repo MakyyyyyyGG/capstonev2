@@ -35,7 +35,7 @@ import {
   Tabs,
   Tab,
 } from "@nextui-org/react";
-
+import toast, { Toaster } from "react-hot-toast";
 const Index = () => {
   const { data: session } = useSession();
   const [difficulty, setDifficulty] = useState("easy");
@@ -227,7 +227,7 @@ const Index = () => {
   //submit form
   const handleSubmit = async () => {
     if (!title) {
-      alert("Please enter a title.");
+      toast.error("Please enter a title.");
       return;
     }
     const requiredImages =
@@ -236,15 +236,15 @@ const Index = () => {
       if (
         card.images.filter((image) => image !== null).length < requiredImages
       ) {
-        alert(`Please upload ${requiredImages} images for each card.`);
+        toast.error(`Please upload ${requiredImages} images for each card.`);
         return;
       }
       if (card.word === "") {
-        alert("Please enter a word for each card.");
+        toast.error("Please enter a word for each card.");
         return;
       }
       if (card.correct_answers.length === 0) {
-        alert("Please select at least one correct answer for each card.");
+        toast.error("Please select at least one correct answer for each card.");
         return;
       }
     }
@@ -276,16 +276,17 @@ const Index = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        alert("Game created successfully");
+        toast.success("Game created successfully");
         console.log("Response data:", data);
         router.push(
           `/teacher-dashboard/rooms/${room_code}/4pics1word_advanced/${data.gameId}`
         );
       } else {
-        alert("Error creating game");
+        toast.error("Error creating game");
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -370,6 +371,7 @@ const Index = () => {
   };
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create a new ThinkPic+ Set</h1>
         <div>
@@ -401,7 +403,6 @@ const Index = () => {
           variant="bordered"
           color="secondary"
           onChange={(e) => setTitle(e.target.value)}
-          className="w-3/5 max-sm:w-full"
         />
         <Select
           size="lg"
@@ -416,7 +417,6 @@ const Index = () => {
             setDifficulty(e.target.value);
           }}
           isRequired
-          className="w-2/5 max-sm:w-full"
         >
           <SelectItem key="easy">Easy (2 images)</SelectItem>
           <SelectItem key="medium">Medium (3 images)</SelectItem>
@@ -444,10 +444,11 @@ const Index = () => {
             <CardBody className="flex px-3 pb-6 items-center z-0">
               <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
                 <form action="" className="w-full">
-                  <div className="flex shrink w-full mb-4 items-center">
+                  <div className="flex gap-2 shrink w-full mb-4 items-center">
                     <Input
                       label="Word"
                       radius="sm"
+                      size="sm"
                       variant="bordered"
                       color="secondary"
                       classNames={{
@@ -463,6 +464,8 @@ const Index = () => {
                     />
                     {card.word && (
                       <Button
+                        size="lg"
+                        radius="sm"
                         isIconOnly
                         color="secondary"
                         onPress={() => handleTextToSpeech(card.word)}
@@ -555,7 +558,7 @@ const Index = () => {
                                   </div>
                                 )}
                               </div>
-                              <div className="relative">
+                              <div className="relative w-full">
                                 <img
                                   src={image}
                                   alt={`Uploaded ${imageIndex + 1}`}
