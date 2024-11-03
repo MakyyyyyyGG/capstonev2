@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   LineChart,
   Line,
@@ -169,9 +170,15 @@ const Summary = ({ gameRecord, questions }) => {
           transition={{ duration: 0.5 }}
         >
           <Card className="max-w-[40rem] mx-auto p-6 space-y-6 my-4">
-            <h1 className="text-2xl font-bold text-center">
-              Game Performance Summary
-            </h1>
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold">Game Performance Summary</h1>
+              <Link href="/">
+                <Button variant="bordered">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

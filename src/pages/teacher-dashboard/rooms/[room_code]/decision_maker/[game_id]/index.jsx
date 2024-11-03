@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Flashcards from "@/pages/components/Flashcards";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
+import { Pencil } from "lucide-react";
 import DecisionMaker from "@/pages/components/DecisionMaker";
 const index = () => {
   const router = useRouter();
@@ -38,19 +39,22 @@ const index = () => {
     }
   }, [game_id]);
   return (
-    <div>
-      <h1>Decision Maker Page</h1>
-      <h1>game id: {game_id}</h1>
-
-      <Link
-        href={{
-          pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
-        }}
-      >
-        <Button color="primary">Edit Decision Maker</Button>
-      </Link>
-
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
       <DecisionMaker cards={cards} />
+      <div className="w-full flex justify-end">
+        {/* <h1>4 Pics 1 Word Advanced</h1>
+      <p>game_id: {game_id}</p>
+      <p>room_code: {room_code}</p> */}
+        <Link
+          href={{
+            pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
+          }}
+        >
+          <Button isIconOnly className="bg-[#7469B6] text-white border-0">
+            <Pencil size={22} />
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };

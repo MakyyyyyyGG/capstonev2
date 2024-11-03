@@ -122,7 +122,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
         </div>
       ) : (
         <>
-          <ul className="grid grid-cols-4 gap-5 rounded-lg mr-4">
+          <ul className="grid grid-cols-4 gap-5 rounded-lg mr-4 auto-cols-auto">
             {filteredRooms.map((room) => (
               <li key={room.room_id}>
                 {isLoading ? (
@@ -132,14 +132,14 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
                     <div className="block w-full">
                       <Card
                         isPressable
-                        className=" w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
+                        className="relative w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
                         onClick={() =>
                           router.push(
                             `/teacher-dashboard/rooms/${room.room_code}`
                           )
                         }
                       >
-                        <CardHeader className="relative w-full  items-center text-center  flex justify-between">
+                        <CardHeader className="absolute w-full  items-center text-center  flex justify-between">
                           <Chip
                             color={getChipColor(room.room_difficulty)}
                             radius="xl"
@@ -154,13 +154,13 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
                           />
                         </CardHeader>
 
-                        <CardBody className="flex flex-col justify-center items-center w-full">
+                        <CardBody className="flex h-2/4 flex-col justify-center items-center w-full">
                           <h1 className="text-2xl text-bold  text-white font-bold">
                             {room.room_name}
                           </h1>
                         </CardBody>
 
-                        <CardFooter className="row-span-2  justify-between bg-white mt-auto flex-1">
+                        <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
                           <div className="p-2 text-[#7469B6] flex items-center justify-between  w-full">
                             <div className="flex items-center gap-2">
                               <Button

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Card,
   CardHeader,
@@ -7,7 +7,7 @@ import {
   Button,
   Progress,
 } from "@nextui-org/react";
-import { X, Check, RefreshCw } from "lucide-react";
+import { X, Check, RefreshCw, Pause, Volume2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -31,6 +31,26 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameRecord, setGameRecord] = useState([]);
   const [feedback, setFeedback] = useState(Array(gameData.length).fill(""));
+
+  const [isPlaying, setIsPlaying] = useState(
+    Array(sequenceGame.length).fill(false)
+  );
+  const audioRefs = useRef([]);
+
+  const handleAudioToggle = (index) => {
+    if (audioRefs.current[index]) {
+      if (isPlaying[index]) {
+        audioRefs.current[index].pause();
+      } else {
+        audioRefs.current[index].play();
+      }
+      setIsPlaying((prev) => {
+        const newPlayingState = [...prev];
+        newPlayingState[index] = !newPlayingState[index];
+        return newPlayingState;
+      });
+    }
+  };
 
   useEffect(() => {
     if (sequenceGame) {
@@ -363,11 +383,40 @@ const SequenceGameStudent = ({ sequenceGame }) => {
 
                         <div className="flex-1">
                           <h3 className="font-medium">Step {index + 1}</h3>
-                          {item.audio && <audio src={item.audio} controls />}
                           <p className="text-sm text-muted-foreground">
                             {item.step}
                           </p>
                         </div>
+
+                        {item.audio && (
+                          <>
+                            <div className="absolute top-1 right-1">
+                              <Button
+                                isIconOnly
+                                radius="sm"
+                                onClick={() => handleAudioToggle(index)}
+                                className="p-2 bg-transparent text-purple-500 hover:text-purple-700"
+                              >
+                                {isPlaying[index] ? (
+                                  <Pause className="h-4 w-4" />
+                                ) : (
+                                  <Volume2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <audio
+                                ref={(el) => (audioRefs.current[index] = el)}
+                                src={item.audio}
+                                onEnded={() =>
+                                  setIsPlaying((prev) => {
+                                    const newPlayingState = [...prev];
+                                    newPlayingState[index] = false;
+                                    return newPlayingState;
+                                  })
+                                }
+                              />
+                            </div>
+                          </>
+                        )}
 
                         {selectedImages[index] && (
                           <>
