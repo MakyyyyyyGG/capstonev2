@@ -52,7 +52,9 @@ export default async function handler(req, res) {
 	rooms.room_difficulty,
     rooms.room_code,
     student_room.student_id,
-    teachers.email
+    teachers.email,
+
+    teachers.profile_image
 from student_room
 join
 	rooms on student_room.room_id = rooms.room_id
@@ -60,7 +62,7 @@ join
 	teachers on rooms.account_id = teachers.account_id
 join
 	students on student_room.student_id = students.account_id	
-where students.account_id = ?`,
+where students.account_id = ? ORDER BY rooms.created_at DESC`,
       values: [student_id],
     });
     res.status(200).json({ roomData });

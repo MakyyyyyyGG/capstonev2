@@ -1,97 +1,38 @@
-import React, { useState } from "react";
-import { Button, Steps, theme } from "antd";
-import { Input } from "@nextui-org/react";
+"use client";
+
+import { useState } from "react";
+import { Input, Button } from "@nextui-org/react";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import toast, { Toaster } from "react-hot-toast";
-const Index = () => {
-  // Initialize state variables
+
+export default function Component() {
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const { token } = theme.useToken();
   const router = useRouter();
 
-  const [current, setCurrent] = useState(0);
-
-  // Define the steps after the state initialization
-  const steps = [
-    {
-      title: "First",
-      content: (
-        <Input
-          radius="sm"
-          type="email"
-          label="Email"
-          variant="bordered"
-          className="text-[#7469b6] r"
-          value={email} // Bind input value to state
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      ),
-    },
-    {
-      title: "Second",
-      content: (
-        <Input
-          type="password"
-          label="Admin Password"
-          variant="bordered"
-          className="text-[#7469b6]"
-          value={adminPassword} // Bind input value to state
-          onChange={(e) => setAdminPassword(e.target.value)}
-        />
-      ),
-    },
-    {
-      title: "Last",
-      content: (
-        <>
-          <Input
-            type="password"
-            label="New Password"
-            variant="bordered"
-            className="text-[#7469b6]"
-            value={newPassword}
-            onChange={(e) => {
-              setNewPassword(e.target.value);
-              console.log(newPassword);
-            }}
-          />
-          <Input
-            type="password"
-            label="Confirm Password"
-            variant="bordered"
-            className="text-[#7469b6] mt-4"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              console.log(newPassword);
-            }}
-          />
-        </>
-      ),
-    },
-  ];
-
-  const next = () => {
-    setCurrent(current + 1);
-  };
-
-  const prev = () => {
-    setCurrent(current - 1);
-  };
-
-  const items = steps.map((item) => ({
-    key: item.title,
-    title: item.title,
-  }));
-
-  const contentStyle = {
-    lineHeight: "260px",
-    textAlign: "center",
-    color: token.colorTextTertiary,
-    marginTop: 16,
+  const handleSubmit = async (e) => {
+    console.log("step", step);
+    e.preventDefault();
+    if (step === 1) {
+      console.log("step 1");
+      const userExists = await checkUserExists();
+      if (userExists) {
+        setStep(step + 1);
+      } else {
+        toast.error("User not found");
+      }
+    } else if (step === 2) {
+      if (checkAdminPassword()) {
+        setStep(step + 1);
+      }
+    } else if (step === 3) {
+      handleResetPassword();
+    }
   };
 
   const checkUserExists = async () => {
@@ -156,89 +97,219 @@ const Index = () => {
       {
         loading: "Resetting password...",
         success: "Password reset successful",
-        error: "An error occurred while resetting the password.",
+        error: "Failed to reset password",
       }
     );
   };
 
-  const handleNextClick = async () => {
-    if (current === 0) {
-      // Check if the user exists for the first step
-      const userExists = await checkUserExists();
-      if (userExists) {
-        next();
-      } else {
-        toast.error("User not found");
-      }
-    } else if (current === 1) {
-      // Check if the admin password is correct for the second step
-      if (checkAdminPassword()) {
-        next();
-      }
-    }
-  };
-
   return (
-    <div className="flex-col min-w-screen min-h-screen bg-[#7469b6] sm:flex sm:flex-row">
+    <div className="flex min-h-screen bg-white dark:bg-gray-900">
       <Toaster />
-      <div className="min-w-[60%] h-screen overflow-hidden  hidden sm:block ">
+
+      {/* Left side with image and tagline */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#6B4DE6] text-white p-12 flex-col justify-between relative overflow-hidden">
+        <div className="z-10">
+          <h1 className="text-4xl font-bold max-w-xl leading-tight mb-4">
+            "Empowering your learning journey, one click at a time."
+          </h1>
+          <p className="text-xl opacity-80">Let's make a difference.</p>
+        </div>
         <img
-          src="reset-pw.svg"
-          alt=""
-          className="w-full  h-full m-auto object-cover"
+          src="/reset-pw.svg"
+          alt="Security illustration"
+          className="absolute inset-0 w-full h-full object-cover"
         />
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-full h-full">
+          <svg className="w-full h-full opacity-10" viewBox="0 0 400 400">
+            <path
+              d="M 0 50 C 100 50 100 150 200 150 C 300 150 300 50 400 50"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="animate-pulse"
+            />
+            <circle
+              cx="30"
+              cy="30"
+              r="10"
+              fill="currentColor"
+              className="animate-pulse"
+            />
+            <circle
+              cx="370"
+              cy="370"
+              r="10"
+              fill="currentColor"
+              className="animate-pulse"
+            />
+          </svg>
+        </div>
       </div>
-      <div className="w-full bg-[#f5f5f5] h-screen">
-        <div className="card flex flex-col justify-center items-center h-full w-full sm:overflow-scroll">
-          <div className="greet flex flex-col gap-4 min-w-[80%] sm:w-6/12">
-            <h1 className="sm:text-5xl font-bold text-[#7469b6]  text-[35px] ">
+
+      {/* Right side with form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-[#7828C8]">
               Forgot Password?
-            </h1>
-            <p className="mb-8 text-md">Please enter your credentials.</p>
+            </h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Please enter your credentials.
+            </p>
           </div>
-          <div className="flex flex-col gap-2 min-w-[80%] sm:w-6/12 w-11/12">
-            <>
-              <Steps current={current} items={items} />
-              <div style={contentStyle}>{steps[current].content}</div>
-              <div
-                className="flex justify-start gap-2"
-                style={{ marginTop: 10 }}
-              >
-                {current > 0 && (
-                  <Button
-                    radius="lg"
-                    type="secondary"
-                    className={`font-bold rounded-lg w-[35%] p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
-                    onClick={() => prev()}
-                  >
-                    Previous
-                  </Button>
-                )}
-                {current < steps.length - 1 && (
-                  <Button
-                    type="secondary"
-                    className={`font-bold w-[35%] rounded-lg p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
-                    onClick={handleNextClick}
-                  >
-                    Next
-                  </Button>
-                )}
-                {current === steps.length - 1 && (
-                  <Button
-                    type="secondary"
-                    className={`font-bold w-[35%] rounded-lg p-6 bg-[#7469b6] text-slate-50 text-base hover:bg-[#473f7e] transition ease-in-out `}
-                    onClick={handleResetPassword} // Call handleResetPassword on "Done"
-                  >
-                    Done
-                  </Button>
+
+          {/* Progress Steps */}
+          <div className="flex items-center justify-between mb-8">
+            {["First", "Second", "Last"].map((label, index) => (
+              <div key={label} className="flex items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                    step > index
+                      ? "bg-[#7828C8] text-white"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {index + 1}
+                </div>
+                <span
+                  className={`ml-2 text-sm font-medium ${
+                    step > index ? "text-gray-900" : "text-gray-500"
+                  }`}
+                >
+                  {label}
+                </span>
+                {index < 2 && (
+                  <div className="flex-1 h-[2px] w-12 mx-4 bg-gray-200">
+                    <div
+                      className={`h-full bg-[#7828C8] transition-all ${
+                        step > index + 1 ? "w-full" : "w-0"
+                      }`}
+                    />
+                  </div>
                 )}
               </div>
-            </>
+            ))}
           </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {step === 1 && (
+              <div className="space-y-4">
+                <Label htmlFor="email">Username</Label>
+                <Input
+                  size="lg"
+                  radius="sm"
+                  classNames={{
+                    label: "text-white",
+                    inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                  }}
+                  variant="bordered"
+                  color="secondary"
+                  id="email"
+                  type="email"
+                  placeholder="Enter Username"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+
+            {step === 2 && (
+              <div>
+                <label
+                  htmlFor="adminPassword"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Admin Password
+                </label>
+                <div className="relative">
+                  <Input
+                    id="adminPassword"
+                    type="password"
+                    value={adminPassword}
+                    size="lg"
+                    radius="sm"
+                    classNames={{
+                      label: "text-white",
+                      inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    }}
+                    variant="bordered"
+                    color="secondary"
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="Enter admin password"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-4">
+                <div className="relative">
+                  <Label htmlFor="newPassword" className="mb-2">
+                    New Password
+                  </Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    size="lg"
+                    radius="sm"
+                    className="mt-2"
+                    classNames={{
+                      label: "text-white",
+                      inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    }}
+                    variant="bordered"
+                    color="secondary"
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <Label htmlFor="confirmPassword" className="mb-2">
+                    Confirm New Password
+                  </Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirm new password"
+                    size="lg"
+                    radius="sm"
+                    className="mt-2"
+                    classNames={{
+                      label: "text-white",
+                      inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    }}
+                    variant="bordered"
+                    color="secondary"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              size="lg"
+              color="secondary"
+              radius="sm"
+              className="w-full"
+              classNames={{
+                label: "text-white",
+                inputWrapper: "bg-[#6B4DE6] hover:bg-[#5B3DD6] ",
+              }}
+              onClick={handleSubmit}
+            >
+              {step === 3 ? "Reset Password" : "Next"}
+            </Button>
+          </form>
         </div>
       </div>
     </div>
   );
-};
-
-export default Index;
+}

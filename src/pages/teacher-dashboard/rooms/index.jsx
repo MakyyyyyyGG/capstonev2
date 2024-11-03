@@ -62,7 +62,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
   };
 
   return (
-    <div className="  m-auto">
+    <div className="m-auto">
       <Toaster />
       <div className="flex gap-4 w-full">
         <Input

@@ -26,11 +26,13 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
-import { cache } from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
 import { useRouter } from "next/router";
+import toast, { Toaster } from "react-hot-toast";
 import JoinRoom from "./JoinRoom";
 import CreateRoom from "../components/CreateRoom";
+import crypto from "crypto";
+
 const Header = ({ isCollapsed, toggleCollapse }) => {
   const router = useRouter();
 
@@ -46,7 +48,10 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const { data: session, status } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [isLocationEditing, setIsLocationEditing] = useState(false);
-
+  const [isPasswordEditing, setIsPasswordEditing] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [bday, setBday] = useState("");
@@ -102,6 +107,48 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   // useEffect(() => {
   //   fetchRooms();
   // }, [session?.user?.id]);
+  const checkPasswordsMatch = () => {
+    if (newPassword === confirmNewPassword) {
+      return true;
+    } else {
+      toast.error("Passwords do not match");
+      return false;
+    }
+  };
+  const handleResetPassword = async () => {
+    if (!checkPasswordsMatch()) {
+      return;
+    }
+    toast.promise(
+      fetch(`/api/resetPassword?email=${session.user.email}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ newPassword, currentPassword }),
+      })
+        .then((res) => {
+          if (res.status === 400) {
+            return res.json().then((data) => {
+              throw new Error("Failed to reset password.");
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data.success) {
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmNewPassword("");
+          }
+        }),
+      {
+        loading: "Resetting password...",
+        success: "Password reset successful",
+        error: "Failed to reset password.",
+      }
+    );
+  };
 
   const fetchRegions = async () => {
     try {
@@ -343,6 +390,12 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const handleLocCancelClick = () => {
     setIsLocationEditing(false);
   };
+  const handlePassUpdateClick = () => {
+    setIsPasswordEditing(true);
+  };
+  const handlePassCancelClick = () => {
+    setIsPasswordEditing(false);
+  };
 
   const handleSaveClick = async (e) => {
     e.preventDefault();
@@ -496,8 +549,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       // console.log(data);
       console.log("User data updated successfully");
       setIsLocationEditing(false);
-      setUserData(data); // Update the userData state with the new data
       getUserData(); // Re-fetch user data to reflect the updates
+
+      // setUserData(data); // Update the userData state with the new data
     } catch (error) {
       console.error("Error updating user data:", error);
     }
@@ -506,10 +560,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   };
 
   const handleCancelClick = () => {
-    // console.log("session.user.first_name", session.user.first_name);
-    // console.log("session.user.last_name", session.user.last_name);
-    // console.log("userData.first_name", userData.first_name);
-    // console.log("userData.last_name", userData.last_name);
     setFirstName(userData.first_name);
     setLastName(userData.last_name);
     setIsLocationEditing(false);
@@ -532,6 +582,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     try {
       const response = await fetch(apiEndpoint, getData);
       const data = await response.json();
+      console.log("raw data", data);
       const user = data.usersData[0];
       if (user) {
         setFirstName(user.first_name || "");
@@ -548,9 +599,16 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
             ? `${user.profile_image}?${new Date().getTime()}`
             : ""
         );
+
+        // Decrypt user password using sha256 crypto
+        const decryptedPassword = crypto
+          .createHash("sha256")
+          .update(user.password)
+          .digest("hex");
+        setCurrentPassword(decryptedPassword);
       }
       setUserData(user);
-      // console.log("User data:", user);
+      console.log("User data:", user);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -570,6 +628,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
 
   return (
     <div>
+      <Toaster />
       <Navbar isBordered maxWidth={"full"}>
         <NavbarContent justify="start">
           <NavbarBrand className="mr-4">
@@ -581,7 +640,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
           <div className="flex gap-4">
-            {session.user.role === "teacher" && <CreateRoom />}
+            {session.user.role === "teacher" ? <CreateRoom /> : <JoinRoom />}
             <Dropdown
               isOpen={isDropdownOpen}
               onOpenChange={setIsDropdownOpen}
@@ -822,7 +881,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           </CardBody>
                           <CardFooter className="flex justify-end gap-3">
                             <Button
-                              color="default"
+                              color="danger"
+                              variant="light"
                               size="sm"
                               onClick={handleCancelClick}
                             >
@@ -995,7 +1055,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           </CardBody>
                           <CardFooter className="flex justify-end gap-3">
                             <Button
-                              color="default"
+                              color="danger"
+                              variant="light"
                               size="sm"
                               onClick={handleLocCancelClick}
                             >
@@ -1037,6 +1098,107 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                             radius="full"
                             className="px-4 bg-[#7469B6] text-white border-0 max-sm:hidden"
                             onClick={handleLocUpdateClick}
+                          >
+                            Update
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <hr className="border-gray opacity-75" />
+                {/* forgot password */}
+                <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
+                  {/* <div className="col-span-1">
+                    <div className="flex mt-4 justify-between">
+                      <p>Security</p>
+                      <Button
+                        size="sm"
+                        radius="full"
+                        className="px-4 bg-[#7469B6] text-white border-0 sm:hidden"
+                        onClick={() => setIsPasswordEditing(true)}
+                      >
+                        Update
+                      </Button>
+                    </div>
+                  </div> */}
+                  <div className="col-span-4 col-start-3 col-end-8 max-sm:col-span-1 max-sm:col-start-1">
+                    {isPasswordEditing ? (
+                      <>
+                        <Card className="w-full p-2">
+                          <CardHeader>
+                            <div className="flex gap-5">
+                              <h4 className="text-small font-semibold leading-none text-default-600">
+                                Edit Your Password
+                              </h4>
+                            </div>
+                          </CardHeader>
+                          <CardBody className="px-3 py-0 text-small text-default-400 gap-y-3">
+                            <Input
+                              type="password"
+                              label="Current Password"
+                              placeholder="Enter Current Password"
+                              size="sm"
+                              variant="bordered"
+                              // value={currentPassword}
+                              onChange={(e) =>
+                                setCurrentPassword(e.target.value)
+                              }
+                            />
+                            <Input
+                              type="password"
+                              label="New Password"
+                              placeholder="Enter New Password"
+                              size="sm"
+                              variant="bordered"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                            <Input
+                              type="password"
+                              label="Confirm New Password"
+                              placeholder="Confirm New Password"
+                              size="sm"
+                              variant="bordered"
+                              value={confirmNewPassword}
+                              onChange={(e) =>
+                                setConfirmNewPassword(e.target.value)
+                              }
+                            />
+                          </CardBody>
+                          <CardFooter className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="light"
+                              color="danger"
+                              onClick={() => setIsPasswordEditing(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              className="bg-[#7469B6] text-white border-0"
+                              size="sm"
+                              onClick={() => {
+                                handleResetPassword();
+                              }}
+                            >
+                              Save
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      </>
+                    ) : (
+                      <>
+                        <div className="min-w-[400px] flex flex-row items-center justify-between gap-5 text-sm">
+                          <div className="min-w-[300px]">
+                            <p className="font-bold">Password</p>
+                            <p>********</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            radius="full"
+                            className="px-4 bg-[#7469B6] text-white border-0 max-sm:hidden"
+                            onClick={handlePassUpdateClick}
                           >
                             Update
                           </Button>

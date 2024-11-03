@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -18,14 +17,18 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const ScoresIndiv = ({ studentRecords }) => {
   const [processedData, setProcessedData] = useState([]);
@@ -180,84 +183,76 @@ const ScoresIndiv = ({ studentRecords }) => {
   const totalPages = Math.ceil(sortedData.length / recordsPerPage);
 
   return (
-    <div className="w-full">
-      <div className="mb-4">
-        <label htmlFor="month-select">Select Month: </label>
-        <select
-          id="month-select"
-          value={selectedMonth}
-          onChange={(e) =>
-            setSelectedMonth(
-              e.target.value === "all" ? "all" : parseInt(e.target.value)
-            )
-          }
-        >
-          {availableMonths.map((month) => (
-            <option key={month} value={month}>
-              {month === "all"
-                ? "All"
-                : new Date(0, month - 1).toLocaleString("en-US", {
-                    month: "long",
-                  })}
-            </option>
-          ))}
-        </select>
-        <label htmlFor="year-select">Select Year: </label>
-        <select
-          id="year-select"
-          value={selectedYear}
-          onChange={(e) =>
-            setSelectedYear(
-              e.target.value === "all" ? "all" : parseInt(e.target.value)
-            )
-          }
-        >
-          {availableYears.map((year) => (
-            <option key={year} value={year}>
-              {year === "all" ? "All" : year}
-            </option>
-          ))}
-        </select>
-      </div>
-      {processedData && processedData.length > 0 ? (
-        <>
-          <Table className="w-full bg-white rounded-lg">
-            <TableCaption>Student Scores</TableCaption>
-            <TableHeader>
+    <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white ">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-4 pb-4 flex-wrap">
+          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Select Month" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {availableMonths.map((month) => (
+                <SelectItem key={month} value={month}>
+                  {month === "all"
+                    ? "All Months"
+                    : new Date(0, month - 1).toLocaleString("en-US", {
+                        month: "long",
+                      })}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Select Year" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year === "all" ? "All Years" : year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <ScrollArea className="h-[400px] rounded-lg border">
+          <Table>
+            <TableHeader className="sticky top-0 bg-background">
               <TableRow>
-                <TableHead>
-                  <button onClick={() => sortData("gameType")}>
-                    Game Type{" "}
-                    {sortConfig.key === "gameType" &&
-                      (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                  </button>
+                <TableHead onClick={() => sortData("gameType")}>
+                  Game Type
                 </TableHead>
-                <TableHead onClick={() => sortData("date")}>
-                  Date
-                  {sortConfig.key === "date" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </TableHead>
+                <TableHead onClick={() => sortData("date")}>Date</TableHead>
                 <TableHead onClick={() => sortData("average")}>
                   Average (%)
-                  {sortConfig.key === "average" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </TableHead>
-                <TableHead>Attempts</TableHead>
-                <TableHead>Action</TableHead>
+                <TableHead className="text-right">Attempts</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentRecords.map((row, index) => (
                 <React.Fragment key={index}>
-                  <TableRow>
+                  <TableRow className="group hover:bg-gray-100">
                     <TableCell>{row.gameType}</TableCell>
                     <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.average} % </TableCell>
-                    <TableCell>{row.scores.length}</TableCell>
-                    <TableCell>
-                      <button onClick={() => toggleViewChart(index)}>
+                    <TableCell className="text-right">
+                      {parseFloat(row.average).toFixed(2)}%
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {row.scores.length}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100"
+                        onClick={() => toggleViewChart(index)}
+                      >
                         {viewChart[index] ? "View Less" : "View More"}
-                      </button>
+                      </Button>
                     </TableCell>
                   </TableRow>
                   {viewChart[index] && (
@@ -272,8 +267,8 @@ const ScoresIndiv = ({ studentRecords }) => {
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip formatter={(value) => `${value}%`} />
                             <Legend />
                             <Line
                               type="monotone"
@@ -289,38 +284,50 @@ const ScoresIndiv = ({ studentRecords }) => {
               ))}
             </TableBody>
           </Table>
-          <Pagination>
-            <PaginationPrevious
+        </ScrollArea>
+
+        <div className="flex items-center justify-between pt-4">
+          <div className="text-sm text-muted-foreground">
+            Showing {currentRecords.length} of {processedData.length} entries
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              Previous
-            </PaginationPrevious>
-            <PaginationContent>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <PaginationItem
-                  key={i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
-                  active={currentPage === i + 1}
-                >
-                  {i + 1}
-                </PaginationItem>
-              ))}
-            </PaginationContent>
-            <PaginationNext
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
+              <Button
+                key={i + 1}
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(i + 1)}
+                className={
+                  currentPage === i + 1
+                    ? "bg-secondary text-primary-foreground"
+                    : ""
+                }
+              >
+                {i + 1}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
             >
-              Next
-            </PaginationNext>
-          </Pagination>
-        </>
-      ) : (
-        <></>
-      )}
-    </div>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
