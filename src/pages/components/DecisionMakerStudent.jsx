@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
@@ -59,6 +59,11 @@ const DecisionMakerStudent = ({ cards }) => {
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
+
+  // Sound effect refs
+  const correctSound = useRef(null);
+  const incorrectSound = useRef(null);
+
   useEffect(() => {
     if (cards.length > 0) {
       setFirstCard(cards[0]);
@@ -88,9 +93,16 @@ const DecisionMakerStudent = ({ cards }) => {
 
     if (isCorrect) {
       newFeedback[card.decision_maker_id] = "Correct!";
+
+      // Play correct sound
+      correctSound.current.play();
+
       setScore((prevScore) => prevScore + 1);
     } else {
       newFeedback[card.decision_maker_id] = "Incorrect.";
+
+      // Play incorrect sound
+      incorrectSound.current.play();
     }
 
     setFeedback(newFeedback);
@@ -105,17 +117,23 @@ const DecisionMakerStudent = ({ cards }) => {
       },
     }));
 
-    if (swiperInstance) {
-      swiperInstance.slideNext();
-    }
+    // Delay before moving to the next slide
+    setTimeout(() => {
+      if (swiperInstance) {
+        swiperInstance.slideNext();
+      }
+    }, 2500); // 2.5-second delay
 
     const allAnswered = shuffledCards.every(
       (card) => newFeedback[card.decision_maker_id]
     );
 
-    if (allAnswered) {
-      setIsGameFinished(true);
-    }
+    // Delay before finishing
+    setTimeout(() => {
+      if (allAnswered) {
+        setIsGameFinished(true);
+      }
+    }, 2500); // 2.5-second delay
   };
 
   const buttonPairs = [
@@ -243,6 +261,17 @@ const DecisionMakerStudent = ({ cards }) => {
 
   return (
     <div className="relative flex flex-col justify-center">
+      {/* Audio elements */}
+      <audio
+        ref={correctSound}
+        src="/soundfx/audio/correct.mp3"
+        preload="auto"
+      />
+      <audio
+        ref={incorrectSound}
+        src="/soundfx/audio/incorrect.mp3"
+        preload="auto"
+      />
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -324,75 +353,90 @@ const DecisionMakerStudent = ({ cards }) => {
             >
               {shuffledCards.map((card) => (
                 <SwiperSlide key={card.decision_maker_id}>
-                  <Card
-                    key={card.decision_maker_id}
-                    className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto"
+                  <motion.div
+                    animate={{
+                      borderColor:
+                        feedback[card.decision_maker_id] === "Correct!"
+                          ? "#22c55e"
+                          : feedback[card.decision_maker_id]
+                          ? "#ef4444"
+                          : "#e5e7eb",
+                    }}
+                    transition={{ duration: 0.5 }}
+                    className="border-4 rounded-lg"
                   >
-                    <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                      <h1 className="text-3xl font-extrabold my-5 capitalize">
-                        {card.word}
-                      </h1>
-                      <div className="max-w-[15rem]">
-                        <Image
-                          src={card.image}
-                          alt={card.title}
-                          width="100%"
-                          height="100%"
-                        />
-                      </div>
-                      <div className="flex justify-center gap-4 pt-4">
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            onPress={() => handleVote(card, "positive")}
-                            color="success"
-                            variant="flat"
-                            isDisabled={feedback[card.decision_maker_id]}
-                          >
-                            {buttonPairs[currentPairIndex].positive}
-                          </Button>
-                        </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            onPress={() => handleVote(card, "negative")}
-                            color="danger"
-                            variant="flat"
-                            isDisabled={feedback[card.decision_maker_id]}
-                          >
-                            {buttonPairs[currentPairIndex].negative}
-                          </Button>
-                        </motion.div>
-                      </div>
-                      <AnimatePresence>
-                        {feedback[card.decision_maker_id] && (
+                    <Card
+                      key={card.decision_maker_id}
+                      className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto"
+                    >
+                      <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                        <h1 className="text-3xl font-extrabold my-5 capitalize">
+                          {card.word}
+                        </h1>
+                        <div className="max-w-[15rem]">
+                          <Image
+                            src={card.image}
+                            alt={card.title}
+                            width="100%"
+                            height="100%"
+                          />
+                        </div>
+                        <div className="flex justify-center gap-4 pt-4">
                           <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            className="flex w-full justify-center rounded-md"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                           >
-                            <div className="w-full text-center rounded-md">
-                              <p
+                            <Button
+                              onPress={() => handleVote(card, "positive")}
+                              color="success"
+                              variant="flat"
+                              isDisabled={feedback[card.decision_maker_id]}
+                            >
+                              {buttonPairs[currentPairIndex].positive}
+                            </Button>
+                          </motion.div>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              onPress={() => handleVote(card, "negative")}
+                              color="danger"
+                              variant="flat"
+                              isDisabled={feedback[card.decision_maker_id]}
+                            >
+                              {buttonPairs[currentPairIndex].negative}
+                            </Button>
+                          </motion.div>
+                        </div>
+                        <AnimatePresence>
+                          {feedback[card.decision_maker_id] && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 20 }}
+                              className="flex w-full text-center justify-center rounded-md"
+                            >
+                              <motion.div
+                                key={feedback[card.decision_maker_id]}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
                                 className={
                                   feedback[card.decision_maker_id] ===
                                   "Correct!"
-                                    ? "text-white bg-green-500 p-2 rounded-md"
-                                    : "text-white bg-red-500 p-2 rounded-md"
+                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                    : "text-white w-full bg-red-500 p-2 rounded-md"
                                 }
                               >
                                 {feedback[card.decision_maker_id]}
-                              </p>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </CardBody>
-                  </Card>
+                              </motion.div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </CardBody>
+                    </Card>
+                  </motion.div>
                 </SwiperSlide>
               ))}
             </Swiper>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -41,6 +41,10 @@ const ColorGames = ({ cards }) => {
   // const [latestAttempts, setLatestAttempts] = useState({});
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
+
+  // Sound effect refs
+  const correctSound = useRef(null);
+  const incorrectSound = useRef(null);
 
   useEffect(() => {
     const shuffled = shuffleArray(cards);
@@ -161,17 +165,34 @@ const ColorGames = ({ cards }) => {
       newFeedback = "Correct!";
       setScore((prevScore) => prevScore + 1);
       setAnswer((prevAnswer) => prevAnswer + 1);
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
+
+      // Play correct sound
+      correctSound.current.play();
+
+      // Delay before moving to the next slide
+      setTimeout(() => {
+        if (swiperInstance) {
+          swiperInstance.slideNext();
+        }
+      }, 2500); // 2.5-second delay
     } else if (newAttempts[index] >= 3) {
       newFeedback = "Out of attempts. The correct answer was: " + card.color;
       setAnswer((prevAnswer) => prevAnswer + 1);
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
+
+      // Play incorrect sound
+      incorrectSound.current.play();
+
+      // Delay before moving to the next slide
+      setTimeout(() => {
+        if (swiperInstance) {
+          swiperInstance.slideNext();
+        }
+      }, 2500); // 2.5-second delay
     } else {
       newFeedback = `Incorrect. ${3 - newAttempts[index]} attempts left.`;
+
+      // Play incorrect sound
+      incorrectSound.current.play();
     }
 
     const newFeedbackArray = [...feedback];
@@ -182,9 +203,12 @@ const ColorGames = ({ cards }) => {
     const allAnswered = newFeedbackArray.every(
       (fb) => fb.includes("Correct") || fb.includes("Out of attempts")
     );
-    if (allAnswered) {
-      setIsGameFinished(true);
-    }
+    // Delay before finishing
+    setTimeout(() => {
+      if (allAnswered) {
+        setIsGameFinished(true);
+      }
+    }, 2500); // 2.5-second delay
 
     setSubmissionResults((prev) => ({
       ...prev,
@@ -296,6 +320,17 @@ const ColorGames = ({ cards }) => {
 
   return (
     <div className="relative flex flex-col justify-center">
+      {/* Audio elements */}
+      <audio
+        ref={correctSound}
+        src="/soundfx/audio/correct.mp3"
+        preload="auto"
+      />
+      <audio
+        ref={incorrectSound}
+        src="/soundfx/audio/incorrect.mp3"
+        preload="auto"
+      />
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -369,130 +404,149 @@ const ColorGames = ({ cards }) => {
               {shuffledCards.map((card, index) => (
                 <SwiperSlide key={card.color_game_id}>
                   <div key={card.color_game_id}>
-                    <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                      <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                        {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
-                        <div className="text-3xl font-extrabold my-5 capitalize">
-                          <p>{card.color}</p>
-                        </div>
-                        <div
-                          className={`grid ${
-                            [
+                    <motion.div
+                      animate={{
+                        borderColor: feedback[index]?.includes("Correct")
+                          ? "#22c55e" // green for correct
+                          : attempts[index] >= 3
+                          ? "#ef4444"
+                          : "#e5e7eb", // red for out of attempts, default for others
+                      }}
+                      transition={{ duration: 0.5 }}
+                      className="border-4 rounded-lg"
+                    >
+                      <Card className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto">
+                        <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                          {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
+                          <div className="text-3xl font-extrabold my-5 capitalize">
+                            <p>{card.color}</p>
+                          </div>
+                          <div
+                            className={`grid ${
+                              [
+                                card.image1,
+                                card.image2,
+                                card.image3,
+                                card.image4,
+                              ].filter((image) => image !== null).length === 4
+                                ? "grid-cols-4"
+                                : [
+                                    card.image1,
+                                    card.image2,
+                                    card.image3,
+                                    card.image4,
+                                  ].filter((image) => image !== null).length ===
+                                  3
+                                ? "grid-cols-3"
+                                : "grid-cols-2"
+                            } gap-2`}
+                          >
+                            {[
                               card.image1,
                               card.image2,
                               card.image3,
                               card.image4,
-                            ].filter((image) => image !== null).length === 4
-                              ? "grid-cols-4"
-                              : [
-                                  card.image1,
-                                  card.image2,
-                                  card.image3,
-                                  card.image4,
-                                ].filter((image) => image !== null).length === 3
-                              ? "grid-cols-3"
-                              : "grid-cols-2"
-                          } gap-2`}
-                        >
-                          {[
-                            card.image1,
-                            card.image2,
-                            card.image3,
-                            card.image4,
-                          ].map((image, imageIndex) =>
-                            image ? (
-                              <motion.div
-                                key={imageIndex}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className={`relative block w-full aspect-square rounded-md items-center justify-center cursor-pointer ${
-                                  (attempts[index] || 0) >= 3
-                                    ? "opacity-50 pointer-events-none"
-                                    : ""
-                                } ${
-                                  (
-                                    selectedImages[card.color_game_id] || []
-                                  ).includes(imageIndex)
-                                    ? "border-3 border-[#17C964]"
-                                    : "border border-purple-400"
-                                }`}
-                                style={{
-                                  transition:
-                                    "border-color 0.3s ease, transform 0.3s ease",
-                                }}
-                                onClick={() =>
-                                  handleImageSelect(
-                                    card.color_game_id,
-                                    imageIndex,
-                                    image
-                                  )
-                                }
-                              >
-                                <div className="p-2 rounded-md relative overflow-hidden">
-                                  <Checkbox
-                                    color="success"
-                                    isSelected={(
+                            ].map((image, imageIndex) =>
+                              image ? (
+                                <motion.div
+                                  key={imageIndex}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className={`relative block w-full aspect-square rounded-md items-center justify-center cursor-pointer ${
+                                    (attempts[index] || 0) >= 3
+                                      ? "opacity-50 pointer-events-none"
+                                      : ""
+                                  } ${
+                                    (
                                       selectedImages[card.color_game_id] || []
-                                    ).includes(imageIndex)}
-                                    onChange={() =>
-                                      handleImageSelect(
-                                        card.color_game_id,
-                                        imageIndex,
-                                        image
-                                      )
-                                    }
-                                    className="absolute top-2 right-1 z-99"
-                                    isDisabled={(attempts[index] || 0) >= 3}
-                                  />
-                                  <Image
-                                    src={image}
-                                    alt={`Image ${imageIndex + 1}`}
-                                    className="h-full w-full object-cover rounded-lg"
-                                  />
-                                </div>
-                              </motion.div>
-                            ) : null
-                          )}
-                        </div>
-                        <div className="w-full mt-8">
-                          <Button
-                            radius="sm"
-                            className="w-full justify-center text-white bg-[#7469B6]"
-                            onClick={() => handleSubmit(index)}
-                            isDisabled={
-                              (attempts[index] || 0) >= 3 ||
-                              !(selectedImages[card.color_game_id] || []).length
-                            }
-                          >
-                            Check Answers
-                          </Button>
-                        </div>
-                        <AnimatePresence>
-                          {submissionResults[card.color_game_id] && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 20 }}
-                              className="flex w-full text-center justify-center rounded-md"
+                                    ).includes(imageIndex)
+                                      ? "border-3 border-[#17C964]"
+                                      : "border border-purple-400"
+                                  }`}
+                                  style={{
+                                    transition:
+                                      "border-color 0.3s ease, transform 0.3s ease",
+                                  }}
+                                  onClick={() =>
+                                    handleImageSelect(
+                                      card.color_game_id,
+                                      imageIndex,
+                                      image
+                                    )
+                                  }
+                                >
+                                  <div className="p-2 rounded-md relative overflow-hidden">
+                                    <Checkbox
+                                      color="success"
+                                      isSelected={(
+                                        selectedImages[card.color_game_id] || []
+                                      ).includes(imageIndex)}
+                                      onChange={() =>
+                                        handleImageSelect(
+                                          card.color_game_id,
+                                          imageIndex,
+                                          image
+                                        )
+                                      }
+                                      className="absolute top-2 right-1 z-99"
+                                      isDisabled={(attempts[index] || 0) >= 3}
+                                    />
+                                    <Image
+                                      src={image}
+                                      alt={`Image ${imageIndex + 1}`}
+                                      className="h-full w-full object-cover rounded-lg"
+                                    />
+                                  </div>
+                                </motion.div>
+                              ) : null
+                            )}
+                          </div>
+                          <div className="w-full mt-8">
+                            <Button
+                              radius="sm"
+                              className="w-full justify-center text-white bg-[#7469B6]"
+                              onClick={() => handleSubmit(index)}
+                              isDisabled={
+                                (attempts[index] || 0) >= 3 ||
+                                !(selectedImages[card.color_game_id] || [])
+                                  .length
+                              }
                             >
-                              <p
-                                className={
-                                  submissionResults[card.color_game_id] ===
-                                  "Correct!"
-                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                    : submissionResults[card.color_game_id] ===
-                                      "Almost there!"
-                                    ? "text-white w-full bg-yellow-500 p-2 rounded-md"
-                                    : "text-white w-full bg-red-500 p-2 rounded-md"
-                                }
+                              Check Answers
+                            </Button>
+                          </div>
+                          <AnimatePresence>
+                            {submissionResults[card.color_game_id] && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                className="flex w-full text-center justify-center rounded-md"
                               >
-                                {submissionResults[card.color_game_id]}
-                              </p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </CardBody>
-                    </Card>
+                                <motion.div
+                                  key={feedback[index]}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 20 }}
+                                  className={
+                                    submissionResults[card.color_game_id] ===
+                                    "Correct!"
+                                      ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                      : submissionResults[
+                                          card.color_game_id
+                                        ] === "Almost there!"
+                                      ? "text-white w-full bg-yellow-500 p-2 rounded-md"
+                                      : "text-white w-full bg-red-500 p-2 rounded-md"
+                                  }
+                                >
+                                  {submissionResults[card.color_game_id]}
+                                </motion.div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </CardBody>
+                      </Card>
+                    </motion.div>
                   </div>
                 </SwiperSlide>
               ))}

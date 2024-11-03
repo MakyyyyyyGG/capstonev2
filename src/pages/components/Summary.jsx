@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Confetti from "react-confetti";
 import Link from "next/link";
 import {
   LineChart,
@@ -66,100 +67,133 @@ const Summary = ({ gameRecord, questions }) => {
     ),
   ];
 
+  // Check if the score is 10
+  const totalScore = 10; // This should be replaced with actual score calculation if needed
+
   const [showEndScreen, setShowEndScreen] = useState(true); // State to toggle end screen visibility
   const [showSummary, setShowSummary] = useState(false); // State to toggle summary visibility
+
+  const applauseRef = useRef(null); // Reference to the applause audio
+
+  // Play applause sound when the score is 10 and the end screen is shown
+  useEffect(() => {
+    if (showEndScreen && totalScore === 10) {
+      applauseRef.current.play();
+    }
+  }, [showEndScreen, totalScore]);
 
   return (
     <div>
       <AnimatePresence>
         {showEndScreen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="w-full max-w-md"
-            >
-              <Card className="p-6 border-0 shadow-lg">
-                <CardHeader className="flex-col text-center space-y-4 pb-2">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                    className="mx-auto bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center"
-                  >
-                    <Trophy className="h-8 w-8 text-purple-600" />
-                  </motion.div>
-                  <h1 className="text-3xl font-bold">Game Over</h1>
-                </CardHeader>
+          <>
+            {/* Confetti on top of end screen */}
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+              {/* Conditionally render confetti if score is 10 */}
+              {totalScore === 10 && (
+                <motion.div
+                  key="confetti"
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <Confetti gravity={0.03} />
+                </motion.div>
+              )}
 
-                <CardBody className="text-center space-y-6 pt-4">
-                  <p className="text-muted-foreground">Thanks for playing!</p>
-
-                  <div className="grid grid-cols-3 gap-4">
+              {/* Applause sound effect */}
+              <audio
+                ref={applauseRef}
+                src="/soundfx/audio/applause.mp3"
+                preload="auto"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="w-full max-w-md"
+              >
+                <Card className="p-6 border-0 shadow-lg">
+                  <CardHeader className="flex-col text-center space-y-4 pb-2">
                     <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="bg-emerald-50 p-4 rounded-md"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        delay: 0.2,
+                        type: "spring",
+                        stiffness: 200,
+                      }}
+                      className="mx-auto bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center"
                     >
-                      <div className="text-2xl font-bold text-emerald-600">
-                        10
-                      </div>
-                      <div className="text-sm text-emerald-600">Correct</div>
+                      <Trophy className="h-8 w-8 text-purple-600" />
                     </motion.div>
+                    <h1 className="text-3xl font-bold">Game Over</h1>
+                  </CardHeader>
 
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                      className="bg-rose-50 p-4 rounded-md"
+                  <CardBody className="text-center space-y-6 pt-4">
+                    <p className="text-muted-foreground">Thanks for playing!</p>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-emerald-50 p-4 rounded-md"
+                      >
+                        <div className="text-2xl font-bold text-emerald-600">
+                          {totalScore}
+                        </div>
+                        <div className="text-sm text-emerald-600">Correct</div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="bg-rose-50 p-4 rounded-md"
+                      >
+                        <div className="text-2xl font-bold text-rose-600">
+                          10
+                        </div>
+                        <div className="text-sm text-rose-600">Incorrect</div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="bg-purple-50 p-4 rounded-md"
+                      >
+                        <div className="text-2xl font-bold text-purple-600">
+                          10
+                        </div>
+                        <div className="text-sm text-purple-600">Total</div>
+                      </motion.div>
+                    </div>
+                  </CardBody>
+
+                  <CardFooter className="flex flex-col gap-3 pt-6">
+                    <Button
+                      onClick={() => {
+                        setShowEndScreen(false); // Hide end screen
+                        setShowSummary(true); // Show summary
+                      }}
+                      radius="sm"
+                      className="text-white w-full bg-purple-500 hover:bg-purple-600"
                     >
-                      <div className="text-2xl font-bold text-rose-600">10</div>
-                      <div className="text-sm text-rose-600">Incorrect</div>
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                      className="bg-purple-50 p-4 rounded-md"
-                    >
-                      <div className="text-2xl font-bold text-purple-600">
-                        10
-                      </div>
-                      <div className="text-sm text-purple-600">Total</div>
-                    </motion.div>
-                  </div>
-                </CardBody>
-
-                <CardFooter className="flex flex-col gap-3 pt-6">
-                  <Button
-                    // onClick={onViewSummary}
-                    onClick={() => {
-                      setShowEndScreen(false); // Hide end screen
-                      setShowSummary(true); // Show summary
-                    }}
-                    radius="sm"
-                    className="text-white w-full bg-purple-500 hover:bg-purple-600"
-                  >
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    View Summary
-                  </Button>
-                  <Button
-                    // onClick={onReturnHome}
-                    variant="outline"
-                    radius="sm"
-                    className="w-full"
-                  >
-                    <Home className="h-4 w-4 mr-2" />
-                    Return Home
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          </div>
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      View Summary
+                    </Button>
+                    <Button variant="outline" radius="sm" className="w-full">
+                      <Home className="h-4 w-4 mr-2" />
+                      Return Home
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            </div>
+          </>
         )}
       </AnimatePresence>
       {/* Game Performance Summary */}
@@ -237,7 +271,7 @@ const Summary = ({ gameRecord, questions }) => {
                     radius="sm"
                     variant="bordered"
                     id="monthFilter"
-                    defaultSelectedKeys={["Oct"]}
+                    defaultSelectedKeys={["Nov"]}
                     className="w-[100px]"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
