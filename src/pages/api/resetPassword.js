@@ -23,24 +23,56 @@ export default async function handler(req, res) {
     }
   } else if (req.method === "PUT") {
     const { email } = req.query;
-    const { newPassword } = req.body;
+    const { newPassword, currentPassword } = req.body;
+    console.log("im reached", req.body);
 
-    const hashedPassword = crypto
+    const hashedNewPassword = crypto
       .createHash("sha256")
       .update(newPassword)
       .digest("hex");
 
+    console.log(hashedNewPassword);
+
     try {
+      // Fetch the current password from the database
+      const userResult = await query({
+        query: `SELECT password FROM teachers WHERE email = ? UNION ALL SELECT password FROM students WHERE email = ?`,
+        values: [email, email],
+      });
+
+      // Check if any user was found
+      if (userResult.length === 0) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
+
+      const dbPassword = userResult[0].password;
+
+      // If currentPassword is provided, compare it with the database password
+      if (currentPassword) {
+        const hashedCurrentPassword = crypto
+          .createHash("sha256")
+          .update(currentPassword)
+          .digest("hex");
+
+        if (dbPassword && hashedCurrentPassword !== dbPassword) {
+          return res
+            .status(400)
+            .json({ error: "Current password is incorrect" });
+        }
+      }
+
       // Update in 'teachers' table
       const teacherUpdateResult = await query({
         query: "UPDATE teachers SET password = ? WHERE email = ?",
-        values: [hashedPassword, email],
+        values: [hashedNewPassword, email],
       });
 
       // Update in 'students' table
       const studentUpdateResult = await query({
         query: "UPDATE students SET password = ? WHERE email = ?",
-        values: [hashedPassword, email],
+        values: [hashedNewPassword, email],
       });
 
       // Check if any rows were updated

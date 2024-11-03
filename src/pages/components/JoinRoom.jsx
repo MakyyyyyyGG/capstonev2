@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { Plus } from "lucide-react";
 import {
   Input,
@@ -12,11 +13,12 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 
-const JoinRoom = ({ onRoomJoin }) => {
+const JoinRoom = () => {
   const { data: session } = useSession();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [roomCode, setRoomCode] = useState(""); // roomCode should be an empty string, not an array
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleJoinRoom = async () => {
     if (!roomCode) {
@@ -47,8 +49,8 @@ const JoinRoom = ({ onRoomJoin }) => {
         console.log("Room joined successfully:", data); // You can use this data as needed
         onOpenChange(false);
         setRoomCode("");
-        onRoomJoin();
         alert("Room joined successfully!");
+        router.push(`/homepage/joined_rooms/${roomCode}`); // Redirect to joined room
       } else {
         setError(data.error || "Failed to join room");
       }
@@ -74,46 +76,57 @@ const JoinRoom = ({ onRoomJoin }) => {
         placement="center"
         size="xl"
         radius="sm"
-        classNames={{
-          body: "pb-6 px-8 max-sm:p-4 max-sm:pb-4",
-          header: "text-[#F3F3F3] text-3xl p-8 max-sm:p-4 max-sm:text-xl",
-          footer: "px-8 pb-8 max-sm:px-4 max-sm:pb-4",
-          base: "bg-[#7469B6] dark:bg-[#19172c] text-[#a8b0d3]",
-          closeButton:
-            "text-[#fff] text-lg hover:bg-white/5 active:bg-white/10",
-        }}
       >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
-                Join Room
+              <ModalHeader className="flex flex-col gap-1 ">
+                <div>
+                  <h1 className="text-2xl font-bold">Join Room</h1>
+                </div>
               </ModalHeader>
+
               <ModalBody>
-                <Input
-                  placeholder="Enter Room Code"
-                  radius="sm"
-                  size="lg"
-                  value={roomCode}
-                  onChange={(e) => setRoomCode(e.target.value)}
-                  error={!!error} // Converts error string to boolean
-                  helperText={error}
-                />
-                {error && (
-                  <p className="text-red-500 duration-75 transition ease-in-out">
-                    {error}
-                  </p>
-                )}
+                <form action="">
+                  <div className="col-span-4 row-span-1 gap-2 flex flex-col">
+                    <Input
+                      classNames={{
+                        label: "text-white",
+                        inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                      }}
+                      color="secondary"
+                      placeholder="Enter Room Code"
+                      radius="sm"
+                      variant="bordered"
+                      size="lg"
+                      value={roomCode}
+                      onChange={(e) => setRoomCode(e.target.value)}
+                      error={!!error} // Converts error string to boolean
+                      helperText={error}
+                    />
+                    {error && (
+                      <p className="text-red-500 duration-75 transition ease-in-out">
+                        {error}
+                      </p>
+                    )}
+                  </div>
+                </form>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" radius="sm" onPress={onClose}>
+                <Button
+                  color="danger"
+                  variant="flat"
+                  radius="sm"
+                  onPress={onClose}
+                >
                   Close
                 </Button>
                 <Button
-                  color="success"
+                  color="secondary"
                   radius="sm"
+                  onPress={onClose}
+                  onClick={handleJoinRoom}
                   className="text-white"
-                  onPress={handleJoinRoom}
                 >
                   Enter
                 </Button>

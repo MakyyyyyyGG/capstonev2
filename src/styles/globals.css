@@ -36,11 +36,7 @@ body {
 
   filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#A4E9F9", endColorstr="#C5AEF2", GradientType=1 ); */
 }
-img {
-  height: 50px;
-  /*width: 180px; */
-  object-fit: cover;
-}
+
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

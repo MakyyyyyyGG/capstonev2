@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Button,
@@ -7,14 +7,32 @@ import {
   CardHeader,
   CardFooter,
   Chip,
+  Select,
+  SelectItem,
+  Skeleton,
+  Avatar,
+  CardBody,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
-import { Trash2 } from "lucide-react";
+import { useRouter } from "next/router";
+import { MoreVertical, Trash2, Search, Copy } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 const JoinedRoom = ({ rooms, onUnenroll }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredRooms = rooms.filter((room) =>
-    room.room_name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Function to filter rooms based on the search query and difficulty
+  const filteredRooms = rooms.filter(
+    (room) =>
+      room.room_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (difficultyFilter === "all" ||
+        room.room_difficulty.toLowerCase() === difficultyFilter)
   );
 
   // Function to dynamically set Chip color based on room difficulty
@@ -31,6 +49,15 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
     }
   };
 
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   async function unEnroll(joined_room_id) {
     const unEnrollData = {
       method: "DELETE",
@@ -39,102 +66,171 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
       },
     };
 
-    try {
-      const res = await fetch(
+    toast.promise(
+      fetch(
         `/api/accounts_student/room/join_room?student_room_id=${joined_room_id}`,
         unEnrollData
-      );
-      const data = await res.json();
-      console.log(data);
-      onUnenroll();
-      console.log("Room unenrolled successfully");
-    } catch (error) {
-      console.log(error);
-    }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          onUnenroll();
+          console.log("Room unenrolled successfully");
+        }),
+      {
+        loading: "Unenrolling...",
+        success: "Room unenrolled successfully",
+        error: "Error unenrolling room",
+      }
+    );
   }
 
+  // Function to copy room code to clipboard
+  const copyToClipboard = (roomCode) => {
+    navigator.clipboard.writeText(roomCode);
+    toast.success("Room code copied to clipboard!");
+  };
+
   return (
-    <div className="w-full">
-      <div>
+    <div className=" m-auto">
+      <Toaster />
+      <div className="flex gap-4 w-full">
         <Input
-          clearable
-          placeholder="Search by Room Name"
+          classNames={{
+            label: "text-white",
+            inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+          }}
+          isClearable
+          onClear={() => setSearchQuery("")}
+          startContent={<Search size={22} color="#6B7280" />}
+          type="text"
+          placeholder="Search Room"
           radius="sm"
           size="lg"
           color="secondary"
-          variant="faded"
-          onChange={(e) => setSearchTerm(e.target.value)}
+          variant="bordered"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <h1 className="text-4xl my-6 font-bold">Joined Rooms</h1>
-        <div className="flex flex-wrap gap-5">
-          {filteredRooms.map((room) => (
-            <Card
-              key={room.room_id}
-              className="shrink w-[380px] h-[300px] bg-[#7469B6] grid grid-rows-7 hover:shadow-gray-400 shadow-lg"
-            >
-              <CardHeader
-                href={`/homepage/joined_rooms/${room.room_code}`}
-                as={Link}
-                className="relative w-full p-5 row-span-5 items-center text-center"
-              >
-                <div className="absolute top-0 left-0 p-5">
-                  <Chip
-                    color={getChipColor(room.room_difficulty)}
-                    radius="sm"
-                    className="text-base text-white py-4"
-                  >
-                    {room.room_difficulty}
-                  </Chip>
-                </div>
-                <div className="flex w-full justify-center items-center text-center">
-                  <div className="text-2xl text-bold text-white">
-                    <h1 className="hover:underline">{room.room_name}</h1>
-                    <h2 className="text-lg text-bold text-white text-center content-center hover:underline">
-                      {room.email}
-                    </h2>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardFooter className="row-span-2 grid grid-cols-2 justify-between bg-white">
-                <div className="p-2 text-[#7469B6] flex items-center">
-                  <p>Code: {room.room_code}</p>
-                </div>
-                <div className="p-2 text-white flex items-center justify-end">
-                  <Button
-                    isIconOnly
-                    color="danger"
-                    onClick={() => unEnroll(room.student_room_id)}
-                  >
-                    <Trash2 size={22} />
-                  </Button>
-                  {/* <Link href={`/teacher-dashboard/rooms/${room.room_code}`}>
-                            <Button>View Room</Button>
-                          </Link> */}
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-          {/* <div
-            key={room.room_code}
-            className="border-2 w-[30%] h-[300px] flex flex-col"
+        <div className="w-full max-w-[300px]">
+          <Select
+            placeholder="Filter by Difficulty"
+            size="lg"
+            radius="sm"
+            classNames={{
+              label: "text-white",
+              mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
+            }}
+            color="secondary"
+            variant="bordered"
+            value={difficultyFilter}
+            onChange={(e) => setDifficultyFilter(e.target.value)}
           >
-            <h2>Student Room ID: {room.student_room_id}</h2>
-            <h2>Room Name: {room.room_name}</h2>
-            <h2>Room Difficulty: {room.room_difficulty}</h2>
-            <h2>Room Code: {room.room_code}</h2>
-            <h2>Teacher: {room.email}</h2>
-            <Link href={`/homepage/joined_rooms/${room.room_code}`}>
-              <Button>View Room</Button>
-            </Link>
-            <Button
-              color="danger"
-              onClick={() => unEnroll(room.student_room_id)}
-            >
-              Leave Room
-            </Button>
-          </div> */}
+            <SelectItem key="all" value="all">
+              All Difficulties
+            </SelectItem>
+            <SelectItem key="easy" value="easy">
+              Easy
+            </SelectItem>
+            <SelectItem key="moderate" value="moderate">
+              Moderate
+            </SelectItem>
+            <SelectItem key="hard" value="hard">
+              Hard
+            </SelectItem>
+          </Select>
         </div>
       </div>
+      <h1 className="text-4xl my-6 font-bold">Joined Rooms</h1>
+      {filteredRooms.length === 0 ? (
+        <div className="flex flex-col items-center justify-center w-full rounded-lg p-4">
+          <img
+            src="/no-room.svg"
+            alt="empty-room"
+            className="w-[40%] h-[40%] m-auto object-cover"
+          />
+        </div>
+      ) : (
+        <ul className="grid grid-cols-4 gap-5 rounded-lg mr-4 auto-cols-auto">
+          {filteredRooms.map((room) => (
+            <li key={room.room_id}>
+              {isLoading ? (
+                <Skeleton className="h-[300px] rounded-lg" />
+              ) : (
+                <div className="relative">
+                  <div className="block w-full">
+                    <Card
+                      isPressable
+                      className="relative w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
+                      onClick={() =>
+                        router.push(`/homepage/joined_rooms/${room.room_code}`)
+                      }
+                    >
+                      <CardHeader className="absolute w-full items-center text-center flex justify-between">
+                        <Chip
+                          color={getChipColor(room.room_difficulty)}
+                          radius="xl"
+                          className="text-base text-white py-4"
+                        >
+                          {room.room_difficulty}
+                        </Chip>
+                        <Dropdown>
+                          <DropdownTrigger>
+                            <Button color="transparent" isIconOnly>
+                              <MoreVertical size={22} color="#ffffff" />
+                            </Button>
+                          </DropdownTrigger>
+                          <DropdownMenu>
+                            <DropdownItem
+                              key="unenroll"
+                              startContent={<Trash2 size={22} color="red" />}
+                              description="Unenroll from this room"
+                              color="error"
+                              onClick={() => unEnroll(room.student_room_id)}
+                            >
+                              Unenroll
+                            </DropdownItem>
+                          </DropdownMenu>
+                        </Dropdown>
+                      </CardHeader>
+
+                      <CardBody className="flex h-2/4 flex-col justify-center items-center w-full">
+                        <h1 className="text-2xl text-bold text-white font-bold">
+                          {room.room_name}
+                        </h1>
+                      </CardBody>
+
+                      <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
+                        <div className="p-2 text-[#7469B6] flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            {/* <Button
+                              color="transparent"
+                              isIconOnly
+                              onClick={() => copyToClipboard(room.room_code)}
+                            >
+                              <Copy size={22} />
+                            </Button> */}
+                            <h1 className="font-bold">
+                              Code: {room.room_code}
+                            </h1>
+                          </div>
+                          <div className="flex items-center gap-6">
+                            <h1>{room.email}</h1>
+                            <Avatar
+                              src={room.profile_image}
+                              className="w-10 h-10"
+                            />
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

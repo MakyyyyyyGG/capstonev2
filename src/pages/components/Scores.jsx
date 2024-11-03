@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { DateRangePicker } from "@/components/ui/date-range-picker";
 
 const Scores = ({ studentRecords, students }) => {
   const [processedData, setProcessedData] = useState([]);
@@ -46,6 +47,10 @@ const Scores = ({ studentRecords, students }) => {
   const [availableYears, setAvailableYears] = useState([]);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [availableDifficulties, setAvailableDifficulties] = useState([]);
+  const [dateRange, setDateRange] = useState({
+    from: undefined,
+    to: undefined,
+  });
 
   const recordsPerPage = 10;
 
@@ -67,6 +72,7 @@ const Scores = ({ studentRecords, students }) => {
     selectedYear,
     selectedRoom,
     selectedDifficulty,
+    dateRange,
   ]);
 
   const getAvailableFilters = (records) => {
@@ -102,13 +108,18 @@ const Scores = ({ studentRecords, students }) => {
 
     const filteredRecords = records.filter((record) => {
       const recordDate = new Date(record.created_at);
+      const isWithinDateRange =
+        (!dateRange.from || recordDate >= dateRange.from) &&
+        (!dateRange.to || recordDate <= dateRange.to);
+
       return (
         (selectedMonth === "all" ||
           recordDate.getMonth() + 1 === selectedMonth) &&
         (selectedYear === "all" || recordDate.getFullYear() === selectedYear) &&
         (selectedRoom === "all" || record.room_name === selectedRoom) &&
         (selectedDifficulty === "all" ||
-          record.room_difficulty === selectedDifficulty)
+          record.room_difficulty === selectedDifficulty) &&
+        isWithinDateRange
       );
     });
 
@@ -211,6 +222,11 @@ const Scores = ({ studentRecords, students }) => {
     <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white ">
       <CardContent className="p-6">
         <div className="flex items-center gap-4 pb-4 flex-wrap">
+          {/* <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+          /> */}
+
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="w-[180px] bg-white">
               <SelectValue placeholder="Select Month" />

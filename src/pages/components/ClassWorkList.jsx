@@ -267,9 +267,10 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                         <h1>{game.title} </h1>
                         {game.difficulty && (
                           <Chip
+                            variant="flat"
+                            size="sm"
                             color={getChipColor(game.difficulty)}
-                            radius="xl"
-                            className="text-sm text-white capitalize"
+                            className=" capitalize"
                           >
                             {game.difficulty}
                           </Chip>

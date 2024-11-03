@@ -21,6 +21,8 @@ import {
   useDisclosure,
   Spinner,
   Skeleton,
+  Tab,
+  Tabs,
 } from "@nextui-org/react";
 import {
   Mic,
@@ -31,11 +33,14 @@ import {
   Trash2,
   Volume2,
   ScanSearch,
+  Upload,
+  VolumeX,
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Loader from "@/pages/components/Loader";
 import { message } from "antd";
+import WaveSurfer from "wavesurfer.js";
 
 const Index = () => {
   const router = useRouter();
@@ -62,10 +67,12 @@ const Index = () => {
   const [currentIndex, setCurrentIndex] = useState(null);
   const imgRef = useRef(null);
   const recordingIntervalRef = useRef(null);
+  const waveformRef = useRef(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
   const [isImageViewOpen, setIsImageViewOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const fetchFlashcards = async () => {
     setIsLoading(true);
@@ -269,7 +276,7 @@ const Index = () => {
         newFlashcards[currentIndex].image = base64data;
         setFlashcardData(newFlashcards);
         setTempImage(null);
-        setIsImageModalOpen(false);
+        setIsUploadModalOpen(false);
         setHasUnsavedChanges(true);
       };
     }, "image/jpeg");
@@ -494,101 +501,53 @@ const Index = () => {
               <Button
                 isDisabled
                 isLoading
+                radius="sm"
                 onClick={handleSave}
                 className="mt-5 bg-[#7469B6] text-white border-0"
               >
                 Save Changes
               </Button>
             ) : (
-              <Button
-                onClick={handleSave}
-                className="mt-5 bg-[#7469B6] text-white border-0"
-                disabled={!hasUnsavedChanges}
-              >
+              <Button radius="sm" color="secondary" onClick={handleSave}>
                 Save Changes
               </Button>
             )}
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {isLoading
             ? Array.from({ length: flashcardData.length }).map((_, index) => (
                 <Skeleton key={index} className="w-full h-[300px] rounded-md" />
               ))
             : flashcardData.map((flashcard, index) => (
                 <div key={flashcard.flashcard_id} className="w-full">
-                  <Card className="w-full border border-slate-800 rounded-md flex">
-                    <CardHeader className="flex px-3 justify-between items-center z-0">
+                  <Card className="w-full  rounded-md flex m-auto p-2  border-1 border-[#7469B6]">
+                    <CardHeader className="flex   items-center justify-between ">
                       <div className="pl-2 text-xl font-bold">
                         <h1>{index + 1}</h1>
                       </div>
-                      <div className="flex gap-2">
-                        <Input
-                          label="Image URL"
-                          variant="underlined"
-                          color="secondary"
-                          className="text-[#7469B6] z-0"
-                          value={flashcard.imageUrl}
-                          onChange={(e) => {
-                            handleInputChange(
-                              index,
-                              "imageUrl",
-                              e.target.value
-                            );
-                          }}
-                        />
-                        {flashcard.image ? (
-                          <>
-                            <Button
-                              className="bg-[#7469B6] text-white border-0"
-                              onClick={() =>
-                                handleInsertImageFromUrl(flashcard, index)
-                              }
-                            >
-                              Edit Url
-                            </Button>
-
-                            <Button
-                              className="bg-[#7469B6] text-white border-0"
-                              onPress={() => {
-                                setIsImageModalOpen(true);
-                                setCurrentIndex(index);
-                              }}
-                            >
-                              <Pencil size={22} /> Edit Image
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              className="bg-[#7469B6] text-white border-0"
-                              onClick={() =>
-                                handleInsertImageFromUrl(flashcard, index)
-                              }
-                            >
-                              Add Url
-                            </Button>
-                            <Button
-                              className="bg-[#7469B6] text-white border-0"
-                              onPress={() => {
-                                setIsImageModalOpen(true);
-                                setCurrentIndex(index);
-                              }}
-                            >
-                              <Pencil size={22} /> Add Image
-                            </Button>
-                          </>
-                        )}
-
+                      <Button
+                        radius="sm"
+                        isIconOnly
+                        color="danger"
+                        onClick={() => removeFlashcard(index)}
+                      >
+                        <Trash2 size={20} />
+                      </Button>
+                    </CardHeader>
+                    <Divider className="m-0 h-0.5 bg-slate-300" />
+                    <CardBody className="flex flex-col gap-4">
+                      <div className="flex items-center justify-end gap-2">
                         <Modal
-                          isDismissable={false}
-                          isOpen={isImageModalOpen && currentIndex === index}
-                          onOpenChange={() => setIsImageModalOpen(false)}
-                          size="lg"
-                          onClose={() => {
-                            setTempImage(null);
+                          isOpen={isUploadModalOpen && currentIndex === index}
+                          onOpenChange={(isOpen) => {
+                            setIsUploadModalOpen(isOpen);
+                            if (!isOpen) {
+                              setTempImage(null);
+                            }
                           }}
+                          size="lg"
                         >
                           <ModalContent>
                             {(onClose) => (
@@ -597,41 +556,98 @@ const Index = () => {
                                   Upload Image
                                 </ModalHeader>
                                 <ModalBody>
-                                  <div
-                                    className="border-2 border-dashed border-gray-400 rounded-md p-8 text-center cursor-pointer"
-                                    onDragOver={(e) => e.preventDefault()}
-                                    onDrop={(e) => {
-                                      e.preventDefault();
-                                      const file = e.dataTransfer.files[0];
-                                      if (file) {
-                                        handleFlashcardImageChange(
-                                          currentIndex,
-                                          {
-                                            target: { files: [file] },
-                                          }
-                                        );
-                                      }
-                                    }}
-                                  >
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      className="hidden"
-                                      id="imageUpload"
-                                      onChange={(e) =>
-                                        handleFlashcardImageChange(
-                                          currentIndex,
-                                          e
-                                        )
-                                      }
-                                    />
-                                    <label
-                                      htmlFor="imageUpload"
-                                      className="block"
-                                    >
-                                      Drag or upload your image here
-                                    </label>
+                                  <div className="w-full">
+                                    <Tabs aria-label="Options" fullWidth>
+                                      <Tab key="drag" title="Drag & Drop">
+                                        <div
+                                          className=" rounded-lg border-2 border-dashed border-gray-400 p-8 text-center cursor-pointer"
+                                          onDragOver={(e) => e.preventDefault()}
+                                          onDrop={(e) => {
+                                            e.preventDefault();
+                                            const file =
+                                              e.dataTransfer.files[0];
+                                            if (file) {
+                                              handleFlashcardImageChange(
+                                                index,
+                                                {
+                                                  target: { files: [file] },
+                                                }
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            id={`imageUpload-${index}`}
+                                            onChange={(e) =>
+                                              handleFlashcardImageChange(
+                                                index,
+                                                e
+                                              )
+                                            }
+                                          />
+                                          <label
+                                            htmlFor={`imageUpload-${index}`}
+                                            className="block"
+                                          >
+                                            Drag or upload your image here
+                                          </label>
+                                          <Button
+                                            radius="sm"
+                                            variant="bordered"
+                                            color="secondary"
+                                            className="mt-4"
+                                            onClick={() => {
+                                              document
+                                                .getElementById(
+                                                  `imageUpload-${index}`
+                                                )
+                                                .click();
+                                            }}
+                                          >
+                                            <Upload size={20} />
+                                            Upload Image
+                                          </Button>
+                                        </div>
+                                      </Tab>
+                                      <Tab key="url" title="Image URL">
+                                        <div className="flex gap-2">
+                                          <Input
+                                            radius="sm"
+                                            placeholder="Image URL"
+                                            variant="bordered"
+                                            color="secondary"
+                                            className="text-[#7469B6]  w-full "
+                                            value={flashcard.imageUrl || ""}
+                                            onChange={(e) => {
+                                              handleInputChange(
+                                                index,
+                                                "imageUrl",
+                                                e.target.value
+                                              );
+                                            }}
+                                          />
+                                          <Button
+                                            radius="sm"
+                                            color="secondary"
+                                            isDisabled={!flashcard.imageUrl}
+                                            onClick={() => {
+                                              handleInsertImageFromUrl(
+                                                flashcard,
+                                                index
+                                              );
+                                              onClose();
+                                            }}
+                                          >
+                                            Add
+                                          </Button>
+                                        </div>
+                                      </Tab>
+                                    </Tabs>
                                   </div>
+
                                   {tempImage && (
                                     <div
                                       className="w-full h-full"
@@ -644,7 +660,7 @@ const Index = () => {
                                         onChange={(newCrop) => setCrop(newCrop)}
                                         aspect={1}
                                       >
-                                        {tempImage && (
+                                        {tempImage && !flashcard.image && (
                                           <img
                                             src={tempImage}
                                             onLoad={onImageLoad}
@@ -660,12 +676,22 @@ const Index = () => {
                                   )}
                                 </ModalBody>
                                 <ModalFooter>
-                                  <Button color="danger" onPress={onClose}>
+                                  <Button
+                                    variant="flat"
+                                    radius="sm"
+                                    color="danger"
+                                    onPress={onClose}
+                                    onClick={() => {
+                                      setTempImage(null);
+                                    }}
+                                  >
                                     Cancel
                                   </Button>
                                   <Button
-                                    className="bg-[#7469B6] text-white border-0"
-                                    onPress={confirmImage}
+                                    radius="sm"
+                                    isDisabled={!tempImage}
+                                    color="secondary"
+                                    onClick={() => confirmImage(index)}
                                   >
                                     Insert
                                   </Button>
@@ -674,70 +700,36 @@ const Index = () => {
                             )}
                           </ModalContent>
                         </Modal>
-                        <Button
-                          isIconOnly
-                          color="danger"
-                          onPress={() => removeFlashcard(index)}
-                        >
-                          <Trash2 size={22} />
-                        </Button>
                       </div>
-                    </CardHeader>
-                    <Divider className="m-0 h-0.5 bg-slate-300" />
-                    <CardBody className="flex flex-col gap-4">
-                      <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
-                        <div className="flex shrink flex-col w-[45%] gap-2 max-sm:w-full">
-                          <Input
-                            label="Term"
-                            variant="underlined"
-                            color="secondary"
-                            className="text-[#7469B6] z-0"
-                            value={flashcard.term}
-                            onChange={(e) =>
-                              handleInputChange(index, "term", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="flex w-[55%] gap-2 max-sm:w-full">
-                          <Textarea
-                            label="Description"
-                            variant="underlined"
-                            color="secondary"
-                            className="text-[#7469B6] z-0"
-                            value={flashcard.description}
-                            onChange={(e) =>
-                              handleInputChange(
-                                index,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                          />
-                          <div className="flex shrink-0 items-center justify-center border-dashed border-2 border-gray-300 w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
-                            <div className="relative flex flex-col gap-2">
-                              <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
+                      <div className="flex flex-col w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+                        <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
+                          {flashcard.image ? (
+                            <div className="relative flex flex-col gap-2 w-full h-full">
+                              <div className=" w-full h-full ">
                                 <img
                                   src={flashcard.image}
-                                  alt={flashcard.term}
-                                  className="w-full h-auto"
+                                  alt="flashcard image"
+                                  className="w-full h-full object-cover rounded-lg"
                                 />
                               </div>
                               <Button
                                 isIconOnly
                                 size="sm"
-                                color="danger"
-                                className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
-                                onPress={() => {
+                                onClick={() => {
                                   removeImage(index);
                                 }}
+                                color="danger"
+                                className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
                               >
                                 <Trash2 size={18} />
                               </Button>
                               <Button
                                 isIconOnly
                                 size="sm"
-                                className="absolute bg-[#7469B6] text-white border-0 bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
-                                onPress={() => {
+                                color="secondary"
+                                className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                                aria-label="View Image"
+                                onClick={() => {
                                   setIsImageViewOpen(true);
                                   setCurrentIndex(index);
                                 }}
@@ -748,27 +740,235 @@ const Index = () => {
                                 isOpen={
                                   isImageViewOpen && currentIndex === index
                                 }
-                                onOpenChange={() => setIsImageViewOpen(false)}
-                                size="lg"
+                                onOpenChange={(isOpen) => {
+                                  setIsImageViewOpen(isOpen);
+                                }}
                               >
                                 <ModalContent>
-                                  <ModalHeader>Image Preview</ModalHeader>
-                                  <ModalBody>
-                                    <img
-                                      src={flashcard.image}
-                                      alt={flashcard.term}
-                                      className="w-full h-auto"
-                                    />
-                                  </ModalBody>
+                                  {(onClose) => (
+                                    <>
+                                      <ModalHeader>Image Preview</ModalHeader>
+                                      <ModalBody>
+                                        <div className="w-full h-full">
+                                          <img
+                                            src={flashcard.image}
+                                            alt="flashcard image"
+                                            className=" w-full h-full object-cover rounded-lg"
+                                          />
+                                        </div>
+                                      </ModalBody>
+                                      <ModalFooter>
+                                        <Button
+                                          radius="sm"
+                                          color="danger"
+                                          onPress={onClose}
+                                          variant="flat"
+                                        >
+                                          Close
+                                        </Button>
+                                      </ModalFooter>
+                                    </>
+                                  )}
                                 </ModalContent>
                               </Modal>
                             </div>
-                          </div>
+                          ) : (
+                            <Button
+                              radius="sm"
+                              color="secondary"
+                              className="border-1 "
+                              onClick={() => {
+                                setIsUploadModalOpen(true);
+                                setCurrentIndex(index);
+                              }}
+                            >
+                              <Upload size={20} />
+                              Upload Image
+                            </Button>
+                          )}
+                        </div>
+                        <div className="m-auto w-full">
+                          {flashcard.audio ? (
+                            <div className="flex gap-3  w-full">
+                              <div className="flex gap-2 w-full justify-between">
+                                <Button
+                                  className="border-1 w-full"
+                                  radius="sm"
+                                  onClick={() => {
+                                    const audio = new Audio(flashcard.audio);
+                                    audio.play();
+                                  }}
+                                  color="secondary"
+                                >
+                                  <Volume2 size={20} />
+                                  Play Audio
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  radius="sm"
+                                  onPress={() => {
+                                    removeAudio(index);
+                                  }}
+                                  color="danger"
+                                >
+                                  <Trash2 size={20} />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <Button
+                              radius="sm"
+                              color="secondary"
+                              className="border-1 w-full"
+                              onPress={() => {
+                                setIsAudioModalOpen(true);
+                                setCurrentIndex(index);
+                              }}
+                            >
+                              <Mic size={20} />
+                              Record Audio
+                            </Button>
+                          )}
+                        </div>
+                        <div className="flex shrink flex-col gap-2 max-sm:w-full">
+                          <Input
+                            label={`Term`}
+                            isClearable
+                            onClear={() => handleInputChange(index, "term", "")}
+                            type="text"
+                            radius="sm"
+                            variant="bordered"
+                            classNames={{
+                              label: "",
+                              inputWrapper: "border-1 border-[#7469B6]",
+                            }}
+                            color="secondary"
+                            value={flashcard.term}
+                            onChange={(e) =>
+                              handleInputChange(index, "term", e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="flex w-full gap-2 max-sm:w-full">
+                          <Textarea
+                            rows={5}
+                            radius="sm"
+                            disableAnimation
+                            disableAutosize
+                            classNames={{
+                              input: "resize-y min-h-[40px]",
+                              inputWrapper: "border-1 border-[#7469B6]",
+                            }}
+                            type="text"
+                            variant="bordered"
+                            label={`Description`}
+                            value={flashcard.description}
+                            onChange={(e) =>
+                              handleInputChange(
+                                index,
+                                "description",
+                                e.target.value
+                              )
+                            }
+                          />
                         </div>
                       </div>
+                      <Modal
+                        isOpen={isAudioModalOpen && currentIndex === index}
+                        onOpenChange={() => {
+                          setIsAudioModalOpen(false);
+                          setTempAudioBlob(null);
+                        }}
+                        size="lg"
+                      >
+                        <ModalContent>
+                          {(onClose) => (
+                            <>
+                              <ModalHeader className="flex flex-col gap-1">
+                                Record Audio
+                              </ModalHeader>
+                              <ModalBody>
+                                <div className="flex flex-col gap-4">
+                                  {!isRecording ? (
+                                    <Button
+                                      radius="sm"
+                                      color="secondary"
+                                      onClick={startRecording}
+                                      className="flex items-center gap-2"
+                                    >
+                                      <Mic size={20} />
+                                      Start Recording
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      onClick={stopRecording}
+                                      color="danger"
+                                      className="flex items-center justify-center gap-2"
+                                    >
+                                      <Disc2
+                                        size={20}
+                                        className="animate-spin"
+                                      />
+                                      <span>
+                                        {formatTime(recordingTime)}/01:00
+                                      </span>
+                                    </Button>
+                                  )}
+
+                                  {tempAudioBlob && (
+                                    <div className="flex flex-col gap-3 p-3 border rounded-lg">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm font-medium">
+                                          Preview
+                                        </span>
+
+                                        <Button
+                                          size="sm"
+                                          color="danger"
+                                          variant="light"
+                                          onClick={removeTempAudio}
+                                          className="min-w-0"
+                                        >
+                                          <VolumeX size={18} />
+                                        </Button>
+                                      </div>
+                                      <audio
+                                        controls
+                                        className="w-full"
+                                        src={URL.createObjectURL(tempAudioBlob)}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              </ModalBody>
+                              <ModalFooter>
+                                <Button
+                                  radius="sm"
+                                  color="danger"
+                                  variant="light"
+                                  onPress={onClose}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  radius="sm"
+                                  color="secondary"
+                                  onClick={() => {
+                                    insertAudio();
+                                    onClose();
+                                  }}
+                                  isDisabled={!tempAudioBlob}
+                                >
+                                  Insert Audio
+                                </Button>
+                              </ModalFooter>
+                            </>
+                          )}
+                        </ModalContent>
+                      </Modal>
                     </CardBody>
-                    <Divider className="m-0 h-0.5 bg-slate-300" />
-                    <CardFooter className="flex px-3 gap-2 items-center justify-between">
+
+                    {/* <CardFooter className="flex px-3 gap-2 items-center justify-between">
                       <div className="flex gap-2 w-full items-center max-sm:flex-col">
                         {flashcard.audio ? (
                           <div className="flex gap-2">
@@ -806,83 +1006,8 @@ const Index = () => {
                             <Mic size={22} /> Record Audio
                           </Button>
                         )}
-                        <Modal
-                          isOpen={isAudioModalOpen && currentIndex === index}
-                          onOpenChange={() => setIsAudioModalOpen(false)}
-                          size="lg"
-                          onClose={() => {
-                            setTempAudioBlob(null);
-                          }}
-                        >
-                          <ModalContent>
-                            {(onClose) => (
-                              <>
-                                <ModalHeader className="flex flex-col gap-1">
-                                  Record Audio
-                                </ModalHeader>
-                                <ModalBody>
-                                  {!isRecording ? (
-                                    <Button
-                                      className="bg-[#7469B6] text-white border-0"
-                                      onClick={startRecording}
-                                    >
-                                      Start Recording
-                                    </Button>
-                                  ) : (
-                                    <Button
-                                      onClick={stopRecording}
-                                      color="danger"
-                                      className="flex items-center gap-2"
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <Disc2 size={24} />
-                                        <p>{formatTime(recordingTime)}/01:00</p>
-                                      </div>
-                                    </Button>
-                                  )}
-                                  {tempAudioBlob && (
-                                    <>
-                                      <div className="flex gap-2 items-center justify-between">
-                                        <audio
-                                          controls
-                                          src={URL.createObjectURL(
-                                            tempAudioBlob
-                                          )}
-                                        ></audio>
-                                        <div className="flex gap-2">
-                                          <Button
-                                            onClick={removeTempAudio}
-                                            color="danger"
-                                          >
-                                            <Trash2 size={22} />
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </>
-                                  )}
-                                </ModalBody>
-                                <ModalFooter>
-                                  <Button color="danger" onPress={onClose}>
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    className="bg-[#7469B6] text-white border-0"
-                                    onClick={() => {
-                                      insertAudio();
-                                      onClose();
-                                      setAudioBlob(null);
-                                    }}
-                                    isDisabled={!tempAudioBlob}
-                                  >
-                                    Insert
-                                  </Button>
-                                </ModalFooter>
-                              </>
-                            )}
-                          </ModalContent>
-                        </Modal>
                       </div>
-                    </CardFooter>
+                    </CardFooter> */}
                   </Card>
                 </div>
               ))}
@@ -890,7 +1015,8 @@ const Index = () => {
         <Button
           size="lg"
           radius="sm"
-          className="my-4 text-sm bg-[#7469B6] text-white border-0"
+          color="secondary"
+          className="my-4 text-sm"
           onClick={addFlashcard}
           startContent={<Plus size={22} />}
         >

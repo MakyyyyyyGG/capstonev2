@@ -130,6 +130,10 @@ const CreateRoom = () => {
                     <h1>Room Name</h1>
                     <Input
                       color="secondary"
+                      classNames={{
+                        label: "text-white",
+                        inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                      }}
                       placeholder="Enter room name"
                       radius="sm"
                       variant="bordered"
@@ -145,9 +149,14 @@ const CreateRoom = () => {
                     <div className="w-full">
                       <Select
                         id="difficulty"
-                        radius="sm"
-                        placeholder="Select difficulty"
                         size="lg"
+                        radius="sm"
+                        classNames={{
+                          label: "text-white",
+                          mainWrapper:
+                            "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
+                        }}
+                        placeholder="Select difficulty"
                         variant="bordered"
                         value={difficulty}
                         onChange={handleDifficultyChange}

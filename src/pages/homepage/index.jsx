@@ -36,12 +36,11 @@ const Index = () => {
   }, [session?.user?.id, status]);
 
   return (
-    <div className="w-full">
-      <div className="p-4 w-full">
-        <JoinRoom onRoomJoin={fetchJoinedRoom} />
-        <div>
-          <JoinedRoom rooms={rooms} onUnenroll={fetchJoinedRoom} />
-        </div>
+    <div className="p-4 w-full">
+      <div className=" w-full">
+        {/* <JoinRoom onRoomJoin={fetchJoinedRoom} /> */}
+
+        <JoinedRoom rooms={rooms} onUnenroll={fetchJoinedRoom} />
       </div>
     </div>
   );
