@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardHeader,
@@ -46,6 +46,10 @@ const FourPicsOneWordStudent = ({ cards }) => {
   const router = useRouter();
   const { game_id } = router.query;
   const inputRefs = useRef([]);
+
+  // Sound effect refs
+  const correctSound = useRef(null);
+  const incorrectSound = useRef(null);
 
   useEffect(() => {
     if (cards) {
@@ -160,21 +164,37 @@ const FourPicsOneWordStudent = ({ cards }) => {
       newFeedback[index] = "Correct!";
       setScore((prevScore) => prevScore + 1);
       setAnsweredQuestions((prevAnswered) => prevAnswered + 1);
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
+
+      // Play correct sound
+      correctSound.current.play();
+
+      // Delay before moving to the next slide
+      setTimeout(() => {
+        if (swiperInstance) {
+          swiperInstance.slideNext();
+        }
+      }, 2500); // 2.5-second delay
     } else if (newAttempts[index] >= 3) {
       newFeedback[index] =
         "Out of attempts. The correct answer was: " + correctAnswer;
       setAnsweredQuestions((prevAnswered) => prevAnswered + 1);
 
-      if (swiperInstance) {
-        swiperInstance.slideNext();
-      }
+      // Play incorrect sound
+      incorrectSound.current.play();
+
+      // Delay before moving to the next slide
+      setTimeout(() => {
+        if (swiperInstance) {
+          swiperInstance.slideNext();
+        }
+      }, 2500); // 2.5-second delay
     } else {
       newFeedback[index] = `Incorrect. ${
         3 - newAttempts[index]
       } attempts left.`;
+
+      // Play incorrect sound
+      incorrectSound.current.play();
     }
     setFeedback(newFeedback);
 
@@ -182,9 +202,13 @@ const FourPicsOneWordStudent = ({ cards }) => {
     const allAnswered = newFeedback.every(
       (fb) => fb.includes("Correct") || fb.includes("Out of attempts")
     );
-    if (allAnswered) {
-      setIsGameFinished(true);
-    }
+
+    // Delay before finishing
+    setTimeout(() => {
+      if (allAnswered) {
+        setIsGameFinished(true);
+      }
+    }, 2500); // 2.5-second delay
   };
 
   const handleResult = async () => {
@@ -244,6 +268,17 @@ const FourPicsOneWordStudent = ({ cards }) => {
 
   return (
     <div className="relative flex flex-col justify-center">
+      {/* Audio elements */}
+      <audio
+        ref={correctSound}
+        src="/soundfx/audio/correct.mp3"
+        preload="auto"
+      />
+      <audio
+        ref={incorrectSound}
+        src="/soundfx/audio/incorrect.mp3"
+        preload="auto"
+      />
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -315,115 +350,131 @@ const FourPicsOneWordStudent = ({ cards }) => {
             >
               {shuffledCards.map((card, index) => (
                 <SwiperSlide key={index}>
-                  <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                    <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                      {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
-                      <div
-                        className={`grid grid-cols-4 gap-2 max-sm:grid-cols-2`}
-                      >
-                        {[
-                          card.image1 || "",
-                          card.image2 || "",
-                          card.image3 || "",
-                          card.image4 || "",
-                        ].map(
-                          (image, idx) =>
-                            image && (
-                              <img
-                                key={idx}
-                                src={`${image}`}
-                                alt={`Image ${idx + 1}`}
-                                className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
-                              />
-                            )
-                        )}
-                      </div>
-                      <div className="flex flex-col items-center gap-2 w-full">
-                        {/* <h1>Question: {card.question}</h1> */}
-
-                        <div className="w-full text-center bg-white">
-                          <header className="mb-4">
-                            <h1 className="text-xl font-bold mb-1">
-                              Enter Your Answer
-                            </h1>
-                            <p className="text-xs text-slate-500">
-                              Enter the answer based on the images above.
-                            </p>
-                          </header>
-                          <form id="otp-form">
-                            <div className="flex items-center justify-center gap-3">
-                              {Array.from({ length: card.word.length }).map(
-                                (_, idx) => (
-                                  <input
-                                    key={idx}
-                                    type="text"
-                                    className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                                    maxLength="1"
-                                    value={userAnswers[index]?.[idx] || ""}
-                                    onChange={(e) => {
-                                      const newAnswer = userAnswers[index]
-                                        ? userAnswers[index].split("")
-                                        : [];
-                                      newAnswer[idx] = e.target.value;
-                                      handleChange(newAnswer.join(""), index);
-                                    }}
-                                    onKeyDown={(e) =>
-                                      handleKeyDown(e, index, idx)
-                                    }
-                                    ref={(el) => {
-                                      if (!inputRefs.current[index]) {
-                                        inputRefs.current[index] = [];
-                                      }
-                                      inputRefs.current[index][idx] = el;
-                                    }}
-                                    disabled={
-                                      feedback[index]?.includes("Correct") ||
-                                      attempts[index] >= 3
-                                    }
-                                  />
-                                )
-                              )}
-                            </div>
-                            <div className="w-full mt-4">
-                              <Button
-                                radius="md"
-                                onClick={() => checkAnswer(index)}
-                                isDisabled={
-                                  feedback[index]?.includes("Correct") ||
-                                  attempts[index] >= 3 ||
-                                  userAnswers[index]?.length !==
-                                    card.word.length
-                                }
-                                className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
-                              >
-                                Check Answer
-                              </Button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      {feedback[index] && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.1 }}
-                          className="flex w-full justify-center rounded-md"
+                  <motion.div
+                    animate={{
+                      borderColor: feedback[index]?.includes("Correct")
+                        ? "#22c55e" // green for correct
+                        : attempts[index] >= 3
+                        ? "#ef4444"
+                        : "#e5e7eb", // red for out of attempts, default for others
+                    }}
+                    transition={{ duration: 0.5 }}
+                    className="border-4 rounded-lg"
+                  >
+                    <Card className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto">
+                      <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                        {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
+                        <div
+                          className={`grid grid-cols-4 gap-2 max-sm:grid-cols-2`}
                         >
-                          <div className="w-full text-center rounded-md">
-                            <p
-                              className={
-                                feedback[index].includes("Correct")
-                                  ? "text-white bg-green-500 p-2 rounded-md"
-                                  : "text-white bg-red-500 p-2 rounded-md"
-                              }
-                            >
-                              {feedback[index]}
-                            </p>
+                          {[
+                            card.image1 || "",
+                            card.image2 || "",
+                            card.image3 || "",
+                            card.image4 || "",
+                          ].map(
+                            (image, idx) =>
+                              image && (
+                                <img
+                                  key={idx}
+                                  src={`${image}`}
+                                  alt={`Image ${idx + 1}`}
+                                  className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
+                                />
+                              )
+                          )}
+                        </div>
+                        <div className="flex flex-col items-center gap-2 w-full">
+                          {/* <h1>Question: {card.question}</h1> */}
+
+                          <div className="w-full text-center bg-white">
+                            <header className="mb-4">
+                              <h1 className="text-xl font-bold mb-1">
+                                Enter Your Answer
+                              </h1>
+                              <p className="text-xs text-slate-500">
+                                Enter the answer based on the images above.
+                              </p>
+                            </header>
+                            <form id="otp-form">
+                              <div className="flex items-center justify-center gap-3">
+                                {Array.from({ length: card.word.length }).map(
+                                  (_, idx) => (
+                                    <input
+                                      key={idx}
+                                      type="text"
+                                      className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                      maxLength="1"
+                                      value={userAnswers[index]?.[idx] || ""}
+                                      onChange={(e) => {
+                                        const newAnswer = userAnswers[index]
+                                          ? userAnswers[index].split("")
+                                          : [];
+                                        newAnswer[idx] = e.target.value;
+                                        handleChange(newAnswer.join(""), index);
+                                      }}
+                                      onKeyDown={(e) =>
+                                        handleKeyDown(e, index, idx)
+                                      }
+                                      ref={(el) => {
+                                        if (!inputRefs.current[index]) {
+                                          inputRefs.current[index] = [];
+                                        }
+                                        inputRefs.current[index][idx] = el;
+                                      }}
+                                      disabled={
+                                        feedback[index]?.includes("Correct") ||
+                                        attempts[index] >= 3
+                                      }
+                                    />
+                                  )
+                                )}
+                              </div>
+                              <div className="w-full mt-4">
+                                <Button
+                                  radius="md"
+                                  onClick={() => checkAnswer(index)}
+                                  isDisabled={
+                                    feedback[index]?.includes("Correct") ||
+                                    attempts[index] >= 3 ||
+                                    userAnswers[index]?.length !==
+                                      card.word.length
+                                  }
+                                  className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                                >
+                                  Check Answer
+                                </Button>
+                              </div>
+                            </form>
                           </div>
-                        </motion.div>
-                      )}
-                    </CardBody>
-                  </Card>
+                        </div>
+                        <AnimatePresence>
+                          {feedback[index] && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 20 }}
+                              className="flex w-full text-center justify-center rounded-md"
+                            >
+                              <motion.div
+                                key={feedback[index]}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                className={
+                                  feedback[index].includes("Correct")
+                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                    : "text-white w-full bg-red-500 p-2 rounded-md"
+                                }
+                              >
+                                {feedback[index]}
+                              </motion.div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </CardBody>
+                    </Card>
+                  </motion.div>
                 </SwiperSlide>
               ))}
             </Swiper>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardBody,
@@ -49,6 +49,10 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState(
     Array(cards.length).fill([])
   );
+
+  // Sound effect refs
+  const correctSound = useRef(null);
+  const incorrectSound = useRef(null);
 
   useEffect(() => {
     setShuffledCards(shuffleArray(cards));
@@ -126,6 +130,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
     let newScore = score;
     let newAnswer = answer;
     let newAttempts = [...attempts];
+    let allQuestionsCompleted = true; // Track if all questions are completed
 
     selectedImages.forEach((selectedIdxs, cardIndex) => {
       if (selectedIdxs.length > 0) {
@@ -142,18 +147,40 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
           newScore++;
           newFeedback[cardIndex] = "Correct!";
           newAnswer++;
-          if (swiperInstance) {
-            swiperInstance.slideNext();
-          }
+          // Play correct sound
+          correctSound.current.play();
+
+          // Delay before moving to the next slide
+          setTimeout(() => {
+            if (swiperInstance) {
+              swiperInstance.slideNext();
+            }
+          }, 2500); // 2.5-second delay
         } else if (newAttempts[cardIndex] >= 3) {
           newFeedback[cardIndex] = "Incorrect. Moving to next question.";
-          newAnswer++;
-          if (swiperInstance) {
-            swiperInstance.slideNext();
-          }
+          // Play incorrect sound
+          incorrectSound.current.play();
+
+          // Delay before moving to the next slide
+          setTimeout(() => {
+            if (swiperInstance) {
+              swiperInstance.slideNext();
+            }
+          }, 2500); // 2.5-second delay
         } else {
           newFeedback[cardIndex] = "Incorrect. Try again.";
+
+          // Play incorrect sound
+          incorrectSound.current.play();
+          // Since this question is not finished, set the flag to false
+          allQuestionsCompleted = false;
         }
+      }
+
+      // If this question still has attempts left and was not answered correctly,
+      // mark it as incomplete
+      if (newAttempts[cardIndex] < 3 && newFeedback[cardIndex] !== "Correct!") {
+        allQuestionsCompleted = false;
       }
     });
 
@@ -163,9 +190,15 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
     setAttempts(newAttempts);
 
     const allAnswered = newAnswer === cards.length;
-    if (allAnswered) {
-      setIsGameFinished(true);
-    }
+    // Delay before finishing
+    setTimeout(() => {
+      if (allQuestionsCompleted) {
+        setIsGameFinished(true);
+      }
+    }, 2500); // 2.5-second delay
+    // if (allAnswered) {
+    //   setIsGameFinished(true);
+    // }
 
     setSelectedImages(Array(cards.length).fill([]));
   };
@@ -263,6 +296,17 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
 
   return (
     <div className="relative flex flex-col justify-center">
+      {/* Audio elements */}
+      <audio
+        ref={correctSound}
+        src="/soundfx/audio/correct.mp3"
+        preload="auto"
+      />
+      <audio
+        ref={incorrectSound}
+        src="/soundfx/audio/incorrect.mp3"
+        preload="auto"
+      />
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -336,135 +380,153 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
             >
               {shuffledCards.map((card, index) => (
                 <SwiperSlide key={index}>
-                  <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                    <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                      {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
-                      <div className="flex justify-center items-center gap-2">
-                        <div className="text-3xl font-extrabold my-5">
-                          <h1>{card.word}</h1>
+                  <motion.div
+                    animate={{
+                      borderColor: feedback[index]?.includes("Correct")
+                        ? "#22c55e" // green for correct
+                        : attempts[index] >= 3
+                        ? "#ef4444"
+                        : "#e5e7eb", // red for out of attempts, default for others
+                    }}
+                    transition={{ duration: 0.5 }}
+                    className="border-4 rounded-lg"
+                  >
+                    <Card className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto">
+                      <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                        {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
+                        <div className="flex justify-center items-center gap-2">
+                          <div className="text-3xl font-extrabold my-5">
+                            <h1>{card.word}</h1>
+                          </div>
+                          <div className="flex justify-center items-center">
+                            {card.word && (
+                              <Button
+                                isIconOnly
+                                className="text-[#7469B6]"
+                                variant="light"
+                                onPress={() => handleTextToSpeech(card.word)}
+                              >
+                                <Volume2 />
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex justify-center items-center">
-                          {card.word && (
-                            <Button
-                              isIconOnly
-                              className="text-[#7469B6]"
-                              variant="light"
-                              onPress={() => handleTextToSpeech(card.word)}
-                            >
-                              <Volume2 />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        className={`grid ${
-                          [
+                        <div
+                          className={`grid ${
+                            [
+                              card.image1,
+                              card.image2,
+                              card.image3,
+                              card.image4,
+                            ].filter((image) => image !== null).length === 4
+                              ? "grid-cols-4"
+                              : [
+                                  card.image1,
+                                  card.image2,
+                                  card.image3,
+                                  card.image4,
+                                ].filter((image) => image !== null).length === 3
+                              ? "grid-cols-3"
+                              : "grid-cols-2"
+                          } gap-2`}
+                        >
+                          {[
                             card.image1,
                             card.image2,
                             card.image3,
                             card.image4,
-                          ].filter((image) => image !== null).length === 4
-                            ? "grid-cols-4"
-                            : [
-                                card.image1,
-                                card.image2,
-                                card.image3,
-                                card.image4,
-                              ].filter((image) => image !== null).length === 3
-                            ? "grid-cols-3"
-                            : "grid-cols-2"
-                        } gap-2`}
-                      >
-                        {[
-                          card.image1,
-                          card.image2,
-                          card.image3,
-                          card.image4,
-                        ].map(
-                          (image, idx) =>
-                            image && (
-                              <motion.div
-                                key={idx}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className={`relative hover:cursor-pointer rounded-md ${
-                                  selectedImages[index].includes(idx)
-                                    ? "border-3 border-[#17C964]"
-                                    : ""
-                                }`}
-                                style={{
-                                  transition:
-                                    "border-color 0.3s ease, transform 0.3s ease",
-                                }}
-                              >
-                                <img
-                                  aria-disabled={
-                                    attempts[index] >= 3 ||
-                                    feedback[index]?.includes("Correct")
-                                  }
-                                  radius="none"
-                                  onClick={() =>
-                                    attempts[index] < 3 &&
-                                    !feedback[index]?.includes("Correct")
-                                      ? handleImageSelect(idx, index)
-                                      : null
-                                  }
-                                  src={`${image}`}
-                                  alt={`Image ${idx + 1}`}
-                                  className={`max-w-50 h-auto object-cover rounded-md ${
-                                    attempts[index] >= 3 ||
-                                    feedback[index]?.includes("Correct")
-                                      ? "opacity-50 cursor-not-allowed"
+                          ].map(
+                            (image, idx) =>
+                              image && (
+                                <motion.div
+                                  key={idx}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className={`relative hover:cursor-pointer rounded-md ${
+                                    selectedImages[index].includes(idx)
+                                      ? "border-3 border-[#17C964]"
                                       : ""
                                   }`}
-                                />
-                                <Checkbox
-                                  color="success"
-                                  className="absolute top-2 right-1 text-white"
-                                  isSelected={selectedImages[index].includes(
-                                    idx
-                                  )}
-                                  onChange={() => handleImageSelect(idx, index)}
-                                  isDisabled={
-                                    attempts[index] >= 3 ||
-                                    feedback[index]?.includes("Correct")
-                                  }
-                                />
-                              </motion.div>
-                            )
-                        )}
-                      </div>
-                      <div className="w-full mt-8">
-                        <Button
-                          radius="sm"
-                          onClick={handleCheckAnswers}
-                          className="w-full justify-center text-white bg-[#7469B6]"
-                        >
-                          Check Answers
-                        </Button>
-                      </div>
-                      {feedback[index] && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.1 }}
-                          className="flex w-full justify-center rounded-md"
-                        >
-                          <div className="w-full text-center rounded-md">
-                            <p
-                              className={
-                                feedback[index].includes("Correct")
-                                  ? "text-white bg-green-500 p-2 rounded-md"
-                                  : "text-white bg-red-500 p-2 rounded-md"
-                              }
+                                  style={{
+                                    transition:
+                                      "border-color 0.3s ease, transform 0.3s ease",
+                                  }}
+                                >
+                                  <img
+                                    aria-disabled={
+                                      attempts[index] >= 3 ||
+                                      feedback[index]?.includes("Correct")
+                                    }
+                                    radius="none"
+                                    onClick={() =>
+                                      attempts[index] < 3 &&
+                                      !feedback[index]?.includes("Correct")
+                                        ? handleImageSelect(idx, index)
+                                        : null
+                                    }
+                                    src={`${image}`}
+                                    alt={`Image ${idx + 1}`}
+                                    className={`max-w-50 h-auto object-cover rounded-md ${
+                                      attempts[index] >= 3 ||
+                                      feedback[index]?.includes("Correct")
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                    }`}
+                                  />
+                                  <Checkbox
+                                    color="success"
+                                    className="absolute top-2 right-1 text-white"
+                                    isSelected={selectedImages[index].includes(
+                                      idx
+                                    )}
+                                    onChange={() =>
+                                      handleImageSelect(idx, index)
+                                    }
+                                    isDisabled={
+                                      attempts[index] >= 3 ||
+                                      feedback[index]?.includes("Correct")
+                                    }
+                                  />
+                                </motion.div>
+                              )
+                          )}
+                        </div>
+                        <div className="w-full mt-8">
+                          <Button
+                            radius="sm"
+                            onClick={handleCheckAnswers}
+                            className="w-full justify-center text-white bg-[#7469B6]"
+                          >
+                            Check Answers
+                          </Button>
+                        </div>
+                        <AnimatePresence>
+                          {feedback[index] && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 20 }}
+                              className="flex w-full text-center justify-center rounded-md"
                             >
-                              {feedback[index]}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </CardBody>
-                  </Card>
+                              <motion.div
+                                key={feedback[index]}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                className={
+                                  feedback[index].includes("Correct")
+                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                    : "text-white w-full bg-red-500 p-2 rounded-md"
+                                }
+                              >
+                                {feedback[index]}
+                              </motion.div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </CardBody>
+                    </Card>
+                  </motion.div>
                 </SwiperSlide>
               ))}
             </Swiper>
