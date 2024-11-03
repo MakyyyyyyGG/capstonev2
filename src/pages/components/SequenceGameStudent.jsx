@@ -37,6 +37,10 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   );
   const audioRefs = useRef([]);
 
+  // Sound effect refs
+  const correctSound = useRef(null);
+  const incorrectSound = useRef(null);
+
   const handleAudioToggle = (index) => {
     if (audioRefs.current[index]) {
       if (isPlaying[index]) {
@@ -129,15 +133,26 @@ const SequenceGameStudent = ({ sequenceGame }) => {
     if (isCorrect) {
       setScore((prevScore) => prevScore + 1);
       newFeedback[index] = "Correct!";
+
+      // Play correct sound
+      correctSound.current.play();
+
       setAnswer((prevAnswer) => prevAnswer + 1);
     } else {
       if (newAttempts[index] >= 3) {
         newFeedback[index] = "Out of attempts. Moving to next question.";
+
+        // Play incorrect sound
+        incorrectSound.current.play();
+
         setAnswer((prevAnswer) => prevAnswer + 1);
       } else {
         newFeedback[index] = `Incorrect. ${
           3 - newAttempts[index]
         } attempts left.`;
+
+        // Play incorrect sound
+        incorrectSound.current.play();
       }
     }
     setFeedback(newFeedback);
@@ -258,6 +273,17 @@ const SequenceGameStudent = ({ sequenceGame }) => {
 
   return (
     <div div className="relative flex flex-col justify-center">
+      {/* Audio elements */}
+      <audio
+        ref={correctSound}
+        src="/soundfx/audio/correct.mp3"
+        preload="auto"
+      />
+      <audio
+        ref={incorrectSound}
+        src="/soundfx/audio/incorrect.mp3"
+        preload="auto"
+      />
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
@@ -358,131 +384,154 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                 </CardHeader>
                 <CardBody className="flex flex-col gap-3">
                   {sequenceGame.map((item, index) => (
-                    <Card
-                      key={index}
-                      className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg border shadow-sm"
+                    <motion.div
+                      animate={{
+                        borderColor: feedback[index]
+                          ? feedback[index].includes("Correct")
+                            ? "#22c55e" // green for correct
+                            : attempts[index] >= 3
+                            ? "#ef4444" // red for out of attempts
+                            : "transparent" // keep transparent if no feedback or attempts
+                          : "transparent", // no border if feedback is empty
+                      }}
+                      transition={{ duration: 0.5 }}
+                      className={`border-2 rounded-lg ${
+                        feedback[index] ? "" : "border-transparent"
+                      }`} // no border class initially
+                      style={{
+                        transition: "border-color 0.5s ease", // Smooth transition for border
+                      }}
                     >
-                      {/* display the available attems here */}
-                      <div className="flex w-full gap-4 justify-between items-center">
-                        <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
-                          {selectedImages[index] ? (
-                            <motion.img
-                              src={selectedImages[index]}
-                              alt={`Selected Image ${index + 1}`}
-                              className="w-24 h-24 object-cover"
-                              initial={{ opacity: 0, y: 50 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.25 }}
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              Step {index + 1}
-                            </div>
+                      <Card
+                        key={index}
+                        className="flex flex-col items-center gap-4 p-4 bg-white rounded-md border shadow-sm"
+                      >
+                        {/* display the available attems here */}
+                        <div className="flex w-full gap-4 justify-between items-center">
+                          <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
+                            {selectedImages[index] ? (
+                              <motion.img
+                                src={selectedImages[index]}
+                                alt={`Selected Image ${index + 1}`}
+                                className="w-24 h-24 object-cover"
+                                initial={{ opacity: 0, y: 50 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25 }}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                Step {index + 1}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1">
+                            <h3 className="font-medium">Step {index + 1}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {item.step}
+                            </p>
+                          </div>
+
+                          {item.audio && (
+                            <>
+                              <div className="absolute top-1 right-1">
+                                <Button
+                                  isIconOnly
+                                  radius="sm"
+                                  onClick={() => handleAudioToggle(index)}
+                                  className="p-2 bg-transparent text-purple-500 hover:text-purple-700"
+                                >
+                                  {isPlaying[index] ? (
+                                    <Pause className="h-4 w-4" />
+                                  ) : (
+                                    <Volume2 className="h-4 w-4" />
+                                  )}
+                                </Button>
+                                <audio
+                                  ref={(el) => (audioRefs.current[index] = el)}
+                                  src={item.audio}
+                                  onEnded={() =>
+                                    setIsPlaying((prev) => {
+                                      const newPlayingState = [...prev];
+                                      newPlayingState[index] = false;
+                                      return newPlayingState;
+                                    })
+                                  }
+                                />
+                              </div>
+                            </>
+                          )}
+
+                          {selectedImages[index] && (
+                            <>
+                              <div className="flex gap-1">
+                                <Button
+                                  isIconOnly
+                                  radius="sm"
+                                  variant="flat"
+                                  onClick={() => handleRemoveImage(index)}
+                                  isDisabled={
+                                    attempts[index] >= 3 ||
+                                    feedback[index] === "Correct!"
+                                  }
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  radius="sm"
+                                  variant="flat"
+                                  color="success"
+                                  onClick={() =>
+                                    attempts[index] < 3 &&
+                                    !feedback[index]?.includes("Correct")
+                                      ? handleCheckStep(index, index)
+                                      : null
+                                  }
+                                  // className={`w-full h-full object-cover ${
+                                  //   attempts[index] >= 3 ||
+                                  //   feedback[index]?.includes("Correct")
+                                  //     ? "opacity-50 cursor-not-allowed"
+                                  //     : ""
+                                  // }`}
+                                  //disbaled if its correct or attempts are over
+                                  isDisabled={
+                                    feedback[index] === "Correct!" ||
+                                    attempts[index] >= 3
+                                  }
+                                >
+                                  <Check className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </>
                           )}
                         </div>
-
-                        <div className="flex-1">
-                          <h3 className="font-medium">Step {index + 1}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {item.step}
-                          </p>
-                        </div>
-
-                        {item.audio && (
-                          <>
-                            <div className="absolute top-1 right-1">
-                              <Button
-                                isIconOnly
-                                radius="sm"
-                                onClick={() => handleAudioToggle(index)}
-                                className="p-2 bg-transparent text-purple-500 hover:text-purple-700"
-                              >
-                                {isPlaying[index] ? (
-                                  <Pause className="h-4 w-4" />
-                                ) : (
-                                  <Volume2 className="h-4 w-4" />
-                                )}
-                              </Button>
-                              <audio
-                                ref={(el) => (audioRefs.current[index] = el)}
-                                src={item.audio}
-                                onEnded={() =>
-                                  setIsPlaying((prev) => {
-                                    const newPlayingState = [...prev];
-                                    newPlayingState[index] = false;
-                                    return newPlayingState;
-                                  })
-                                }
-                              />
-                            </div>
-                          </>
-                        )}
-
-                        {selectedImages[index] && (
-                          <>
-                            <div className="flex gap-1">
-                              <Button
-                                isIconOnly
-                                radius="sm"
-                                variant="flat"
-                                onClick={() => handleRemoveImage(index)}
-                                isDisabled={
-                                  attempts[index] >= 3 ||
-                                  feedback[index] === "Correct!"
-                                }
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                isIconOnly
-                                radius="sm"
-                                variant="flat"
-                                color="success"
-                                onClick={() =>
-                                  attempts[index] < 3 &&
-                                  !feedback[index]?.includes("Correct")
-                                    ? handleCheckStep(index, index)
-                                    : null
-                                }
-                                // className={`w-full h-full object-cover ${
-                                //   attempts[index] >= 3 ||
-                                //   feedback[index]?.includes("Correct")
-                                //     ? "opacity-50 cursor-not-allowed"
-                                //     : ""
-                                // }`}
-                                //disbaled if its correct or attempts are over
-                                isDisabled={
-                                  feedback[index] === "Correct!" ||
-                                  attempts[index] >= 3
-                                }
-                              >
-                                <Check className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      <AnimatePresence>
-                        {feedback[index] && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            className="flex w-full text-center justify-center rounded-md"
-                          >
-                            <p
-                              className={
-                                feedback[index].includes("Correct")
-                                  ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                  : "text-white w-full bg-red-500 p-2 rounded-md"
-                              }
+                        <AnimatePresence>
+                          {feedback[index] && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 20 }}
+                              className="flex w-full text-center justify-center rounded-md"
                             >
-                              {feedback[index]}
-                            </p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </Card>
+                              <motion.div
+                                key={feedback[index]}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                className={
+                                  feedback[index].includes("Correct")
+                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                    : "text-white w-full bg-red-500 p-2 rounded-md"
+                                }
+                              >
+                                {feedback[index]}
+                              </motion.div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </Card>
+                    </motion.div>
                   ))}
                 </CardBody>
                 <CardFooter className="flex justify-between items-center py-4">
