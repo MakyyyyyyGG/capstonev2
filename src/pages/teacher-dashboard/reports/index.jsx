@@ -13,29 +13,35 @@ import {
   CardHeader,
   Select,
   SelectItem,
-  Tabs,
-  Tab,
   Button,
 } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import SampleReport from "./samplereport";
+import Scores from "@/pages/components/Scores";
+import Loader from "@/pages/components/Loader";
+import { Users, Shapes, Gamepad } from "lucide-react";
+
 const index = () => {
   const { data: session } = useSession();
   const [rooms, setRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [page, setPage] = useState(1);
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
-  const [selectedTab, setSelectedTab] = useState("select-room");
-  const rowsPerPage = 10;
+  const [selectedRoomId, setSelectedRoomId] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedGameType, setSelectedGameType] = useState(null);
   const [selectedRoomName, setSelectedRoomName] = useState(null);
-  const roomDetails = {
+  const [numGamesPerUser, setNumGamesPerUser] = useState(null);
+  const [reportDetails, setReportDetails] = useState({
     roomName: null,
     gameType: null,
     roomId: null,
-  };
-  const [reportDetails, setReportDetails] = useState(roomDetails);
+  });
+  const [studentData, setStudentData] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const rowsPerPage = 10;
 
   const fetchRooms = async () => {
     if (session?.user?.id) {
@@ -45,21 +51,65 @@ const index = () => {
         );
         const data = await res.json();
         setRooms(data.roomsData);
+        console.log("Rooms Data", data.roomsData);
         setFilteredRooms(data.roomsData);
-        console.log(data.roomsData);
       } catch (error) {
         console.error("Error fetching rooms:", error);
       }
     }
   };
 
+  const fetchNumGamesPerUser = async () => {
+    const res = await fetch(
+      `/api/games/fetchNumGamesPerUser?account_id=${session?.user?.id}`
+    );
+    const data = await res.json();
+    setNumGamesPerUser(data.numGames);
+    console.log("Number of games per user", data.numGames);
+  };
+
   useEffect(() => {
     fetchRooms();
   }, [session?.user?.id]);
 
+  const fetchStudents = async (account_id) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch(
+        `/api/reports/getAllStudentsInRoom?account_id=${account_id}`
+      );
+      const data = await res.json();
+      // console.log("Students in all rooms", data.studentsData);
+      setStudents(data.studentsData);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchStudentData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `/api/reports/reports?account_id=${session?.user?.id}`
+      );
+      const data = await response.json();
+      setStudentData(data.studentData);
+      // console.log("Student Data", data.studentData);
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (selectedDifficulty === "all") {
       setFilteredRooms(rooms);
+      fetchStudentData();
+      fetchStudents(session?.user?.id);
+      fetchNumGamesPerUser();
     } else {
       setFilteredRooms(
         rooms.filter((room) => room.room_difficulty === selectedDifficulty)
@@ -73,221 +123,89 @@ const index = () => {
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-
     return filteredRooms.slice(start, end);
   }, [page, filteredRooms]);
 
-  const handleCellClick = (roomId) => {
-    // console.log(roomId, selectedGameType);
-  };
-
   const handleDifficultyChange = (value) => {
     setSelectedDifficulty(value);
-    // console.log(value);
   };
 
-  const handleTabChange = (key) => {
-    setSelectedTab(key);
+  const handleRoomSelect = (room) => {
+    console.log("Room", room);
+    setSelectedRoomId(room.room_id);
+    setSelectedRoomName(room.room_name);
+    setReportDetails({
+      ...reportDetails,
+      roomId: room.room_id,
+      roomCode: room.room_code,
+      roomName: room.room_name,
+    });
+    fetchStudentData(room.room_code);
+  };
+
+  const handleGameSelect = (gameType) => {
+    setSelectedGameType(gameType);
+    setReportDetails({
+      ...reportDetails,
+      gameType: gameType,
+    });
   };
 
   return (
-    <div className="max-w-[800px] mx-auto">
-      <Card>
-        <CardHeader>
-          <Tabs
-            selectedKey={selectedTab}
-            onSelectionChange={handleTabChange}
-            disabledKeys={selectedTab === "select-room" ? ["select-game"] : []}
-          >
-            <Tab key="select-room" title="Step 1: Select Room" />
-            <Tab key="select-game" title="Step 2: Select Game" />
-          </Tabs>
-        </CardHeader>
-        <CardBody>
-          {selectedTab === "select-room" && (
-            <>
-              <Select
-                label="Filter by Difficulty"
-                className="mb-4"
-                onChange={(e) => handleDifficultyChange(e.target.value)}
-              >
-                <SelectItem key="all" value="all">
-                  All
-                </SelectItem>
-                <SelectItem key="Easy" value="Easy">
-                  Easy
-                </SelectItem>
-                <SelectItem key="Moderate" value="Moderate">
-                  Moderate
-                </SelectItem>
-                <SelectItem key="Hard" value="Hard">
-                  Hard
-                </SelectItem>
-              </Select>
-              <Table
-                aria-label="Example table with client-side pagination"
-                bottomContent={
-                  <div className="flex w-full justify-center">
-                    <Pagination
-                      isCompact
-                      showControls
-                      showShadow
-                      color="secondary"
-                      page={page}
-                      total={pages}
-                      onChange={(page) => setPage(page)}
-                    />
+    <div className="w-full m-4 p-4 max-w-[80rem] mx-auto">
+      {isLoading ? (
+        <div className="flex justify-center items-center h-screen">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <Card
+              radius="sm"
+              className="shadow-none border-gray-300 border p-4"
+            >
+              <CardBody>
+                <div className="flex flex-col ">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Users size={24} />
+                    <h3 className="text-xl font-semibold ">Total Students</h3>
                   </div>
-                }
-                selectionMode="single"
-                classNames={{
-                  tr: "cursor-pointer hover:bg-gray-100",
-                }}
-              >
-                <TableHeader>
-                  <TableColumn>Room Name</TableColumn>
-                  <TableColumn>Difficulty</TableColumn>
-                  <TableColumn>Room Code</TableColumn>
-                  <TableColumn>Action</TableColumn>
-                </TableHeader>
-
-                <TableBody emptyContent={"No rows to display."}>
-                  {items.map((room) => (
-                    <TableRow
-                      key={room.room_id}
-                      onClick={() => {
-                        setSelectedTab("select-game");
-                        handleCellClick(room.room_id);
-                        setSelectedRoomName(room.room_name);
-                        setReportDetails({
-                          ...reportDetails,
-                          roomId: room.room_id,
-                          roomName: room.room_name,
-                        });
-                      }}
-                    >
-                      <TableCell>{room.room_name}</TableCell>
-                      <TableCell>{room.room_difficulty}</TableCell>
-                      <TableCell>{room.room_code}</TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={(e) => {
-                            setSelectedTab("select-game");
-                            handleCellClick(room.room_id);
-                            setSelectedRoomName(room.room_name);
-                            setReportDetails({
-                              ...reportDetails,
-                              roomId: room.room_id,
-                              roomName: room.room_name,
-                            });
-                          }}
-                        >
-                          Select
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </>
-          )}
-          {selectedTab === "select-game" && (
-            <div>
-              <h2>Select Game Content</h2>
-              <div className="flex flex-wrap gap-4">
-                <Button
-                  variant={
-                    selectedGameType === "ThinkPic" ? "solid" : "bordered"
-                  }
-                  onClick={() => {
-                    setSelectedGameType("ThinkPic");
-                    setReportDetails({
-                      ...reportDetails,
-                      gameType: "ThinkPic",
-                    });
-                  }}
-                >
-                  ThinkPic
-                </Button>
-                <Button
-                  variant={
-                    selectedGameType === "ThinkPic+" ? "solid" : "bordered"
-                  }
-                  onClick={() => {
-                    setSelectedGameType("ThinkPic+");
-                    setReportDetails({
-                      ...reportDetails,
-                      gameType: "ThinkPic+",
-                    });
-                  }}
-                >
-                  ThinkPic +
-                </Button>
-                <Button
-                  variant={
-                    selectedGameType === "Color Game" ? "solid" : "bordered"
-                  }
-                  onClick={() => {
-                    setSelectedGameType("ColorGame");
-                    setReportDetails({
-                      ...reportDetails,
-                      gameType: "Color Game",
-                    });
-                  }}
-                >
-                  Color Game
-                </Button>
-                <Button
-                  variant={
-                    selectedGameType === "ColorGame+" ? "solid" : "bordered"
-                  }
-                  onClick={() => {
-                    setSelectedGameType("ColorGame+");
-                    setReportDetails({
-                      ...reportDetails,
-                      gameType: "ColorGame+",
-                    });
-                  }}
-                >
-                  Color Game +
-                </Button>
-                <Button
-                  variant={
-                    selectedGameType === "Decision Maker" ? "solid" : "bordered"
-                  }
-                  onClick={() => {
-                    setSelectedGameType("Decision Maker");
-                    setReportDetails({
-                      ...reportDetails,
-                      gameType: "Decision Maker",
-                    });
-                  }}
-                >
-                  Decision Maker
-                </Button>
-              </div>
-              {selectedRoomName && selectedGameType && (
-                <Card className="mt-4">
-                  <CardHeader>
-                    <h2>Selected Report</h2>
-                  </CardHeader>
-                  <CardBody>
-                    <h1>Room: {selectedRoomName}</h1>
-                    <h1>Game: {selectedGameType}</h1>
-                  </CardBody>
-                </Card>
-              )}
-              <SampleReport {...reportDetails} />
-              <Button
-                onClick={() => console.log(reportDetails)}
-                className="my-4"
-              >
-                View Reports
-              </Button>
-            </div>
-          )}
-        </CardBody>
-      </Card>
+                  <p className="text-3xl font-bold">{students.length}</p>
+                </div>
+              </CardBody>
+            </Card>
+            <Card
+              radius="sm"
+              className="shadow-none border-gray-300 border p-4"
+            >
+              <CardBody>
+                <div className="flex flex-col ">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Gamepad size={24} />
+                    <h3 className="text-xl font-semibold ">Total Games</h3>
+                  </div>
+                  <p className="text-3xl font-bold">{numGamesPerUser}</p>
+                </div>
+              </CardBody>
+            </Card>
+            <Card
+              radius="sm"
+              className="shadow-none border-gray-300 border p-4"
+            >
+              <CardBody>
+                <div className="flex flex-col ">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Shapes size={24} />
+                    <h3 className="text-xl font-semibold ">Total Rooms</h3>
+                  </div>
+                  <p className="text-3xl font-bold">{rooms.length}</p>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+          <Scores studentRecords={studentData} students={students} />
+        </>
+      )}
     </div>
   );
 };

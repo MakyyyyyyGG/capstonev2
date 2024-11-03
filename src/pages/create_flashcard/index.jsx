@@ -422,7 +422,7 @@ const Index = () => {
               variant="bordered"
               color="secondary"
               isClearable
-              radius="md"
+              radius="sm"
               size="lg"
               onClear={() => setTitle("")}
               value={title}
@@ -610,8 +610,8 @@ const Index = () => {
                   <div className="flex flex-col w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
                     <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
                       {flashcard.image ? (
-                        <div className="relative flex flex-col gap-2">
-                          <div className=" w-full h-full">
+                        <div className="relative flex flex-col gap-2 w-full h-full">
+                          <div className=" w-full h-full ">
                             <img
                               src={flashcard.image}
                               alt="flashcard image"
@@ -683,7 +683,6 @@ const Index = () => {
                       ) : (
                         <Button
                           radius="sm"
-                          variant="bordered"
                           color="secondary"
                           className="border-1 "
                           onClick={() => {
@@ -704,7 +703,6 @@ const Index = () => {
                           <div className="flex gap-2 w-full justify-between">
                             <Button
                               className="border-1 w-full"
-                              variant="bordered"
                               radius="sm"
                               onClick={() => {
                                 const audio = new Audio(flashcard.audio);
@@ -723,14 +721,13 @@ const Index = () => {
                               }
                               color="danger"
                             >
-                              <VolumeX size={20} />
+                              <Trash2 size={20} />
                             </Button>
                           </div>
                         </div>
                       ) : (
                         <Button
                           radius="sm"
-                          variant="bordered"
                           color="secondary"
                           className="border-1 w-full"
                           onClick={() => {
@@ -756,7 +753,7 @@ const Index = () => {
                           label: "",
                           inputWrapper: "border-1 border-[#7469B6]",
                         }}
-                        label={`Flashcard Term ${index + 1}`}
+                        label={`Term`}
                         value={flashcard.term}
                         onChange={(e) =>
                           handleFlashcardChange(index, "term", e.target.value)
@@ -775,7 +772,7 @@ const Index = () => {
                         }}
                         type="text"
                         variant="bordered"
-                        label={`Flashcard Description ${index + 1}`}
+                        label={`Description`}
                         value={flashcard.description}
                         onChange={(e) =>
                           handleFlashcardChange(
@@ -833,21 +830,27 @@ const Index = () => {
                             )}
                             {audioBlob && (
                               <>
-                                <div className="flex items-center justify-between gap-3">
-                                  <audio
-                                    controls
-                                    src={URL.createObjectURL(audioBlob)}
-                                  />
-                                  <div className="flex gap-2">
+                                <div className="flex flex-col gap-3 p-3 border rounded-lg">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium">
+                                      Preview
+                                    </span>
+
                                     <Button
-                                      radius="sm"
-                                      onClick={removeAudio}
+                                      size="sm"
                                       color="danger"
+                                      variant="light"
+                                      onClick={removeAudio}
+                                      className="min-w-0"
                                     >
-                                      <VolumeX size={20} />
-                                      Remove Audio
+                                      <VolumeX size={18} />
                                     </Button>
                                   </div>
+                                  <audio
+                                    controls
+                                    className="w-full"
+                                    src={URL.createObjectURL(audioBlob)}
+                                  />
                                 </div>
                               </>
                             )}

@@ -234,11 +234,11 @@ const Index = () => {
   //submit form
   const handleSubmit = async () => {
     if (cards.some((card) => card.word === "")) {
-      alert("Please enter a word for each card.");
+      toast.error("Please enter a word for each card.");
       return;
     }
     if (!title) {
-      alert("Please enter a title.");
+      toast.error("Please enter a title.");
       return;
     }
     const requiredImages =
@@ -247,7 +247,7 @@ const Index = () => {
       if (
         card.images.filter((image) => image !== null).length < requiredImages
       ) {
-        alert(`Please upload ${requiredImages} images for each card.`);
+        toast.error(`Please upload ${requiredImages} images for each card.`);
         return;
       }
     }
@@ -363,6 +363,7 @@ const Index = () => {
         <div>
           {isLoading ? (
             <Button
+              radius="sm"
               isDisabled
               isLoading
               color="secondary"
@@ -372,6 +373,7 @@ const Index = () => {
             </Button>
           ) : (
             <Button
+              radius="sm"
               color="secondary"
               onPress={handleSubmit}
               isDisabled={!title}
@@ -385,7 +387,7 @@ const Index = () => {
         <Input
           placeholder="Enter title"
           size="lg"
-          radius="md"
+          radius="sm"
           onChange={(e) => setTitle(e.target.value)}
           isRequired
           classNames={{
@@ -394,11 +396,10 @@ const Index = () => {
           }}
           variant="bordered"
           color="secondary"
-          className="w-4/5 max-sm:w-full"
         />
         <Select
           size="lg"
-          radius="md"
+          radius="sm"
           classNames={{
             label: "text-white",
             mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
@@ -409,7 +410,6 @@ const Index = () => {
             setDifficulty(e.target.value);
           }}
           isRequired
-          className="w-2/5 max-sm:w-full"
         >
           <SelectItem key="easy">Easy (2 images)</SelectItem>
           <SelectItem key="medium">Medium (3 images)</SelectItem>
@@ -428,6 +428,7 @@ const Index = () => {
               </div>
               <div className="flex">
                 <Button
+                  radius="sm"
                   isIconOnly
                   color="danger"
                   onPress={() => handleRemoveCard(cardIndex)}
@@ -442,6 +443,7 @@ const Index = () => {
                   <div className="flex shrink w-full mb-4">
                     <Input
                       isRequired
+                      radius="sm"
                       label="Word"
                       variant="bordered"
                       color="secondary"
@@ -486,7 +488,7 @@ const Index = () => {
                                 className="h-full w-full object-cover rounded-lg"
                               />
                               <div className="absolute top-0 right-0 p-2 flex items-center justify-center space-x-2">
-                                <Button
+                                {/* <Button
                                   isIconOnly
                                   size="sm"
                                   onClick={() =>
@@ -495,7 +497,7 @@ const Index = () => {
                                   color="secondary"
                                 >
                                   <Pencil size={18} />
-                                </Button>
+                                </Button> */}
 
                                 <Button
                                   isIconOnly

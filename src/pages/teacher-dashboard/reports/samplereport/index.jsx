@@ -12,15 +12,14 @@ import {
   TableColumn,
   TableBody,
 } from "@nextui-org/react";
-
 const index = ({ ...reportDetails }) => {
-  //   console.log("Report Details", reportDetails);
+  console.log("Report Details", reportDetails);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [studentData, setStudentData] = useState([]);
 
   const fetchStudentData = async () => {
     const response = await fetch(
-      `/api/reports/reports?roomId=${reportDetails.roomId}`
+      `/api/reports/reports?room_code=${reportDetails.roomCode}`
     );
     const data = await response.json();
     setStudentData(data.studentData);

@@ -8,7 +8,10 @@ import {
   Shapes,
   GraduationCap,
   Trophy,
+  Copy,
+  Users,
 } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 
 import CreateClassWork from "@/pages/components/CreateClassWork";
 import ClassWorkList from "@/pages/components/ClassWorkList";
@@ -31,6 +34,7 @@ import {
   Button,
   useDisclosure,
   Spinner,
+  Chip,
 } from "@nextui-org/react";
 import StudentList from "@/pages/components/StudentList";
 import Loader from "@/pages/components/Loader";
@@ -78,7 +82,7 @@ const IndividualRoom = () => {
   const [students, setStudents] = useState([]);
   const [roomName, setRoomName] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [selectedTab, setSelectedTab] = useState("classroom");
+  const [selectedTab, setSelectedTab] = useState("");
   const [studentRecords, setStudentRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -144,21 +148,26 @@ const IndividualRoom = () => {
       }),
     };
 
-    try {
-      const response = await fetch(
-        `/api/accounts_teacher/room/create_room?room_code=${room_code}`,
-        updatedRoomData
-      );
-      const result = await response.json();
-      if (response.ok) {
-        console.log("Room updated successfully", result);
-        fetchRoomDetails(room_code, setRoomData);
-      } else {
-        console.error("Error updating room:", result.error);
+    toast.promise(
+      (async () => {
+        const response = await fetch(
+          `/api/accounts_teacher/room/create_room?room_code=${room_code}`,
+          updatedRoomData
+        );
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to update room");
+        }
+        await fetchRoomDetails(room_code, setRoomData);
+        return result;
+      })(),
+      {
+        loading: "Updating room...",
+        success: "Room updated successfully!",
+        error: (err) => `Update failed: ${err.message}`,
       }
-    } catch (error) {
-      console.error("Error updating room:", error);
-    }
+    );
+
     setDifficulty("");
     setRoomName("");
     onOpenChange(false);
@@ -166,6 +175,7 @@ const IndividualRoom = () => {
 
   return (
     <div className="w-full">
+      <Toaster />
       {isLoading ? (
         <div className="flex justify-center items-center h-screen opacity-50">
           <Loader />
@@ -173,10 +183,10 @@ const IndividualRoom = () => {
       ) : (
         <>
           <div className="flex">
-            <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+            <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem]  mx-auto">
               <div className="">
                 <div className="flex justify-between items-center">
-                  <div className="text-3xl font-extrabold mb-2">
+                  <div className="text-3xl font-extrabold">
                     <h1>{roomData[0]?.room_name || "Room"}</h1>
                   </div>
                   <div className="flex gap-2">
@@ -192,17 +202,13 @@ const IndividualRoom = () => {
                   </div>
                 </div>
                 <Tabs
-                  aria-label="Options"
                   color="secondary"
-                  variant="underlined"
-                  className="w-full"
+                  radius="sm"
+                  size="lg"
+                  aria-label="Options"
+                  fullWidth
                   classNames={{
-                    tabList:
-                      "gap-8 w-full relative rounded-none p-0 border-b-2 border-divider max-sm:gap-4",
-                    cursor: "w-full bg-[#7469B6]",
-                    tab: "max-w-fit px-0 h-12",
-                    tabContent:
-                      "group-data-[selected=true]:text-[#7469B6] font-bold max-sm:text-xs",
+                    tabList: "mt-4  border-gray-300 border bg-white",
                   }}
                   selectedKey={selectedTab}
                   onSelectionChange={setSelectedTab}
@@ -211,7 +217,7 @@ const IndividualRoom = () => {
                     key="classroom"
                     title={
                       <div className="flex items-center space-x-2">
-                        <Shapes className="max-sm:w-4 max-sm:h-4" />
+                        <Shapes className="max-sm:w-4 max-sm:h-4" size={20} />
                         <span>Classroom</span>
                       </div>
                     }
@@ -220,7 +226,10 @@ const IndividualRoom = () => {
                     key="classworks"
                     title={
                       <div className="flex items-center space-x-2">
-                        <SquareLibrary className="max-sm:w-4 max-sm:h-4" />
+                        <SquareLibrary
+                          className="max-sm:w-4 max-sm:h-4"
+                          size={20}
+                        />
                         <span>Classworks</span>
                       </div>
                     }
@@ -229,7 +238,7 @@ const IndividualRoom = () => {
                     key="students"
                     title={
                       <div className="flex items-center space-x-2">
-                        <GraduationCap className="max-sm:w-4 max-sm:h-4" />
+                        <Users className="max-sm:w-4 max-sm:h-4" size={20} />
                         <span>Students</span>
                       </div>
                     }
@@ -238,7 +247,7 @@ const IndividualRoom = () => {
                     key="scores"
                     title={
                       <div className="flex items-center space-x-2">
-                        <Trophy className="max-sm:w-4 max-sm:h-4" />
+                        <Trophy className="max-sm:w-4 max-sm:h-4" size={20} />
                         <span>Scores</span>
                       </div>
                     }
@@ -248,13 +257,68 @@ const IndividualRoom = () => {
               <div>
                 {selectedTab === "classroom" && (
                   <div>
-                    <h1>Room Name: {roomData[0]?.room_name || "Room"}</h1>
-                    <p>Difficulty: {roomData[0]?.room_difficulty}</p>
-                    <p>Room Code: {roomData[0]?.room_code}</p>
-                    <div className="flex gap-5 my-5">
-                      <p>Teacher Username: {roomData[0]?.email}</p>
-                      <p>Teacher First Name: {roomData[0]?.first_name}</p>
-                      <p>Teacher Last Name: {roomData[0]?.last_name}</p>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-white border border-gray-300  p-6 rounded-lg hover:border-gray-400">
+                        <div className="flex gap-2 items-center">
+                          <h1 className="text-2xl font-bold">
+                            {roomData[0]?.room_name || "Room"}
+                          </h1>
+                          <Chip
+                            variant="flat"
+                            color={
+                              roomData[0]?.room_difficulty === "Easy"
+                                ? "success"
+                                : roomData[0]?.room_difficulty === "Medium"
+                                ? "warning"
+                                : "danger"
+                            }
+                          >
+                            {roomData[0]?.room_difficulty}
+                          </Chip>
+                        </div>
+                        <div className=" flex gap-2 items-center mt-4">
+                          <h1 className=" text-2xl font-bold">
+                            {roomData[0]?.room_code}
+                          </h1>
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="light"
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                roomData[0]?.room_code
+                              );
+                              toast.success("Copied to clipboard");
+                            }}
+                          >
+                            <Copy size={18} />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="bg-white border p-6 rounded-lg border-gray-300 hover:border-gray-400">
+                        <div className="flex items-center justify-between gap-2">
+                          <h1 className="text-lg font-semibold">Students</h1>
+                          <Users size={20} />
+                        </div>
+                        <h1 className="text-2xl font-bold mt-2">
+                          {students.length}
+                        </h1>
+                      </div>
+                      <div className="bg-white border p-6 rounded-lg border-gray-300 hover:border-gray-400">
+                        <div className="flex items-center justify-between gap-2">
+                          <h1 className="text-lg font-semibold">Classworks</h1>
+                          <SquareLibrary size={20} />
+                        </div>
+                        <h1 className="text-2xl font-bold mt-2">
+                          {games.length}
+                        </h1>
+                      </div>
+                      <div className="col-span-3 ">
+                        <Scores
+                          studentRecords={studentRecords}
+                          students={students}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -343,7 +407,7 @@ const IndividualRoom = () => {
                             Cancel
                           </Button>
                           <Button
-                            className="bg-[#7469B6] text-white border-0"
+                            className="bg-purple-700 text-white border-0"
                             size="md"
                             radius="sm"
                             onClick={handleUpdateRoom}

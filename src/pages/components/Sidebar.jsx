@@ -1,86 +1,93 @@
 import React from "react";
 import CreateRoom from "./CreateRoom";
-import { Link, Divider, Accordion, AccordionItem } from "@nextui-org/react";
-import { House, Phone, BookA, School, ChartNoAxesCombined } from "lucide-react";
+import { Button, Divider, Accordion, AccordionItem } from "@nextui-org/react";
+import { useRouter } from "next/router";
+import { signOut } from "next-auth/react";
+import {
+  House,
+  Phone,
+  BookA,
+  School,
+  ChartNoAxesCombined,
+  ChartLine,
+  LogOut,
+} from "lucide-react";
 
 const sidebarItems1 = [
   {
-    name: "SidebarLink1",
-    href: "/",
+    name: "Dashboard",
+    href: "/teacher-dashboard",
     icon: House,
   },
   {
     name: "Reports",
     href: "/teacher-dashboard/reports",
-    icon: ChartNoAxesCombined,
-  },
-  {
-    name: "SidebarLink3",
-    href: "/",
-    icon: BookA,
+    icon: ChartLine,
   },
 ];
 
-const sidebarItems2 = [
-  {
-    name: "SidebarLink3",
-    href: "/",
-    icon: School,
-  },
-  {
-    name: "SidebarLink4",
-    href: "/",
-    icon: School,
-  },
-  {
-    name: "SidebarLink5",
-    href: "/",
-    icon: School,
-  },
-];
+const signOutItem = {
+  name: "Sign Out",
+  href: "/api/auth/signout",
+  icon: LogOut,
+};
 
 const Sidebar = ({ isCollapsed, toggleCollapse }) => {
+  const router = useRouter();
+
+  const handleSignOut = () => {
+    signOut({ redirect: false }).then(() => router.push("/"));
+  };
+
+  const handleNavigation = (href) => {
+    router.push(href);
+  };
+
   return (
     <div className="sidebar__wrapper relative">
       <aside
-        className="w-72 h-screen bg-white transition-all border-r border-gray-300 sticky top-0 max-sm:hidden"
+        className="w-64 h-screen bg-white transition-all border-r border-gray-300 sticky top-0 max-sm:hidden flex flex-col"
         data-collapse={isCollapsed}
       >
-        <ul className="p-1">
+        <ul className="p-1 mb-4">
           {sidebarItems1.map(({ name, href, icon: Icon }) => (
-            <li key={name}>
-              <Link
-                href={href}
-                className="inline-block text-base no-underline text-black flex px-3 py-3 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
+            <li key={name} className="hover:bg-gray-200 ease-in-out rounded-md">
+              <Button
+                //disable ripple
+                disableRipple
+                color="transparent"
+                onClick={() => handleNavigation(href)}
+                className="w-full rounded-md text-base text-black flex px-3 py-3 mb-1  transition ease-in-out justify-start"
               >
                 <span className="ml-2">
-                  <Icon /> {/* Properly render the icon component */}
+                  <Icon size={20} />
                 </span>
                 <span className="ml-4" id="sidebar__name">
                   {name}
                 </span>
-              </Link>
+              </Button>
             </li>
           ))}
         </ul>
-        <Divider className="my-4" />
-        <ul className="p-1">
-          {sidebarItems2.map(({ name, href, icon: Icon }) => (
-            <li key={name}>
-              <Link
-                href={href}
-                className="inline-block text-base no-underline text-black flex px-3 py-3 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
+
+        {/* <div className="mt-auto p-1">
+          <ul>
+            <li className="hover:bg-gray-200 ease-in-out    rounded-md">
+              <Button
+                color="transparent"
+                onClick={handleSignOut}
+                className="w-full rounded-md text-base text-black flex px-3 py-3 mb-1  transition ease-in-out justify-start"
               >
                 <span className="ml-2">
-                  <Icon /> {/* Properly render the icon component */}
+                  <LogOut size={20} color="red" />
                 </span>
                 <span className="ml-4" id="sidebar__name">
-                  {name}
+                  {signOutItem.name}
                 </span>
-              </Link>
+              </Button>
             </li>
-          ))}
-        </ul>
+          </ul>
+        </div> */}
       </aside>
 
       {/* Mobile Sidebar */}
@@ -88,43 +95,42 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
         <div className="absolute bg-white w-full" data-collapse={isCollapsed}>
           <aside
             id="smallscreen__sidebar"
-            className="w-72 h-screen bg-white transition-all border-r-2 border-gray-300 sticky top-0 max-sm:absolute"
+            className="w-72 h-[calc(100vh-64px)] bg-white transition-all border-r-2 border-gray-300 sticky top-0 max-sm:absolute flex flex-col"
           >
-            <ul id="smallscreen__sidebaritems" className="p-1">
+            <ul id="smallscreen__sidebaritems" className="p-1 ">
               {sidebarItems1.map(({ name, href, icon: Icon }) => (
                 <li key={name}>
-                  <Link
-                    href={href}
-                    className="inline-block text-base no-underline text-black flex px-3 py-3 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
+                  <Button
+                    is
+                    onClick={() => handleNavigation(href)}
+                    className="w-full text-base text-black flex px-3 py-3 mb-1 rounded-xl  transition ease-in-out justify-start"
+                    variant="light"
                   >
                     <span className="ml-2">
-                      <Icon /> {/* Properly render the icon component */}
+                      <Icon size={20} />
                     </span>
                     <span className="ml-4" id="sidebar__name">
                       {name}
                     </span>
-                  </Link>
+                  </Button>
                 </li>
               ))}
             </ul>
-            <Divider id="smallscreen__sidebaritems" className="my-4" />
-            <ul id="smallscreen__sidebaritems" className="p-1">
-              {sidebarItems2.map(({ name, href, icon: Icon }) => (
-                <li key={name}>
-                  <Link
-                    href={href}
-                    className="inline-block text-base no-underline text-black flex px-3 py-3 mb-1 rounded-xl hover:bg-[#d9d9d9] transition ease-in-out"
-                  >
-                    <span className="ml-2">
-                      <Icon /> {/* Properly render the icon component */}
-                    </span>
-                    <span className="ml-4" id="sidebar__name">
-                      {name}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+
+            <div className="mt-auto p-1 mb-4">
+              <Button
+                color="transparent"
+                onClick={handleSignOut}
+                className="w-full text-base text-black flex px-3 py-3 mb-1 rounded-xl transition ease-in-out justify-start"
+              >
+                <span className="ml-2">
+                  <LogOut size={20} />
+                </span>
+                <span className="ml-4" id="sidebar__name">
+                  {signOutItem.name}
+                </span>
+              </Button>
+            </div>
           </aside>
         </div>
       </div>

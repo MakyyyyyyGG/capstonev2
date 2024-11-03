@@ -50,11 +50,6 @@ const Index = () => {
     onOpen: onRecordingOpen,
     onOpenChange: onRecordingOpenChange,
   } = useDisclosure();
-  const {
-    isOpen: isImageViewOpen,
-    onOpen: onImageViewOpen,
-    onOpenChange: onImageViewOpenChange,
-  } = useDisclosure();
   const { data: session } = useSession();
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -462,7 +457,7 @@ const Index = () => {
   return (
     <div className="w-full">
       <Toaster />
-      <div className="flex border-2">
+      <div className="flex ">
         <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
           {/* <h1>room_code: {room_code}</h1>
           <h1>session: {session?.user?.id}</h1> */}
@@ -508,11 +503,12 @@ const Index = () => {
             </div>
             <div>
               {isLoading ? (
-                <Button isLoading isDisabled>
+                <Button isLoading isDisabled color="secondary" radius="sm">
                   Create
                 </Button>
               ) : (
                 <Button
+                  radius="sm"
                   color="secondary"
                   isDisabled={!title}
                   onClick={handleCreateFlashcard}
@@ -526,7 +522,7 @@ const Index = () => {
             <div className="flex gap-2">
               <Input
                 size="lg"
-                radius="md"
+                radius="sm"
                 placeholder="Enter title"
                 classNames={{
                   label: "text-white",
@@ -543,7 +539,7 @@ const Index = () => {
                 variant="bordered"
                 color="secondary"
                 isClearable
-                radius="md"
+                radius="sm"
                 size="lg"
                 isRequired
                 onClear={() => setVideoURL("")}
@@ -560,9 +556,7 @@ const Index = () => {
                   isDisabled={!videoURL}
                   onClick={handleAddVideo}
                   radius="sm"
-                  className="border-1 "
                   size="lg"
-                  variant="bordered"
                   color="secondary"
                 >
                   <div className="flex gap-2 items-center">
@@ -573,9 +567,7 @@ const Index = () => {
               ) : (
                 <Button
                   radius="sm"
-                  className="border-1 "
                   size="lg"
-                  variant="bordered"
                   color="danger"
                   onClick={() => {
                     setVideoURL("");
@@ -586,15 +578,21 @@ const Index = () => {
                 </Button>
               )}
             </div>
-            {video && (
-              <iframe
-                src={video}
-                height={500}
-                frameBorder="0"
-                className="w-full aspect-video rounded-lg border border-[#7469B6] mt-4"
-                allowFullScreen
-              />
-            )}
+            <div className="border-2 border-dashed border-purple-700 rounded-md ">
+              {video ? (
+                <iframe
+                  src={video}
+                  height={400}
+                  width="100%"
+                  frameBorder="0"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="text-center p-4 text-purple-700 h-[400px] flex items-center justify-center">
+                  No uploaded video
+                </div>
+              )}
+            </div>
             <h1 className="bg-red-400 text-white font-semibold px-4 py-4 rounded-md ">
               NOTE: Make sure each image is unique
             </h1>
@@ -611,6 +609,7 @@ const Index = () => {
                   </div>
                   <div className="flex">
                     <Button
+                      radius="sm"
                       isIconOnly
                       color="danger"
                       onPress={() => removeFlashcard(index)}
@@ -831,7 +830,7 @@ const Index = () => {
                               <img
                                 src={flashcard.image}
                                 alt="flashcard image"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover rounded-lg"
                               />
                             </div>
 
@@ -853,39 +852,43 @@ const Index = () => {
                               className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
                               aria-label="View Image"
                               onPress={() => {
-                                onImageViewOpen();
+                                const newSequence = [...sequence];
+                                newSequence[index].isImageViewOpen = true;
+                                setSequence(newSequence);
                                 setCurrentIndex(index);
                               }}
                             >
                               <ScanSearch size={18} />
                             </Button>
                             <Modal
-                              isOpen={isImageViewOpen}
-                              onOpenChange={onImageViewOpenChange}
+                              isOpen={flashcard.isImageViewOpen}
+                              onOpenChange={(isOpen) => {
+                                const newSequence = [...sequence];
+                                newSequence[index].isImageViewOpen = isOpen;
+                                setSequence(newSequence);
+                              }}
                             >
                               <ModalContent>
                                 {(onClose) => (
                                   <>
-                                    <ModalHeader>View Image</ModalHeader>
+                                    <ModalHeader>Image Preview</ModalHeader>
                                     <ModalBody>
                                       <div className="w-full h-full">
                                         <img
                                           src={flashcard.image}
                                           alt="flashcard image"
-                                          className="w-full h-full object-cover"
+                                          className="w-full h-full object-cover rounded-lg"
                                         />
                                       </div>
                                     </ModalBody>
                                     <ModalFooter>
                                       <Button
+                                        radius="sm"
                                         color="danger"
-                                        variant="light"
+                                        variant="flat"
                                         onPress={onClose}
                                       >
                                         Close
-                                      </Button>
-                                      <Button color="primary" onPress={onClose}>
-                                        Action
                                       </Button>
                                     </ModalFooter>
                                   </>
@@ -931,8 +934,7 @@ const Index = () => {
                       <div className="flex gap-3  w-full ">
                         <div className="flex gap-2 w-full justify-between">
                           <Button
-                            className="border-1 w-full"
-                            variant="bordered"
+                            className="w-full"
                             radius="sm"
                             onClick={() => {
                               const audio = new Audio(flashcard.audio);
@@ -951,16 +953,15 @@ const Index = () => {
                             }
                             color="danger"
                           >
-                            <VolumeX size={20} />
+                            <Trash2 size={20} />
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <Button
                         radius="sm"
-                        variant="bordered"
                         color="secondary"
-                        className="border-1 w-full"
+                        className=" w-full"
                         onPress={() => {
                           onRecordingOpen();
                           setCurrentIndex(index);
@@ -990,15 +991,18 @@ const Index = () => {
                             <ModalBody>
                               {!isRecording ? (
                                 <Button
+                                  radius="sm"
                                   color="secondary"
                                   onClick={startRecording}
                                 >
+                                  <Mic size={20} />
                                   Start Recording
                                 </Button>
                               ) : (
                                 <Button
                                   onClick={stopRecording}
                                   color="danger"
+                                  radius="sm"
                                   className="flex items-center gap-2"
                                 >
                                   <div className="flex items-center gap-2">
@@ -1011,29 +1015,40 @@ const Index = () => {
                               )}
                               {audioBlob && (
                                 <>
-                                  <div className="flex items-center justify-between gap-3">
+                                  <div className="flex flex-col gap-3 p-3 border rounded-lg">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm font-medium">
+                                        Preview
+                                      </span>
+                                      <Button
+                                        size="sm"
+                                        color="danger"
+                                        variant="light"
+                                        onClick={removeAudio}
+                                        className="min-w-0"
+                                      >
+                                        <Trash2 size={18} />
+                                      </Button>
+                                    </div>
                                     <audio
                                       controls
                                       src={URL.createObjectURL(audioBlob)}
                                     ></audio>
-                                    <div className="flex gap-2">
-                                      <Button
-                                        onClick={removeAudio}
-                                        color="danger"
-                                      >
-                                        <VolumeX size={20} />
-                                        Remove Audio
-                                      </Button>
-                                    </div>
                                   </div>
                                 </>
                               )}
                             </ModalBody>
                             <ModalFooter>
-                              <Button color="danger" onPress={onClose}>
+                              <Button
+                                color="danger"
+                                radius="sm"
+                                onPress={onClose}
+                                variant="flat"
+                              >
                                 Cancel
                               </Button>
                               <Button
+                                radius="sm"
                                 color="secondary"
                                 onClick={() => {
                                   insertAudio();
