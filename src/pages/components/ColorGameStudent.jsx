@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardBody,
@@ -375,7 +375,25 @@ const ColorGames = ({ cards }) => {
                         <div className="text-3xl font-extrabold my-5 capitalize">
                           <p>{card.color}</p>
                         </div>
-                        <div className="grid grid-cols-2 grid-rows-2 gap-4">
+                        <div
+                          className={`grid ${
+                            [
+                              card.image1,
+                              card.image2,
+                              card.image3,
+                              card.image4,
+                            ].filter((image) => image !== null).length === 4
+                              ? "grid-cols-4"
+                              : [
+                                  card.image1,
+                                  card.image2,
+                                  card.image3,
+                                  card.image4,
+                                ].filter((image) => image !== null).length === 3
+                              ? "grid-cols-3"
+                              : "grid-cols-2"
+                          } gap-2`}
+                        >
                           {[
                             card.image1,
                             card.image2,
@@ -387,7 +405,7 @@ const ColorGames = ({ cards }) => {
                                 key={imageIndex}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className={`relative block w-full aspect-square bg-gray-100 rounded-lg border-2 items-center justify-center cursor-pointer ${
+                                className={`relative block w-full aspect-square rounded-md items-center justify-center cursor-pointer ${
                                   (attempts[index] || 0) >= 3
                                     ? "opacity-50 pointer-events-none"
                                     : ""
@@ -395,12 +413,12 @@ const ColorGames = ({ cards }) => {
                                   (
                                     selectedImages[card.color_game_id] || []
                                   ).includes(imageIndex)
-                                    ? "border-[#17C964] border-2"
-                                    : "border-[#7469B6]"
+                                    ? "border-3 border-[#17C964]"
+                                    : "border border-purple-400"
                                 }`}
                                 style={{
                                   transition:
-                                    "border-color 0.3s ease, transform 0.3s ease", // Smooth transition for border and scaling effects
+                                    "border-color 0.3s ease, transform 0.3s ease",
                                 }}
                                 onClick={() =>
                                   handleImageSelect(
@@ -410,7 +428,7 @@ const ColorGames = ({ cards }) => {
                                   )
                                 }
                               >
-                                <div className="p-2 border rounded-md border-purple-400 relative overflow-hidden">
+                                <div className="p-2 rounded-md relative overflow-hidden">
                                   <Checkbox
                                     color="success"
                                     isSelected={(
@@ -423,7 +441,7 @@ const ColorGames = ({ cards }) => {
                                         image
                                       )
                                     }
-                                    className="absolute top-2 left-2 z-99"
+                                    className="absolute top-2 right-1 z-99"
                                     isDisabled={(attempts[index] || 0) >= 3}
                                   />
                                   <Image
@@ -449,31 +467,30 @@ const ColorGames = ({ cards }) => {
                             Check Answers
                           </Button>
                         </div>
-
-                        {submissionResults[card.color_game_id] && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.1 }}
-                            className="flex w-full justify-center rounded-md"
-                          >
-                            <div className="w-full text-center rounded-md">
+                        <AnimatePresence>
+                          {submissionResults[card.color_game_id] && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 20 }}
+                              className="flex w-full text-center justify-center rounded-md"
+                            >
                               <p
                                 className={
                                   submissionResults[card.color_game_id] ===
                                   "Correct!"
-                                    ? "text-white bg-green-500 p-2 rounded-md"
+                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
                                     : submissionResults[card.color_game_id] ===
                                       "Almost there!"
-                                    ? "text-white bg-yellow-500 p-2 rounded-md"
-                                    : "text-white bg-red-500 p-2 rounded-md"
+                                    ? "text-white w-full bg-yellow-500 p-2 rounded-md"
+                                    : "text-white w-full bg-red-500 p-2 rounded-md"
                                 }
                               >
                                 {submissionResults[card.color_game_id]}
                               </p>
-                            </div>
-                          </motion.div>
-                        )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </CardBody>
                     </Card>
                   </div>
