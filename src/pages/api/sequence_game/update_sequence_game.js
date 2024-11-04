@@ -1,33 +1,60 @@
 import { query } from "@/lib/db";
-import fs from "fs";
-import path from "path";
+import { storage } from "@/lib/firebaseConfig";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb", // Increase the size limit to 10MB
+      sizeLimit: "50mb",
     },
   },
 };
 
-const saveFileToPublic = async (base64String, fileName, folder) => {
+const uploadToFirebase = async (base64String, fileName, folder) => {
   const dataUriRegex =
     /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav));base64,/;
-  const match = base64String.toString().match(dataUriRegex);
+  const match = base64String.match(dataUriRegex);
+  if (!match) throw new Error("Invalid Base64 data");
 
+  const mimeType = match[1];
   const base64Data = base64String.replace(dataUriRegex, "");
-  const filePath = path.join(process.cwd(), "public", folder, fileName);
+  const buffer = Buffer.from(base64Data, "base64");
+  const blob = new Blob([buffer], { type: mimeType });
+  const file = new File([blob], fileName, { type: mimeType });
 
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, base64Data, "base64", (err) => {
-      if (err) {
-        console.error(`Failed to save file: ${filePath}`, err);
-        reject(err);
-      } else {
-        console.log(`Saved file: ${filePath}`);
-        resolve(`/${folder}/${fileName}`);
-      }
+  const storageRef = ref(storage, `public/${folder}/${fileName}`);
+
+  try {
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: file.type,
+      customMetadata: {
+        maxSizeBytes: "52428800", // 50MB in bytes
+      },
     });
-  });
+
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log(`File uploaded to Firebase: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    throw new Error("Error uploading file");
+  }
+};
+
+const deleteFromFirebase = async (filePath) => {
+  if (!filePath) return;
+  const fileRef = ref(storage, filePath);
+  try {
+    await deleteObject(fileRef);
+    console.log(`Deleted file from Firebase: ${filePath}`);
+  } catch (err) {
+    console.warn(`Failed to delete file from Firebase: ${filePath}`);
+  }
 };
 
 export default async function handler(req, res) {
@@ -49,6 +76,27 @@ export default async function handler(req, res) {
       const sequence_game_set_id =
         sequenceGameSetResult[0].sequence_game_set_id;
       console.log("sequence_game_set_id", sequence_game_set_id);
+
+      // Get current sequence data to delete files
+      const currentSequence = await query({
+        query:
+          "SELECT image, audio FROM sequence_game WHERE sequence_game_id = ?",
+        values: [sequence_game_id],
+      });
+
+      if (
+        currentSequence[0].image &&
+        currentSequence[0].image.includes("firebase")
+      ) {
+        await deleteFromFirebase(currentSequence[0].image);
+      }
+      if (
+        currentSequence[0].audio &&
+        currentSequence[0].audio.includes("firebase")
+      ) {
+        await deleteFromFirebase(currentSequence[0].audio);
+      }
+
       const result = await query({
         query: "DELETE FROM sequence_game WHERE sequence_game_id = ?",
         values: [sequence_game_id],
@@ -95,51 +143,45 @@ export default async function handler(req, res) {
     let { sequences } = req.body;
     console.log("Sequences:", sequences);
 
-    // Ensure flashcards is an array, even if a single object is sent
+    // Ensure sequences is an array
     if (!Array.isArray(sequences)) {
       sequences = [sequences];
     }
 
     try {
       for (const sequence of sequences) {
-        let imageFileName = null;
-        let audioFileName = null;
-
         if (sequence.image) {
           if (sequence.image.startsWith("data:image")) {
-            imageFileName = `${Date.now()}-${Math.random()
+            const imageFileName = `${Date.now()}-${Math.random()
               .toString(36)
               .substr(2, 9)}.png`;
-            sequence.image = await saveFileToPublic(
+            sequence.image = await uploadToFirebase(
               sequence.image,
               imageFileName,
-              "flashcards/images"
+              "sequence_game/images"
             );
-            console.log(`Image URI: ${sequence.image}`);
+            console.log(`Image uploaded: ${sequence.image}`);
           } else if (
-            sequence.image.startsWith("http://") ||
-            sequence.image.startsWith("https://")
+            !sequence.image.startsWith("http://") &&
+            !sequence.image.startsWith("https://")
           ) {
-            // Accept image URL directly
-            console.log(`Image URL: ${sequence.image}`);
-          } else {
             throw new Error("Invalid image format");
           }
         }
 
         if (sequence.audio) {
-          audioFileName = `${Date.now()}-${Math.random()
+          const audioFileName = `${Date.now()}-${Math.random()
             .toString(36)
             .substr(2, 9)}.mp3`;
-          sequence.audio = await saveFileToPublic(
+          sequence.audio = await uploadToFirebase(
             sequence.audio,
             audioFileName,
-            "flashcards/audio"
+            "sequence_game/audio"
           );
-          console.log(`Audio URI: ${sequence.audio}`);
+          console.log(`Audio uploaded: ${sequence.audio}`);
         }
 
-        const flashcardResults = await query({
+        const sequenceResults = await query({
           query:
             "INSERT INTO sequence_game (sequence_game_set_id, step, image, audio) VALUES (?, ?, ?, ?)",
           values: [
@@ -150,7 +192,7 @@ export default async function handler(req, res) {
           ],
         });
 
-        if (flashcardResults.affectedRows > 0) {
+        if (sequenceResults.affectedRows > 0) {
           res.status(200).json({ message: "Sequence created successfully" });
         } else {
           res.status(404).json({ error: "Sequence not found" });
