@@ -11,7 +11,6 @@ import { X, Check, RefreshCw, Pause, Volume2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
 import Summary from "./Summary";
 // import { CardFooter } from "keep-react";
@@ -287,7 +286,6 @@ const SequenceGameStudent = ({ sequenceGame }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            // <BarChart gameRecord={gameRecord} questions={gameData.length} />
             <Summary gameRecord={gameRecord} questions={gameData.length} />
           )}
         </>
