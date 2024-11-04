@@ -31,7 +31,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const GameHistory = ({ gameRecord, cards }) => {
+const GameHistory = ({ gameRecord = [], cards }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const scrollBehavior = "inside";
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,7 +42,7 @@ const GameHistory = ({ gameRecord, cards }) => {
   const paginatedGameRecord = useMemo(() => {
     const startIndex = (currentPage - 1) * recordsPerPage;
     const endIndex = startIndex + recordsPerPage;
-    return gameRecord.slice(startIndex, endIndex);
+    return gameRecord?.slice(startIndex, endIndex) || [];
   }, [gameRecord, currentPage]);
 
   const toggleViewChart = (index) => {
@@ -160,7 +160,7 @@ const GameHistory = ({ gameRecord, cards }) => {
                     <div className="flex items-center justify-between pt-4">
                       <div className="text-sm text-muted-foreground">
                         Showing {paginatedGameRecord.length} of{" "}
-                        {gameRecord.length} entries
+                        {gameRecord?.length || 0} entries
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
@@ -176,7 +176,9 @@ const GameHistory = ({ gameRecord, cards }) => {
                         {Array.from(
                           {
                             length: Math.min(
-                              Math.ceil(gameRecord.length / recordsPerPage),
+                              Math.ceil(
+                                (gameRecord?.length || 0) / recordsPerPage
+                              ),
                               5
                             ),
                           },
@@ -203,13 +205,17 @@ const GameHistory = ({ gameRecord, cards }) => {
                             setCurrentPage((prev) =>
                               Math.min(
                                 prev + 1,
-                                Math.ceil(gameRecord.length / recordsPerPage)
+                                Math.ceil(
+                                  (gameRecord?.length || 0) / recordsPerPage
+                                )
                               )
                             )
                           }
                           disabled={
                             currentPage ===
-                            Math.ceil(gameRecord.length / recordsPerPage)
+                            Math.ceil(
+                              (gameRecord?.length || 0) / recordsPerPage
+                            )
                           }
                         >
                           <ChevronRight className="h-4 w-4" />

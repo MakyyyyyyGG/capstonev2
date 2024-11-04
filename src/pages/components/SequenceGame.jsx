@@ -10,6 +10,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, RefreshCw, Pause, Volume2 } from "lucide-react";
 
 const SequenceGame = ({ sequenceGame }) => {
+  // Add null check for sequenceGame prop
+  if (!sequenceGame) {
+    return <div>Loading...</div>;
+  }
+
   const [gameData, setGameData] = useState(sequenceGame);
   const [selectedImages, setSelectedImages] = useState([]);
   const [title, setTitle] = useState("");

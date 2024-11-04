@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/input-otp";
 import GameHistory from "./GameHistory";
 
-const FourPicsOneWordStudent = ({ cards }) => {
+const FourPicsOneWordStudent = ({ cards = [] }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
   const [userAnswers, setUserAnswers] = useState([]);
   const [attempts, setAttempts] = useState([]);
@@ -51,8 +51,7 @@ const FourPicsOneWordStudent = ({ cards }) => {
   const incorrectSound = useRef(null);
 
   useEffect(() => {
-    if (cards) {
-      console.log(session);
+    if (cards?.length > 0 && session) {
       const shuffled = shuffleArray(cards);
       setShuffledCards(shuffled);
       setUserAnswers(Array(shuffled.length).fill(""));
@@ -60,7 +59,7 @@ const FourPicsOneWordStudent = ({ cards }) => {
       setFeedback(Array(shuffled.length).fill(""));
       getStudentTries();
     }
-  }, [cards]);
+  }, [cards, session]);
 
   useEffect(() => {
     if (isGameFinished) {
@@ -396,37 +395,40 @@ const FourPicsOneWordStudent = ({ cards }) => {
                             </header>
                             <form id="otp-form">
                               <div className="flex items-center justify-center gap-3">
-                                {Array.from({ length: card.word.length }).map(
-                                  (_, idx) => (
-                                    <input
-                                      key={idx}
-                                      type="text"
-                                      className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                                      maxLength="1"
-                                      value={userAnswers[index]?.[idx] || ""}
-                                      onChange={(e) => {
-                                        const newAnswer = userAnswers[index]
-                                          ? userAnswers[index].split("")
-                                          : [];
-                                        newAnswer[idx] = e.target.value;
-                                        handleChange(newAnswer.join(""), index);
-                                      }}
-                                      onKeyDown={(e) =>
-                                        handleKeyDown(e, index, idx)
+                                {Array.from({
+                                  length: card.word?.length || 0,
+                                }).map((_, idx) => (
+                                  <input
+                                    key={idx}
+                                    type="text"
+                                    className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                    maxLength="1"
+                                    value={userAnswers[index]?.[idx] || ""}
+                                    onChange={(e) => {
+                                      const newAnswer = userAnswers[index]
+                                        ? userAnswers[index].split("")
+                                        : [];
+                                      newAnswer[idx] = e.target.value;
+                                      handleChange(newAnswer.join(""), index);
+                                    }}
+                                    onKeyDown={(e) =>
+                                      handleKeyDown(e, index, idx)
+                                    }
+                                    ref={(el) => {
+                                      if (!inputRefs.current[index]) {
+                                        inputRefs.current[index] = [];
                                       }
-                                      ref={(el) => {
-                                        if (!inputRefs.current[index]) {
-                                          inputRefs.current[index] = [];
-                                        }
-                                        inputRefs.current[index][idx] = el;
-                                      }}
-                                      disabled={
-                                        feedback[index]?.includes("Correct") ||
-                                        attempts[index] >= 3
-                                      }
-                                    />
-                                  )
-                                )}
+                                      inputRefs.current[index][idx] = el;
+                                    }}
+                                    disabled={
+                                      feedback[index]?.includes("Correct") ||
+                                      attempts[index] >= 3
+                                    }
+                                    aria-label={`Input ${idx + 1} of ${
+                                      card.word?.length || 0
+                                    }`}
+                                  />
+                                ))}
                               </div>
                               <div className="w-full mt-4">
                                 <Button
@@ -436,9 +438,10 @@ const FourPicsOneWordStudent = ({ cards }) => {
                                     feedback[index]?.includes("Correct") ||
                                     attempts[index] >= 3 ||
                                     userAnswers[index]?.length !==
-                                      card.word.length
+                                      card.word?.length
                                   }
                                   className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                                  aria-label="Check Answer"
                                 >
                                   Check Answer
                                 </Button>

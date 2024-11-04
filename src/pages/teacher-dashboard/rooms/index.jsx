@@ -18,19 +18,20 @@ import { useRouter } from "next/router";
 import DeleteRoom from "@/pages/components/DeleteRoom";
 import { Search, Copy } from "lucide-react";
 
-const Rooms = ({ rooms, onRoomDeleted }) => {
+const Rooms = ({ rooms = [], onRoomDeleted }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
   // Function to filter rooms based on the search query and difficulty
-  const filteredRooms = rooms.filter(
-    (room) =>
-      room.room_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (difficultyFilter === "all" ||
-        room.room_difficulty.toLowerCase() === difficultyFilter)
-  );
+  const filteredRooms =
+    rooms?.filter(
+      (room) =>
+        room.room_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        (difficultyFilter === "all" ||
+          room.room_difficulty.toLowerCase() === difficultyFilter)
+    ) || [];
 
   // Function to dynamically set Chip color based on room difficulty
   const getChipColor = (difficulty) => {
@@ -42,12 +43,11 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
       case "hard":
         return "danger";
       default:
-        return "default"; // fallback if the difficulty is not recognized
+        return "default";
     }
   };
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -55,9 +55,8 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Function to copy room code to clipboard
   const copyToClipboard = (roomCode, e) => {
-    e.stopPropagation(); // Prevent card click when copying
+    e.stopPropagation();
     navigator.clipboard.writeText(roomCode);
     toast.success("Room code copied to clipboard!");
   };
@@ -82,6 +81,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
           variant="bordered"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search Room"
         />
         <div className="w-full max-w-[300px]">
           <Select
@@ -96,6 +96,7 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
             variant="bordered"
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
+            aria-label="Filter by Difficulty"
           >
             <SelectItem key="all" value="all">
               All Difficulties
@@ -171,7 +172,11 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
                                   copyToClipboard(room.room_code, e)
                                 }
                               >
-                                <Button color="transparent" isIconOnly>
+                                <Button
+                                  color="transparent"
+                                  isIconOnly
+                                  aria-label="Copy Room Code"
+                                >
                                   <Copy size={22} />
                                 </Button>
                               </div>

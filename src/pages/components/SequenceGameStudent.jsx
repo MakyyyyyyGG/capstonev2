@@ -13,9 +13,9 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import GameHistory from "./GameHistory";
 import Summary from "./Summary";
-// import { CardFooter } from "keep-react";
+
 const SequenceGameStudent = ({ sequenceGame }) => {
-  const [gameData, setGameData] = useState(sequenceGame);
+  const [gameData, setGameData] = useState([]); // Initialize as empty array
   const [selectedImages, setSelectedImages] = useState([]);
   const [answer, setAnswer] = useState(0);
   const [title, setTitle] = useState("");
@@ -29,11 +29,9 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   const { game_id } = router.query;
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameRecord, setGameRecord] = useState([]);
-  const [feedback, setFeedback] = useState(Array(gameData.length).fill(""));
+  const [feedback, setFeedback] = useState([]);
 
-  const [isPlaying, setIsPlaying] = useState(
-    Array(sequenceGame.length).fill(false)
-  );
+  const [isPlaying, setIsPlaying] = useState([]);
   const audioRefs = useRef([]);
 
   // Sound effect refs
@@ -58,17 +56,19 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   useEffect(() => {
     if (sequenceGame) {
       setGameData(sequenceGame);
-      setFeedback(Array(gameData.length).fill(""));
-      setAttempts(Array(gameData.length).fill(0)); // Reset attempts when cards change
+      setFeedback(Array(sequenceGame.length).fill(""));
+      setAttempts(Array(sequenceGame.length).fill(0));
+      setIsPlaying(Array(sequenceGame.length).fill(false));
       getStudentTries();
-      console.log("game Data", gameData);
     }
   }, [sequenceGame]);
+
   useEffect(() => {
     if (isGameFinished) {
       handleResult();
     }
   }, [isGameFinished]);
+
   const getRandomPosition = (index, totalImages) => {
     const gridSize = Math.ceil(Math.sqrt(totalImages));
     const cellSize = 100 / gridSize;
@@ -82,6 +82,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   };
 
   const randomPositions = useMemo(() => {
+    if (!gameData || !gameData.length) return [];
     return gameData.map((_, index) =>
       getRandomPosition(index, gameData.length)
     );
@@ -122,7 +123,8 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   };
 
   const handleCheckStep = (idx, index) => {
-    if (attempts[index] >= 3) return; // If 3 attempts are used, do nothing
+    if (!sequenceGame || attempts[index] >= 3) return;
+
     const newAttempts = [...attempts];
     newAttempts[index]++;
     setAttempts(newAttempts);
@@ -355,25 +357,26 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                   <h1 className="text-xl font-bold">Available Steps</h1>
                 </CardHeader>
                 <CardBody className="relative border rounded-lg shadow-inner">
-                  {sequenceGame.map(
-                    (item, index) =>
-                      !selectedImages.includes(item.image) && (
-                        <motion.div
-                          key={index}
-                          style={randomPositions[index]}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleImageSelect(item.image, index)}
-                          className="absolute w-24 h-24 m-4 aspect-square rounded-lg overflow-hidden border"
-                        >
-                          <img
-                            src={item.image}
-                            alt={`Image ${index + 1}`}
-                            className="w-full h-full object-cover cursor-pointer"
-                          />
-                        </motion.div>
-                      )
-                  )}
+                  {sequenceGame &&
+                    sequenceGame.map(
+                      (item, index) =>
+                        !selectedImages.includes(item.image) && (
+                          <motion.div
+                            key={index}
+                            style={randomPositions[index]}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleImageSelect(item.image, index)}
+                            className="absolute w-24 h-24 m-4 aspect-square rounded-lg overflow-hidden border"
+                          >
+                            <img
+                              src={item.image}
+                              alt={`Image ${index + 1}`}
+                              className="w-full h-full object-cover cursor-pointer"
+                            />
+                          </motion.div>
+                        )
+                    )}
                 </CardBody>
               </Card>
               <Card className="p-4">
@@ -381,156 +384,152 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                   <h1 className="text-xl font-bold">Arrange the Sequence</h1>
                 </CardHeader>
                 <CardBody className="flex flex-col gap-3">
-                  {sequenceGame.map((item, index) => (
-                    <motion.div
-                      animate={{
-                        borderColor: feedback[index]
-                          ? feedback[index].includes("Correct")
-                            ? "#22c55e" // green for correct
-                            : attempts[index] >= 3
-                            ? "#ef4444" // red for out of attempts
-                            : "transparent" // keep transparent if no feedback or attempts
-                          : "transparent", // no border if feedback is empty
-                      }}
-                      transition={{ duration: 0.5 }}
-                      className={`border-2 rounded-lg ${
-                        feedback[index] ? "" : "border-transparent"
-                      }`} // no border class initially
-                      style={{
-                        transition: "border-color 0.5s ease", // Smooth transition for border
-                      }}
-                    >
-                      <Card
-                        key={index}
-                        className="flex flex-col items-center gap-4 p-4 bg-white rounded-md border shadow-sm"
+                  {sequenceGame &&
+                    sequenceGame.map((item, index) => (
+                      <motion.div
+                        animate={{
+                          borderColor: feedback[index]
+                            ? feedback[index].includes("Correct")
+                              ? "#22c55e" // green for correct
+                              : attempts[index] >= 3
+                              ? "#ef4444" // red for out of attempts
+                              : "transparent" // keep transparent if no feedback or attempts
+                            : "transparent", // no border if feedback is empty
+                        }}
+                        transition={{ duration: 0.5 }}
+                        className={`border-2 rounded-lg ${
+                          feedback[index] ? "" : "border-transparent"
+                        }`} // no border class initially
+                        style={{
+                          transition: "border-color 0.5s ease", // Smooth transition for border
+                        }}
                       >
-                        {/* display the available attems here */}
-                        <div className="flex w-full gap-4 justify-between items-center">
-                          <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
-                            {selectedImages[index] ? (
-                              <motion.img
-                                src={selectedImages[index]}
-                                alt={`Selected Image ${index + 1}`}
-                                className="w-24 h-24 object-cover"
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.25 }}
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                Step {index + 1}
-                              </div>
+                        <Card
+                          key={index}
+                          className="flex flex-col items-center gap-4 p-4 bg-white rounded-md border shadow-sm"
+                        >
+                          {/* display the available attems here */}
+                          <div className="flex w-full gap-4 justify-between items-center">
+                            <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
+                              {selectedImages[index] ? (
+                                <motion.img
+                                  src={selectedImages[index]}
+                                  alt={`Selected Image ${index + 1}`}
+                                  className="w-24 h-24 object-cover"
+                                  initial={{ opacity: 0, y: 50 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.25 }}
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                  Step {index + 1}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex-1">
+                              <h3 className="font-medium">Step {index + 1}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {item.step}
+                              </p>
+                            </div>
+
+                            {item.audio && (
+                              <>
+                                <div className="absolute top-1 right-1">
+                                  <Button
+                                    isIconOnly
+                                    radius="sm"
+                                    onClick={() => handleAudioToggle(index)}
+                                    className="p-2 bg-transparent text-purple-500 hover:text-purple-700"
+                                  >
+                                    {isPlaying[index] ? (
+                                      <Pause className="h-4 w-4" />
+                                    ) : (
+                                      <Volume2 className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                  <audio
+                                    ref={(el) =>
+                                      (audioRefs.current[index] = el)
+                                    }
+                                    src={item.audio}
+                                    onEnded={() =>
+                                      setIsPlaying((prev) => {
+                                        const newPlayingState = [...prev];
+                                        newPlayingState[index] = false;
+                                        return newPlayingState;
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </>
+                            )}
+
+                            {selectedImages[index] && (
+                              <>
+                                <div className="flex gap-1">
+                                  <Button
+                                    isIconOnly
+                                    radius="sm"
+                                    variant="flat"
+                                    onClick={() => handleRemoveImage(index)}
+                                    isDisabled={
+                                      attempts[index] >= 3 ||
+                                      feedback[index] === "Correct!"
+                                    }
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    isIconOnly
+                                    radius="sm"
+                                    variant="flat"
+                                    color="success"
+                                    onClick={() =>
+                                      attempts[index] < 3 &&
+                                      !feedback[index]?.includes("Correct")
+                                        ? handleCheckStep(index, index)
+                                        : null
+                                    }
+                                    isDisabled={
+                                      feedback[index] === "Correct!" ||
+                                      attempts[index] >= 3
+                                    }
+                                  >
+                                    <Check className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </>
                             )}
                           </div>
-
-                          <div className="flex-1">
-                            <h3 className="font-medium">Step {index + 1}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {item.step}
-                            </p>
-                          </div>
-
-                          {item.audio && (
-                            <>
-                              <div className="absolute top-1 right-1">
-                                <Button
-                                  isIconOnly
-                                  radius="sm"
-                                  onClick={() => handleAudioToggle(index)}
-                                  className="p-2 bg-transparent text-purple-500 hover:text-purple-700"
-                                >
-                                  {isPlaying[index] ? (
-                                    <Pause className="h-4 w-4" />
-                                  ) : (
-                                    <Volume2 className="h-4 w-4" />
-                                  )}
-                                </Button>
-                                <audio
-                                  ref={(el) => (audioRefs.current[index] = el)}
-                                  src={item.audio}
-                                  onEnded={() =>
-                                    setIsPlaying((prev) => {
-                                      const newPlayingState = [...prev];
-                                      newPlayingState[index] = false;
-                                      return newPlayingState;
-                                    })
-                                  }
-                                />
-                              </div>
-                            </>
-                          )}
-
-                          {selectedImages[index] && (
-                            <>
-                              <div className="flex gap-1">
-                                <Button
-                                  isIconOnly
-                                  radius="sm"
-                                  variant="flat"
-                                  onClick={() => handleRemoveImage(index)}
-                                  isDisabled={
-                                    attempts[index] >= 3 ||
-                                    feedback[index] === "Correct!"
-                                  }
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  isIconOnly
-                                  radius="sm"
-                                  variant="flat"
-                                  color="success"
-                                  onClick={() =>
-                                    attempts[index] < 3 &&
-                                    !feedback[index]?.includes("Correct")
-                                      ? handleCheckStep(index, index)
-                                      : null
-                                  }
-                                  // className={`w-full h-full object-cover ${
-                                  //   attempts[index] >= 3 ||
-                                  //   feedback[index]?.includes("Correct")
-                                  //     ? "opacity-50 cursor-not-allowed"
-                                  //     : ""
-                                  // }`}
-                                  //disbaled if its correct or attempts are over
-                                  isDisabled={
-                                    feedback[index] === "Correct!" ||
-                                    attempts[index] >= 3
-                                  }
-                                >
-                                  <Check className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        <AnimatePresence>
-                          {feedback[index] && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 20 }}
-                              className="flex w-full text-center justify-center rounded-md"
-                            >
+                          <AnimatePresence>
+                            {feedback[index] && (
                               <motion.div
-                                key={feedback[index]}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 20 }}
-                                className={
-                                  feedback[index].includes("Correct")
-                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                    : "text-white w-full bg-red-500 p-2 rounded-md"
-                                }
+                                className="flex w-full text-center justify-center rounded-md"
                               >
-                                {feedback[index]}
+                                <motion.div
+                                  key={feedback[index]}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 20 }}
+                                  className={
+                                    feedback[index].includes("Correct")
+                                      ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                      : "text-white w-full bg-red-500 p-2 rounded-md"
+                                  }
+                                >
+                                  {feedback[index]}
+                                </motion.div>
                               </motion.div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </Card>
-                    </motion.div>
-                  ))}
+                            )}
+                          </AnimatePresence>
+                        </Card>
+                      </motion.div>
+                    ))}
                 </CardBody>
                 <CardFooter className="flex justify-between items-center py-4">
                   <Button onClick={handleReset} variant="bordered" radius="sm">

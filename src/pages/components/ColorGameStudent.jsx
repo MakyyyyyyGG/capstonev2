@@ -23,12 +23,13 @@ import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
+
 const ColorGames = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
   const [shuffledCards, setShuffledCards] = useState([]);
-  const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
+  const [feedback, setFeedback] = useState(Array(cards?.length || 0).fill(""));
   const [answer, setAnswer] = useState(0);
   const [score, setScore] = useState(0);
   const [swiperInstance, setSwiperInstance] = useState(null);
@@ -37,7 +38,6 @@ const ColorGames = ({ cards }) => {
   const { game_id } = router.query;
   const [attempts, setAttempts] = useState({});
   const [isGameFinished, setIsGameFinished] = useState(false);
-  // const [latestAttempts, setLatestAttempts] = useState({});
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
 
@@ -46,13 +46,12 @@ const ColorGames = ({ cards }) => {
   const incorrectSound = useRef(null);
 
   useEffect(() => {
-    const shuffled = shuffleArray(cards);
+    if (!cards) return;
 
-    setShuffledCards(shuffleArray(cards));
+    const shuffled = shuffleArray(cards);
     setShuffledCards(shuffled);
-    setFeedback(Array(cards.length).fill(""));
-    setAttempts(Array(shuffled.length).fill(0));
     setFeedback(Array(shuffled.length).fill(""));
+    setAttempts(Array(shuffled.length).fill(0));
 
     getStudentTries();
   }, [cards]);
@@ -243,7 +242,6 @@ const ColorGames = ({ cards }) => {
       latestAttempts[month] = sortedAttempts.slice(0, 8);
     });
 
-    // setLatestAttempts(latestAttempts);
     return latestAttempts;
   };
 
@@ -324,16 +322,18 @@ const ColorGames = ({ cards }) => {
         ref={correctSound}
         src="/soundfx/audio/correct.mp3"
         preload="auto"
+        aria-label="Correct answer sound effect"
       />
       <audio
         ref={incorrectSound}
         src="/soundfx/audio/incorrect.mp3"
         preload="auto"
+        aria-label="Incorrect answer sound effect"
       />
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <Summary gameRecord={gameRecord} questions={cards.length} />
+            <Summary gameRecord={gameRecord} questions={cards?.length} />
           )}
         </>
       ) : (
@@ -346,15 +346,13 @@ const ColorGames = ({ cards }) => {
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
                   <p className="text-sm text-muted-foreground">
-                    Score: {score} / {cards.length}
+                    Score: {score} / {cards?.length}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
-                <GameHistory gameRecord={gameRecord} cards={cards.length} />
-                {/* <h1>Questions Answered: {answeredQuestions}</h1>
-              <h1>cards length: {cards.length}</h1> */}
+                <GameHistory gameRecord={gameRecord} cards={cards?.length} />
               </div>
             </div>
           </div>
@@ -371,12 +369,13 @@ const ColorGames = ({ cards }) => {
           <div className="flex w-full justify-center items-center ">
             <div className="w-full max-w-[50rem] my-4">
               <Progress
-                value={(answer / cards.length) * 100}
+                value={(answer / (cards?.length || 1)) * 100}
                 classNames={{
                   value: "text-foreground/60",
                   indicator: "bg-[#7469B6]",
                   track: "bg-purple-50",
                 }}
+                aria-label="Game progress"
               />
             </div>
           </div>
@@ -398,6 +397,7 @@ const ColorGames = ({ cards }) => {
               onSwiper={(swiper) => setSwiperInstance(swiper)}
               onSlideChange={() => console.log("slide change")}
               onSwiperSlideChange={() => console.log("swiper slide change")}
+              aria-label="Color game slides"
             >
               {shuffledCards.map((card, index) => (
                 <SwiperSlide key={card.color_game_id}>
@@ -415,7 +415,6 @@ const ColorGames = ({ cards }) => {
                     >
                       <Card className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto">
                         <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                          {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
                           <div className="text-3xl font-extrabold my-5 capitalize">
                             <p>{card.color}</p>
                           </div>
@@ -472,6 +471,7 @@ const ColorGames = ({ cards }) => {
                                       image
                                     )
                                   }
+                                  aria-label={`Select image ${imageIndex + 1}`}
                                 >
                                   <div className="p-2 rounded-md relative overflow-hidden">
                                     <Checkbox
@@ -488,10 +488,13 @@ const ColorGames = ({ cards }) => {
                                       }
                                       className="absolute top-2 right-1 z-99"
                                       isDisabled={(attempts[index] || 0) >= 3}
+                                      aria-label={`Select image ${
+                                        imageIndex + 1
+                                      }`}
                                     />
                                     <Image
                                       src={image}
-                                      alt={`Image ${imageIndex + 1}`}
+                                      alt={`Color image ${imageIndex + 1}`}
                                       className="h-full w-full object-cover rounded-lg"
                                     />
                                   </div>
@@ -509,6 +512,7 @@ const ColorGames = ({ cards }) => {
                                 !(selectedImages[card.color_game_id] || [])
                                   .length
                               }
+                              aria-label="Check answers"
                             >
                               Check Answers
                             </Button>
@@ -520,6 +524,7 @@ const ColorGames = ({ cards }) => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 20 }}
                                 className="flex w-full text-center justify-center rounded-md"
+                                role="alert"
                               >
                                 <motion.div
                                   key={feedback[index]}

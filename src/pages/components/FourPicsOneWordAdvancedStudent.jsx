@@ -31,9 +31,9 @@ import "swiper/css/effect-creative";
 import Summary from "./Summary";
 import GameHistory from "./GameHistory";
 
-const FourPicsOneWordAdvancedStudent = ({ cards }) => {
+const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
-  const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
+  const [feedback, setFeedback] = useState([]);
   const [answer, setAnswer] = useState(0);
   const [score, setScore] = useState(0);
   const [swiperInstance, setSwiperInstance] = useState(null);
@@ -41,25 +41,25 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
   const router = useRouter();
   const { game_id } = router.query;
   const [playedGames, setPlayedGames] = useState(1);
-  const [attempts, setAttempts] = useState(Array(cards.length).fill(0));
+  const [attempts, setAttempts] = useState([]);
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
-  const [selectedImages, setSelectedImages] = useState(
-    Array(cards.length).fill([])
-  );
+  const [selectedImages, setSelectedImages] = useState([]);
 
   // Sound effect refs
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
 
   useEffect(() => {
-    setShuffledCards(shuffleArray(cards));
-    setFeedback(Array(cards.length).fill(""));
-    setAttempts(Array(cards.length).fill(0));
-    setSelectedImages(Array(cards.length).fill([]));
-    getStudentTries();
-    console.log(cards);
+    if (cards && cards.length > 0) {
+      setShuffledCards(shuffleArray(cards));
+      setFeedback(Array(cards.length).fill(""));
+      setAttempts(Array(cards.length).fill(0));
+      setSelectedImages(Array(cards.length).fill([]));
+      getStudentTries();
+      console.log(cards);
+    }
   }, [cards]);
 
   useEffect(() => {
@@ -442,7 +442,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
                                   className={`relative hover:cursor-pointer rounded-md ${
-                                    selectedImages[index].includes(idx)
+                                    selectedImages[index]?.includes(idx)
                                       ? "border-3 border-[#17C964]"
                                       : ""
                                   }`}
@@ -475,7 +475,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards }) => {
                                   <Checkbox
                                     color="success"
                                     className="absolute top-2 right-1 text-white"
-                                    isSelected={selectedImages[index].includes(
+                                    isSelected={selectedImages[index]?.includes(
                                       idx
                                     )}
                                     onChange={() =>

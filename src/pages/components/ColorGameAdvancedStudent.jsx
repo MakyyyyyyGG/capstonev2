@@ -4,7 +4,9 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import GameHistory from "./GameHistory";
-const ColorGamesAdvancedStudent = ({ cards }) => {
+
+const ColorGamesAdvancedStudent = ({ cards = [] }) => {
+  // Add default empty array
   const [showImages, setShowImages] = useState(false);
   const [randomizedImages, setRandomizedImages] = useState({});
   const [shuffledCards, setShuffledCards] = useState([]);
@@ -23,7 +25,8 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
   const [isGameFinished, setIsGameFinished] = useState(false);
 
   useEffect(() => {
-    if (cards) {
+    if (cards && cards.length > 0) {
+      // Add length check
       console.log(session);
       const shuffled = shuffleArray(cards);
       setShuffledCards(shuffled);
@@ -142,18 +145,21 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
   };
 
   useEffect(() => {
-    const newRandomizedImages = {};
-    shuffledCards.forEach((card) => {
-      const images = card.images.split(",");
-      const shuffledImages = images.sort(() => Math.random() - 0.5);
-      newRandomizedImages[card.color_game_advanced_id] = shuffledImages.map(
-        (image) => ({
-          id: `${card.color_game_advanced_id}-${image}`,
-          src: image,
-        })
-      );
-    });
-    setRandomizedImages(newRandomizedImages);
+    if (shuffledCards.length > 0) {
+      // Add length check
+      const newRandomizedImages = {};
+      shuffledCards.forEach((card) => {
+        const images = card.images.split(",");
+        const shuffledImages = images.sort(() => Math.random() - 0.5);
+        newRandomizedImages[card.color_game_advanced_id] = shuffledImages.map(
+          (image) => ({
+            id: `${card.color_game_advanced_id}-${image}`,
+            src: image,
+          })
+        );
+      });
+      setRandomizedImages(newRandomizedImages);
+    }
   }, [shuffledCards]);
 
   const getStudentTries = async () => {

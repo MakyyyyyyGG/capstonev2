@@ -12,7 +12,7 @@ const ColorGamesAdvanced = ({ cards }) => {
     const images = card.images.split(",");
     return (
       <div className="flex w-full">
-        {images.map((image, index) => (
+        {images?.map((image, index) => (
           <div className="w-[100px] h-[100px] border-2" key={index}>
             {showImages || checkResult[card.color_game_advanced_id] ? (
               <img
@@ -56,7 +56,7 @@ const ColorGamesAdvanced = ({ cards }) => {
   // Randomize images on mount
   useEffect(() => {
     const newRandomizedImages = {};
-    cards.forEach((card) => {
+    cards?.forEach((card) => {
       const images = card.images.split(",");
       const shuffledImages = images.sort(() => Math.random() - 0.5);
       newRandomizedImages[card.color_game_advanced_id] = shuffledImages.map(
@@ -73,7 +73,7 @@ const ColorGamesAdvanced = ({ cards }) => {
     <div>
       <h1>Color Games Advanced</h1>
       <DragDropContext onDragEnd={handleDragEnd}>
-        {cards.map((card) => (
+        {cards?.map((card) => (
           <Card key={card.color_game_advanced_id}>
             <CardBody>
               <h2>{card.title}</h2>

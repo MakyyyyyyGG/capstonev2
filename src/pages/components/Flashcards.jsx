@@ -8,10 +8,11 @@ import "swiper/css/navigation";
 import "swiper/css/effect-creative";
 import { Pagination, Navigation, EffectCreative } from "swiper/modules";
 import Loader from "./Loader";
+
 const Flashcards = ({ flashcards, isLoading }) => {
   const [showDescription, setShowDescription] = useState({});
-  const [audioPlaying, setAudioPlaying] = useState(null); // Track the currently playing audio
-  const audioRefs = useRef({}); // To store multiple audio refs
+  const [audioPlaying, setAudioPlaying] = useState(null);
+  const audioRefs = useRef({});
 
   const toggleCardBody = (id) => {
     setShowDescription((prev) => ({
@@ -22,7 +23,6 @@ const Flashcards = ({ flashcards, isLoading }) => {
 
   const handleAudioPlay = (flashcard_id, audio) => {
     if (audioPlaying && audioPlaying !== flashcard_id) {
-      // Pause the previously playing audio if a new one is triggered
       audioRefs.current[audioPlaying].pause();
     }
     if (audioRefs.current[flashcard_id].paused) {
@@ -33,6 +33,10 @@ const Flashcards = ({ flashcards, isLoading }) => {
       setAudioPlaying(null);
     }
   };
+
+  if (!flashcards) {
+    return null;
+  }
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
@@ -110,7 +114,6 @@ const Flashcards = ({ flashcards, isLoading }) => {
                               </Button>
                             </div>
                           )}
-                          {/* Hidden audio element to control playback */}
                           <audio
                             ref={(el) =>
                               (audioRefs.current[flashcard.flashcard_id] = el)

@@ -23,12 +23,12 @@ import "swiper/css/effect-creative";
 import { Pagination, Navigation } from "swiper/modules";
 import { EffectCreative } from "swiper/modules";
 
-const FourPicsOneWordAdvanced = ({ cards }) => {
-  console.log(cards);
+const FourPicsOneWordAdvanced = ({ cards = [] }) => {
+  // Add default empty array
   const [selectedImages, setSelectedImages] = useState(
-    Array(cards.length).fill([]) // Initialize with empty arrays for each card
+    Array(cards?.length || 0).fill([]) // Add null check and default to 0
   );
-  const [feedback, setFeedback] = useState(Array(cards.length).fill(""));
+  const [feedback, setFeedback] = useState(Array(cards?.length || 0).fill("")); // Add null check and default to 0
 
   const handleTextToSpeech = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -97,6 +97,10 @@ const FourPicsOneWordAdvanced = ({ cards }) => {
 
     setFeedback(newFeedback);
   };
+
+  if (!cards || !cards.length) {
+    return <div>No cards available</div>; // Add loading/empty state
+  }
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">

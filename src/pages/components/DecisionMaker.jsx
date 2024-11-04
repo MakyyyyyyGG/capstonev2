@@ -46,7 +46,7 @@ const DecisionMaker = ({ cards }) => {
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
 
   useEffect(() => {
-    if (cards.length > 0) {
+    if (cards?.length > 0) {
       setFirstCard(cards[0]);
     }
   }, [cards]);
@@ -91,95 +91,97 @@ const DecisionMaker = ({ cards }) => {
       {/* {firstCard && <h1>{firstCard.title}</h1>} */}
 
       <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
-        <Swiper
-          // pagination={{
-          //   type: "progressbar",
-          // }}
-          grabCursor={true}
-          effect={"creative"}
-          creativeEffect={{
-            prev: {
-              shadow: true,
-              translate: [0, 0, -400],
-            },
-            next: {
-              translate: ["100%", 0, 0],
-            },
-          }}
-          modules={[EffectCreative]}
-          className="mySwiper w-full drop-shadow-lg rounded-md"
-        >
-          {cards.map((card) => (
-            <SwiperSlide key={card.decision_maker_id}>
-              <Card
-                key={card.decision_maker_id}
-                className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto"
-              >
-                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                  <h1 className="text-3xl font-extrabold my-5 capitalize">
-                    {card.word}
-                  </h1>
-                  <div className="max-w-[15rem]">
-                    <Image
-                      src={card.image}
-                      alt={card.title}
-                      width="100%"
-                      height="100%"
-                    />
-                  </div>
-                  <div className="flex justify-center gap-4 pt-4">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        onPress={() => handleVote(card, "positive")}
-                        color="success"
-                        variant="flat"
-                      >
-                        {buttonPairs[currentPairIndex].positive}
-                      </Button>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        onPress={() => handleVote(card, "negative")}
-                        color="danger"
-                        variant="flat"
-                      >
-                        {buttonPairs[currentPairIndex].negative}
-                      </Button>
-                    </motion.div>
-                  </div>
-                  <AnimatePresence>
-                    {selectedCards[card.decision_maker_id] && (
+        {cards?.length > 0 && (
+          <Swiper
+            // pagination={{
+            //   type: "progressbar",
+            // }}
+            grabCursor={true}
+            effect={"creative"}
+            creativeEffect={{
+              prev: {
+                shadow: true,
+                translate: [0, 0, -400],
+              },
+              next: {
+                translate: ["100%", 0, 0],
+              },
+            }}
+            modules={[EffectCreative]}
+            className="mySwiper w-full drop-shadow-lg rounded-md"
+          >
+            {cards.map((card) => (
+              <SwiperSlide key={card.decision_maker_id}>
+                <Card
+                  key={card.decision_maker_id}
+                  className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto"
+                >
+                  <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                    <h1 className="text-3xl font-extrabold my-5 capitalize">
+                      {card.word}
+                    </h1>
+                    <div className="max-w-[15rem]">
+                      <Image
+                        src={card.image}
+                        alt={card.title}
+                        width="100%"
+                        height="100%"
+                      />
+                    </div>
+                    <div className="flex justify-center gap-4 pt-4">
                       <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        className="flex w-full justify-center rounded-md"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        <p className="w-full text-center">
-                          {selectedCards[card.decision_maker_id].isCorrect ? (
-                            <div className="text-white w-full bg-green-500 p-2 rounded-md">
-                              <h1 className="w-full">Correct</h1>
-                            </div>
-                          ) : (
-                            <div className="text-white w-full bg-red-500 p-2 rounded-md">
-                              <h1 className="w-full">Incorrect</h1>
-                            </div>
-                          )}
-                        </p>
+                        <Button
+                          onPress={() => handleVote(card, "positive")}
+                          color="success"
+                          variant="flat"
+                        >
+                          {buttonPairs[currentPairIndex].positive}
+                        </Button>
                       </motion.div>
-                    )}
-                  </AnimatePresence>
-                </CardBody>
-              </Card>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          onPress={() => handleVote(card, "negative")}
+                          color="danger"
+                          variant="flat"
+                        >
+                          {buttonPairs[currentPairIndex].negative}
+                        </Button>
+                      </motion.div>
+                    </div>
+                    <AnimatePresence>
+                      {selectedCards[card.decision_maker_id] && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 20 }}
+                          className="flex w-full justify-center rounded-md"
+                        >
+                          <p className="w-full text-center">
+                            {selectedCards[card.decision_maker_id].isCorrect ? (
+                              <div className="text-white w-full bg-green-500 p-2 rounded-md">
+                                <h1 className="w-full">Correct</h1>
+                              </div>
+                            ) : (
+                              <div className="text-white w-full bg-red-500 p-2 rounded-md">
+                                <h1 className="w-full">Incorrect</h1>
+                              </div>
+                            )}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </CardBody>
+                </Card>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
       </div>
     </div>
   );

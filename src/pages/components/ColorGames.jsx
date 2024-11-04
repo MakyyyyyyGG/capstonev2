@@ -146,7 +146,7 @@ const ColorGames = ({ cards }) => {
           modules={[EffectCreative]}
           className="mySwiper w-full drop-shadow-lg rounded-md"
         >
-          {cards.map((card) => (
+          {cards?.map((card) => (
             <SwiperSlide key={card.color_game_id}>
               <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
                 <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
@@ -174,7 +174,7 @@ const ColorGames = ({ cards }) => {
                         : "grid-cols-2"
                     } gap-2`}
                   >
-                    {[card.image1, card.image2, card.image3, card.image4].map(
+                    {[card.image1, card.image2, card.image3, card.image4]?.map(
                       (image, imageIndex) =>
                         image && (
                           <motion.div
