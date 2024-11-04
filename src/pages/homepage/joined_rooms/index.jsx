@@ -21,14 +21,16 @@ import { useRouter } from "next/router";
 import { MoreVertical, Trash2, Search, Copy } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
-const JoinedRoom = ({ rooms, onUnenroll }) => {
+const JoinedRoom = ({ rooms = [], onUnenroll }) => {
+  // Add default empty array for rooms prop
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
   // Function to filter rooms based on the search query and difficulty
-  const filteredRooms = rooms.filter(
+  const filteredRooms = (rooms || []).filter(
+    // Add null check with empty array fallback
     (room) =>
       room.room_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
       (difficultyFilter === "all" ||
@@ -111,6 +113,7 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
           variant="bordered"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search Room" // Add aria-label
         />
         <div className="w-full max-w-[300px]">
           <Select
@@ -125,6 +128,7 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
             variant="bordered"
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
+            aria-label="Filter by Difficulty" // Add aria-label
           >
             <SelectItem key="all" value="all">
               All Difficulties
@@ -176,7 +180,11 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
                         </Chip>
                         <Dropdown>
                           <DropdownTrigger>
-                            <Button color="transparent" isIconOnly>
+                            <Button
+                              color="transparent"
+                              isIconOnly
+                              aria-label="More options"
+                            >
                               <MoreVertical size={22} color="#ffffff" />
                             </Button>
                           </DropdownTrigger>
@@ -219,6 +227,7 @@ const JoinedRoom = ({ rooms, onUnenroll }) => {
                             <Avatar
                               src={room.profile_image}
                               className="w-10 h-10"
+                              alt="Teacher profile"
                             />
                           </div>
                         </div>
