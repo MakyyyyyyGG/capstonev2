@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Header from "../components/header";
-import SidebarStudent from "../components/SidebarStudent";
-import JoinRoom from "../components/JoinRoom";
+
 import JoinedRoom from "./joined_rooms";
 
 const Index = () => {
