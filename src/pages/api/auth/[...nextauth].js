@@ -22,7 +22,7 @@ export const authOptions = {
       },
       async authorize(credentials, req) {
         try {
-          const res = await fetch("http://localhost:3000/api/signin", {
+          const res = await fetch("https://liwanag.vercel.app/api/signin", {
             method: "POST",
             body: JSON.stringify(credentials),
             headers: { "Content-Type": "application/json" },
