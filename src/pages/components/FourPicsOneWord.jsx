@@ -148,25 +148,25 @@ const FourPicsOneWord = ({ cards = [] }) => {
                         {card.image1 && (
                           <img
                             src={`${card.image1}`}
-                            className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
+                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
                           />
                         )}
                         {card.image2 && (
                           <img
                             src={`${card.image2}`}
-                            className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
+                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
                           />
                         )}
                         {card.difficulty !== "easy" && card.image3 && (
                           <img
                             src={`${card.image3}`}
-                            className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
+                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
                           />
                         )}
                         {card.difficulty !== "easy" && card.image4 && (
                           <img
                             src={`${card.image4}`}
-                            className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
+                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
                           />
                         )}
                       </div>
@@ -183,7 +183,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                               value={card.word}
                               pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                             >
-                              <InputOTPGroup className="space-x-3">
+                              <InputOTPGroup className="px-3 flex-wrap gap-3 items-center justify-center">
                                 {card.word &&
                                   Array.from({ length: card.word.length }).map(
                                     // Add null check
@@ -234,7 +234,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                           </p>
                         </header>
                         <form id="otp-form">
-                          <div className="flex items-center justify-center gap-3">
+                          <div className="flex flex-wrap items-center justify-center gap-3">
                             {card.word &&
                               Array.from({ length: card.word.length }).map(
                                 // Add null check
@@ -247,7 +247,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                                       }
                                       inputRefs.current[index][slotIndex] = el;
                                     }}
-                                    className="w-12 h-12 text-center text-xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                    className="w-12 h-12 text-center text-xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded py-4 px-1 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                                     maxLength="1"
                                     value={
                                       userAnswers[index]?.[slotIndex] || ""

@@ -39,7 +39,7 @@ const sidebarItems2 = [
 ];
 const SidebarStudent = ({ isCollapsed, toggleCollapse }) => {
   return (
-    <div className="sidebar__wrapper relative">
+    <div className="sidebar__wrapper relative hidden">
       <aside
         className="w-72 h-screen bg-white transition-all border-r-2 border-gray-300 sticky top-0 max-sm:hidden"
         data-collapse={isCollapsed}

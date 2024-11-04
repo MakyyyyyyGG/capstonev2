@@ -244,7 +244,7 @@ const index = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 p-4  mx-auto  max-w-[80rem]">
+    <div className="w-full flex flex-col gap-4 p-4 mx-auto  max-w-[80rem]">
       <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold ">
         <div className="flex gap-4 items-center ">
@@ -320,7 +320,7 @@ const index = () => {
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {cards.map((card, index) => (
           <Card
             key={index}
@@ -637,7 +637,7 @@ const index = () => {
                       <Radio value="negative">Negative</Radio>
                     </div>
                   </RadioGroup>
-                  <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
+                  <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px]">
                     {card.image ? (
                       <div className="relative flex flex-col gap-2 w-full h-full">
                         <div className=" w-full h-full ">
@@ -655,7 +655,7 @@ const index = () => {
                             handleCardChange(index, "image", null);
                           }}
                           color="danger"
-                          className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
+                          className="absolute top-2 right-2"
                         >
                           <Trash2 size={18} />
                         </Button>
@@ -663,7 +663,7 @@ const index = () => {
                           isIconOnly
                           size="sm"
                           color="secondary"
-                          className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                          className="absolute bottom-2 right-2"
                           aria-label="View Image"
                           onPress={() => {
                             onImageViewOpen();

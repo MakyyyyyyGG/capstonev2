@@ -458,7 +458,7 @@ const index = () => {
         </div>
 
         <div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {isLoading ? (
               Array.from({ length: cards.length }).map((_, index) => (
                 <Skeleton key={index} className="rounded-md w-full h-96	" />
@@ -562,7 +562,7 @@ const index = () => {
                                       handleEdit(cardIndex, imageIndex)
                                     }
                                   >
-                                    <LibraryBig /> Select
+                                    <LibraryBig size={18} /> Select
                                   </Button>
                                 </div>
                               )}
