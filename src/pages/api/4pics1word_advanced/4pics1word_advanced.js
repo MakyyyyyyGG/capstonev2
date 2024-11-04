@@ -1,29 +1,57 @@
 import { query } from "@/lib/db";
-import fs from "fs/promises";
-import path from "path";
+import { storage } from "@/lib/firebaseConfig";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 
-const saveFileToPublic = async (base64String, fileName, folder) => {
+const uploadToFirebase = async (base64String, fileName, folder) => {
   const dataUriRegex = /^data:(image\/(?:png|jpg|jpeg|gif));base64,/;
   const match = base64String.match(dataUriRegex);
   if (!match) throw new Error("Invalid Base64 image data");
 
+  const mimeType = match[1];
   const base64Data = base64String.replace(dataUriRegex, "");
-  const filePath = path.join(process.cwd(), "public", folder, fileName);
+  const buffer = Buffer.from(base64Data, "base64");
+  const blob = new Blob([buffer], { type: mimeType });
+  const file = new File([blob], fileName, { type: mimeType });
+
+  const storageRef = ref(storage, `public/${folder}/${fileName}`);
 
   try {
-    await fs.writeFile(filePath, base64Data, "base64");
-    console.log(`Saved file: ${filePath}`);
-    return `/${folder}/${fileName}`;
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: file.type,
+      customMetadata: {
+        maxSizeBytes: "52428800", // 50MB in bytes
+      },
+    });
+
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log(`File uploaded to Firebase: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    throw new Error("Error uploading file");
+  }
+};
+
+const deleteFromFirebase = async (filePath) => {
+  if (!filePath) return;
+  const fileRef = ref(storage, filePath);
+  try {
+    await deleteObject(fileRef);
+    console.log(`Deleted file from Firebase: ${filePath}`);
   } catch (err) {
-    console.error(`Failed to save file: ${filePath}`, err);
-    throw err;
+    console.warn(`Failed to delete file from Firebase: ${filePath}`);
   }
 };
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb",
+      sizeLimit: "50mb",
     },
   },
 };
@@ -56,7 +84,7 @@ export default async function handler(req, res) {
                 const imageFileName = `${Date.now()}-${Math.random()
                   .toString(36)
                   .substr(2, 9)}.png`;
-                return await saveFileToPublic(
+                return await uploadToFirebase(
                   image,
                   imageFileName,
                   "four_pics_advanced/images"
@@ -118,6 +146,27 @@ export default async function handler(req, res) {
   } else if (req.method === "DELETE") {
     const { game_id } = req.query;
     try {
+      // Get all images associated with the game before deleting
+      const cardsResults = await query({
+        query: `
+          SELECT image1, image2, image3, image4 
+          FROM four_pics_advanced 
+          JOIN four_pics_advanced_sets ON four_pics_advanced.four_pics_advanced_set_id = four_pics_advanced_sets.four_pics_advanced_set_id 
+          WHERE four_pics_advanced_sets.game_id = ?
+        `,
+        values: [game_id],
+      });
+
+      // Delete images from Firebase
+      for (const card of cardsResults) {
+        for (let i = 1; i <= 4; i++) {
+          const image = card[`image${i}`];
+          if (image && image.includes("firebase")) {
+            await deleteFromFirebase(image);
+          }
+        }
+      }
+
       const deleteResults = await query({
         query: `DELETE FROM games WHERE game_id = ?`,
         values: [game_id],
@@ -155,10 +204,18 @@ export default async function handler(req, res) {
             (newImage.startsWith("data:image") || newImage.startsWith("http"))
           ) {
             if (newImage.startsWith("data:image")) {
+              // Delete old image from Firebase if it exists
+              if (
+                currentCard[imageKey] &&
+                currentCard[imageKey].includes("firebase")
+              ) {
+                await deleteFromFirebase(currentCard[imageKey]);
+              }
+
               const imageFileName = `${Date.now()}-${Math.random()
                 .toString(36)
                 .substr(2, 9)}.png`;
-              return await saveFileToPublic(
+              return await uploadToFirebase(
                 newImage,
                 imageFileName,
                 "four_pics_advanced/images"

@@ -1,33 +1,60 @@
 import { query } from "@/lib/db";
-import fs from "fs";
-import path from "path";
+import { storage } from "@/lib/firebaseConfig";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb", // Increase the size limit to 10MB
+      sizeLimit: "10mb",
     },
   },
 };
 
-const saveFileToPublic = async (base64String, fileName, folder) => {
+const uploadToFirebase = async (base64String, fileName, folder) => {
   const dataUriRegex =
     /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav));base64,/;
-  const match = base64String.toString().match(dataUriRegex);
+  const match = base64String.match(dataUriRegex);
+  if (!match) throw new Error("Invalid Base64 data");
 
+  const mimeType = match[1];
   const base64Data = base64String.replace(dataUriRegex, "");
-  const filePath = path.join(process.cwd(), "public", folder, fileName);
+  const buffer = Buffer.from(base64Data, "base64");
+  const blob = new Blob([buffer], { type: mimeType });
+  const file = new File([blob], fileName, { type: mimeType });
 
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, base64Data, "base64", (err) => {
-      if (err) {
-        console.error(`Failed to save file: ${filePath}`, err);
-        reject(err);
-      } else {
-        console.log(`Saved file: ${filePath}`);
-        resolve(`/${folder}/${fileName}`);
-      }
+  const storageRef = ref(storage, `public/${folder}/${fileName}`);
+
+  try {
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: file.type,
+      customMetadata: {
+        maxSizeBytes: "10485760",
+      },
     });
-  });
+
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log(`File uploaded to Firebase: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    throw new Error("Error uploading file");
+  }
+};
+
+const deleteFromFirebase = async (filePath) => {
+  if (!filePath) return;
+  const fileRef = ref(storage, filePath);
+  try {
+    await deleteObject(fileRef);
+    console.log(`Deleted file from Firebase: ${filePath}`);
+  } catch (err) {
+    console.warn(`Failed to delete file from Firebase: ${filePath}`);
+  }
 };
 
 export default async function handler(req, res) {
@@ -36,6 +63,26 @@ export default async function handler(req, res) {
     console.log("Flashcard ID:", flashcard_id);
 
     try {
+      // Get the flashcard data before deleting to get file URLs
+      const [flashcard] = await query({
+        query: "SELECT image, audio FROM flashcards WHERE flashcard_id = ?",
+        values: [flashcard_id],
+      });
+
+      if (flashcard) {
+        // Delete files from Firebase if they exist
+        if (flashcard.image) {
+          await deleteFromFirebase(
+            `public/flashcards/images/${path.basename(flashcard.image)}`
+          );
+        }
+        if (flashcard.audio) {
+          await deleteFromFirebase(
+            `public/flashcards/audio/${path.basename(flashcard.audio)}`
+          );
+        }
+      }
+
       const flashcardResults = await query({
         query: "DELETE FROM flashcards WHERE flashcard_id = ?",
         values: [flashcard_id],
@@ -62,41 +109,41 @@ export default async function handler(req, res) {
 
     try {
       for (const flashcard of flashcards) {
-        let imageFileName = null;
-        let audioFileName = null;
+        let imageUrl = null;
+        let audioUrl = null;
 
         if (flashcard.image) {
           if (flashcard.image.startsWith("data:image")) {
-            imageFileName = `${Date.now()}-${Math.random()
+            const imageFileName = `${Date.now()}-${Math.random()
               .toString(36)
               .substr(2, 9)}.png`;
-            flashcard.image = await saveFileToPublic(
+            imageUrl = await uploadToFirebase(
               flashcard.image,
               imageFileName,
               "flashcards/images"
             );
-            console.log(`Image URI: ${flashcard.image}`);
+            console.log(`Image URL: ${imageUrl}`);
           } else if (
             flashcard.image.startsWith("http://") ||
             flashcard.image.startsWith("https://")
           ) {
-            // Accept image URL directly
-            console.log(`Image URL: ${flashcard.image}`);
+            imageUrl = flashcard.image;
+            console.log(`Using existing image URL: ${imageUrl}`);
           } else {
             throw new Error("Invalid image format");
           }
         }
 
         if (flashcard.audio) {
-          audioFileName = `${Date.now()}-${Math.random()
+          const audioFileName = `${Date.now()}-${Math.random()
             .toString(36)
             .substr(2, 9)}.mp3`;
-          flashcard.audio = await saveFileToPublic(
+          audioUrl = await uploadToFirebase(
             flashcard.audio,
             audioFileName,
             "flashcards/audio"
           );
-          console.log(`Audio URI: ${flashcard.audio}`);
+          console.log(`Audio URL: ${audioUrl}`);
         }
 
         const flashcardResults = await query({
@@ -106,8 +153,8 @@ export default async function handler(req, res) {
             flashcard.flashcard_set_id,
             flashcard.term,
             flashcard.description,
-            flashcard.image,
-            flashcard.audio,
+            imageUrl,
+            audioUrl,
           ],
         });
 

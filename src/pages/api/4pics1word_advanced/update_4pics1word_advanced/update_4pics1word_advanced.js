@@ -1,32 +1,57 @@
 import { query } from "@/lib/db";
-import fs from "fs";
-import path from "path";
+import { storage } from "@/lib/firebaseConfig";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 
-const saveFileToPublic = async (base64String, fileName, folder) => {
-  const dataUriRegex =
-    /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav));base64,/;
-  const match = base64String.toString().match(dataUriRegex);
+const uploadToFirebase = async (base64String, fileName, folder) => {
+  const dataUriRegex = /^data:(image\/(?:png|jpg|jpeg|gif));base64,/;
+  const match = base64String.match(dataUriRegex);
+  if (!match) throw new Error("Invalid Base64 image data");
 
+  const mimeType = match[1];
   const base64Data = base64String.replace(dataUriRegex, "");
-  const filePath = path.join(process.cwd(), "public", folder, fileName);
+  const buffer = Buffer.from(base64Data, "base64");
+  const blob = new Blob([buffer], { type: mimeType });
+  const file = new File([blob], fileName, { type: mimeType });
 
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, base64Data, "base64", (err) => {
-      if (err) {
-        console.error(`Failed to save file: ${filePath}`, err);
-        reject(err);
-      } else {
-        console.log(`Saved file: ${filePath}`);
-        resolve(`/${folder}/${fileName}`);
-      }
+  const storageRef = ref(storage, `public/${folder}/${fileName}`);
+
+  try {
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: file.type,
+      customMetadata: {
+        maxSizeBytes: "52428800", // 50MB in bytes
+      },
     });
-  });
+
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log(`File uploaded to Firebase: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    throw new Error("Error uploading file");
+  }
+};
+
+const deleteFromFirebase = async (filePath) => {
+  if (!filePath) return;
+  const fileRef = ref(storage, filePath);
+  try {
+    await deleteObject(fileRef);
+    console.log(`Deleted file from Firebase: ${filePath}`);
+  } catch (err) {
+    console.warn(`Failed to delete file from Firebase: ${filePath}`);
+  }
 };
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb", // Increase the size limit to 10MB
+      sizeLimit: "50mb",
     },
   },
 };
@@ -52,16 +77,16 @@ export default async function handler(req, res) {
               // If the image is a URL, use it directly
               imageFileNames.push(image);
             } else {
-              // If the image is a base64 string, save it to public folder
+              // If the image is a base64 string, upload it to Firebase
               const imageFileName = `${Date.now()}-${Math.random()
                 .toString(36)
                 .substr(2, 9)}.png`;
-              const savedImagePath = await saveFileToPublic(
+              const uploadedImageUrl = await uploadToFirebase(
                 image,
                 imageFileName,
                 "four_pics_advanced/images"
               );
-              imageFileNames.push(savedImagePath);
+              imageFileNames.push(uploadedImageUrl);
             }
           } else {
             imageFileNames.push(null);
@@ -95,6 +120,24 @@ export default async function handler(req, res) {
     const { four_pics_advanced_id } = req.query;
     console.log("four_pics_advanced_id", four_pics_advanced_id);
     try {
+      // Get the card data to delete images from Firebase
+      const cardResult = await query({
+        query:
+          "SELECT image1, image2, image3, image4 FROM four_pics_advanced WHERE four_pics_advanced_id = ?",
+        values: [four_pics_advanced_id],
+      });
+
+      if (cardResult.length > 0) {
+        const card = cardResult[0];
+        // Delete images from Firebase
+        for (let i = 1; i <= 4; i++) {
+          const imageUrl = card[`image${i}`];
+          if (imageUrl && imageUrl.includes("firebase")) {
+            await deleteFromFirebase(imageUrl);
+          }
+        }
+      }
+
       const result = await query({
         query: "DELETE FROM four_pics_advanced WHERE four_pics_advanced_id = ?",
         values: [four_pics_advanced_id],

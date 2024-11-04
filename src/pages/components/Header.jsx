@@ -359,37 +359,43 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
         : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
 
-    try {
-      const updateData = {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          account_id: session.user.id,
-          first_name: firstName,
-          last_name: lastName,
-          age: age,
-          gender: gender,
-          bday: bday,
-          region: finalRegion,
-          province: finalProvince,
-          municipality: finalMunicipality,
-          barangay: finalBarangay,
-        }),
-      };
+    const updateData = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        account_id: session.user.id,
+        first_name: firstName,
+        last_name: lastName,
+        age: age,
+        gender: gender,
+        bday: bday,
+        region: finalRegion,
+        province: finalProvince,
+        municipality: finalMunicipality,
+        barangay: finalBarangay,
+      }),
+    };
 
-      const response = await fetch(apiEndpoint, updateData);
-      const text = await response.text();
-      const data = JSON.parse(text);
-      setUserData(data);
-      getUserData();
-      setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
-    } catch (error) {
-      console.error("Error updating user data:", error);
-    }
-
-    setIsEditing(false);
+    toast.promise(
+      fetch(apiEndpoint, updateData).then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const text = await response.text();
+        const data = JSON.parse(text);
+        setUserData(data);
+        await getUserData();
+        setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
+        setIsEditing(false);
+      }),
+      {
+        loading: "Updating profile...",
+        success: "Profile updated successfully!",
+        error: "Failed to update profile",
+      }
+    );
   };
 
   const editProfilePicture = () => {
@@ -403,7 +409,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const handleProfilePicture = async (e) => {
     e.preventDefault();
     if (!isImageChanged) {
-      alert("Please select an image before saving.");
+      toast.error("Please select an image before saving.");
       return;
     }
     const apiEndpoint =
@@ -411,30 +417,36 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         ? `/api/accounts_student/profile_picture?account_id=${session.user.id}`
         : `/api/accounts_teacher/profile_picture?account_id=${session.user.id}`;
 
-    try {
-      const updateProfilePicture = {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          account_id: session.user.id,
-          profile_image: profileImage,
+    const updateProfilePicture = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        account_id: session.user.id,
+        profile_image: profileImage,
+      }),
+    };
+
+    toast.promise(
+      fetch(apiEndpoint, updateProfilePicture)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(async (data) => {
+          setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
+          await getUserData();
+          setProfilePictureEditing(false);
         }),
-      };
-
-      const response = await fetch(apiEndpoint, updateProfilePicture);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      {
+        loading: "Updating profile picture...",
+        success: "Profile picture updated successfully!",
+        error: "Failed to update profile picture",
       }
-
-      const data = await response.json();
-      setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
-      await getUserData();
-      setProfilePictureEditing(false);
-    } catch (error) {
-      console.error("Error updating profile picture:", error);
-    }
+    );
   };
 
   const handleLocationSaveClick = async (e) => {
@@ -445,7 +457,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       !selectedMunicipality ||
       !selectedBarangay
     ) {
-      alert("Please select all location fields before saving.");
+      toast.error("Please select all location fields before saving.");
       return;
     }
     const apiEndpoint =
@@ -453,34 +465,44 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
         : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
 
-    try {
-      const updateData = {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          account_id: session.user.id,
-          first_name: firstName,
-          last_name: lastName,
-          age: age,
-          gender: gender,
-          bday: bday,
-          region: selectedRegionText,
-          province: selectedProvinceText,
-          municipality: selectedMunicipalityText,
-          barangay: selectedBarangayText,
+    const updateData = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        account_id: session.user.id,
+        first_name: firstName,
+        last_name: lastName,
+        age: age,
+        gender: gender,
+        bday: bday,
+        region: selectedRegionText,
+        province: selectedProvinceText,
+        municipality: selectedMunicipalityText,
+        barangay: selectedBarangayText,
+      }),
+    };
+
+    toast.promise(
+      fetch(apiEndpoint, updateData)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(() => {
+          setIsLocationEditing(false);
+          getUserData();
+          setIsEditing(false);
         }),
-      };
-
-      await fetch(apiEndpoint, updateData);
-      setIsLocationEditing(false);
-      getUserData();
-    } catch (error) {
-      console.error("Error updating user data:", error);
-    }
-
-    setIsEditing(false);
+      {
+        loading: "Updating location...",
+        success: "Location updated successfully!",
+        error: "Failed to update location",
+      }
+    );
   };
 
   const handleCancelClick = () => {

@@ -1,38 +1,60 @@
 import { query } from "@/lib/db";
-import fs from "fs";
-import path from "path";
+import { storage } from "@/lib/firebaseConfig";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb",
+      sizeLimit: "50mb",
     },
   },
 };
-const saveFileToPublic = async (base64String, fileName, folder) => {
-  console.log("im reached");
+
+const uploadToFirebase = async (base64String, fileName, folder) => {
   const dataUriRegex =
     /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav));base64,/;
-  const match = base64String.toString().match(dataUriRegex);
+  const match = base64String.match(dataUriRegex);
+  if (!match) throw new Error("Invalid Base64 data");
 
-  if (!match) {
-    throw new Error("Invalid base64 string format");
-  }
-
+  const mimeType = match[1];
   const base64Data = base64String.replace(dataUriRegex, "");
-  const filePath = path.join(process.cwd(), "public", folder, fileName);
+  const buffer = Buffer.from(base64Data, "base64");
+  const blob = new Blob([buffer], { type: mimeType });
+  const file = new File([blob], fileName, { type: mimeType });
 
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, base64Data, "base64", (err) => {
-      if (err) {
-        console.error(`Failed to save file: ${filePath}`, err);
-        reject(err);
-      } else {
-        console.log(`Saved file: ${filePath}`);
-        resolve(`/${folder}/${fileName}`);
-      }
+  const storageRef = ref(storage, `public/${folder}/${fileName}`);
+
+  try {
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: file.type,
+      customMetadata: {
+        maxSizeBytes: "52428800", // 50MB in bytes
+      },
     });
-  });
+
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log(`File uploaded to Firebase: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    throw new Error("Error uploading file");
+  }
+};
+
+const deleteFromFirebase = async (filePath) => {
+  if (!filePath) return;
+  const fileRef = ref(storage, filePath);
+  try {
+    await deleteObject(fileRef);
+    console.log(`Deleted file from Firebase: ${filePath}`);
+  } catch (err) {
+    console.warn(`Failed to delete file from Firebase: ${filePath}`);
+  }
 };
 
 export default async function handler(req, res) {
@@ -54,13 +76,13 @@ export default async function handler(req, res) {
             const imageFileName = `${Date.now()}-${Math.random()
               .toString(36)
               .substr(2, 9)}.png`;
-            imageToSave = await saveFileToPublic(
+            imageToSave = await uploadToFirebase(
               card.imageBlob,
               imageFileName,
               "decision_maker/images"
             );
           }
-          console.log(`Image saved: ${imageToSave}`);
+          console.log(`Image uploaded: ${imageToSave}`);
         } else if (card.imageUrl) {
           imageToSave = card.imageUrl;
           console.log(`Using image URL: ${imageToSave}`);
@@ -95,6 +117,16 @@ export default async function handler(req, res) {
 
       if (!decisionMakerSetResult.length) {
         throw new Error("Decision maker set not found");
+      }
+
+      // Get current card data to delete files
+      const currentCard = await query({
+        query: "SELECT image FROM decision_maker WHERE decision_maker_id = ?",
+        values: [decision_maker_id],
+      });
+
+      if (currentCard[0].image && currentCard[0].image.includes("firebase")) {
+        await deleteFromFirebase(currentCard[0].image);
       }
 
       const decision_maker_set_id =

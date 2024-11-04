@@ -28,6 +28,7 @@
     "crypto": "^1.0.1",
     "cx": "^24.9.3",
     "embla-carousel-react": "^8.3.0",
+    "firebase": "^11.0.1",
     "formidable": "^3.5.1",
     "framer-motion": "^11.3.21",
     "fullpage.js": "^4.0.29",

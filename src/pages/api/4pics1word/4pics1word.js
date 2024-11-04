@@ -1,29 +1,57 @@
 import { query } from "@/lib/db";
-import fs from "fs/promises";
-import path from "path";
+import { storage } from "@/lib/firebaseConfig";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 
-const saveFileToPublic = async (base64String, fileName, folder) => {
+const uploadToFirebase = async (base64String, fileName, folder) => {
   const dataUriRegex = /^data:(image\/(?:png|jpg|jpeg|gif));base64,/;
   const match = base64String.match(dataUriRegex);
   if (!match) throw new Error("Invalid Base64 image data");
 
+  const mimeType = match[1];
   const base64Data = base64String.replace(dataUriRegex, "");
-  const filePath = path.join(process.cwd(), "public", folder, fileName);
+  const buffer = Buffer.from(base64Data, "base64");
+  const blob = new Blob([buffer], { type: mimeType });
+  const file = new File([blob], fileName, { type: mimeType });
+
+  const storageRef = ref(storage, `public/${folder}/${fileName}`);
 
   try {
-    await fs.writeFile(filePath, base64Data, "base64");
-    console.log(`Saved file: ${filePath}`);
-    return `/${folder}/${fileName}`;
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: file.type,
+      customMetadata: {
+        maxSizeBytes: "52428800", // 50MB in bytes
+      },
+    });
+
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log(`File uploaded to Firebase: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    throw new Error("Error uploading file");
+  }
+};
+
+const deleteFromFirebase = async (filePath) => {
+  if (!filePath) return;
+  const fileRef = ref(storage, filePath);
+  try {
+    await deleteObject(fileRef);
+    console.log(`Deleted file from Firebase: ${filePath}`);
   } catch (err) {
-    console.error(`Failed to save file: ${filePath}`, err);
-    throw err;
+    console.warn(`Failed to delete file from Firebase: ${filePath}`);
   }
 };
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb", // Increase the size limit to 10MB
+      sizeLimit: "50mb",
     },
   },
 };
@@ -53,13 +81,13 @@ const handlePost = async (req, res) => {
               const imageFileName = `${Date.now()}-${Math.random()
                 .toString(36)
                 .substr(2, 9)}.png`;
-              return await saveFileToPublic(
+              return await uploadToFirebase(
                 image,
                 imageFileName,
                 "four_pics_one_word/images"
               );
             } else {
-              return image; // If image is a URL, return it directly
+              return image;
             }
           }
           return null;
@@ -128,6 +156,31 @@ const handleGet = async (req, res) => {
 const handleDelete = async (req, res) => {
   const { game_id } = req.query;
   try {
+    // Get image URLs before deleting
+    const imageResults = await query({
+      query: `
+        SELECT image1, image2, image3, image4 
+        FROM four_pics_one_word 
+        JOIN four_pics_one_word_sets ON four_pics_one_word.four_pics_one_word_set_id = four_pics_one_word_sets.four_pics_one_word_set_id 
+        WHERE four_pics_one_word_sets.game_id = ?`,
+      values: [game_id],
+    });
+
+    // Delete images from Firebase
+    for (const result of imageResults) {
+      const images = [
+        result.image1,
+        result.image2,
+        result.image3,
+        result.image4,
+      ];
+      for (const imageUrl of images) {
+        if (imageUrl && imageUrl.includes("firebase")) {
+          await deleteFromFirebase(imageUrl);
+        }
+      }
+    }
+
     const deleteResults = await query({
       query: `DELETE FROM games WHERE game_id = ?`,
       values: [game_id],
@@ -166,7 +219,14 @@ const handlePut = async (req, res) => {
           const imageFileName = `${Date.now()}-${Math.random()
             .toString(36)
             .substr(2, 9)}.png`;
-          return await saveFileToPublic(
+
+          // Delete old image from Firebase if it exists
+          const oldImage = currentCard[`image${i + 1}`];
+          if (oldImage && oldImage.includes("firebase")) {
+            await deleteFromFirebase(oldImage);
+          }
+
+          return await uploadToFirebase(
             newImage,
             imageFileName,
             "four_pics_one_word/images"

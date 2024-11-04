@@ -1,38 +1,60 @@
 import { query } from "@/lib/db";
-import fs from "fs";
-import path from "path";
+import { storage } from "@/lib/firebaseConfig";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb", // Increase the size limit to 10MB
+      sizeLimit: "50mb",
     },
   },
 };
 
-const saveFileToPublic = async (base64String, fileName, folder) => {
+const uploadToFirebase = async (base64String, fileName, folder) => {
   const dataUriRegex =
     /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav));base64,/;
-  const match = base64String.toString().match(dataUriRegex);
+  const match = base64String.match(dataUriRegex);
+  if (!match) throw new Error("Invalid Base64 data");
 
-  if (!match) {
-    throw new Error("Invalid base64 string");
-  }
-
+  const mimeType = match[1];
   const base64Data = base64String.replace(dataUriRegex, "");
-  const filePath = path.join(process.cwd(), "public", folder, fileName);
+  const buffer = Buffer.from(base64Data, "base64");
+  const blob = new Blob([buffer], { type: mimeType });
+  const file = new File([blob], fileName, { type: mimeType });
 
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, base64Data, "base64", (err) => {
-      if (err) {
-        console.error(`Failed to save file: ${filePath}`, err);
-        reject(err);
-      } else {
-        console.log(`Saved file: ${filePath}`);
-        resolve(`/${folder}/${fileName}`);
-      }
+  const storageRef = ref(storage, `public/${folder}/${fileName}`);
+
+  try {
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: file.type,
+      customMetadata: {
+        maxSizeBytes: "52428800", // 50MB in bytes
+      },
     });
-  });
+
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log(`File uploaded to Firebase: ${downloadURL}`);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    throw new Error("Error uploading file");
+  }
+};
+
+const deleteFromFirebase = async (filePath) => {
+  if (!filePath) return;
+  const fileRef = ref(storage, filePath);
+  try {
+    await deleteObject(fileRef);
+    console.log(`Deleted file from Firebase: ${filePath}`);
+  } catch (err) {
+    console.warn(`Failed to delete file from Firebase: ${filePath}`);
+  }
 };
 
 const handlePostRequest = async (req, res) => {
@@ -47,42 +69,49 @@ const handlePostRequest = async (req, res) => {
     });
     const gameId = gameResult.insertId;
 
+    let videoUrl = video;
+    if (video && video.startsWith("data:")) {
+      const videoFileName = `${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 9)}.mp4`;
+      videoUrl = await uploadToFirebase(
+        video,
+        videoFileName,
+        "sequence_game/videos"
+      );
+    }
+
     const groupResult = await query({
       query: `INSERT INTO sequence_game_sets (title, room_code, account_id, game_id, created_at, video) VALUES (?, ?, ?, ?, NOW(), ?)`,
-      values: [title, room_code, account_id, gameId, video],
+      values: [title, room_code, account_id, gameId, videoUrl],
     });
 
     const groupId = groupResult.insertId;
 
     const sequencePromises = sequence.map(async (sequence) => {
-      let imageFileName = null;
-      let audioFileName = null;
+      let imageUrl = sequence.image;
+      let audioUrl = sequence.audio;
 
       if (sequence.image) {
         if (sequence.image.startsWith("data:image")) {
-          imageFileName = `${Date.now()}-${Math.random()
+          const imageFileName = `${Date.now()}-${Math.random()
             .toString(36)
             .substr(2, 9)}.png`;
-          sequence.image = await saveFileToPublic(
+          imageUrl = await uploadToFirebase(
             sequence.image,
             imageFileName,
             "sequence_game/images"
           );
-        } else if (
-          sequence.image.startsWith("http://") ||
-          sequence.image.startsWith("https://")
-        ) {
-          console.log(`Image URL: ${sequence.image}`);
-        } else {
+        } else if (!sequence.image.startsWith("http")) {
           throw new Error("Invalid image format");
         }
       }
 
       if (sequence.audio) {
-        audioFileName = `${Date.now()}-${Math.random()
+        const audioFileName = `${Date.now()}-${Math.random()
           .toString(36)
           .substr(2, 9)}.mp3`;
-        sequence.audio = await saveFileToPublic(
+        audioUrl = await uploadToFirebase(
           sequence.audio,
           audioFileName,
           "sequence_game/audio"
@@ -91,7 +120,7 @@ const handlePostRequest = async (req, res) => {
 
       return query({
         query: `INSERT INTO sequence_game (sequence_game_set_id, step, image, audio) VALUES (?, ?, ?, ?)`,
-        values: [groupId, sequence.step, sequence.image, sequence.audio],
+        values: [groupId, sequence.step, imageUrl, audioUrl],
       });
     });
 
@@ -158,45 +187,51 @@ const handlePutRequest = async (req, res) => {
 
     const currentSequence = currentSequenceResults[0];
 
+    let imageUrl = sequence.image;
     if (sequence.image && sequence.image !== currentSequence.image) {
       if (sequence.image.startsWith("data:image")) {
         const imageFileName = `${Date.now()}-${Math.random()
           .toString(36)
           .substr(2, 9)}.png`;
-        sequence.image = await saveFileToPublic(
+        // Delete old image if it exists in Firebase
+        if (
+          currentSequence.image &&
+          currentSequence.image.includes("firebase")
+        ) {
+          await deleteFromFirebase(currentSequence.image);
+        }
+        imageUrl = await uploadToFirebase(
           sequence.image,
           imageFileName,
           "sequence_game/images"
         );
-      } else if (
-        sequence.image.startsWith("http://") ||
-        sequence.image.startsWith("https://")
-      ) {
-        console.log(`Image URL accepted: ${sequence.image}`);
-      } else {
-        sequence.image = currentSequence.image;
+      } else if (!sequence.image.startsWith("http")) {
+        imageUrl = currentSequence.image;
       }
-    } else {
-      sequence.image = currentSequence.image;
     }
 
+    let audioUrl = sequence.audio;
     if (sequence.audio && sequence.audio !== currentSequence.audio) {
       const audioFileName = `${Date.now()}-${Math.random()
         .toString(36)
         .substr(2, 9)}.mp3`;
-      sequence.audio = await saveFileToPublic(
+      // Delete old audio if it exists in Firebase
+      if (currentSequence.audio && currentSequence.audio.includes("firebase")) {
+        await deleteFromFirebase(currentSequence.audio);
+      }
+      audioUrl = await uploadToFirebase(
         sequence.audio,
         audioFileName,
         "sequence_game/audio"
       );
     } else {
-      sequence.audio = currentSequence.audio;
+      audioUrl = currentSequence.audio;
     }
 
     await query({
       query:
         "UPDATE sequence_game SET step = ?, image = ?, audio = ? WHERE sequence_game_id = ?",
-      values: [sequence.step, sequence.image, sequence.audio, sequence_id],
+      values: [sequence.step, imageUrl, audioUrl, sequence_id],
     });
 
     await query({
@@ -204,11 +239,23 @@ const handlePutRequest = async (req, res) => {
       values: [title, difficulty, game_id],
     });
 
+    let videoUrl = video;
+    if (video && video.startsWith("data:")) {
+      const videoFileName = `${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 9)}.mp4`;
+      videoUrl = await uploadToFirebase(
+        video,
+        videoFileName,
+        "sequence_game/videos"
+      );
+    }
+
     const sequenceGameSetId = currentSequence.sequence_game_set_id;
     await query({
       query:
         "UPDATE sequence_game_sets SET video = ? WHERE sequence_game_sets_id = ?",
-      values: [video, sequenceGameSetId],
+      values: [videoUrl, sequenceGameSetId],
     });
 
     res.status(200).json({ message: "Sequence updated successfully" });
@@ -222,12 +269,36 @@ const handleDeleteRequest = async (req, res) => {
   const { game_id } = req.query;
 
   try {
-    const flashcardResults = await query({
+    // Get all sequences to delete their assets from Firebase
+    const sequences = await query({
+      query: `
+        SELECT s.image, s.audio, ss.video 
+        FROM sequence_game s
+        JOIN sequence_game_sets ss ON s.sequence_game_set_id = ss.sequence_game_sets_id
+        WHERE ss.game_id = ?
+      `,
+      values: [game_id],
+    });
+
+    // Delete all assets from Firebase
+    for (const sequence of sequences) {
+      if (sequence.image && sequence.image.includes("firebase")) {
+        await deleteFromFirebase(sequence.image);
+      }
+      if (sequence.audio && sequence.audio.includes("firebase")) {
+        await deleteFromFirebase(sequence.audio);
+      }
+      if (sequence.video && sequence.video.includes("firebase")) {
+        await deleteFromFirebase(sequence.video);
+      }
+    }
+
+    const deleteResult = await query({
       query: "DELETE FROM games WHERE game_id = ?",
       values: [game_id],
     });
 
-    if (flashcardResults.affectedRows > 0) {
+    if (deleteResult.affectedRows > 0) {
       res.status(200).json({ message: "Sequence deleted successfully" });
     } else {
       res.status(404).json({ error: "Sequence not found" });
