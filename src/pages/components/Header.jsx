@@ -574,7 +574,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                     className="transition-transform cursor-pointer"
                     color="secondary"
                     size="md"
-                    src={profileImage}
+                    src={profileImage || session.user.image}
                     aria-label="Open Profile Menu"
                   />
                 </div>
@@ -598,7 +598,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                   >
                     <div className="flex justify-center w-full">
                       <Avatar
-                        src={profileImage}
+                        src={profileImage || session.user.image}
                         className="w-[100px] h-[100px] text-large"
                         aria-label="Profile Picture"
                       />
@@ -700,7 +700,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           <CardHeader>
                             <div className="flex gap-5">
                               <Avatar
-                                src={profileImage}
+                                src={profileImage || session.user.image}
                                 alt="User Profile"
                                 className="w-[70px] h-[70px] text-large"
                               />
@@ -823,7 +823,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           <div className="flex flex-col gap-5">
                             <div className="flex flex-row items-center gap-3">
                               <Avatar
-                                src={profileImage}
+                                src={profileImage || session.user.image}
                                 alt="User Profile"
                                 className="w-[70px] h-[70px] text-large"
                               />
