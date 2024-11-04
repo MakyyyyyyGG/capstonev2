@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { Button, Chip, user } from "@nextui-org/react";
+import { Button, Avatar } from "@nextui-org/react";
 import { Menu, X, Settings, LogOut } from "lucide-react";
 import {
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Link,
   Input,
   Select,
   SelectItem,
@@ -16,7 +15,6 @@ import {
   DropdownTrigger,
   Dropdown,
   DropdownMenu,
-  Avatar,
 } from "@nextui-org/react";
 import {
   Modal,
@@ -37,7 +35,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const router = useRouter();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isFollowed, setIsFollowed] = React.useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleOpenModal = () => {
@@ -55,13 +52,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [bday, setBday] = useState("");
-  const [location, setLocation] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [region, setRegion] = useState("");
-  const [province, setProvince] = useState("");
-  const [municipality, setMunicipality] = useState("");
-  const [barangay, setBarangay] = useState("");
   const [profileImage, setProfileImage] = useState("");
   const [profilePictureEditing, setProfilePictureEditing] = useState(false);
   const [isImageChanged, setIsImageChanged] = useState(false);
@@ -69,13 +61,11 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const [customBarangays, setCustomBarangays] = useState([]);
   const [regions, setRegions] = useState([]);
   const [provinces, setProvinces] = useState([]);
-  const [cities, setCities] = useState([]);
   const [municipalities, setMunicipalities] = useState([]);
   const [barangays, setBarangays] = useState([]);
 
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
   const [selectedMunicipality, setSelectedMunicipality] = useState("");
   const [selectedBarangay, setSelectedBarangay] = useState("");
   const [userData, setUserData] = useState(null);
@@ -89,24 +79,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     fetchRegions();
   }, []);
 
-  // useEffect(() => {
-  //   console.log(gender, bday, region, province, municipality, barangay);
-  // }, [gender, bday, region, province, municipality, barangay]);
-
-  // Function to fetch rooms
-  const [rooms, setRooms] = useState([]);
-  // const fetchRooms = async () => {
-  //   if (session?.user?.id) {
-  //     const res = await fetch(
-  //       `/api/accounts_teacher/room/create_room?account_id=${session.user.id}`
-  //     );
-  //     const data = await res.json();
-  //     setRooms(data.roomsData);
-  //   }
-  // };
-  // useEffect(() => {
-  //   fetchRooms();
-  // }, [session?.user?.id]);
   const checkPasswordsMatch = () => {
     if (newPassword === confirmNewPassword) {
       return true;
@@ -115,6 +87,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       return false;
     }
   };
+
   const handleResetPassword = async () => {
     if (!checkPasswordsMatch()) {
       return;
@@ -129,7 +102,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       })
         .then((res) => {
           if (res.status === 400) {
-            return res.json().then((data) => {
+            return res.json().then(() => {
               throw new Error("Failed to reset password.");
             });
           }
@@ -169,12 +142,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       const data = await response.json();
       const sortedProvinces = data.sort((a, b) => a.name.localeCompare(b.name));
       setProvinces(sortedProvinces);
-      setCities([]);
-      setMunicipalities([]);
       setBarangays([]);
       setSelectedProvince("");
-      setSelectedCity("");
-      setSelectedMunicipality("");
       setSelectedBarangay("");
     } catch (error) {
       console.error("Error fetching provinces:", error);
@@ -187,28 +156,11 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      setProfileImage(reader.result); // Base64 string
+      setProfileImage(reader.result);
     };
-    // console.log(profileImage);
 
     if (file) {
-      reader.readAsDataURL(file); // Convert to Base64
-    }
-  };
-
-  const fetchCities = async (provinceCode) => {
-    try {
-      const response = await fetch(
-        `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities`
-      );
-      const data = await response.json();
-      const sortedCities = data.sort((a, b) => a.name.localeCompare(b.name));
-      setCities(sortedCities);
-      setBarangays([]);
-      setSelectedCity("");
-      setSelectedBarangay("");
-    } catch (error) {
-      console.error("Error fetching cities:", error);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -265,7 +217,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
 
     setSelectedProvinceText(selectedText);
     setSelectedProvince(selectedValue);
-    fetchCities(selectedValue);
     fetchMunicipalities(selectedValue);
   };
 
@@ -278,10 +229,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
 
     setSelectedMunicipalityText(selectedText);
     setSelectedMunicipality(selectedValue);
-    fetchBarangays(selectedValue);
-    console.log(selectedValue);
 
-    if (selectedValue == "Legazpi") {
+    if (selectedValue === "Legazpi") {
       setSelectedMunicipalityText("Legazpi");
       const barangays = [
         "Barangay 67 - Bariis",
@@ -365,9 +314,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
 
   const handleBarangayChange = (e) => {
     const selectedValue = e.target.value;
-    if (selectedMunicipality == "Legazpi") {
+    if (selectedMunicipality === "Legazpi") {
       const customBarangay = customBarangays[selectedValue];
-      console.log(customBarangay);
       setSelectedBarangayText(customBarangay);
       setSelectedBarangay(e.target.value);
       return;
@@ -384,17 +332,17 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const handleUpdateClick = () => {
     setIsEditing(true);
   };
+
   const handleLocUpdateClick = () => {
     setIsLocationEditing(true);
   };
+
   const handleLocCancelClick = () => {
     setIsLocationEditing(false);
   };
+
   const handlePassUpdateClick = () => {
     setIsPasswordEditing(true);
-  };
-  const handlePassCancelClick = () => {
-    setIsPasswordEditing(false);
   };
 
   const handleSaveClick = async (e) => {
@@ -410,8 +358,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       session.user.role === "student"
         ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
         : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
-
-    console.log("apiEndpoint", apiEndpoint);
 
     try {
       const updateData = {
@@ -430,23 +376,14 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
           province: finalProvince,
           municipality: finalMunicipality,
           barangay: finalBarangay,
-          // profileImage: profileImage,
         }),
       };
-      console.log("body sent: ", updateData);
+
       const response = await fetch(apiEndpoint, updateData);
-
-      // Log the response
-      const text = await response.text(); // Get response as text
-      // console.log(text);
-
-      // Try to parse the JSON
+      const text = await response.text();
       const data = JSON.parse(text);
-      // console.log(data);
-      setUserData(data); // Update the userData state with the new data
-      getUserData(); // Re-fetch user data to reflect the updates
-
-      // Update profileImage to force refresh
+      setUserData(data);
+      getUserData();
       setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
     } catch (error) {
       console.error("Error updating user data:", error);
@@ -458,6 +395,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   const editProfilePicture = () => {
     setProfilePictureEditing(true);
   };
+
   const cancelProfilePicture = () => {
     setProfilePictureEditing(false);
   };
@@ -491,10 +429,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       }
 
       const data = await response.json();
-
-      // Ensure that the image URL in the response is used
       setProfileImage(`${data.profileImage}?${new Date().getTime()}`);
-      await getUserData(); // Re-fetch user data to reflect the updates
+      await getUserData();
       setProfilePictureEditing(false);
     } catch (error) {
       console.error("Error updating profile picture:", error);
@@ -517,7 +453,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
         : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
 
-    console.log("apiEndpoint", apiEndpoint);
     try {
       const updateData = {
         method: "PUT",
@@ -538,20 +473,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         }),
       };
 
-      const response = await fetch(apiEndpoint, updateData);
-
-      // Log the response
-      const text = await response.text(); // Get response as text
-      // console.log(text);
-
-      // Try to parse the JSON
-      // const data = JSON.parse(text);
-      // console.log(data);
-      console.log("User data updated successfully");
+      await fetch(apiEndpoint, updateData);
       setIsLocationEditing(false);
-      getUserData(); // Re-fetch user data to reflect the updates
-
-      // setUserData(data); // Update the userData state with the new data
+      getUserData();
     } catch (error) {
       console.error("Error updating user data:", error);
     }
@@ -567,7 +491,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
   };
 
   async function getUserData() {
-    console.log("fetching user data");
     const getData = {
       method: "GET",
       headers: {
@@ -582,7 +505,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     try {
       const response = await fetch(apiEndpoint, getData);
       const data = await response.json();
-      console.log("raw data", data);
       const user = data.usersData[0];
       if (user) {
         setFirstName(user.first_name || "");
@@ -590,17 +512,12 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         setAge(user.age || "");
         setGender(user.gender || "");
         setBday(user.bday || "");
-        setRegion(user.region || "");
-        setProvince(user.province || "");
-        setMunicipality(user.municipality || "");
-        setBarangay(user.barangay || "");
         setProfileImage(
           user.profile_image
             ? `${user.profile_image}?${new Date().getTime()}`
             : ""
         );
 
-        // Decrypt user password using sha256 crypto
         const decryptedPassword = crypto
           .createHash("sha256")
           .update(user.password)
@@ -608,7 +525,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         setCurrentPassword(decryptedPassword);
       }
       setUserData(user);
-      console.log("User data:", user);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -632,9 +548,14 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       <Navbar isBordered maxWidth={"full"}>
         <NavbarContent justify="start">
           <NavbarBrand className="mr-4">
-            <button onClick={toggleCollapse}>
+            <div
+              onClick={toggleCollapse}
+              role="button"
+              tabIndex={0}
+              aria-label={isCollapsed ? "Expand Menu" : "Collapse Menu"}
+            >
               {isCollapsed ? <Menu /> : <X />}
-            </button>
+            </div>
             <p className="ml-8 hidden sm:block font-bold text-inherit">LNK</p>
           </NavbarBrand>
         </NavbarContent>
@@ -647,14 +568,16 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
               placement="bottom-end"
             >
               <DropdownTrigger>
-                <Avatar
-                  isBordered
-                  as="button"
-                  className="transition-transform"
-                  color="secondary"
-                  size="md"
-                  src={profileImage}
-                />
+                <div>
+                  <Avatar
+                    isBordered
+                    className="transition-transform cursor-pointer"
+                    color="secondary"
+                    size="md"
+                    src={profileImage}
+                    aria-label="Open Profile Menu"
+                  />
+                </div>
               </DropdownTrigger>
               <DropdownMenu
                 aria-label="Profile Actions"
@@ -664,7 +587,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 <DropdownSection showDivider>
                   <DropdownItem
                     isReadOnly
-                    // key="profile"
                     className="h-14 gap-2 text-center cursor-default"
                   >
                     <p className="font-semibold">Signed in as</p>
@@ -672,19 +594,18 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                   </DropdownItem>
                   <DropdownItem
                     isReadOnly
-                    // key="profile"
                     className="h-30 gap-2 cursor-default flex justify-center"
                   >
                     <div className="flex justify-center w-full">
                       <Avatar
                         src={profileImage}
                         className="w-[100px] h-[100px] text-large"
+                        aria-label="Profile Picture"
                       />
                     </div>
                   </DropdownItem>
                   <DropdownItem
                     isReadOnly
-                    // key="profile"
                     className="h-30 gap-2 cursor-default"
                   >
                     <p className=" text-center text-2xl">Hi, {firstName}!</p>
@@ -703,6 +624,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                         size="md"
                         className="w-full text-sm"
                         startContent={<Settings size={20} />}
+                        aria-label="Manage Account"
                       >
                         Manage Account
                       </Button>
@@ -717,6 +639,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                             router.push("/")
                           )
                         }
+                        aria-label="Sign Out"
                       >
                         Signout
                       </Button>
@@ -745,6 +668,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
           footer: "border-t-[1px] border-gray",
           closeButton: "hover:bg-purple-700/5 active:bg-purple-700/10",
         }}
+        aria-label="Profile Details Modal"
       >
         <ModalContent>
           {(onClose) => (
@@ -763,6 +687,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                         radius="full"
                         className="px-4 sm:hidden"
                         onClick={handleUpdateClick}
+                        aria-label="Update Profile"
                       >
                         Update
                       </Button>
@@ -783,6 +708,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                 <Button
                                   onClick={editProfilePicture}
                                   className="bg-[#7469B6] text-white border-0"
+                                  aria-label="Update Profile Picture"
                                 >
                                   Update Picture
                                 </Button>
@@ -793,6 +719,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                         type="file"
                                         accept="image/*"
                                         onChange={handleImageChange}
+                                        aria-label="Choose Profile Picture"
                                       />
                                     </div>
                                     <div className="flex justify-end gap-3">
@@ -800,6 +727,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                         size="sm"
                                         onClick={cancelProfilePicture}
                                         color="default"
+                                        aria-label="Cancel Picture Update"
                                       >
                                         Cancel
                                       </Button>
@@ -807,6 +735,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                         size="sm"
                                         onClick={handleProfilePicture}
                                         className="bg-[#7469B6] text-white border-0"
+                                        aria-label="Save Profile Picture"
                                       >
                                         Save
                                       </Button>
@@ -856,19 +785,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                 <SelectItem key="Female">Female</SelectItem>
                                 <SelectItem key="Other">Other</SelectItem>
                               </Select>
-                              {/* <label>Choose a gender:</label>
-                              <select
-                                name="gender"
-                                id="gender"
-                                value={gender || ""}
-                                onChange={(e) => setGender(e.target.value)}
-                              >
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                              </select> */}
-                              <Input //DatePicker has some problems
+                              <Input
                                 className="col-span-2 max-sm:col-span-1"
                                 type="date"
                                 label="Enter Your Birth Date"
@@ -885,6 +802,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               variant="light"
                               size="sm"
                               onClick={handleCancelClick}
+                              aria-label="Cancel Profile Edit"
                             >
                               Cancel
                             </Button>
@@ -892,6 +810,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               className="bg-[#7469B6] text-white border-0"
                               size="sm"
                               onClick={handleSaveClick}
+                              aria-label="Save Profile Changes"
                             >
                               Save
                             </Button>
@@ -1109,19 +1028,19 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 <hr className="border-gray opacity-75" />
                 {/* forgot password */}
                 <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
-                  {/* <div className="col-span-1">
+                  <div className="col-span-1">
                     <div className="flex mt-4 justify-between">
                       <p>Security</p>
-                      <Button
+                      {/* <Button
                         size="sm"
                         radius="full"
                         className="px-4 bg-[#7469B6] text-white border-0 sm:hidden"
                         onClick={() => setIsPasswordEditing(true)}
                       >
                         Update
-                      </Button>
+                      </Button> */}
                     </div>
-                  </div> */}
+                  </div>
                   <div className="col-span-4 col-start-3 col-end-8 max-sm:col-span-1 max-sm:col-start-1">
                     {isPasswordEditing ? (
                       <>

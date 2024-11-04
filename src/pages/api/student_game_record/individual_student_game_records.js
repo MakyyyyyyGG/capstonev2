@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     const account_id = req.query.account_id;
     try {
       const result = await query({
-        query: `SELECT user_game_plays.score, user_game_plays.created_at, games.game_type, user_game_plays.account_id, user_game_plays.game_id,
+        query: `SELECT user_game_plays.score, user_game_plays.created_at, games.title, games.game_type, user_game_plays.account_id, user_game_plays.game_id,
                 CASE 
                   WHEN games.game_type = 'Color Game' THEN (SELECT COUNT(*) FROM color_game WHERE color_game_set_id = (SELECT color_game_set_id FROM color_game_sets WHERE game_id = user_game_plays.game_id))
                   WHEN games.game_type = 'Decision Maker' THEN (SELECT COUNT(*) FROM decision_maker WHERE decision_maker_set_id = (SELECT decision_maker_set_id FROM decision_maker_sets WHERE game_id = user_game_plays.game_id))
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
                 FROM user_game_plays
                 INNER JOIN games ON user_game_plays.game_id = games.game_id
                 WHERE user_game_plays.account_id = ? 
-                ORDER BY user_game_plays.created_at ASC`,
+                ORDER BY user_game_plays.created_at DESC`,
         values: [account_id],
       });
 

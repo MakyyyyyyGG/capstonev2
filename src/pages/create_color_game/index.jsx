@@ -31,7 +31,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 export async function getStaticProps() {
   const images = getImages();
-  console.log("images:", images);
+  // console.log("images:", images);
   return {
     props: {
       images,

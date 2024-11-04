@@ -35,7 +35,7 @@ const ScoresIndiv = ({ studentRecords }) => {
   const [viewChart, setViewChart] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({
-    key: null,
+    key: "date",
     direction: "ascending",
   });
   const [selectedMonth, setSelectedMonth] = useState("all");
@@ -46,14 +46,17 @@ const ScoresIndiv = ({ studentRecords }) => {
   const recordsPerPage = 10;
 
   useEffect(() => {
-    if (studentRecords) {
-      const processedData = processStudentRecords(studentRecords.data);
-      setProcessedData(processedData);
+    if (studentRecords?.data) {
+      console.log("student records", studentRecords);
+      // Process all records regardless of selected month/year
+      const allProcessedData = processStudentRecords(studentRecords.data, true);
+      setProcessedData(allProcessedData);
       const { months, years } = getAvailableMonthsAndYears(studentRecords.data);
       setAvailableMonths(months);
       setAvailableYears(years);
+      setCurrentPage(1);
     }
-  }, [studentRecords, selectedMonth, selectedYear]);
+  }, [studentRecords]);
 
   const getAvailableMonthsAndYears = (records) => {
     const months = new Set();
@@ -69,76 +72,96 @@ const ScoresIndiv = ({ studentRecords }) => {
     };
   };
 
-  const processStudentRecords = (records) => {
+  const processStudentRecords = (records, includeAll = false) => {
     if (!records || !Array.isArray(records)) {
       return [];
     }
 
-    // Filter records by selected month and year
-    const filteredRecords = records.filter((record) => {
-      const recordDate = new Date(record.created_at);
-      return (
-        (selectedMonth === "all" ||
-          recordDate.getMonth() + 1 === selectedMonth) &&
-        (selectedYear === "all" || recordDate.getFullYear() === selectedYear)
-      );
-    });
+    // Filter records based on selected month and year if not including all
+    let filteredRecords = records;
+    if (!includeAll) {
+      filteredRecords = records.filter((record) => {
+        const recordDate = new Date(record.created_at);
+        return (
+          (selectedMonth === "all" ||
+            recordDate.getMonth() + 1 === parseInt(selectedMonth)) &&
+          (selectedYear === "all" ||
+            recordDate.getFullYear() === parseInt(selectedYear))
+        );
+      });
+    }
 
-    // Group records by account_id and game_type
-    const groupedRecords = filteredRecords.reduce((acc, record) => {
-      if (record && record.account_id && record.game_type) {
-        const key = `${record.account_id}-${record.game_type}`;
+    // Group records by game title
+    const groupedByTitle = filteredRecords.reduce((acc, record) => {
+      if (!acc[record.title]) {
+        acc[record.title] = [];
+      }
+      acc[record.title].push(record);
+      return acc;
+    }, {});
+
+    // Process each group
+    const processedRecords = [];
+    Object.entries(groupedByTitle).forEach(([title, records]) => {
+      // Group by month and year
+      const groupedByDate = records.reduce((acc, record) => {
+        const date = new Date(record.created_at);
+        const key = `${date.getMonth() + 1}-${date.getFullYear()}`;
         if (!acc[key]) {
           acc[key] = [];
         }
         acc[key].push(record);
-      }
-      return acc;
-    }, {});
+        return acc;
+      }, {});
 
-    // Process each group of records
-    return Object.entries(groupedRecords).map(([key, records]) => {
-      const [accountId, gameType] = key.split("-");
+      // Process each month's records
+      Object.entries(groupedByDate).forEach(([dateKey, monthRecords]) => {
+        const [month, year] = dateKey.split("-");
 
-      // Filter and sort the scores, take up to 8 attempts
-      const scores = records
-        .filter((r) => r && r.score !== undefined)
-        .map((r) => (r.score !== undefined ? r.score : "TBA"))
-        .slice(0, 8);
+        const scores = monthRecords
+          .filter((r) => r && r.score !== undefined)
+          .map((r) => (r.score !== undefined ? r.score : "TBA"))
+          .slice(0, 8)
+          .reverse();
 
-      // Calculate the average score as a percentage based on set_length
-      const average =
-        scores.filter((score) => score !== "TBA").length > 0
-          ? Math.min(
-              (scores.reduce(
-                (sum, score) => sum + (score !== "TBA" ? score : 0),
-                0
-              ) /
-                scores.filter((score) => score !== "TBA").length /
-                records[0].set_length) *
-                100,
-              100
-            )
-          : 0;
+        const average =
+          scores.filter((score) => score !== "TBA").length > 0
+            ? Math.min(
+                (scores.reduce(
+                  (sum, score) => sum + (score !== "TBA" ? score : 0),
+                  0
+                ) /
+                  scores.filter((score) => score !== "TBA").length /
+                  monthRecords[0].set_length) *
+                  100,
+                100
+              )
+            : 0;
 
-      return {
-        accountId: parseInt(accountId),
-        gameType: gameType || "Unknown",
-        date:
-          records[0] && records[0].created_at
-            ? new Date(records[0].created_at).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-              })
-            : "Unknown",
-        scores: scores.map((score) =>
-          score !== "TBA"
-            ? Math.min((score / records[0].set_length) * 100, 100).toFixed(2)
-            : "TBA"
-        ),
-        average: average.toFixed(2),
-      };
+        processedRecords.push({
+          gameId: monthRecords[0].game_id,
+          gameType: monthRecords[0].game_type || "Unknown",
+          gameTitle: title,
+          date: new Date(year, month - 1).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+          }),
+          scores: scores.map((score) =>
+            score !== "TBA"
+              ? Math.min(
+                  (score / monthRecords[0].set_length) * 100,
+                  100
+                ).toFixed(2)
+              : "TBA"
+          ),
+          average: average.toFixed(2),
+          month: parseInt(month),
+          year: parseInt(year),
+        });
+      });
     });
+
+    return processedRecords;
   };
 
   const toggleViewChart = (index) => {
@@ -158,9 +181,26 @@ const ScoresIndiv = ({ studentRecords }) => {
 
   const getSortedData = () => {
     if (!processedData) return [];
-    const sortableData = [...processedData];
+
+    let filteredData = processedData;
+    if (selectedMonth !== "all" || selectedYear !== "all") {
+      filteredData = processedData.filter((record) => {
+        return (
+          (selectedMonth === "all" ||
+            record.month === parseInt(selectedMonth)) &&
+          (selectedYear === "all" || record.year === parseInt(selectedYear))
+        );
+      });
+    }
+
+    const sortableData = [...filteredData];
     if (sortConfig.key !== null) {
       sortableData.sort((a, b) => {
+        if (sortConfig.key === "average") {
+          return sortConfig.direction === "ascending"
+            ? parseFloat(a[sortConfig.key]) - parseFloat(b[sortConfig.key])
+            : parseFloat(b[sortConfig.key]) - parseFloat(a[sortConfig.key]);
+        }
         if (a[sortConfig.key] < b[sortConfig.key]) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
@@ -182,9 +222,16 @@ const ScoresIndiv = ({ studentRecords }) => {
   );
   const totalPages = Math.ceil(sortedData.length / recordsPerPage);
 
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   return (
     <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white ">
       <CardContent className="p-6">
+        {/* <h1 className="text-2xl font-bold">{sortedData.length} Records</h1> */}
         <div className="flex items-center gap-4 pb-4 flex-wrap">
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="w-[180px] bg-white">
@@ -224,12 +271,18 @@ const ScoresIndiv = ({ studentRecords }) => {
                 <TableHead onClick={() => sortData("gameType")}>
                   Game Type
                 </TableHead>
+                <TableHead onClick={() => sortData("gameTitle")}>
+                  Game Title
+                </TableHead>
                 <TableHead onClick={() => sortData("date")}>Date</TableHead>
-                <TableHead onClick={() => sortData("average")}>
+                <TableHead
+                  onClick={() => sortData("average")}
+                  className="text-center"
+                >
                   Average (%)
                 </TableHead>
-                <TableHead className="text-right">Attempts</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead className="text-center">Attempts</TableHead>
+                <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -237,8 +290,9 @@ const ScoresIndiv = ({ studentRecords }) => {
                 <React.Fragment key={index}>
                   <TableRow className="group hover:bg-gray-100">
                     <TableCell>{row.gameType}</TableCell>
+                    <TableCell>{row.gameTitle}</TableCell>
                     <TableCell>{row.date}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       {parseFloat(row.average).toFixed(2)}%
                     </TableCell>
                     <TableCell className="text-center">
@@ -257,7 +311,7 @@ const ScoresIndiv = ({ studentRecords }) => {
                   </TableRow>
                   {viewChart[index] && (
                     <TableRow>
-                      <TableCell colSpan={5}>
+                      <TableCell colSpan={6}>
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
                             data={row.scores.map((score, i) => ({
@@ -288,38 +342,49 @@ const ScoresIndiv = ({ studentRecords }) => {
 
         <div className="flex items-center justify-between pt-4">
           <div className="text-sm text-muted-foreground">
-            Showing {currentRecords.length} of {processedData.length} entries
+            Showing {indexOfFirstRecord + 1} to{" "}
+            {Math.min(indexOfLastRecord, sortedData.length)} of{" "}
+            {sortedData.length} entries
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
-              <Button
-                key={i + 1}
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(i + 1)}
-                className={
-                  currentPage === i + 1
-                    ? "bg-secondary text-primary-foreground"
-                    : ""
-                }
-              >
-                {i + 1}
-              </Button>
-            ))}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(
+                (page) =>
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+              )
+              .map((page, index, array) => (
+                <React.Fragment key={page}>
+                  {index > 0 && array[index - 1] !== page - 1 && (
+                    <span className="px-2">...</span>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page)}
+                    className={
+                      currentPage === page
+                        ? "bg-secondary text-primary-foreground"
+                        : ""
+                    }
+                  >
+                    {page}
+                  </Button>
+                </React.Fragment>
+              ))}
             <Button
               variant="outline"
               size="icon"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />
