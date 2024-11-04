@@ -56,7 +56,8 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
   }, []);
 
   // Function to copy room code to clipboard
-  const copyToClipboard = (roomCode) => {
+  const copyToClipboard = (roomCode, e) => {
+    e.stopPropagation(); // Prevent card click when copying
     navigator.clipboard.writeText(roomCode);
     toast.success("Room code copied to clipboard!");
   };
@@ -148,10 +149,12 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
                             {room.room_difficulty}
                           </Chip>
 
-                          <DeleteRoom
-                            room={room}
-                            onRoomDeleted={onRoomDeleted}
-                          />
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <DeleteRoom
+                              room={room}
+                              onRoomDeleted={onRoomDeleted}
+                            />
+                          </div>
                         </CardHeader>
 
                         <CardBody className="flex h-2/4 flex-col justify-center items-center w-full">
@@ -163,13 +166,15 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
                         <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
                           <div className="p-2 text-[#7469B6] flex items-center justify-between  w-full">
                             <div className="flex items-center gap-2">
-                              <Button
-                                color="transparent"
-                                isIconOnly
-                                onClick={() => copyToClipboard(room.room_code)}
+                              <div
+                                onClick={(e) =>
+                                  copyToClipboard(room.room_code, e)
+                                }
                               >
-                                <Copy size={22} />
-                              </Button>
+                                <Button color="transparent" isIconOnly>
+                                  <Copy size={22} />
+                                </Button>
+                              </div>
                               <h1 className="font-bold">
                                 Code: {room.room_code}
                               </h1>
@@ -181,7 +186,6 @@ const Rooms = ({ rooms, onRoomDeleted }) => {
                             />
                           </div>
                         </CardFooter>
-                        {/* </a> */}
                       </Card>
                     </div>
                   </div>

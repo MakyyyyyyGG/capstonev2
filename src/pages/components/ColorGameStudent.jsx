@@ -20,7 +20,6 @@ import {
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Summary from "./Summary";
-import BarChart from "./BarChart";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
@@ -334,7 +333,6 @@ const ColorGames = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            // <BarChart gameRecord={gameRecord} questions={cards.length} />
             <Summary gameRecord={gameRecord} questions={cards.length} />
           )}
         </>

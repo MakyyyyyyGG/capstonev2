@@ -22,7 +22,6 @@ import {
 import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
-import BarChart from "./BarChart";
 import {
   InputOTP,
   InputOTPGroup,
@@ -282,7 +281,6 @@ const FourPicsOneWordStudent = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            // <BarChart gameRecord={gameRecord} questions={cards.length} />
             <Summary gameRecord={gameRecord} questions={cards.length} />
           )}
         </>

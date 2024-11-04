@@ -3,7 +3,6 @@ import { Card, CardBody, Button, Progress, Input } from "@nextui-org/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
 const ColorGamesAdvancedStudent = ({ cards }) => {
   const [showImages, setShowImages] = useState(false);
@@ -275,14 +274,7 @@ const ColorGamesAdvancedStudent = ({ cards }) => {
   return (
     <div>
       {isGameFinished ? (
-        <>
-          {gameRecord.length > 0 && (
-            <BarChart
-              gameRecord={gameRecord}
-              questions={shuffledCards.length}
-            />
-          )}
-        </>
+        <>{gameRecord.length > 0 && null}</>
       ) : (
         <>
           <h1>Color Games Advanced</h1>

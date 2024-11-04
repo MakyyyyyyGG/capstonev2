@@ -40,7 +40,6 @@ import {
   X,
   ArrowLeftRight,
 } from "lucide-react";
-import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
 
 const DecisionMakerStudent = ({ cards }) => {
@@ -275,7 +274,6 @@ const DecisionMakerStudent = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            // <BarChart gameRecord={gameRecord} questions={cards.length} />
             <Summary gameRecord={gameRecord} questions={cards.length} />
           )}
         </>

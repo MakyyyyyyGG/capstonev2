@@ -29,7 +29,6 @@ import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import Summary from "./Summary";
-import BarChart from "./BarChart";
 import GameHistory from "./GameHistory";
 
 const FourPicsOneWordAdvancedStudent = ({ cards }) => {
