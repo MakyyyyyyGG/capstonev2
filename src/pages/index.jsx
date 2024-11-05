@@ -171,7 +171,7 @@ export default function Signup() {
             </Button>
 
             <Button
-              type="submit"
+              onClick={() => router.push("/teacher-signup")}
               size="lg"
               variant="bordered"
               color="secondary"
