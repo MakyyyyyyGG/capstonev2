@@ -171,16 +171,13 @@ export default function Signup() {
             </Button>
 
             <Button
+              href="/teacher-signup"
               type="submit"
               size="lg"
               variant="bordered"
               color="secondary"
               radius="sm"
-              className="w-full"
-              classNames={{
-                label: "text-white",
-                inputWrapper: "bg-[#6B4DE6] hover:bg-[#5B3DD6] ",
-              }}
+              className="w-full border-1"
             >
               Become a Teacher
             </Button>
