@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
 import { LibraryBig, Trash2, Plus, Pencil } from "lucide-react";
@@ -510,15 +511,19 @@ const Index = ({ images }) => {
                     <div className="grid grid-cols-5 justify-center gap-4">
                       {filteredImages.map((item) => (
                         <Card
+                          as={motion.div}
                           key={item.id}
-                          className={`  p-2 rounded-md relative overflow-hidden border transition-all duration-300 ${
-                            selectedImages.includes(item.id)
-                              ? "border-2 border-[#17C964]" // Thicker border when selected
-                              : "border-2 border-[#7469B6]" // Default border when not selected
-                          }`}
+                          initial={{ borderColor: "#7469B6" }}
+                          animate={{
+                            borderColor: selectedImages.includes(item.id)
+                              ? "#17C964"
+                              : "#7469B6",
+                          }}
+                          transition={{ duration: 0.3 }}
+                          className={`p-2 rounded-md relative overflow-hidden border-2`}
                         >
                           <Checkbox
-                            color="secondary"
+                            color="success"
                             isSelected={selectedImages.includes(item.id)}
                             onChange={() => handleImageSelect(item.id)}
                             isDisabled={
@@ -529,7 +534,7 @@ const Index = ({ images }) => {
                                   ? 3
                                   : 4) && !selectedImages.includes(item.id)
                             }
-                            className="absolute top-2 left-2" // Floating checkbox on the top left
+                            className="absolute top-2 right-1" // Floating checkbox on the top left
                           />
                           <CardBody className="w-full h-full">
                             <div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Trash2, Edit, LayoutGrid, Grid2x2, Palette } from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { FaRegLightbulb } from "react-icons/fa";
+import { LiaListOlSolid } from "react-icons/lia";
 import { useSession } from "next-auth/react";
 import { Search } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -204,7 +205,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
           <div
             className={`flex items-center justify-center w-[60px] h-[60px] ${typeColor} rounded-xl`}
           >
-            <TbCards className="text-4xl" />
+            <LiaListOlSolid className="text-3xl" />
           </div>
         );
       default:
