@@ -60,31 +60,35 @@ const IndividualRoom = () => {
   }, [room_code]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const driverObj = driver({
-        steps: [
-          {
-            element: "#classworks",
-            popover: {
-              title: "Classworks",
-              description:
-                "Access your teacher's uploaded classwork materials and assignments",
-              side: "left",
+    const isFirstRoomJoin = !localStorage.getItem("roomJoined");
+    if (isFirstRoomJoin) {
+      const timer = setTimeout(() => {
+        const driverObj = driver({
+          steps: [
+            {
+              element: "#classworks",
+              popover: {
+                title: "Classworks",
+                description:
+                  "Access your teacher's uploaded classwork materials and assignments",
+                side: "left",
+              },
             },
-          },
-          {
-            element: "#scores",
-            popover: {
-              title: "Scores",
-              description:
-                "View your performance and scores from completed classworks and games",
-              side: "left",
+            {
+              element: "#scores",
+              popover: {
+                title: "Scores",
+                description:
+                  "View your performance and scores from completed classworks and games",
+                side: "left",
+              },
             },
-          },
-        ],
-      });
-      driverObj.drive();
-    }, 500);
+          ],
+        });
+        driverObj.drive();
+      }, 500);
+      localStorage.setItem("roomJoined", "true");
+    }
   }, []);
 
   const fetchStudentRecord = async () => {
