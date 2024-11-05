@@ -185,73 +185,57 @@ function Signup() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-medium mb-2"
-                >
-                  First Name
-                </label>
-                <Input
-                  placeholder="Enter First name"
-                  id="firstName"
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  size="lg"
-                  radius="sm"
-                  classNames={{
-                    label: "text-white",
-                    inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
-                  }}
-                  variant="bordered"
-                  color="secondary"
-                />
+              <div className="flex space-x-4 items-center">
+                <div>
+                  <Input
+                    isRequired
+                    label="First Name"
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    size="sm"
+                    radius="sm"
+                    classNames={{
+                      inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    }}
+                    variant="bordered"
+                    color="secondary"
+                  />
+                </div>
+
+                <div>
+                  <Input
+                    isRequired
+                    id="lastName"
+                    type="text"
+                    size="sm"
+                    radius="sm"
+                    classNames={{
+                      inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    }}
+                    variant="bordered"
+                    color="secondary"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    label="Last Name"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Last Name
-                </label>
                 <Input
-                  id="lastName"
-                  type="text"
-                  size="lg"
-                  radius="sm"
-                  classNames={{
-                    label: "text-white",
-                    inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
-                  }}
-                  variant="bordered"
-                  color="secondary"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Last name"
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Username
-                </label>
-                <Input
+                  isRequired
                   id="email"
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Username"
+                  label="Enter Username"
                   required
-                  size="lg"
+                  size="sm"
                   radius="sm"
                   classNames={{
-                    label: "text-white",
                     inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                   }}
                   variant="bordered"
@@ -260,24 +244,18 @@ function Signup() {
               </div>
 
               <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Password (8 characters minimum)
-                </label>
                 <div className="relative">
                   <Input
+                    isRequired
                     id="password"
                     type="password"
                     value={password}
                     onChange={handlePasswordChange}
-                    placeholder="Enter password"
+                    label="Password (8 characters minimum)"
                     required
-                    size="lg"
+                    size="sm"
                     radius="sm"
                     classNames={{
-                      label: "text-white",
                       inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                     }}
                     variant="bordered"
@@ -287,24 +265,18 @@ function Signup() {
               </div>
 
               <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Confirm Password
-                </label>
                 <div className="relative">
                   <Input
+                    isRequired
                     id="confirmPassword"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm password"
+                    label="Confirm Password"
                     required
-                    size="lg"
+                    size="sm"
                     radius="sm"
                     classNames={{
-                      label: "text-white",
                       inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                     }}
                     variant="bordered"
@@ -417,7 +389,7 @@ function Signup() {
               <Button
                 radius="sm"
                 variant="bordered"
-                className="w-full py-6 border-1 bg-[#1877F2] hover:bg-[#1869D6] text-white"
+                className="w-full py-6 border-1 border-[#7469B6]"
                 type="button"
                 onClick={handleFacebookSignIn}
               >
