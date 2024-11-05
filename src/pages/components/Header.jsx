@@ -30,19 +30,16 @@ import toast, { Toaster } from "react-hot-toast";
 import JoinRoom from "./JoinRoom";
 import CreateRoom from "../components/CreateRoom";
 import crypto from "crypto";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 const Header = ({ isCollapsed, toggleCollapse }) => {
   const router = useRouter();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const handleOpenModal = () => {
-    setIsDropdownOpen(false);
-    onOpen();
-  };
-
   const { data: session, status } = useSession();
+
   const [isEditing, setIsEditing] = useState(false);
   const [isLocationEditing, setIsLocationEditing] = useState(false);
   const [isPasswordEditing, setIsPasswordEditing] = useState(false);
@@ -564,6 +561,59 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     return <p>You are not signed in</p>;
   }
 
+  useEffect(() => {
+    if (!session) return;
+
+    // Check if this is the user's first visit
+    const isFirstVisit = !localStorage.getItem("hasVisited");
+
+    if (isFirstVisit) {
+      const driverObj = driver({
+        showProgress: true,
+        steps: [
+          {
+            popover: {
+              title: "Welcome to LNK!",
+              description: "Let's take a quick tour to help you get started.",
+              side: "center",
+            },
+          },
+          {
+            element: "#avatar",
+            popover: {
+              title: "Profile Menu",
+              description:
+                "Click here to access your profile settings and sign out options",
+              side: "left",
+            },
+          },
+          {
+            element:
+              session.user.role === "student" ? "#join-room" : "#create-room",
+            popover: {
+              title:
+                session.user.role === "student" ? "Join Room" : "Create Room",
+              description:
+                session.user.role === "student"
+                  ? "Click here to join an existing room"
+                  : "Click here to create a new room",
+              side: "left",
+            },
+          },
+        ],
+      });
+      driverObj.drive();
+
+      // Set flag in localStorage to indicate user has visited
+      localStorage.setItem("hasVisited", "true");
+    }
+  }, [session]);
+
+  const handleOpenModal = () => {
+    setIsDropdownOpen(false);
+    onOpen();
+  };
+
   return (
     <div>
       <Toaster />
@@ -591,7 +641,15 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
           <div className="flex gap-4">
-            {session.user.role === "teacher" ? <CreateRoom /> : <JoinRoom />}
+            {session?.user?.role === "teacher" ? (
+              <div id="create-room">
+                <CreateRoom />
+              </div>
+            ) : (
+              <div id="join-room">
+                <JoinRoom />
+              </div>
+            )}
             <Dropdown
               isOpen={isDropdownOpen}
               onOpenChange={setIsDropdownOpen}
@@ -600,6 +658,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
               <DropdownTrigger>
                 <div>
                   <Avatar
+                    id="avatar"
                     isBordered
                     className="transition-transform cursor-pointer"
                     color="secondary"

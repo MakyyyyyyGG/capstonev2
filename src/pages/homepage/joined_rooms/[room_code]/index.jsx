@@ -3,13 +3,12 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
 import { SquareLibrary, Trophy } from "lucide-react";
-import StudentList from "@/pages/components/StudentList";
 import ClassWorkList from "@/pages/components/ClassWorkList";
-import SidebarStudent from "@/pages/components/SidebarStudent";
-import Header from "@/pages/components/Header";
-import Scores from "@/pages/components/Scores";
+
 import ScoresIndiv from "@/pages/components/ScoresIndiv";
 import Loader from "@/pages/components/Loader";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 const fetchRoomDetails = async (room_code, setRoomData, setLoading) => {
   try {
     const res = await fetch(
@@ -60,18 +59,43 @@ const IndividualRoom = () => {
     }
   }, [room_code]);
 
-  // useEffect(() => {
-  //   if (roomData) {
-  //     setRoomName(roomData[0]?.room_name || "");
-  //     setDifficulty(roomData[0]?.room_difficulty || "");
-  //   }
-  // }, [roomData]);
+  useEffect(() => {
+    const isFirstRoomJoin = !localStorage.getItem("roomJoined");
+    if (isFirstRoomJoin) {
+      const timer = setTimeout(() => {
+        const driverObj = driver({
+          steps: [
+            {
+              element: "#classworks",
+              popover: {
+                title: "Classworks",
+                description:
+                  "Access your teacher's uploaded classwork materials and assignments",
+                side: "left",
+              },
+            },
+            {
+              element: "#scores",
+              popover: {
+                title: "Scores",
+                description:
+                  "View your performance and scores from completed classworks and games",
+                side: "left",
+              },
+            },
+          ],
+        });
+        driverObj.drive();
+      }, 500);
+      localStorage.setItem("roomJoined", "true");
+    }
+  }, []);
 
   const fetchStudentRecord = async () => {
     if (session) {
       try {
         const response = await fetch(
-          `/api/student_game_record/individual_student_game_records?account_id=${accountId}`,
+          `/api/student_game_record/individual_student_game_records?account_id=${accountId}&room_code=${room_code}`,
           {
             method: "GET",
             headers: {
@@ -117,6 +141,7 @@ const IndividualRoom = () => {
                   onSelectionChange={setSelectedTab}
                 >
                   <Tab
+                    id="classworks"
                     key="classworks"
                     title={
                       <div className="flex items-center space-x-2">
@@ -126,6 +151,7 @@ const IndividualRoom = () => {
                     }
                   ></Tab>
                   <Tab
+                    id="scores"
                     key="scores"
                     title={
                       <div className="flex items-center space-x-2">

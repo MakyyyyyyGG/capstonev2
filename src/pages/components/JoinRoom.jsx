@@ -12,14 +12,14 @@ import {
   Button,
   useDisclosure,
 } from "@nextui-org/react";
-
+import toast, { Toaster } from "react-hot-toast";
 const JoinRoom = () => {
   const { data: session } = useSession();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [roomCode, setRoomCode] = useState(""); // roomCode should be an empty string, not an array
   const [error, setError] = useState("");
   const router = useRouter();
-
+  const [message, setMessage] = useState("");
   const handleJoinRoom = async () => {
     if (!roomCode) {
       setError("Please enter a room code.");
@@ -49,9 +49,10 @@ const JoinRoom = () => {
         console.log("Room joined successfully:", data); // You can use this data as needed
         onOpenChange(false);
         setRoomCode("");
-        alert("Room joined successfully!");
+        toast.success("Room joined successfully!");
         router.push(`/homepage/joined_rooms/${roomCode}`); // Redirect to joined room
       } else {
+        toast.error(data.error || "Failed to join room");
         setError(data.error || "Failed to join room");
       }
     } catch (error) {
@@ -62,6 +63,7 @@ const JoinRoom = () => {
 
   return (
     <div>
+      <Toaster />
       <Button
         onPress={onOpen}
         radius="sm"
@@ -104,11 +106,11 @@ const JoinRoom = () => {
                       error={!!error} // Converts error string to boolean
                       helperText={error}
                     />
-                    {error && (
+                    {/* {error && (
                       <p className="text-red-500 duration-75 transition ease-in-out">
                         {error}
                       </p>
-                    )}
+                    )} */}
                   </div>
                 </form>
               </ModalBody>
@@ -124,7 +126,6 @@ const JoinRoom = () => {
                 <Button
                   color="secondary"
                   radius="sm"
-                  onPress={onClose}
                   onClick={handleJoinRoom}
                   className="text-white"
                 >

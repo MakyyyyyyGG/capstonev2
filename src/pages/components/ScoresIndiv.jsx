@@ -264,7 +264,7 @@ const ScoresIndiv = ({ studentRecords }) => {
           </Select>
         </div>
 
-        <ScrollArea className="h-[400px] rounded-lg border">
+        <ScrollArea className="h-[500px] rounded-lg border">
           <Table>
             <TableHeader className="sticky top-0 bg-background">
               <TableRow>
@@ -302,7 +302,7 @@ const ScoresIndiv = ({ studentRecords }) => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="opacity-0 group-hover:opacity-100"
+                        className=" group-hover:opacity-100"
                         onClick={() => toggleViewChart(index)}
                       >
                         {viewChart[index] ? "View Less" : "View More"}
@@ -318,6 +318,7 @@ const ScoresIndiv = ({ studentRecords }) => {
                               name: `Attempt ${i + 1}`,
                               score: score === "TBA" ? null : parseFloat(score),
                             }))}
+                            margin={{ top: 30, right: 20, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -328,6 +329,11 @@ const ScoresIndiv = ({ studentRecords }) => {
                               type="monotone"
                               dataKey="score"
                               stroke="#8884d8"
+                              label={{
+                                position: "top",
+                                offset: 10,
+                                formatter: (value) => `${value}%`,
+                              }}
                             />
                           </LineChart>
                         </ResponsiveContainer>

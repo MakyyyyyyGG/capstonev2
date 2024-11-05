@@ -12,7 +12,8 @@ import {
   Users,
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
-
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import CreateClassWork from "@/pages/components/CreateClassWork";
 import ClassWorkList from "@/pages/components/ClassWorkList";
 import Scores from "@/pages/components/Scores";
@@ -173,6 +174,76 @@ const IndividualRoom = () => {
     onOpenChange(false);
   };
 
+  useEffect(() => {
+    // Add delay before showing the driver
+    const isFirstRoomCreate = !localStorage.getItem("roomCreated");
+
+    if (isFirstRoomCreate) {
+      const timer = setTimeout(() => {
+        const driverObj = driver({
+          steps: [
+            {
+              element: "#create-classwork",
+              popover: {
+                title: "Create Classwork",
+                description:
+                  "Click here to create a new classwork or games such as Flashcards, 4 Pics 1 Word, and 4 Pics 1 Word Advanced, and more!",
+                side: "left",
+              },
+            },
+            {
+              element: "#settings",
+              popover: {
+                title: "Room Settings",
+                description:
+                  "Click here to access room settings such as room name and difficulty.",
+                side: "left",
+              },
+            },
+            {
+              element: "#classroom",
+              popover: {
+                title: "Classroom",
+                description:
+                  "Click here to access classroom overview which shows the number of students, classworks, and scores.",
+                side: "left",
+              },
+            },
+            {
+              element: "#classworks",
+              popover: {
+                title: "Classworks",
+                description:
+                  "Click here to access classworks you created such as Flashcards, 4 Pics 1 Word, and 4 Pics 1 Word Advanced, and more!",
+                side: "left",
+              },
+            },
+            {
+              element: "#students",
+              popover: {
+                title: "Students",
+                description: "Click here to access students in your room",
+                side: "left",
+              },
+            },
+            {
+              element: "#scores",
+              popover: {
+                title: "Scores",
+                description:
+                  "Click here to access scores of your students in your room",
+                side: "left",
+              },
+            },
+          ],
+        });
+        driverObj.drive();
+        localStorage.setItem("roomCreated", "true");
+      }, 500); // 1 second delay
+
+      return () => clearTimeout(timer); // Cleanup timeout
+    }
+  }, []);
   return (
     <div className="w-full">
       <Toaster />
@@ -190,14 +261,18 @@ const IndividualRoom = () => {
                     <h1>{roomData[0]?.room_name || "Room"}</h1>
                   </div>
                   <div className="flex gap-2">
-                    <CreateClassWork room_code={room_code} />
+                    <div id="create-classwork">
+                      <CreateClassWork room_code={room_code} />
+                    </div>
                     <Button
                       isIconOnly
                       radius="sm"
                       color="secondary"
                       onPress={onOpen}
                     >
-                      <Settings />
+                      <div id="settings">
+                        <Settings />
+                      </div>
                     </Button>
                   </div>
                 </div>
@@ -214,6 +289,7 @@ const IndividualRoom = () => {
                   onSelectionChange={setSelectedTab}
                 >
                   <Tab
+                    id="classroom"
                     key="classroom"
                     title={
                       <div className="flex items-center space-x-2">
@@ -223,6 +299,7 @@ const IndividualRoom = () => {
                     }
                   />
                   <Tab
+                    id="classworks"
                     key="classworks"
                     title={
                       <div className="flex items-center space-x-2">
@@ -235,6 +312,7 @@ const IndividualRoom = () => {
                     }
                   />
                   <Tab
+                    id="students"
                     key="students"
                     title={
                       <div className="flex items-center space-x-2">
@@ -244,6 +322,7 @@ const IndividualRoom = () => {
                     }
                   />
                   <Tab
+                    id="scores"
                     key="scores"
                     title={
                       <div className="flex items-center space-x-2">
@@ -315,6 +394,7 @@ const IndividualRoom = () => {
                       </div>
                       <div className="col-span-1 md:col-span-3">
                         <Scores
+                          height={400}
                           studentRecords={studentRecords}
                           students={students}
                         />
@@ -337,6 +417,7 @@ const IndividualRoom = () => {
                 {selectedTab === "scores" && (
                   <div className="flex items-center gap-4 w-full">
                     <Scores
+                      height={500}
                       studentRecords={studentRecords}
                       students={students}
                     />
