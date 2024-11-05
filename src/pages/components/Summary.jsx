@@ -78,6 +78,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
 
   const incorrectAnswers = questions - latestScore;
   const totalScore = latestScore; // Use the actual score
+  const accuracy = ((latestScore / questions) * 100).toFixed(0); // Calculate accuracy as a percentage
 
   const [showEndScreen, setShowEndScreen] = useState(true); // State to toggle end screen visibility
   const [showSummary, setShowSummary] = useState(false); // State to toggle summary visibility
@@ -99,7 +100,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
             {/* Confetti on top of end screen */}
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
               {/* Conditionally render confetti if score is 10 */}
-              {totalScore === 10 && (
+              {accuracy === "100" && (
                 <motion.div
                   key="confetti"
                   initial={{ opacity: 1 }}
@@ -148,7 +149,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-emerald-50 p-4 rounded-md"
+                        className="bg-emerald-50 px-4 py-5 rounded-md"
                       >
                         <div className="text-2xl font-bold text-emerald-600">
                           {latestScore}
@@ -160,7 +161,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-rose-50 p-4 rounded-md"
+                        className="bg-rose-50 px-4 py-5 rounded-md"
                       >
                         <div className="text-2xl font-bold text-rose-600">
                           {incorrectAnswers}
@@ -172,13 +173,13 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="bg-purple-50 p-4 rounded-md"
+                        className="bg-purple-50 px-4 py-5 rounded-md"
                       >
                         <div className="text-2xl font-bold text-purple-600">
                           {questions}
                         </div>
                         <div className="text-sm text-purple-600">
-                          Total Questions
+                          Total Items
                         </div>
                       </motion.div>
                     </div>
@@ -192,6 +193,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                       }}
                       radius="sm"
                       color="secondary"
+                      className="w-full"
                     >
                       <BarChart3 className="h-4 w-4 mr-2" />
                       View Summary

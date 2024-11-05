@@ -44,9 +44,9 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
   };
 
   return (
-    <div className="sidebar__wrapper relative">
+    <div className="sidebar__wrapper relative z-50">
       <aside
-        className="w-64 h-screen bg-white transition-all border-r border-gray-300 sticky top-0 max-sm:hidden flex flex-col"
+        className="w-64 h-screen bg-white transition-all border-r border-gray-300 sticky top-0 max-md:hidden flex flex-col"
         data-collapse={isCollapsed}
       >
         <ul className="p-1 mb-4">
@@ -91,11 +91,11 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
       </aside>
 
       {/* Mobile Sidebar */}
-      <div className="sticky top-0 z-10 sm:hidden">
+      <div className="sticky top-0 z-10 md:hidden">
         <div className="absolute bg-white w-full" data-collapse={isCollapsed}>
           <aside
             id="smallscreen__sidebar"
-            className="w-72 h-[calc(100vh-64px)] bg-white transition-all border-r-2 border-gray-300 sticky top-0 max-sm:absolute flex flex-col"
+            className="w-72 h-[calc(100vh-64px)] bg-white transition-all border-r-2 border-gray-300 sticky top-0 max-md:absolute flex flex-col"
           >
             <ul id="smallscreen__sidebaritems" className="p-1 ">
               {sidebarItems1.map(({ name, href, icon: Icon }) => (
@@ -103,7 +103,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                   <Button
                     is
                     onClick={() => handleNavigation(href)}
-                    className="w-full text-base text-black flex px-3 py-3 mb-1 rounded-xl  transition ease-in-out justify-start"
+                    className="w-full text-base text-black flex px-3 py-3 mb-1 rounded-xl transition ease-in-out justify-start"
                     variant="light"
                   >
                     <span className="ml-2">
@@ -117,7 +117,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
               ))}
             </ul>
 
-            <div className="mt-auto p-1 mb-4">
+            <div id="smallscreen__sidebaritems" className="mt-auto p-1 mb-4">
               <Button
                 color="transparent"
                 onClick={handleSignOut}

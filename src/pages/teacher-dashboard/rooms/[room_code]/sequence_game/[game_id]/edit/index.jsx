@@ -671,7 +671,7 @@ const Index = () => {
             </>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {flashcardData.map((flashcard, index) => (
               <div key={flashcard.flashcard_id} className="w-full">
                 <Card className="w-full border  border-[#7469B6] rounded-md flex p-4">
@@ -875,29 +875,9 @@ const Index = () => {
                     </Button> */}
                   </div>
                   <CardBody className="flex flex-col gap-4">
-                    <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
-                      <div className="flex shrink flex-col w-[45%] gap-2 max-sm:w-full">
-                        <Textarea
-                          rows={13}
-                          radius="sm"
-                          type="text"
-                          variant="bordered"
-                          color="secondary"
-                          disableAnimation
-                          disableAutosize
-                          classNames={{
-                            input: "resize-y min-h-[40px]",
-                            inputWrapper: "border-1 border-[#7469B6]",
-                          }}
-                          label={`Describe Step ${index + 1}`}
-                          value={flashcard.step}
-                          onChange={(e) =>
-                            handleInputChange(index, "step", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div className="flex w-[55%] gap-2 max-sm:w-full">
-                        <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-[300px] h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
+                    <div className="flex w-full gap-4 justify-between">
+                      <div className="flex w-full gap-2">
+                        <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px]">
                           {/* <div className="relative flex flex-col gap-2">
                             <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
                               <img
@@ -947,8 +927,8 @@ const Index = () => {
                           </div> */}
 
                           {flashcard.image ? (
-                            <div className="relative flex flex-col gap-2">
-                              <div className=" w-[300px] h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
+                            <div className="relative flex flex-col gap-2 w-full h-full">
+                              <div className="w-full h-full">
                                 <img
                                   src={flashcard.image}
                                   alt="flashcard image"
@@ -963,7 +943,7 @@ const Index = () => {
                                   removeImage(index);
                                 }}
                                 color="danger"
-                                className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
+                                className="absolute top-2 right-2"
                               >
                                 <Trash2 size={18} />
                               </Button>
@@ -971,7 +951,7 @@ const Index = () => {
                                 isIconOnly
                                 size="sm"
                                 color="secondary"
-                                className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                                className="absolute bottom-2 right-2"
                                 aria-label="View Image"
                                 onPress={() => {
                                   const newSequence = [...flashcardData];
@@ -1037,8 +1017,8 @@ const Index = () => {
                       </div>
                     </div>
                   </CardBody>
-                  <CardFooter className="flex gap-2 items-center justify-between ">
-                    <div className=" w-full ">
+                  <CardFooter className="flex flex-col gap-4 pt-1 items-center justify-between">
+                    <div className="w-full">
                       {flashcard.audio ? (
                         <div className="flex gap-3  w-full ">
                           <div className="flex gap-2 w-full justify-between">
@@ -1171,6 +1151,26 @@ const Index = () => {
                         </ModalContent>
                       </Modal>
                     </div>
+                    <div className="flex shrink flex-col gap-2 w-full">
+                      <Textarea
+                        rows={5}
+                        radius="sm"
+                        type="text"
+                        variant="bordered"
+                        color="secondary"
+                        disableAnimation
+                        disableAutosize
+                        classNames={{
+                          input: "resize-y min-h-[40px]",
+                          inputWrapper: "border-1 border-[#7469B6]",
+                        }}
+                        label={`Describe Step ${index + 1}`}
+                        value={flashcard.step}
+                        onChange={(e) =>
+                          handleInputChange(index, "step", e.target.value)
+                        }
+                      />
+                    </div>
                   </CardFooter>
                 </Card>
               </div>
@@ -1179,7 +1179,8 @@ const Index = () => {
           <Button
             size="lg"
             radius="sm"
-            className="my-4 text-sm bg-[#7469B6] text-white border-0"
+            color="secondary"
+            className="my-4 text-sm"
             onClick={addFlashcard}
             startContent={<Plus size={22} />}
           >

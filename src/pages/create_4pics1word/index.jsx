@@ -383,7 +383,7 @@ const Index = () => {
           )}
         </div>
       </div>
-      <div className="flex gap-2 items-center z-0 max-sm:flex-col">
+      <div className="flex gap-2 items-center z-0 max-md:flex-col">
         <Input
           placeholder="Enter title"
           size="lg"
@@ -416,11 +416,11 @@ const Index = () => {
           <SelectItem key="hard">Hard (4 images)</SelectItem>
         </Select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {cards.map((card, cardIndex) => (
           <Card
             key={cardIndex}
-            className="w-full border  border-[#7469B6] rounded-md flex p-4"
+            className="w-full border border-[#7469B6] rounded-md flex p-4"
           >
             <CardHeader className="flex px-3 justify-between items-center z-0">
               <div className="pl-2 text-xl font-bold">
@@ -438,7 +438,7 @@ const Index = () => {
               </div>
             </CardHeader>
             <CardBody className="flex px-3 pb-6 items-center z-0">
-              <div className="flex w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
+              <div className="flex w-full gap-4 justify-between">
                 <form action="" className="w-full">
                   <div className="flex shrink w-full mb-4">
                     <Input
@@ -472,7 +472,7 @@ const Index = () => {
                       .map((image, imageIndex) => (
                         <div
                           key={imageIndex}
-                          className={`flex flex-col relative w-[17rem] aspect-square rounded-lg border-2 border-[#9183e2] border-dashed bg-gray-100 max-sm:w-[14rem] items-center justify-center cursor-pointer `}
+                          className={`flex flex-col relative aspect-square rounded-lg border-2 border-[#9183e2] border-dashed bg-gray-100 items-center justify-center cursor-pointer `}
                           onDragEnter={(e) =>
                             handleDragEnter(e, cardIndex, imageIndex)
                           }

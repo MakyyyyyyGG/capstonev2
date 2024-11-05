@@ -41,7 +41,7 @@ function AppContent({ Component, pageProps }) {
             isCollapsed={isCollapsedSidebar}
             toggleCollapse={toggleSidebarCollapseHandler}
           />
-          <div className="flex">
+          <div className="flex min-h-screen">
             {session.user.role === "student" ? (
               <SidebarStudent
                 isCollapsed={isCollapsedSidebar}

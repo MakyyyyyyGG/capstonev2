@@ -384,7 +384,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                         <div className="flex flex-col items-center gap-2 w-full">
                           {/* <h1>Question: {card.question}</h1> */}
 
-                          <div className="w-full text-center bg-white">
+                          <div className="w-full px-1 text-center bg-white">
                             <header className="mb-4">
                               <h1 className="text-xl font-bold mb-1">
                                 Enter Your Answer
@@ -394,14 +394,14 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                               </p>
                             </header>
                             <form id="otp-form">
-                              <div className="flex items-center justify-center gap-3">
+                              <div className="flex flex-wrap items-center justify-center gap-3">
                                 {Array.from({
                                   length: card.word?.length || 0,
                                 }).map((_, idx) => (
                                   <input
                                     key={idx}
                                     type="text"
-                                    className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                    className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded py-4 px-1 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                                     maxLength="1"
                                     value={userAnswers[index]?.[idx] || ""}
                                     onChange={(e) => {

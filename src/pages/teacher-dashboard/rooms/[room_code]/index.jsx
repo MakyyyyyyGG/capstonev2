@@ -257,7 +257,7 @@ const IndividualRoom = () => {
               <div>
                 {selectedTab === "classroom" && (
                   <div>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="bg-white border border-gray-300  p-6 rounded-lg hover:border-gray-400">
                         <div className="flex gap-2 items-center">
                           <h1 className="text-2xl font-bold">
@@ -313,7 +313,7 @@ const IndividualRoom = () => {
                           {games.length}
                         </h1>
                       </div>
-                      <div className="col-span-3 ">
+                      <div className="col-span-1 md:col-span-3">
                         <Scores
                           studentRecords={studentRecords}
                           students={students}

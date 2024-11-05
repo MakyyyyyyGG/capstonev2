@@ -124,7 +124,7 @@ const Rooms = ({ rooms = [], onRoomDeleted }) => {
         </div>
       ) : (
         <>
-          <ul className="grid grid-cols-4 gap-5 rounded-lg mr-4 auto-cols-auto">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 rounded-lg mr-4 auto-cols-auto">
             {filteredRooms.map((room) => (
               <li key={room.room_id}>
                 {isLoading ? (
