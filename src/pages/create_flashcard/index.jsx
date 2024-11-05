@@ -429,7 +429,7 @@ const Index = () => {
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {flashcards.map((flashcard, index) => (
               <Card
                 key={index}
@@ -607,11 +607,11 @@ const Index = () => {
                       </ModalContent>
                     </Modal>
                   </div>
-                  <div className="flex flex-col w-full gap-4 justify-between max-sm:items-center max-sm:flex-col">
-                    <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px] max-sm:w-[70px] max-sm:h-[70px]">
+                  <div className="flex flex-col w-full gap-4 justify-between">
+                    <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px]">
                       {flashcard.image ? (
                         <div className="relative flex flex-col gap-2 w-full h-full">
-                          <div className=" w-full h-full ">
+                          <div className="w-full h-full">
                             <img
                               src={flashcard.image}
                               alt="flashcard image"
@@ -625,7 +625,7 @@ const Index = () => {
                               handleFlashcardChange(index, "image", null);
                             }}
                             color="danger"
-                            className="absolute top-2 right-2 max-sm:top-0 max-sm:right-0"
+                            className="absolute top-2 right-2"
                           >
                             <Trash2 size={18} />
                           </Button>
@@ -633,7 +633,7 @@ const Index = () => {
                             isIconOnly
                             size="sm"
                             color="secondary"
-                            className="absolute bottom-2 right-2 max-sm:bottom-0 max-sm:right-0"
+                            className="absolute bottom-2 right-2"
                             aria-label="View Image"
                             onClick={() => {
                               const newFlashcards = [...flashcards];
@@ -742,7 +742,7 @@ const Index = () => {
                         </Button>
                       )}
                     </div>
-                    <div className="flex shrink flex-col w-full gap-2 max-sm:w-full">
+                    <div className="flex shrink flex-col w-full gap-2">
                       <Input
                         isClearable
                         onClear={() => handleFlashcardChange(index, "term", "")}
@@ -760,7 +760,7 @@ const Index = () => {
                         }
                       />
                     </div>
-                    <div className="flex w-full gap-2 max-sm:w-full">
+                    <div className="flex w-full gap-2">
                       <Textarea
                         rows={5}
                         radius="sm"

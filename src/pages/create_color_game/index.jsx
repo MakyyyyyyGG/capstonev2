@@ -298,7 +298,7 @@ const Index = ({ images }) => {
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {cards.map((card, cardIndex) => (
             <Card
               key={cardIndex}
@@ -356,7 +356,7 @@ const Index = ({ images }) => {
                     (_, imageIndex) => (
                       <div
                         key={imageIndex}
-                        className={`flex  relative  w-full aspect-square bg-gray-100 rounded-lg border-2 border-dashed items-center justify-center cursor-pointer`}
+                        className={`flex relative w-full aspect-square bg-gray-100 rounded-lg border-2 border-dashed items-center justify-center cursor-pointer`}
                       >
                         {card.images[imageIndex] ? (
                           <>
@@ -390,7 +390,7 @@ const Index = ({ images }) => {
                               className="border-1"
                               onPress={() => handleEdit(cardIndex, imageIndex)}
                             >
-                              <LibraryBig /> Select
+                              <LibraryBig size={18} /> Select
                             </Button>
                           </div>
                         )}

@@ -144,7 +144,7 @@ const SequenceGame = ({ sequenceGame }) => {
       </div>
       <div className="flex justify-center items-center">
         <div className="w-full max-w-[50rem] grid md:grid-cols-2 gap-3">
-          <Card className="p-4">
+          <Card className="p-4 max-md:h-96">
             <CardHeader>
               <h1 className="text-xl font-bold">Available Steps</h1>
             </CardHeader>

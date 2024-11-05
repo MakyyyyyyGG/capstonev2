@@ -458,7 +458,7 @@ const ColorGames = ({ cards }) => {
                                       selectedImages[card.color_game_id] || []
                                     ).includes(imageIndex)
                                       ? "border-3 border-[#17C964]"
-                                      : "border border-purple-400"
+                                      : "border border-[#7469B6]"
                                   }`}
                                   style={{
                                     transition:

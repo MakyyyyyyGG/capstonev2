@@ -570,15 +570,23 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       <Navbar isBordered maxWidth={"full"}>
         <NavbarContent justify="start">
           <NavbarBrand className="mr-4">
-            <div
-              onClick={toggleCollapse}
-              role="button"
-              tabIndex={0}
-              aria-label={isCollapsed ? "Expand Menu" : "Collapse Menu"}
+            {session?.user?.role === "teacher" && (
+              <div
+                onClick={toggleCollapse}
+                role="button"
+                tabIndex={0}
+                aria-label={isCollapsed ? "Expand Menu" : "Collapse Menu"}
+              >
+                {isCollapsed ? <Menu /> : <X />}
+              </div>
+            )}
+            <p
+              className={`hidden sm:block font-bold text-inherit ${
+                session?.user?.role === "student" ? "ml-0" : "ml-8"
+              }`}
             >
-              {isCollapsed ? <Menu /> : <X />}
-            </div>
-            <p className="ml-8 hidden sm:block font-bold text-inherit">LNK</p>
+              LNK
+            </p>
           </NavbarBrand>
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
