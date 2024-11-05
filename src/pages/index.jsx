@@ -115,7 +115,7 @@ export default function Signup() {
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Email"
+                  placeholder="Enter Username"
                   required
                 />
               </div>
@@ -170,6 +170,21 @@ export default function Signup() {
               {loading ? "Signing In..." : "Sign In"}
             </Button>
 
+            <Button
+              type="submit"
+              size="lg"
+              variant="bordered"
+              color="secondary"
+              radius="sm"
+              className="w-full"
+              classNames={{
+                label: "text-white",
+                inputWrapper: "bg-[#6B4DE6] hover:bg-[#5B3DD6] ",
+              }}
+            >
+              Become a Teacher
+            </Button>
+
             <div className="text-center">
               <Link
                 href="/reset_password"
@@ -194,7 +209,7 @@ export default function Signup() {
               <Button
                 radius="sm"
                 variant="bordered"
-                className="w-full py-6 border-1 border-[#7469B6]"
+                className="w-full py-6 border-1"
                 type="button"
                 onClick={handleGoogleSignIn}
               >
@@ -240,7 +255,7 @@ export default function Signup() {
               <Button
                 radius="sm"
                 variant="bordered"
-                className="w-full py-6 border-1 bg-[#1877F2] hover:bg-[#1869D6] text-white"
+                className="w-full py-6 border-1"
                 type="button"
                 onClick={handleFacebookSignIn}
               >
