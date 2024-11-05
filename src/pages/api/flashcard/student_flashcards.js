@@ -4,7 +4,7 @@ import path from "path";
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb", // Increase the size limit to 10MB
+      sizeLimit: "50mb", // Increase the size limit to 50MB
     },
   },
 };
