@@ -10,7 +10,7 @@ import {
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "10mb",
+      sizeLimit: "100mb",
     },
   },
 };
@@ -33,7 +33,7 @@ const uploadToFirebase = async (base64String, fileName, folder) => {
     const uploadResult = await uploadBytes(storageRef, file, {
       contentType: file.type,
       customMetadata: {
-        maxSizeBytes: "10485760",
+        maxSizeBytes: "104857600",
       },
     });
 

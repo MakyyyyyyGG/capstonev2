@@ -38,6 +38,8 @@ import {
   Frown,
   Check,
   X,
+  Eye,
+  EyeOff,
   ArrowLeftRight,
 } from "lucide-react";
 import GameHistory from "./GameHistory";
@@ -59,6 +61,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [hideWord, setHideWord] = useState(false);
 
   // Sound effect refs
   const correctSound = useRef(null);
@@ -149,6 +152,10 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     {
       positive: <Check size={20} />,
       negative: <X size={20} />,
+    },
+    {
+      positive: "Yes",
+      negative: "No",
     },
   ];
 
@@ -252,7 +259,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
         await getStudentTries();
       } else {
         console.log(result);
-        alert("Game finished!");
+        // alert("Game finished!");
         await getStudentTries();
       }
     } catch (error) {
@@ -297,14 +304,14 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                     Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
-                <Button
+                {/* <Button
                   variant="flat"
                   color="secondary"
                   onPress={changeIconPair}
                 >
                   <ArrowLeftRight className="h-4 w-4 mr-1" />
                   Change Icons
-                </Button>
+                </Button> */}
                 {gameRecord &&
                   cards && ( // Add null check
                     <GameHistory gameRecord={gameRecord} cards={cards.length} />
@@ -332,6 +339,35 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                   track: "bg-purple-50",
                 }}
               />
+            </div>
+          </div>
+          <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2 mx-auto mb-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  radius="sm"
+                  isIconOnly
+                  color="secondary"
+                  variant="flat"
+                  startContent={hideWord ? <EyeOff /> : <Eye />}
+                  onClick={() => setHideWord(!hideWord)}
+                ></Button>
+                {hideWord ? (
+                  <span className="text-sm text-default-500">Hide Word</span>
+                ) : (
+                  <span className="text-sm text-default-500">Show Word</span>
+                )}
+              </div>
+              <Button
+                radius="sm"
+                isIconOnly
+                variant="flat"
+                color="secondary"
+                onPress={changeIconPair}
+              >
+                <ArrowLeftRight className="h-4 w-4 mr-1" />
+              </Button>
+              <span className="text-sm text-default-500">Change Icons</span>
             </div>
           </div>
           <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
@@ -373,13 +409,19 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                       >
                         <Card
                           key={card.decision_maker_id}
-                          className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto"
+                          className="mx-auto w-full h-[40rem] aspect-square overflow-hidden rounded-xl bg-white shadow-lg"
                         >
                           <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                            <h1 className="text-3xl font-extrabold my-5 capitalize">
-                              {card.word}
-                            </h1>
-                            <div className="max-w-[15rem]">
+                            {!hideWord ? (
+                              <h1 className="text-3xl font-extrabold my-5 capitalize">
+                                {card.word}
+                              </h1>
+                            ) : (
+                              <h1 className="text-3xl font-extrabold my-5 capitalize opacity-0">
+                                {card.word}
+                              </h1>
+                            )}
+                            <div className="max-w-[23rem] min-w-[23rem]">
                               <Image
                                 src={card.image}
                                 alt={card.title}
@@ -387,16 +429,19 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                 height="100%"
                               />
                             </div>
-                            <div className="flex justify-center gap-4 pt-4">
+                            <div className="flex justify-center gap-4 pt-4 max-w-sm  w-full">
                               <motion.div
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
+                                className="w-full"
                               >
                                 <Button
                                   onPress={() => handleVote(card, "positive")}
                                   color="success"
                                   variant="flat"
                                   isDisabled={feedback[card.decision_maker_id]}
+                                  className="w-full"
+                                  radius="sm"
                                 >
                                   {buttonPairs[currentPairIndex].positive}
                                 </Button>
@@ -404,12 +449,15 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                               <motion.div
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
+                                className="w-full"
                               >
                                 <Button
                                   onPress={() => handleVote(card, "negative")}
                                   color="danger"
                                   variant="flat"
                                   isDisabled={feedback[card.decision_maker_id]}
+                                  className="w-full"
+                                  radius="sm"
                                 >
                                   {buttonPairs[currentPairIndex].negative}
                                 </Button>
