@@ -418,16 +418,16 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                               card.image3,
                               card.image4,
                             ].filter((image) => image !== null).length === 4
-                              ? "grid-cols-4"
+                              ? "grid-cols-4 max-md:grid-cols-2"
                               : [
                                   card.image1,
                                   card.image2,
                                   card.image3,
                                   card.image4,
                                 ].filter((image) => image !== null).length === 3
-                              ? "grid-cols-3"
+                              ? "grid-cols-3 max-sm:grid-cols-2"
                               : "grid-cols-2"
-                          } gap-2`}
+                          } gap-2 justify-center`}
                         >
                           {[
                             card.image1,
@@ -444,7 +444,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                   className={`relative hover:cursor-pointer rounded-md ${
                                     selectedImages[index]?.includes(idx)
                                       ? "border-3 border-[#17C964]"
-                                      : ""
+                                      : "border-3 border-transparent"
                                   }`}
                                   style={{
                                     transition:
@@ -465,7 +465,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                     }
                                     src={`${image}`}
                                     alt={`Image ${idx + 1}`}
-                                    className={`max-w-50 h-auto object-cover rounded-md ${
+                                    className={`w-44 h-44 object-cover rounded-md ${
                                       attempts[index] >= 3 ||
                                       feedback[index]?.includes("Correct")
                                         ? "opacity-50 cursor-not-allowed"

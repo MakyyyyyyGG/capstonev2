@@ -140,34 +140,38 @@ const FourPicsOneWord = ({ cards = [] }) => {
                     <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
                       <div
                         className={`grid ${
-                          card.difficulty === "easy"
-                            ? "grid-cols-2"
-                            : "grid-cols-4"
-                        } gap-2`}
+                          [
+                            card.image1,
+                            card.image2,
+                            card.image3,
+                            card.image4,
+                          ].filter(Boolean).length === 4
+                            ? "grid-cols-4 max-md:grid-cols-2"
+                            : [
+                                card.image1,
+                                card.image2,
+                                card.image3,
+                                card.image4,
+                              ].filter(Boolean).length === 3
+                            ? "grid-cols-3 max-sm:grid-cols-2"
+                            : "grid-cols-2"
+                        } gap-2 justify-center`}
                       >
-                        {card.image1 && (
-                          <img
-                            src={`${card.image1}`}
-                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
-                          />
-                        )}
-                        {card.image2 && (
-                          <img
-                            src={`${card.image2}`}
-                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
-                          />
-                        )}
-                        {card.difficulty !== "easy" && card.image3 && (
-                          <img
-                            src={`${card.image3}`}
-                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
-                          />
-                        )}
-                        {card.difficulty !== "easy" && card.image4 && (
-                          <img
-                            src={`${card.image4}`}
-                            className="max-w-50 h-auto border border-[#7469B6] rounded-md aspect-square"
-                          />
+                        {[
+                          card.image1,
+                          card.image2,
+                          card.image3,
+                          card.image4,
+                        ].map(
+                          (image, idx) =>
+                            image && (
+                              <img
+                                key={idx}
+                                src={`${image}`}
+                                alt={`Image ${idx + 1}`}
+                                className="w-44 h-44 object-cover border-2 border-[#7469B6] rounded-md"
+                              />
+                            )
                         )}
                       </div>
                     </CardBody>

@@ -152,10 +152,10 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                   <div
                     className={`grid ${
                       card.difficulty === "easy"
-                        ? "grid-cols-2"
+                        ? "grid-cols-2 justify-center"
                         : card.difficulty === "medium"
-                        ? "grid-cols-3"
-                        : "grid-cols-4 max-md:grid-cols-3 max-sm:grid-cols-2"
+                        ? "grid-cols-3 max-sm:grid-cols-2 justify-center"
+                        : "grid-cols-4 max-md:grid-cols-2 justify-center"
                     } gap-2`}
                   >
                     {card.image1 && (
@@ -167,7 +167,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                           selectedImages[index] &&
                           selectedImages[index].includes(0)
                             ? "border-3 border-[#17C964]"
-                            : ""
+                            : "border-3 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -178,7 +178,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image1}`}
                           alt="Image 1"
-                          className="w-full h-auto rounded-md aspect-square"
+                          className="w-44 h-44 rounded-md aspect-square"
                         />
                         <Checkbox
                           color="success"
@@ -200,7 +200,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                           selectedImages[index] &&
                           selectedImages[index].includes(1)
                             ? "border-3 border-[#17C964]"
-                            : ""
+                            : "border-3 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -211,7 +211,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image2}`}
                           alt="Image 2"
-                          className="w-full h-auto rounded-md aspect-square"
+                          className="w-44 h-44 rounded-md aspect-square"
                         />
                         <Checkbox
                           color="success"
@@ -233,7 +233,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                           selectedImages[index] &&
                           selectedImages[index].includes(2)
                             ? "border-3 border-[#17C964]"
-                            : ""
+                            : "border-3 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -244,7 +244,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image3}`}
                           alt="Image 3"
-                          className="w-full h-auto rounded-md aspect-square"
+                          className="w-44 h-44 rounded-md aspect-square"
                         />
                         <Checkbox
                           color="success"
@@ -266,7 +266,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                           selectedImages[index] &&
                           selectedImages[index].includes(3)
                             ? "border-3 border-[#17C964]"
-                            : ""
+                            : "border-3 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -277,7 +277,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image4}`}
                           alt="Image 4"
-                          className="w-full h-auto rounded-md aspect-square"
+                          className="w-44 h-44 rounded-md aspect-square"
                         />
                         <Checkbox
                           color="success"

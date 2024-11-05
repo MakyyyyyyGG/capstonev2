@@ -426,7 +426,7 @@ const ColorGames = ({ cards }) => {
                                 card.image3,
                                 card.image4,
                               ].filter((image) => image !== null).length === 4
-                                ? "grid-cols-4"
+                                ? "grid-cols-4 max-md:grid-cols-2"
                                 : [
                                     card.image1,
                                     card.image2,
@@ -434,9 +434,9 @@ const ColorGames = ({ cards }) => {
                                     card.image4,
                                   ].filter((image) => image !== null).length ===
                                   3
-                                ? "grid-cols-3"
+                                ? "grid-cols-3 max-sm:grid-cols-2"
                                 : "grid-cols-2"
-                            } gap-2`}
+                            } gap-2 justify-center`}
                           >
                             {[
                               card.image1,
@@ -458,7 +458,7 @@ const ColorGames = ({ cards }) => {
                                       selectedImages[card.color_game_id] || []
                                     ).includes(imageIndex)
                                       ? "border-3 border-[#17C964]"
-                                      : "border border-[#7469B6]"
+                                      : "border-3 border-transparent"
                                   }`}
                                   style={{
                                     transition:
@@ -495,7 +495,7 @@ const ColorGames = ({ cards }) => {
                                     <Image
                                       src={image}
                                       alt={`Color image ${imageIndex + 1}`}
-                                      className="h-full w-full object-cover rounded-lg"
+                                      className="w-44 h-44 object-cover rounded-lg"
                                     />
                                   </div>
                                 </motion.div>

@@ -362,13 +362,29 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                       <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
                         <div
-                          className={`grid grid-cols-4 gap-2 max-sm:grid-cols-2`}
+                          className={`grid ${
+                            [
+                              card.image1,
+                              card.image2,
+                              card.image3,
+                              card.image4,
+                            ].filter(Boolean).length === 4
+                              ? "grid-cols-4 max-md:grid-cols-2"
+                              : [
+                                  card.image1,
+                                  card.image2,
+                                  card.image3,
+                                  card.image4,
+                                ].filter(Boolean).length === 3
+                              ? "grid-cols-3 max-sm:grid-cols-2"
+                              : "grid-cols-2"
+                          } gap-2 justify-center`}
                         >
                           {[
-                            card.image1 || "",
-                            card.image2 || "",
-                            card.image3 || "",
-                            card.image4 || "",
+                            card.image1,
+                            card.image2,
+                            card.image3,
+                            card.image4,
                           ].map(
                             (image, idx) =>
                               image && (
@@ -376,7 +392,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                   key={idx}
                                   src={`${image}`}
                                   alt={`Image ${idx + 1}`}
-                                  className="max-w-50 h-auto border-2 border-[#7469B6] rounded-md aspect-square"
+                                  className="w-44 h-44 object-cover border-2 border-[#7469B6] rounded-md"
                                 />
                               )
                           )}
