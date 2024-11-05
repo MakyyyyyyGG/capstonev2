@@ -423,11 +423,11 @@ const Index = () => {
           <SelectItem key="hard">Hard (4 images)</SelectItem>
         </Select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {cards.map((card, cardIndex) => (
           <Card
             key={cardIndex}
-            className="w-full border  border-[#7469B6] rounded-md flex p-4"
+            className="w-full border border-[#7469B6] rounded-md flex p-4"
           >
             <CardHeader className="flex px-3 justify-between items-center z-0">
               <div className="pl-2 text-xl font-bold">
@@ -487,7 +487,7 @@ const Index = () => {
                       .map((image, imageIndex) => (
                         <div
                           key={imageIndex}
-                          className={`flex flex-col relative w-[17rem] aspect-square rounded-lg border-2 border-[#9183e2] border-dashed bg-gray-100 max-sm:w-[14rem] items-center justify-center cursor-pointer `}
+                          className={`flex flex-col relative aspect-square rounded-lg border-2 border-[#9183e2] border-dashed bg-gray-100 items-center justify-center cursor-pointer `}
                           onDragEnter={(e) =>
                             handleDragEnter(e, cardIndex, imageIndex)
                           }
