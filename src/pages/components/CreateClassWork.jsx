@@ -1,7 +1,15 @@
 import React from "react";
-import { Plus, LayoutGrid, Palette, Grid2x2, Grid2x2Plus } from "lucide-react";
+import {
+  Plus,
+  LayoutGrid,
+  Palette,
+  Grid2x2,
+  Grid2x2Plus,
+  ListTree,
+} from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { FaRegLightbulb } from "react-icons/fa";
+import { LiaListOlSolid } from "react-icons/lia";
 import Link from "next/link";
 import {
   Card,
@@ -56,7 +64,7 @@ const CreateClassWork = ({ room_code }) => {
     {
       title: "Sequence Game",
       path: "create_color_game_advanced",
-      icon: <Palette size={25} className="text-[#7C3AED]" />,
+      icon: <LiaListOlSolid size={25} className="text-[#7C3AED]" />,
       iconBg: "bg-[#7C3AED]/10",
       description:
         "Enchance students' color recognition skills through identifying images that will match to a specific color.",

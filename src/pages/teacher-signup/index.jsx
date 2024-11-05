@@ -246,7 +246,7 @@ function Signup() {
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter username"
+                  placeholder="Enter Username"
                   required
                   size="lg"
                   radius="sm"
