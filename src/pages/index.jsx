@@ -171,6 +171,7 @@ export default function Signup() {
             </Button>
 
             <Button
+              as={Link}
               href="/teacher-signup"
               type="submit"
               size="lg"
