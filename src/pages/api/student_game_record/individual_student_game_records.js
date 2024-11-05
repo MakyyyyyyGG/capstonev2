@@ -3,7 +3,7 @@ import { query } from "@/lib/db";
 export default async function handler(req, res) {
   if (req.method === "GET") {
     console.log("im reached");
-    const account_id = req.query.account_id;
+    const { account_id, room_code } = req.query;
     try {
       const result = await query({
         query: `SELECT user_game_plays.score, user_game_plays.created_at, games.title, games.game_type, user_game_plays.account_id, user_game_plays.game_id,
@@ -17,9 +17,9 @@ export default async function handler(req, res) {
                 END AS set_length
                 FROM user_game_plays
                 INNER JOIN games ON user_game_plays.game_id = games.game_id
-                WHERE user_game_plays.account_id = ? 
+                WHERE user_game_plays.account_id = ? AND games.room_code = ?
                 ORDER BY user_game_plays.created_at DESC`,
-        values: [account_id],
+        values: [account_id, room_code],
       });
 
       return res.status(200).json({

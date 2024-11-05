@@ -51,6 +51,18 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
       };
     });
 
+  // Calculate summary statistics from filtered data
+  const totalAttempts = chartData.length;
+  const totalCorrect = chartData.reduce(
+    (sum, record) => sum + (record.Score * questions) / 100,
+    0
+  );
+  const totalWrong = totalAttempts * questions - totalCorrect;
+  const averageAccuracy =
+    totalAttempts > 0
+      ? ((totalCorrect / (totalAttempts * questions)) * 100).toFixed(2)
+      : 0;
+
   // Get unique months and years from gameRecord with null check
   const uniqueMonths = [
     ...new Set(
@@ -176,11 +188,9 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                         className="bg-purple-50 px-4 py-5 rounded-md"
                       >
                         <div className="text-2xl font-bold text-purple-600">
-                          {questions}
+                          {accuracy}%
                         </div>
-                        <div className="text-sm text-purple-600">
-                          Total Items
-                        </div>
+                        <div className="text-sm text-purple-600">Accuracy</div>
                       </motion.div>
                     </div>
                   </CardBody>
@@ -246,53 +256,42 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-emerald-50 px-4 py-5 rounded-md"
                 >
-                  <Card className="bg-emerald-500 text-white z-0">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
-                      <h1 className="text-xs font-medium">Correct</h1>
-                    </CardHeader>
-                    <CardBody>
-                      <div className="text-2xl font-bold">{latestScore}</div>
-                    </CardBody>
-                  </Card>
+                  <div className="text-2xl font-bold text-emerald-600">
+                    {Math.round(totalCorrect)}
+                  </div>
+                  <div className="text-sm text-emerald-600">Total Correct</div>
                 </motion.div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-rose-50 px-4 py-5 rounded-md"
                 >
-                  <Card className="bg-rose-500 text-white z-0">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
-                      <h1 className="text-xs font-medium">Incorrect</h1>
-                    </CardHeader>
-                    <CardBody>
-                      <div className="text-2xl font-bold">
-                        {incorrectAnswers}
-                      </div>
-                    </CardBody>
-                  </Card>
+                  <div className="text-2xl font-bold text-rose-600">
+                    {Math.round(totalWrong)}
+                  </div>
+                  <div className="text-sm text-rose-600">Total Wrong</div>
                 </motion.div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
+                  transition={{ delay: 0.5 }}
+                  className="bg-purple-50 px-4 py-5 rounded-md"
                 >
-                  <Card className="bg-violet-500 text-white z-0">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
-                      <h1 className="text-xs font-medium">Accuracy</h1>
-                    </CardHeader>
-                    <CardBody>
-                      <div className="text-2xl font-bold">
-                        {((latestScore / questions) * 100).toFixed(0)}%
-                      </div>
-                    </CardBody>
-                  </Card>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {averageAccuracy}%
+                  </div>
+                  <div className="text-sm text-purple-600">
+                    Average Accuracy
+                  </div>
                 </motion.div>
               </div>
-              <div className="flex flex-col gap-4 py-4 border shadow-inner rounded-xl mt-6">
+              <div className="flex flex-col gap-4 py-4 border  rounded-xl mt-6">
                 <h3 className="text-lg font-bold text-center">Accuracy</h3>
                 <div className="flex justify-center gap-4 items-center max-sm:flex-col max-sm:gap-2">
                   <div className="flex items-center space-x-2">
