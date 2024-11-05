@@ -155,7 +155,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         ? "grid-cols-2 justify-center"
                         : card.difficulty === "medium"
                         ? "grid-cols-3 max-sm:grid-cols-2 justify-center"
-                        : "grid-cols-4 max-md:grid-cols-2 justify-center"
+                        : "grid-cols-2 justify-center"
                     } gap-2`}
                   >
                     {card.image1 && (

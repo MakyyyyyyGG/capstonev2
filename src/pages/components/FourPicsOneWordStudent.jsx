@@ -369,7 +369,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                               card.image3,
                               card.image4,
                             ].filter(Boolean).length === 4
-                              ? "grid-cols-4 max-md:grid-cols-2"
+                              ? "grid-cols-2"
                               : [
                                   card.image1,
                                   card.image2,
