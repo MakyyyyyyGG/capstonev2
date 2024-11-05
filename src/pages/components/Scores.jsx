@@ -31,7 +31,7 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 // import { DateRangePicker } from "@/components/ui/date-range-picker";
 
-const Scores = ({ studentRecords, students }) => {
+const Scores = ({ studentRecords, students, height }) => {
   const [processedData, setProcessedData] = useState([]);
   const [viewChart, setViewChart] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -219,7 +219,7 @@ const Scores = ({ studentRecords, students }) => {
   );
 
   return (
-    <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white ">
+    <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white   ">
       <CardContent className="p-6">
         <div className="flex items-center gap-4 pb-4 flex-wrap">
           {/* <DateRangePicker
@@ -291,7 +291,7 @@ const Scores = ({ studentRecords, students }) => {
           )}
         </div>
 
-        <ScrollArea className="h-[400px] rounded-lg border">
+        <ScrollArea className={`h-[${height}px] rounded-lg border`}>
           <Table>
             <TableHeader className="sticky top-0 bg-background">
               <TableRow>
@@ -310,14 +310,14 @@ const Scores = ({ studentRecords, students }) => {
                   </>
                 )}
                 <TableHead onClick={() => sortData("date")}>Date</TableHead>
-                <TableHead className="text-right">Attempts</TableHead>
+                <TableHead className="text-center">Attempts</TableHead>
                 <TableHead
-                  className="text-right"
+                  className="text-center"
                   onClick={() => sortData("average")}
                 >
                   Average
                 </TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -337,17 +337,17 @@ const Scores = ({ studentRecords, students }) => {
                       </>
                     )}
                     <TableCell>{row.date}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       {row.scores.length}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       {parseFloat(row.average).toFixed(2)}%
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="opacity-0 group-hover:opacity-100"
+                        className=" group-hover:opacity-100"
                         onClick={() => toggleViewChart(index)}
                       >
                         {viewChart[index] ? "View Less" : "View More"}
@@ -366,6 +366,7 @@ const Scores = ({ studentRecords, students }) => {
                                   ? null
                                   : parseFloat(score.toFixed(2)),
                             }))}
+                            margin={{ top: 30, right: 20, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -376,6 +377,11 @@ const Scores = ({ studentRecords, students }) => {
                               type="monotone"
                               dataKey="score"
                               stroke="#8884d8"
+                              label={{
+                                position: "top",
+                                offset: 10,
+                                formatter: (value) => `${value}%`,
+                              }}
                             />
                           </LineChart>
                         </ResponsiveContainer>

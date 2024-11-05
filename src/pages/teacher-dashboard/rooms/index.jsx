@@ -167,15 +167,14 @@ const Rooms = ({ rooms = [], onRoomDeleted }) => {
                         <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
                           <div className="p-2 text-[#7469B6] flex items-center justify-between  w-full">
                             <div className="flex items-center gap-2">
-                              <div
-                                onClick={(e) =>
-                                  copyToClipboard(room.room_code, e)
-                                }
-                              >
+                              <div>
                                 <Button
                                   color="transparent"
                                   isIconOnly
                                   aria-label="Copy Room Code"
+                                  onClick={(e) => {
+                                    copyToClipboard(room.room_code, e);
+                                  }}
                                 >
                                   <Copy size={22} />
                                 </Button>

@@ -203,7 +203,11 @@ const index = () => {
               </CardBody>
             </Card>
           </div>
-          <Scores studentRecords={studentData} students={students} />
+          <Scores
+            height={500}
+            studentRecords={studentData}
+            students={students}
+          />
         </>
       )}
     </div>
