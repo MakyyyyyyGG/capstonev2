@@ -827,7 +827,7 @@ const Index = () => {
           </Card>
         ))}
 
-        <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+        {/* <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
           <ModalContent>
             <ModalHeader className="flex flex-col gap-1">
               Crop Image
@@ -869,7 +869,7 @@ const Index = () => {
               </Button>
             </ModalFooter>
           </ModalContent>
-        </Modal>
+        </Modal> */}
       </div>
       <Button
         size="lg"
