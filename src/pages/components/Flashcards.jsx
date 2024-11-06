@@ -46,9 +46,6 @@ const Flashcards = ({ flashcards, isLoading }) => {
         </div>
       ) : (
         <>
-          <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-            <h1>Flashcards</h1>
-          </div>
           <div className="flex flex-wrap gap-4">
             <Swiper
               pagination={{

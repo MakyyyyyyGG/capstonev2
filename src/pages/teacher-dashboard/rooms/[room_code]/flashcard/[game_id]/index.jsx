@@ -51,19 +51,19 @@ const Index = () => {
 
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
-      <Flashcards flashcards={flashcards} isLoading={isLoading} />
-      <div className="w-full flex justify-end">
+      <div className="w-full flex justify-between items-center">
+        <h1 className="text-2xl font-extrabold">Flashcard</h1>
         <Link
           href={{
             pathname: `/teacher-dashboard/rooms/${room_code}/flashcard/${game_id}/edit`,
           }}
         >
-          {" "}
-          <Button isIconOnly className="bg-[#7469B6] text-white border-0">
-            <Pencil size={22} />
+          <Button radius="sm" className="bg-[#7469B6] text-white border-0">
+            <Pencil size={22} /> Edit
           </Button>
         </Link>
       </div>
+      <Flashcards flashcards={flashcards} isLoading={isLoading} />
     </div>
   );
 };

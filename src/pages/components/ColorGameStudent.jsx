@@ -45,6 +45,8 @@ const ColorGames = ({ cards }) => {
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
 
+  const [showEmoji, setShowEmoji] = useState(false);
+
   useEffect(() => {
     if (!cards) return;
 
@@ -163,6 +165,10 @@ const ColorGames = ({ cards }) => {
       newFeedback = "Correct!";
       setScore((prevScore) => prevScore + 1);
       setAnswer((prevAnswer) => prevAnswer + 1);
+
+      // Show emoji briefly when the answer is correct
+      setShowEmoji(true);
+      setTimeout(() => setShowEmoji(false), 1400); // 1.4-second delay to hide emoji
 
       // Play correct sound
       correctSound.current.play();
@@ -339,7 +345,7 @@ const ColorGames = ({ cards }) => {
       ) : (
         <>
           <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
                 <h1 className="text-2xl font-bold">Color Game</h1>
               </div>
@@ -373,13 +379,13 @@ const ColorGames = ({ cards }) => {
                 classNames={{
                   value: "text-foreground/60",
                   indicator: "bg-[#7469B6]",
-                  track: "bg-purple-50",
+                  track: "bg-slate-200",
                 }}
                 aria-label="Game progress"
               />
             </div>
           </div>
-          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
+          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl mb-4">
             <Swiper
               grabCursor={true}
               effect={"creative"}
@@ -413,9 +419,9 @@ const ColorGames = ({ cards }) => {
                       transition={{ duration: 0.5 }}
                       className="border-4 rounded-lg"
                     >
-                      <Card className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto">
-                        <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                          <div className="text-3xl font-extrabold my-5 capitalize">
+                      <Card className="w-full rounded-md flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
+                        <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
+                          <div className="text-3xl font-extrabold mb-5 capitalize">
                             <p>{card.color}</p>
                           </div>
                           <div
@@ -426,7 +432,7 @@ const ColorGames = ({ cards }) => {
                                 card.image3,
                                 card.image4,
                               ].filter((image) => image !== null).length === 4
-                                ? "grid-cols-4 max-md:grid-cols-2"
+                                ? "grid-cols-2"
                                 : [
                                     card.image1,
                                     card.image2,
@@ -502,10 +508,10 @@ const ColorGames = ({ cards }) => {
                               ) : null
                             )}
                           </div>
-                          <div className="w-full mt-8">
+                          <div className="w-full mt-6">
                             <Button
                               radius="sm"
-                              className="w-full justify-center text-white bg-[#7469B6]"
+                              className="w-full h-16 text-lg justify-center text-white bg-[#7469B6]"
                               onClick={() => handleSubmit(index)}
                               isDisabled={
                                 (attempts[index] || 0) >= 3 ||
@@ -514,7 +520,7 @@ const ColorGames = ({ cards }) => {
                               }
                               aria-label="Check answers"
                             >
-                              Check Answers
+                              Check Answer
                             </Button>
                           </div>
                           <AnimatePresence>
@@ -534,16 +540,36 @@ const ColorGames = ({ cards }) => {
                                   className={
                                     submissionResults[card.color_game_id] ===
                                     "Correct!"
-                                      ? "text-white w-full bg-green-500 p-2 rounded-md"
+                                      ? "text-white w-full bg-green-500 p-2 rounded-lg"
                                       : submissionResults[
                                           card.color_game_id
                                         ] === "Almost there!"
-                                      ? "text-white w-full bg-yellow-500 p-2 rounded-md"
-                                      : "text-white w-full bg-red-500 p-2 rounded-md"
+                                      ? "text-white w-full bg-yellow-500 p-2 rounded-lg"
+                                      : "text-white w-full bg-red-500 p-2 rounded-lg"
                                   }
                                 >
                                   {submissionResults[card.color_game_id]}
                                 </motion.div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          <AnimatePresence>
+                            {showEmoji && (
+                              <motion.div
+                                initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                                animate={{
+                                  scale: [1.5, 1.8, 1.2, 1],
+                                  opacity: 1,
+                                  rotate: [0, 10, -10, 0],
+                                }}
+                                exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                                transition={{
+                                  duration: 1.2,
+                                  ease: [0.36, 1.2, 0.5, 1],
+                                }}
+                                className="absolute z-10 top-3/5 left-3/5 transform -translate-x-1/2 -translate-y-1/2 text-9xl"
+                              >
+                                😄
                               </motion.div>
                             )}
                           </AnimatePresence>

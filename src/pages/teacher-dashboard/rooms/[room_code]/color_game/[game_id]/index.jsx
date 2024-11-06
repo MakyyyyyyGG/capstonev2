@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@nextui-org/react";
 import { Pencil } from "lucide-react";
+import { Chip } from "@nextui-org/react";
 import ColorGames from "@/pages/components/ColorGames";
 import Link from "next/link";
 const index = () => {
@@ -34,10 +35,40 @@ const index = () => {
       fetchCards();
     }
   }, [game_id]);
+
+  // Function to dynamically set Chip color based on room difficulty
+  const getChipColor = (difficulty) => {
+    switch (
+      difficulty?.toLowerCase() // Add optional chaining
+    ) {
+      case "easy":
+        return "success";
+      case "moderate":
+        return "warning";
+      case "hard":
+        return "danger";
+      default:
+        return "default"; // fallback if the difficulty is not recognized
+    }
+  };
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
-      <ColorGames cards={cards} />
-      <div className="w-full flex justify-end">
+      <div className="w-full flex justify-between items-center">
+        <div className="flex gap-4 items-center">
+          <h1 className="text-2xl font-extrabold">Color Game</h1>
+          {cards && cards.length > 0 && (
+            <div className="text-lg font-bold ">
+              <Chip
+                color={getChipColor(cards[0].difficulty)}
+                radius="sm"
+                className="rounded-md px-1 py-1 capitalize text-white"
+              >
+                {cards[0].difficulty}
+              </Chip>
+            </div>
+          )}
+        </div>
         {/* <h1>4 Pics 1 Word Advanced</h1>
       <p>game_id: {game_id}</p>
       <p>room_code: {room_code}</p> */}
@@ -46,11 +77,12 @@ const index = () => {
             pathname: `/teacher-dashboard/rooms/${room_code}/color_game/${game_id}/edit`,
           }}
         >
-          <Button isIconOnly className="bg-[#7469B6] text-white border-0">
-            <Pencil size={22} />
+          <Button radius="sm" className="bg-[#7469B6] text-white border-0">
+            <Pencil size={22} /> Edit
           </Button>
         </Link>
       </div>
+      <ColorGames cards={cards} />
     </div>
   );
 };

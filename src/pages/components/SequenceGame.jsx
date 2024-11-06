@@ -125,7 +125,7 @@ const SequenceGame = ({ sequenceGame }) => {
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
       {gameData && gameData.length > 0 && gameData[0].video && (
         <>
-          <div className="flex w-full justify-center pt-2">
+          <div className="flex w-full justify-center">
             <div className="aspect-video w-full max-w-[50rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
               <iframe
                 src={gameData[0].video}
@@ -139,9 +139,6 @@ const SequenceGame = ({ sequenceGame }) => {
           {/* <h1>{gameData[0].title}</h1> */}
         </>
       )}
-      <div>
-        <h1 className="text-2xl font-bold">Sequence Game</h1>
-      </div>
       <div className="flex justify-center items-center">
         <div className="w-full max-w-[50rem] grid md:grid-cols-2 gap-3">
           <Card className="p-4 max-md:h-96">
