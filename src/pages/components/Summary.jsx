@@ -353,7 +353,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                     width={480}
                     height={250}
                     data={chartData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 30, right: 20, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
@@ -365,6 +365,11 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                       dataKey="Score"
                       stroke="#8884d8"
                       activeDot={{ r: 8 }}
+                      label={{
+                        position: "top",
+                        offset: 10,
+                        formatter: (value) => `${value}%`,
+                      }}
                     />
                   </LineChart>
                 </motion.div>
