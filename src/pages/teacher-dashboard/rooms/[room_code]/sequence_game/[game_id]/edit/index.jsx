@@ -877,7 +877,7 @@ const Index = () => {
                   <CardBody className="flex flex-col gap-4">
                     <div className="flex w-full gap-4 justify-between">
                       <div className="flex w-full gap-2">
-                        <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px]">
+                        <div className="aspect-square rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full max-w-[300px] h-[300px]">
                           {/* <div className="relative flex flex-col gap-2">
                             <div className=" w-[100px] h-[100px] max-sm:w-[70px] max-sm:h-[70px]">
                               <img

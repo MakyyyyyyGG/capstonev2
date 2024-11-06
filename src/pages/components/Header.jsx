@@ -697,7 +697,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                     isReadOnly
                     className="h-30 gap-2 cursor-default"
                   >
-                    <p className=" text-center text-2xl">Hi, {firstName}!</p>
+                    <p className=" text-center text-2xl">
+                      Hi, {firstName || session.user.name}!
+                    </p>
                   </DropdownItem>
                 </DropdownSection>
                 <DropdownSection>

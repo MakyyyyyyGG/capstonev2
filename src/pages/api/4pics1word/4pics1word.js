@@ -24,7 +24,7 @@ const uploadToFirebase = async (base64String, fileName, folder) => {
     const uploadResult = await uploadBytes(storageRef, file, {
       contentType: file.type,
       customMetadata: {
-        maxSizeBytes: "52428800", // 50MB in bytes
+        maxSizeBytes: "104857600", // 100MB in bytes
       },
     });
 
@@ -51,7 +51,7 @@ const deleteFromFirebase = async (filePath) => {
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "50mb",
+      sizeLimit: "100mb",
     },
   },
 };

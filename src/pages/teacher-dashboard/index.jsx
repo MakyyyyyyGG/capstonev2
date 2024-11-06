@@ -52,7 +52,6 @@ const Dashboard = () => {
     <div className="p-4 w-full">
       <div className="w-full">
         <Rooms rooms={rooms} onRoomDeleted={fetchRooms} />
-
         {/* <div className="absolute bottom-0 right-0 p-5 drop-shadow-lg sm:hidden">
           <CreateRoom onRoomCreated={fetchRooms} />
         </div> */}

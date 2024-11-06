@@ -473,7 +473,7 @@ const Index = () => {
                                 <Tabs aria-label="Options" fullWidth>
                                   <Tab key="drag" title="Drag & Drop">
                                     <div
-                                      className=" rounded-lg border-2 border-dashed border-gray-400 p-8 text-center cursor-pointer"
+                                      className="  rounded-lg border-2 border-dashed border-gray-400 p-8 text-center cursor-pointer"
                                       onDragOver={(e) => e.preventDefault()}
                                       onDrop={(e) => {
                                         e.preventDefault();
@@ -608,7 +608,7 @@ const Index = () => {
                     </Modal>
                   </div>
                   <div className="flex flex-col w-full gap-4 justify-between">
-                    <div className="rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full h-[300px]">
+                    <div className="aspect-square rounded-lg m-auto flex shrink-0 items-center justify-center border-dashed bg-gray-100 border-2 border-[#9183e2] w-full max-w-[300px] h-[300px]">
                       {flashcard.image ? (
                         <div className="relative flex flex-col gap-2 w-full h-full">
                           <div className="w-full h-full">

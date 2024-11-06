@@ -47,6 +47,14 @@ const FlashcardsStudent = ({ flashcards }) => {
   const [showDescription, setShowDescription] = useState({});
   const [audioPlaying, setAudioPlaying] = useState(null);
   const audioRefs = useRef({});
+  const [currentFlashcards, setCurrentFlashcards] = useState([]);
+
+  useEffect(() => {
+    if (flashcards) {
+      // Only randomize once when flashcards prop changes
+      setCurrentFlashcards([...flashcards].sort(() => Math.random() - 0.5));
+    }
+  }, [flashcards]);
 
   const toggleCardBody = (id) => {
     setShowDescription((prev) => ({
@@ -66,9 +74,6 @@ const FlashcardsStudent = ({ flashcards }) => {
       </div>
     );
   }
-
-  // Randomize the flashcards
-  const randomizedFlashcards = [...flashcards].sort(() => Math.random() - 0.5);
 
   const handleAudioPlay = (flashcard_id, audio) => {
     if (audioPlaying && audioPlaying !== flashcard_id) {
@@ -108,7 +113,7 @@ const FlashcardsStudent = ({ flashcards }) => {
           modules={[Pagination, Navigation, EffectCreative]}
           className="mySwiper w-full drop-shadow-lg rounded-md items"
         >
-          {randomizedFlashcards.map((flashcard) => (
+          {currentFlashcards.map((flashcard) => (
             <SwiperSlide key={flashcard.flashcard_id}>
               <Card className="w-full h-[500px] rounded-md">
                 {!showDescription[flashcard.flashcard_id] && (

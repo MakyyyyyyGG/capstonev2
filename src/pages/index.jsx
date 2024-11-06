@@ -157,9 +157,7 @@ export default function Signup() {
             </Button>
 
             <Button
-              as={Link}
-              href="/teacher-signup"
-              type="submit"
+              onClick={() => router.push("/teacher-signup")}
               size="lg"
               variant="bordered"
               color="secondary"

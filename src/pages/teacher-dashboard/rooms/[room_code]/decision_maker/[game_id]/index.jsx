@@ -40,20 +40,24 @@ const index = () => {
   }, [game_id]);
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Decision Maker</h1>
+        <Button isIconOnly className="bg-[#7469B6] text-white border-0">
+          <Link
+            href={{
+              pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
+            }}
+          >
+            <Pencil size={22} />
+          </Link>
+        </Button>
+      </div>
+
       <DecisionMaker cards={cards} />
       <div className="w-full flex justify-end">
         {/* <h1>4 Pics 1 Word Advanced</h1>
       <p>game_id: {game_id}</p>
       <p>room_code: {room_code}</p> */}
-        <Link
-          href={{
-            pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
-          }}
-        >
-          <Button isIconOnly className="bg-[#7469B6] text-white border-0">
-            <Pencil size={22} />
-          </Button>
-        </Link>
       </div>
     </div>
   );
