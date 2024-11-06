@@ -19,8 +19,10 @@ import {
   CardFooter,
   Select,
   SelectItem,
+  Modal,
+  ModalContent,
 } from "@nextui-org/react";
-import { Trophy, Home, BarChart3, ArrowLeft } from "lucide-react";
+import { Trophy, Home, BarChart3, ArrowLeft, NotepadText } from "lucide-react";
 import { useRouter } from "next/router";
 
 const Summary = ({ gameRecord = [], questions = 10 }) => {
@@ -31,6 +33,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
 
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [showSurvey, setShowSurvey] = useState(false);
 
   // Prepare data for the LineChart
   const chartData = (gameRecord || []) // Add null check with empty array fallback
@@ -209,6 +212,16 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                       View Summary
                     </Button>
                     <Button
+                      color="success"
+                      variant="flat"
+                      className="w-full"
+                      radius="sm"
+                      onClick={() => setShowSurvey(true)}
+                    >
+                      <NotepadText className="h-4 w-4 mr-2" />
+                      Answer Survey (Please 😭)
+                    </Button>
+                    <Button
                       variant="outline"
                       radius="sm"
                       className="w-full"
@@ -224,6 +237,23 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Survey Modal */}
+      <Modal
+        isOpen={showSurvey}
+        onClose={() => setShowSurvey(false)}
+        size="full"
+        scrollBehavior="outside"
+        className="m-0 p-0"
+      >
+        <ModalContent className="h-screen m-0 p-0">
+          <iframe
+            src="https://docs.google.com/forms/d/e/1FAIpQLSdZFX_ZuLu1T813AkAivQy7j0bR-_yfUmb4oV-x2aHKuCU9WQ/viewform?embedded=true"
+            className="w-full h-full border-0"
+          />
+        </ModalContent>
+      </Modal>
+
       {/* Game Performance Summary */}
       {showSummary && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
