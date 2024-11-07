@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Flashcards from "@/pages/components/Flashcards";
 import Link from "next/link";
+import { Chip } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Pencil } from "lucide-react";
 import DecisionMaker from "@/pages/components/DecisionMaker";
@@ -38,17 +39,48 @@ const index = () => {
       fetchCards();
     }
   }, [game_id]);
+
+  // Function to dynamically set Chip color based on room difficulty
+  const getChipColor = (difficulty) => {
+    switch (
+      difficulty?.toLowerCase() // Add optional chaining
+    ) {
+      case "easy":
+        return "success";
+      case "moderate":
+        return "warning";
+      case "hard":
+        return "danger";
+      default:
+        return "default"; // fallback if the difficulty is not recognized
+    }
+  };
+
   return (
-    <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
+    <div className="w-full flex flex-col gap-2 p-4 max-w-[50rem] mx-auto">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Decision Maker</h1>
-        <Button isIconOnly className="bg-[#7469B6] text-white border-0">
+        <div className="flex gap-4 items-center">
+          <h1 className="text-2xl font-extrabold">Decision Maker</h1>
+          {cards && cards.length > 0 && (
+            <div className="text-lg font-bold ">
+              <Chip
+                color={getChipColor(cards[0].difficulty)}
+                radius="sm"
+                className="rounded-md px-1 py-1 capitalize text-white"
+              >
+                {cards[0].difficulty}
+              </Chip>
+            </div>
+          )}
+        </div>
+        <Button radius="sm" className="bg-[#7469B6] text-white border-0">
           <Link
             href={{
               pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
             }}
+            className="flex"
           >
-            <Pencil size={22} />
+            <Pencil size={22} className="mr-2" /> Edit
           </Link>
         </Button>
       </div>

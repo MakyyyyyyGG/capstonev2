@@ -104,11 +104,6 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-      <div className="flex mb-5 justify-between items-center text-2xl font-extrabold">
-        <div>
-          <h1 className="text-2xl font-bold">ThinkPic+</h1>
-        </div>
-      </div>
       <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
         <Swiper
           // pagination={{
@@ -130,8 +125,8 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
         >
           {cards.map((card, index) => (
             <SwiperSlide key={index} className="w-[500px]">
-              <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+              <Card className="w-full flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
+                <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
                   <div className="flex justify-center items-center gap-2">
                     <div className="text-3xl font-extrabold my-5">
                       <h1>{card.word}</h1>
@@ -292,12 +287,12 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                     )}
                   </div>
 
-                  <div className="w-full mt-9">
+                  <div className="w-full mt-6">
                     <Button
                       onClick={handleCheckAnswers}
-                      className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                      className="w-full h-16 inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-lg font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
                     >
-                      Check Answers
+                      Check Answer
                     </Button>
                   </div>
                   <AnimatePresence>
@@ -311,8 +306,8 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <p
                           className={
                             feedback[index].includes("Correct")
-                              ? "text-white w-full bg-green-500 p-2 rounded-md"
-                              : "text-white w-full bg-red-500 p-2 rounded-md"
+                              ? "text-white w-full bg-green-500 p-2 rounded-lg"
+                              : "text-white w-full bg-red-500 p-2 rounded-lg"
                           }
                         >
                           {feedback[index]}

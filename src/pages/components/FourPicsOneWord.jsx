@@ -97,22 +97,6 @@ const FourPicsOneWord = ({ cards = [] }) => {
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-      <div className="flex mb-5 justify-between items-center text-2xl font-extrabold">
-        <h1>ThinkPic</h1>
-        {cards &&
-          cards.length > 0 && ( // Add null check
-            <div className="text-lg font-bold ">
-              <Chip
-                color={getChipColor(cards[0].difficulty)}
-                radius="sm"
-                className="rounded-md px-1 py-1 capitalize"
-              >
-                {cards[0].difficulty}
-              </Chip>
-            </div>
-          )}
-      </div>
-
       <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
         <Swiper
           grabCursor={true}
@@ -136,7 +120,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                 index // Add null check
               ) => (
                 <SwiperSlide key={index}>
-                  <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+                  <Card className="w-full flex flex-col gap-2 max-w-[50rem] mx-auto">
                     <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
                       <div
                         className={`grid ${
@@ -273,7 +257,9 @@ const FourPicsOneWord = ({ cards = [] }) => {
                         </form>
                         <div className="w-full mt-4">
                           <Button
-                            className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                            radius="md"
+                            size="lg"
+                            className="w-full h-16 inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-lg font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
                             onClick={() => checkAnswer(index)}
                           >
                             Check Answer
@@ -285,13 +271,13 @@ const FourPicsOneWord = ({ cards = [] }) => {
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: 20 }}
-                              className="flex w-full text-center justify-center rounded-md mt-2"
+                              className="flex w-full text-center justify-center rounded-md"
                             >
                               <p
                                 className={
                                   feedback[index].includes("Correct")
-                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                    : "text-white w-full bg-red-500 p-2 rounded-md"
+                                    ? "text-white w-full bg-green-500 p-2 rounded-lg"
+                                    : "text-white w-full bg-red-500 p-2 rounded-lg"
                                 }
                               >
                                 {feedback[index]}

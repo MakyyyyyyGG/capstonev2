@@ -93,20 +93,13 @@ export default function Signup() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
               <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Username
-                </label>
                 <Input
-                  size="lg"
+                  size="sm"
                   radius="sm"
                   classNames={{
-                    label: "text-white",
                     inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                   }}
                   variant="bordered"
@@ -115,33 +108,26 @@ export default function Signup() {
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Username"
+                  label="Enter Username"
                   required
                 />
               </div>
 
               <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium mb-2"
-                >
-                  Password
-                </label>
                 <div className="relative">
                   <Input
                     id="password"
                     type="password"
                     value={password}
-                    size="lg"
+                    size="sm"
                     radius="sm"
                     classNames={{
-                      label: "text-white",
                       inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                     }}
                     variant="bordered"
                     color="secondary"
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter Password"
+                    label="Enter Password"
                     required
                   />
                 </div>
@@ -176,11 +162,7 @@ export default function Signup() {
               variant="bordered"
               color="secondary"
               radius="sm"
-              className="w-full"
-              classNames={{
-                label: "text-white",
-                inputWrapper: "bg-[#6B4DE6] hover:bg-[#5B3DD6] ",
-              }}
+              className="w-full border-1"
             >
               Become a Teacher
             </Button>
@@ -209,7 +191,7 @@ export default function Signup() {
               <Button
                 radius="sm"
                 variant="bordered"
-                className="w-full py-6 border-1"
+                className="w-full py-6 border-1 border-[#7469B6]"
                 type="button"
                 onClick={handleGoogleSignIn}
               >
@@ -255,7 +237,7 @@ export default function Signup() {
               <Button
                 radius="sm"
                 variant="bordered"
-                className="w-full py-6 border-1"
+                className="w-full py-6 border-1 border-[#7469B6]"
                 type="button"
                 onClick={handleFacebookSignIn}
               >

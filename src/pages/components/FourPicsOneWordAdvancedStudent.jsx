@@ -51,6 +51,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
 
+  const [showEmoji, setShowEmoji] = useState(false);
+
   useEffect(() => {
     if (cards && cards.length > 0) {
       setShuffledCards(shuffleArray(cards));
@@ -146,6 +148,11 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
           newScore++;
           newFeedback[cardIndex] = "Correct!";
           newAnswer++;
+
+          // Show emoji briefly when the answer is correct
+          setShowEmoji(true);
+          setTimeout(() => setShowEmoji(false), 1400); // 1.4-second delay to hide emoji
+
           // Play correct sound
           correctSound.current.play();
 
@@ -315,9 +322,9 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
       ) : (
         <>
           <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
-                <h1 className="text-2xl font-bold">ThinkPic+</h1>
+                <h1 className="text-2xl font-bold">ThinkPic +</h1>
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -351,7 +358,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                 classNames={{
                   value: "text-foreground/60",
                   indicator: "bg-[#7469B6]",
-                  track: "bg-purple-50",
+                  track: "bg-slate-200",
                 }}
               />
             </div>
@@ -359,7 +366,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
           <h1 className="text-2xl font-bold text-center mb-6">
             Choose the correct image(s)
           </h1>
-          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
+          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl mb-4">
             <Swiper
               grabCursor={true}
               effect={"creative"}
@@ -390,8 +397,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                     transition={{ duration: 0.5 }}
                     className="border-4 rounded-lg"
                   >
-                    <Card className="w-full rounded-md flex flex-col gap-4 max-w-[50rem] mx-auto">
-                      <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                    <Card className="w-full rounded-md flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
+                      <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
                         <div className="flex justify-center items-center gap-2">
                           <div className="text-3xl font-extrabold my-5">
@@ -490,13 +497,13 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                               )
                           )}
                         </div>
-                        <div className="w-full mt-8">
+                        <div className="w-full mt-6">
                           <Button
                             radius="sm"
                             onClick={handleCheckAnswers}
-                            className="w-full justify-center text-white bg-[#7469B6]"
+                            className="w-full h-16 justify-center text-lg text-white bg-[#7469B6]"
                           >
-                            Check Answers
+                            Check Answer
                           </Button>
                         </div>
                         <AnimatePresence>
@@ -514,12 +521,32 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                 exit={{ opacity: 0, y: 20 }}
                                 className={
                                   feedback[index].includes("Correct")
-                                    ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                    : "text-white w-full bg-red-500 p-2 rounded-md"
+                                    ? "text-white w-full bg-green-500 p-2 rounded-lg"
+                                    : "text-white w-full bg-red-500 p-2 rounded-lg"
                                 }
                               >
                                 {feedback[index]}
                               </motion.div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                        <AnimatePresence>
+                          {showEmoji && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                              animate={{
+                                scale: [1.5, 1.8, 1.2, 1],
+                                opacity: 1,
+                                rotate: [0, 10, -10, 0],
+                              }}
+                              exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                              transition={{
+                                duration: 1.2,
+                                ease: [0.36, 1.2, 0.5, 1],
+                              }}
+                              className="absolute top-3/5 left-3/5 transform -translate-x-1/2 -translate-y-1/2 text-9xl"
+                            >
+                              😄
                             </motion.div>
                           )}
                         </AnimatePresence>

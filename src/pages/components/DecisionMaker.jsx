@@ -66,16 +66,16 @@ const DecisionMaker = ({ cards }) => {
   };
   const buttonPairs = [
     {
-      positive: <ThumbsUp size={20} />,
-      negative: <ThumbsDown size={20} />,
+      positive: <ThumbsUp size={26} />,
+      negative: <ThumbsDown size={26} />,
     },
     {
-      positive: <Smile size={20} />,
-      negative: <Frown size={20} />,
+      positive: <Smile size={26} />,
+      negative: <Frown size={26} />,
     },
     {
-      positive: <Check size={20} />,
-      negative: <X size={20} />,
+      positive: <Check size={26} />,
+      negative: <X size={26} />,
     },
     {
       positive: "Yes",
@@ -104,16 +104,18 @@ const DecisionMaker = ({ cards }) => {
               <span className="text-sm text-default-500">Show Word</span>
             )}
           </div>
-          <Button
-            radius="sm"
-            isIconOnly
-            variant="flat"
-            color="secondary"
-            onPress={changeIconPair}
-          >
-            <ArrowLeftRight className="h-4 w-4 mr-1" />
-          </Button>
-          <span className="text-sm text-default-500">Change Icons</span>
+          <div className="flex items-center gap-2">
+            <Button
+              radius="sm"
+              isIconOnly
+              variant="flat"
+              color="secondary"
+              onPress={changeIconPair}
+            >
+              <ArrowLeftRight className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-default-500">Change Icons</span>
+          </div>
         </div>
       </div>
       {/* {firstCard && <h1>{firstCard.title}</h1>} */}
@@ -148,11 +150,11 @@ const DecisionMaker = ({ cards }) => {
                 >
                   <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
                     {!hideWord ? (
-                      <h1 className="text-3xl font-extrabold my-5 capitalize">
+                      <h1 className="text-3xl font-extrabold mb-5 capitalize">
                         {card.word}
                       </h1>
                     ) : (
-                      <h1 className="text-3xl font-extrabold my-5 capitalize opacity-0">
+                      <h1 className="text-3xl font-extrabold mb-5 capitalize opacity-0">
                         {card.word}
                       </h1>
                     )}
@@ -164,7 +166,7 @@ const DecisionMaker = ({ cards }) => {
                         height="100%"
                       />
                     </div>
-                    <div className="flex justify-center gap-4 pt-4 mb-5  w-full max-w-sm  ">
+                    <div className="flex justify-center gap-4 pt-4 w-full max-w-sm">
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -175,7 +177,7 @@ const DecisionMaker = ({ cards }) => {
                           onPress={() => handleVote(card, "positive")}
                           color="success"
                           variant="flat"
-                          className="w-full"
+                          className="w-full h-16 text-lg"
                         >
                           {buttonPairs[currentPairIndex].positive}
                         </Button>
@@ -190,7 +192,7 @@ const DecisionMaker = ({ cards }) => {
                           onPress={() => handleVote(card, "negative")}
                           color="danger"
                           variant="flat"
-                          className="w-full"
+                          className="w-full h-16 text-lg"
                         >
                           {buttonPairs[currentPairIndex].negative}
                         </Button>
@@ -206,11 +208,11 @@ const DecisionMaker = ({ cards }) => {
                         >
                           <p className="w-full text-center">
                             {selectedCards[card.decision_maker_id].isCorrect ? (
-                              <div className="text-white w-full bg-green-500 p-2 rounded-md">
+                              <div className="text-white w-full bg-green-500 p-2 rounded-lg">
                                 <h1 className="w-full">Correct</h1>
                               </div>
                             ) : (
-                              <div className="text-white w-full bg-red-500 p-2 rounded-md">
+                              <div className="text-white w-full bg-red-500 p-2 rounded-lg">
                                 <h1 className="w-full">Incorrect</h1>
                               </div>
                             )}

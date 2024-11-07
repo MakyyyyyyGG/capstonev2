@@ -1118,9 +1118,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 </div>
                 <hr className="border-gray opacity-75" />
                 {/* forgot password */}
-                <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
+                <div className="mt-3 mx-2 grid grid-cols-7 gap-3 items-center justify-between max-sm:grid-cols-1 max-sm:gap-6">
                   <div className="col-span-1">
-                    <div className="flex mt-4 justify-between">
+                    <div className="flex items-center justify-between">
                       <p>Security</p>
                       {/* <Button
                         size="sm"

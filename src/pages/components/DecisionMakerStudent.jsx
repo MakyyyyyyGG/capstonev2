@@ -67,6 +67,8 @@ const DecisionMakerStudent = ({ cards = [] }) => {
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
 
+  const [showEmoji, setShowEmoji] = useState(false);
+
   useEffect(() => {
     if (cards && cards.length > 0) {
       // Add null check
@@ -97,6 +99,10 @@ const DecisionMakerStudent = ({ cards = [] }) => {
 
     if (isCorrect) {
       newFeedback[card.decision_maker_id] = "Correct!";
+
+      // Show emoji briefly when the answer is correct
+      setShowEmoji(true);
+      setTimeout(() => setShowEmoji(false), 1400); // 1.4-second delay to hide emoji
 
       // Play correct sound
       correctSound.current.play();
@@ -142,16 +148,16 @@ const DecisionMakerStudent = ({ cards = [] }) => {
 
   const buttonPairs = [
     {
-      positive: <ThumbsUp size={20} />,
-      negative: <ThumbsDown size={20} />,
+      positive: <ThumbsUp size={26} />,
+      negative: <ThumbsDown size={26} />,
     },
     {
-      positive: <Smile size={20} />,
-      negative: <Frown size={20} />,
+      positive: <Smile size={26} />,
+      negative: <Frown size={26} />,
     },
     {
-      positive: <Check size={20} />,
-      negative: <X size={20} />,
+      positive: <Check size={26} />,
+      negative: <X size={26} />,
     },
     {
       positive: "Yes",
@@ -336,12 +342,12 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                 classNames={{
                   value: "text-foreground/60",
                   indicator: "bg-[#7469B6]",
-                  track: "bg-purple-50",
+                  track: "bg-slate-200",
                 }}
               />
             </div>
           </div>
-          <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2 mx-auto mb-4">
+          <div className="flex w-full max-w-[50rem] items-center justify-between items-center mx-auto mb-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Button
@@ -358,19 +364,21 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                   <span className="text-sm text-default-500">Show Word</span>
                 )}
               </div>
-              <Button
-                radius="sm"
-                isIconOnly
-                variant="flat"
-                color="secondary"
-                onPress={changeIconPair}
-              >
-                <ArrowLeftRight className="h-4 w-4 mr-1" />
-              </Button>
-              <span className="text-sm text-default-500">Change Icons</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  radius="sm"
+                  isIconOnly
+                  variant="flat"
+                  color="secondary"
+                  onPress={changeIconPair}
+                >
+                  <ArrowLeftRight className="h-4 w-4" />
+                </Button>
+                <span className="text-sm text-default-500">Change Icons</span>
+              </div>
             </div>
           </div>
-          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
+          <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl mb-4">
             <Swiper
               grabCursor={true}
               effect={"creative"}
@@ -413,11 +421,11 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                         >
                           <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
                             {!hideWord ? (
-                              <h1 className="text-3xl font-extrabold my-5 capitalize">
+                              <h1 className="text-3xl font-extrabold mb-5 capitalize">
                                 {card.word}
                               </h1>
                             ) : (
-                              <h1 className="text-3xl font-extrabold my-5 capitalize opacity-0">
+                              <h1 className="text-3xl font-extrabold mb-5 capitalize opacity-0">
                                 {card.word}
                               </h1>
                             )}
@@ -440,7 +448,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                   color="success"
                                   variant="flat"
                                   isDisabled={feedback[card.decision_maker_id]}
-                                  className="w-full"
+                                  className="w-full h-16 text-lg"
                                   radius="sm"
                                 >
                                   {buttonPairs[currentPairIndex].positive}
@@ -456,7 +464,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                   color="danger"
                                   variant="flat"
                                   isDisabled={feedback[card.decision_maker_id]}
-                                  className="w-full"
+                                  className="w-full h-16 text-lg"
                                   radius="sm"
                                 >
                                   {buttonPairs[currentPairIndex].negative}
@@ -479,12 +487,36 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                     className={
                                       feedback[card.decision_maker_id] ===
                                       "Correct!"
-                                        ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                        : "text-white w-full bg-red-500 p-2 rounded-md"
+                                        ? "text-white w-full bg-green-500 p-2 rounded-lg"
+                                        : "text-white w-full bg-red-500 p-2 rounded-lg"
                                     }
                                   >
                                     {feedback[card.decision_maker_id]}
                                   </motion.div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                            <AnimatePresence>
+                              {showEmoji && (
+                                <motion.div
+                                  initial={{
+                                    scale: 0,
+                                    opacity: 0,
+                                    rotate: -45,
+                                  }}
+                                  animate={{
+                                    scale: [1.5, 1.8, 1.2, 1],
+                                    opacity: 1,
+                                    rotate: [0, 10, -10, 0],
+                                  }}
+                                  exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                                  transition={{
+                                    duration: 1.2,
+                                    ease: [0.36, 1.2, 0.5, 1],
+                                  }}
+                                  className="absolute z-10 top-3/5 left-3/5 transform -translate-x-1/2 -translate-y-1/2 text-9xl"
+                                >
+                                  😄
                                 </motion.div>
                               )}
                             </AnimatePresence>

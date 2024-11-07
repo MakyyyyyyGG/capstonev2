@@ -38,6 +38,8 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
 
+  const [showEmoji, setShowEmoji] = useState([]);
+
   const handleAudioToggle = (index) => {
     if (audioRefs.current[index]) {
       if (isPlaying[index]) {
@@ -131,9 +133,23 @@ const SequenceGameStudent = ({ sequenceGame }) => {
     const isCorrect = selectedImages[index] === sequenceGame[index].image;
 
     const newFeedback = [...feedback];
+
+    const newShowEmoji = [...showEmoji];
+
     if (isCorrect) {
       setScore((prevScore) => prevScore + 1);
       newFeedback[index] = "Correct!";
+
+      // Show emoji only for the correct card index
+      newShowEmoji[index] = true;
+      setShowEmoji(newShowEmoji);
+
+      // Hide emoji after 1.4 seconds
+      setTimeout(() => {
+        const updatedShowEmoji = [...newShowEmoji];
+        updatedShowEmoji[index] = false;
+        setShowEmoji(updatedShowEmoji);
+      }, 1400);
 
       // Play correct sound
       correctSound.current.play();
@@ -295,7 +311,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
         <>
           {gameData && gameData.length > 0 && gameData[0].video && (
             <>
-              <div className="flex w-full justify-center pt-2">
+              <div className="flex w-full justify-center pt-4">
                 <div className="aspect-video w-full max-w-[50rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
                   <iframe
                     src={gameData[0].video}
@@ -311,7 +327,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
             </>
           )}
           <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
                 <h1 className="text-2xl font-bold">Sequence Game</h1>
               </div>
@@ -345,12 +361,12 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                 classNames={{
                   value: "text-foreground/60",
                   indicator: "bg-[#7469B6]",
-                  track: "bg-purple-50",
+                  track: "bg-slate-200",
                 }}
               />
             </div>
           </div>
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center mb-4">
             <div className="w-full max-w-[50rem] grid md:grid-cols-2 gap-3">
               <Card className="p-4 max-md:h-96">
                 <CardHeader>
@@ -524,6 +540,26 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                                 >
                                   {feedback[index]}
                                 </motion.div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          <AnimatePresence>
+                            {showEmoji[index] && (
+                              <motion.div
+                                initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                                animate={{
+                                  scale: [1.5, 1.8, 1.2, 1],
+                                  opacity: 1,
+                                  rotate: [0, 10, -10, 0],
+                                }}
+                                exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                                transition={{
+                                  duration: 1.2,
+                                  ease: [0.36, 1.2, 0.5, 1],
+                                }}
+                                className="absolute z-10 top-1/3 left-3/5 transform -translate-x-1/2 -translate-y-1/2 text-5xl"
+                              >
+                                😄
                               </motion.div>
                             )}
                           </AnimatePresence>

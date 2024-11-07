@@ -122,11 +122,6 @@ const ColorGames = ({ cards }) => {
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-      <div className="flex mb-5 justify-between items-center text-2xl font-extrabold">
-        <div>
-          <h1 className="text-2xl font-bold">Color Game</h1>
-        </div>
-      </div>
       <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl">
         <Swiper
           // pagination={{
@@ -148,10 +143,10 @@ const ColorGames = ({ cards }) => {
         >
           {cards?.map((card) => (
             <SwiperSlide key={card.color_game_id}>
-              <Card className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+              <Card className="w-full flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
+                <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
                   <div className="flex justify-center items-center gap-2">
-                    <div className="text-3xl font-extrabold my-5 capitalize">
+                    <div className="text-3xl font-extrabold mb-5 capitalize">
                       <h1>{card.color}</h1>
                     </div>
                   </div>
@@ -163,7 +158,7 @@ const ColorGames = ({ cards }) => {
                         card.image3,
                         card.image4,
                       ].filter((image) => image !== null).length === 4
-                        ? "grid-cols-4 max-md:grid-cols-2"
+                        ? "grid-cols-2"
                         : [
                             card.image1,
                             card.image2,
@@ -200,7 +195,7 @@ const ColorGames = ({ cards }) => {
                                 "border-color 0.3s ease, transform 0.3s ease",
                             }}
                           >
-                            <div className="p-2 rounded-md relative overflow-hidden">
+                            <div className="rounded-md relative overflow-hidden">
                               <Checkbox
                                 color="success"
                                 isSelected={(
@@ -225,13 +220,13 @@ const ColorGames = ({ cards }) => {
                         )
                     )}
                   </div>
-                  <div className="w-full mt-8">
+                  <div className="w-full mt-6">
                     <Button
                       radius="sm"
-                      className="w-full justify-center text-white bg-[#7469B6]"
+                      className="w-full h-16 text-lg justify-center text-white bg-[#7469B6]"
                       onClick={() => handleSubmit(card.color_game_id)}
                     >
-                      Submit
+                      Check Answer
                     </Button>
                   </div>
                   <AnimatePresence>
@@ -248,8 +243,8 @@ const ColorGames = ({ cards }) => {
                               ? "text-white w-full bg-green-500 p-2 rounded-md"
                               : submissionResults[card.color_game_id] ===
                                 "Almost there!"
-                              ? "text-white w-full bg-yellow-500 p-2 rounded-md"
-                              : "text-white w-full bg-red-500 p-2 rounded-md"
+                              ? "text-white w-full bg-yellow-500 p-2 rounded-lg"
+                              : "text-white w-full bg-red-500 p-2 rounded-lg"
                           }
                         >
                           {submissionResults[card.color_game_id]}
