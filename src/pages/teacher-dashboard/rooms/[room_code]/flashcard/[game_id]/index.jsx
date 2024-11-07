@@ -58,8 +58,8 @@ const Index = () => {
             pathname: `/teacher-dashboard/rooms/${room_code}/flashcard/${game_id}/edit`,
           }}
         >
-          <Button radius="sm" className="bg-[#7469B6] text-white border-0">
-            <Pencil size={22} /> Edit
+          <Button radius="sm" color="secondary">
+            <Pencil size={20} /> Edit
           </Button>
         </Link>
       </div>

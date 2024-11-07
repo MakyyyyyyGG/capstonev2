@@ -65,15 +65,16 @@ const index = () => {
             <div className="text-lg font-bold ">
               <Chip
                 color={getChipColor(cards[0].difficulty)}
-                radius="sm"
-                className="rounded-md px-1 py-1 capitalize text-white"
+                variant="flat"
+                radius="xl"
+                className="px-1 py-1 capitalize"
               >
                 {cards[0].difficulty}
               </Chip>
             </div>
           )}
         </div>
-        <Button radius="sm" className="bg-[#7469B6] text-white border-0">
+        <Button radius="sm" color="secondary">
           <Link
             href={{
               pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,
