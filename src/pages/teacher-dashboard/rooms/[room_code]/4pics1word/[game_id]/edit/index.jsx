@@ -525,9 +525,7 @@ const index = () => {
               <div className="flex flex-col items-center space-y-2">
                 <Button
                   radius="sm"
-                  variant="bordered"
                   color="secondary"
-                  className="border-1"
                   onClick={() => {
                     setOpenModalIndices({
                       cardIndex,
@@ -538,7 +536,8 @@ const index = () => {
                   }}
                 >
                   <Upload size={20} />
-                  Upload Image
+                  <span className="max-sm:hidden">Upload Image</span>
+                  <span className="sm:hidden">Upload</span>
                 </Button>
 
                 <Modal
