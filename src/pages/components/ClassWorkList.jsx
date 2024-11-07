@@ -347,13 +347,11 @@ const ClassWorkList = ({ room_code, games = [] }) => {
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="flashcard">Flashcard</SelectItem>
               <SelectItem value="thinkpic">ThinkPic</SelectItem>
-              <SelectItem value="thinkpic_plus">ThinkPic +</SelectItem>
-              <SelectItem value="color_game">Color Game</SelectItem>
-              <SelectItem value="color_game_advanced">
-                Color Game Advanced
-              </SelectItem>
-              <SelectItem value="decision_maker">Decision Maker</SelectItem>
-              <SelectItem value="sequence_game">Sequence Game</SelectItem>
+              <SelectItem value="thinkpic +">ThinkPic +</SelectItem>
+              <SelectItem value="color game">Color Game</SelectItem>
+
+              <SelectItem value="decision maker">Decision Maker</SelectItem>
+              <SelectItem value="sequence game">Sequence Game</SelectItem>
             </SelectContent>
           </Select>
 
