@@ -118,7 +118,7 @@ const FlashcardsStudent = ({ flashcards }) => {
               <Card className="w-full h-[500px] rounded-md">
                 {!showDescription[flashcard.flashcard_id] && (
                   <CardBody className="flex flex-col justify-center items-center gap-4">
-                    <div className="flex text-2xl">
+                    <div className="flex text-6xl font-extrabold">
                       <p>{flashcard.term}</p>
                     </div>
                   </CardBody>
@@ -126,52 +126,49 @@ const FlashcardsStudent = ({ flashcards }) => {
                 {showDescription[flashcard.flashcard_id] && (
                   <CardBody className="w-full flex px-8 justify-center items-center flex-row gap-4 max-sm:flex-col max-sm:justify-center max-sm:py-4">
                     {flashcard.image && (
-                      <div className="flex w-1/2 justify-center items-center">
+                      <div className="flex max-w-80 justify-center items-center rounded-md">
                         <img
                           src={flashcard.image}
                           alt={flashcard.term}
-                          className="h-auto w-full max-sm:w-1/2"
+                          className="border-2 border-[#7469B6] rounded-md aspect-square object-cover"
                         />
                       </div>
                     )}
 
-                    <div className="flex w-full justify-center items-center text-2xl max-h-[300px] overflow-y-auto max-sm:w-full max-sm:text-lg max-sm:max-h-[150px]">
-                      <p>{flashcard.description}</p>
-                      {flashcard.audio && (
-                        <div className="absolute top-0 right-0 p-4 flex items-center">
-                          <Button
-                            isIconOnly
-                            variant="light"
-                            onClick={() =>
-                              handleAudioPlay(
-                                flashcard.flashcard_id,
-                                flashcard.audio
-                              )
-                            }
-                            className="ml-4 text-[#7469B6]"
-                          >
-                            {audioPlaying === flashcard.flashcard_id ? (
-                              <Pause size={22} />
-                            ) : (
-                              <Volume2 size={22} />
-                            )}
-                          </Button>
-                        </div>
-                      )}
-                      <audio
-                        ref={(el) =>
-                          (audioRefs.current[flashcard.flashcard_id] = el)
-                        }
-                        src={flashcard.audio}
-                      />
-                    </div>
+                    {/* <p>{flashcard.description}</p> */}
+                    {flashcard.audio && (
+                      <div className="absolute top-0 right-0 p-4 flex items-center">
+                        <Button
+                          isIconOnly
+                          variant="light"
+                          onClick={() =>
+                            handleAudioPlay(
+                              flashcard.flashcard_id,
+                              flashcard.audio
+                            )
+                          }
+                          className="ml-4 text-[#7469B6]"
+                        >
+                          {audioPlaying === flashcard.flashcard_id ? (
+                            <Pause size={22} />
+                          ) : (
+                            <Volume2 size={22} />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                    <audio
+                      ref={(el) =>
+                        (audioRefs.current[flashcard.flashcard_id] = el)
+                      }
+                      src={flashcard.audio}
+                    />
                   </CardBody>
                 )}
-                <CardFooter className="flex justify-center items-center pt-0 ">
+                <CardFooter className="flex justify-center items-center pt-1">
                   <Button
-                    isIconOnly
-                    radius="full"
-                    className="bg-[#7469B6] text-white border-0"
+                    radius="sm"
+                    color="secondary"
                     onClick={() => toggleCardBody(flashcard.flashcard_id)}
                   >
                     {showDescription[flashcard.flashcard_id] ? (
@@ -179,6 +176,7 @@ const FlashcardsStudent = ({ flashcards }) => {
                     ) : (
                       <RotateCw size={20} />
                     )}
+                    Flip Card
                   </Button>
                 </CardFooter>
               </Card>
