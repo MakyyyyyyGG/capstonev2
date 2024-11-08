@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
   LineChart,
@@ -24,9 +25,17 @@ import {
 } from "@nextui-org/react";
 import { Trophy, Home, BarChart3, ArrowLeft, NotepadText } from "lucide-react";
 import { useRouter } from "next/router";
+import useUserStore from "../api/coins_exp/useUserStore";
 
-const Summary = ({ gameRecord = [], questions = 10 }) => {
+const Summary = ({
+  gameRecord = [],
+  questions = 0,
+  rewards = { coins: 0, exp: 0, bonus: 0 },
+}) => {
   const router = useRouter();
+  const { updateCoinsExp } = useUserStore(); // Get the update function from the store
+
+  const { data: session, status } = useSession();
   // Add default values for both props
   const currentMonth = new Date().toLocaleString("default", { month: "short" });
   const currentYear = new Date().getFullYear().toString();
@@ -34,6 +43,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [showSurvey, setShowSurvey] = useState(false);
+  const [hasUpdatedCoins, setHasUpdatedCoins] = useState(false);
 
   // Prepare data for the LineChart
   const chartData = (gameRecord || []) // Add null check with empty array fallback
@@ -102,10 +112,52 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
 
   // Play applause sound when the score is 10 and the end screen is shown
   useEffect(() => {
-    if (showEndScreen && totalScore === 10) {
+    if (showEndScreen && totalScore === questions) {
       applauseRef.current.play();
     }
   }, [showEndScreen, totalScore]);
+
+  //api call to update the coins and exp of the student
+  const updateCoinsExpInDatabase = async () => {
+    if (hasUpdatedCoins || !session?.user?.id) return; // Skip if already updated or no user ID
+
+    const account_id = session.user.id;
+    try {
+      const response = await fetch(
+        `/api/coins_exp/coins_exp?account_id=${account_id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            account_id: account_id,
+            coins: rewards.coins + rewards.bonus,
+            exp: rewards.exp,
+            // bonus: rewards.bonus,
+            score: latestScore,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log("Coins and exp updated:", data);
+
+      // Update Zustand store with the new values after a successful response
+      if (response.ok) {
+        updateCoinsExp(data.coins, data.exp);
+        console.log("Coins and exp updated:", data.coins, data.exp);
+        setHasUpdatedCoins(true); // Mark as updated
+      }
+    } catch (error) {
+      console.error("Error updating coins and exp:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!hasUpdatedCoins && session?.user?.id) {
+      updateCoinsExpInDatabase();
+    }
+  }, [session, hasUpdatedCoins]);
 
   return (
     <div>
@@ -154,9 +206,13 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                       <Trophy className="h-8 w-8 text-purple-600" />
                     </motion.div>
                     <h1 className="text-3xl font-bold">Game Completed</h1>
+                    <h1>
+                      {rewards.coins} coins and {rewards.exp} exp +{" "}
+                      {rewards.bonus} bonus
+                    </h1>
                   </CardHeader>
 
-                  <CardBody className="text-center space-y-6 pt-4 max-sm:px-0">
+                  <CardBody className="text-center space-y-6 pt-4">
                     <p className="text-muted-foreground">Thanks for playing!</p>
 
                     <div className="grid grid-cols-3 gap-4">
@@ -164,47 +220,41 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-emerald-50 px-4 py-5 rounded-md max-sm:px-2"
+                        className="bg-emerald-50 px-4 py-5 rounded-md"
                       >
-                        <div className="text-2xl font-bold text-emerald-600 max-sm:text-xl">
+                        <div className="text-2xl font-bold text-emerald-600">
                           {latestScore}
                         </div>
-                        <div className="text-sm text-emerald-600 max-sm:text-xs">
-                          Correct
-                        </div>
+                        <div className="text-sm text-emerald-600">Correct</div>
                       </motion.div>
 
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-rose-50 px-4 py-5 rounded-md max-sm:px-2"
+                        className="bg-rose-50 px-4 py-5 rounded-md"
                       >
-                        <div className="text-2xl font-bold text-rose-600 max-sm:text-xl">
+                        <div className="text-2xl font-bold text-rose-600">
                           {incorrectAnswers}
                         </div>
-                        <div className="text-sm text-rose-600 max-sm:text-xs">
-                          Incorrect
-                        </div>
+                        <div className="text-sm text-rose-600">Incorrect</div>
                       </motion.div>
 
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="bg-purple-50 px-4 py-5 rounded-md max-sm:px-2"
+                        className="bg-purple-50 px-4 py-5 rounded-md"
                       >
-                        <div className="text-2xl font-bold text-purple-600 max-sm:text-xl">
+                        <div className="text-2xl font-bold text-purple-600">
                           {accuracy}%
                         </div>
-                        <div className="text-sm text-purple-600 max-sm:text-xs">
-                          Accuracy
-                        </div>
+                        <div className="text-sm text-purple-600">Accuracy</div>
                       </motion.div>
                     </div>
                   </CardBody>
 
-                  <CardFooter className="flex flex-col gap-3 pt-6 max-sm:px-0">
+                  <CardFooter className="flex flex-col gap-3 pt-6">
                     <Button
                       onClick={() => {
                         setShowEndScreen(false); // Hide end screen
@@ -217,7 +267,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                       <BarChart3 className="h-4 w-4 mr-2" />
                       View Summary
                     </Button>
-                    <Button
+                    {/* <Button
                       color="success"
                       variant="flat"
                       className="w-full"
@@ -226,7 +276,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                     >
                       <NotepadText className="h-4 w-4 mr-2" />
                       Answer Survey (Please 😭)
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="outline"
                       radius="sm"
@@ -284,7 +334,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                     setShowEndScreen(true);
                   }}
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2 max-sm:hidden" />
+                  <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               </div>

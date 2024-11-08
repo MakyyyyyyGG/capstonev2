@@ -46,7 +46,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [selectedImages, setSelectedImages] = useState([]);
-
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
   // Sound effect refs
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
@@ -200,6 +200,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
     setTimeout(() => {
       if (allQuestionsCompleted) {
         setIsGameFinished(true);
+        getRewards(shuffledCards[0].difficulty);
       }
     }, 2500); // 2.5-second delay
     // if (allAnswered) {
@@ -288,18 +289,27 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
       const result = await response.json();
 
       if (response.status === 403) {
-        alert(result.message);
       } else {
         console.log(result);
         await getStudentTries();
-
-        alert("Game finished! Your score: " + score);
       }
     } catch (error) {
       console.log(error);
     }
   };
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
 
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
+    }
+  };
   return (
     <div className="relative flex flex-col justify-center">
       {/* Audio elements */}
@@ -316,7 +326,11 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <Summary gameRecord={gameRecord} questions={cards.length} />
+            <Summary
+              gameRecord={gameRecord}
+              questions={cards.length}
+              rewards={rewards}
+            />
           )}
         </>
       ) : (

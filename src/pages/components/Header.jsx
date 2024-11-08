@@ -32,9 +32,13 @@ import CreateRoom from "../components/CreateRoom";
 import crypto from "crypto";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
-
+import Coins from "./Coins";
+import Exp from "./Exp";
+import useUserStore from "../api/coins_exp/useUserStore";
 const Header = ({ isCollapsed, toggleCollapse }) => {
   const router = useRouter();
+
+  const { coins, exp, setInitialValues } = useUserStore();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -544,6 +548,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
         setCurrentPassword(decryptedPassword);
       }
       setUserData(user);
+      setInitialValues(user.coins, user.exp);
+      console.log("user data", user);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -640,6 +646,13 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
           </NavbarBrand>
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
+          {session?.user?.role === "student" && (
+            <>
+              <Coins coins={coins} />
+              <Exp exp={exp} />
+            </>
+          )}
+
           <div className="flex gap-4">
             {session?.user?.role === "teacher" ? (
               <div id="create-room">
@@ -1118,9 +1131,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 </div>
                 <hr className="border-gray opacity-75" />
                 {/* forgot password */}
-                <div className="mt-3 mx-2 grid grid-cols-7 gap-3 items-center justify-between max-sm:grid-cols-1 max-sm:gap-6">
+                <div className="mx-2 grid grid-cols-7 gap-3 justify-between max-sm:grid-cols-1 max-sm:gap-6">
                   <div className="col-span-1">
-                    <div className="flex items-center justify-between">
+                    <div className="flex mt-4 justify-between">
                       <p>Security</p>
                       {/* <Button
                         size="sm"

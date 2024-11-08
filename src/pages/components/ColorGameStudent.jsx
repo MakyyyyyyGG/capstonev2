@@ -40,6 +40,7 @@ const ColorGames = ({ cards }) => {
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
 
   // Sound effect refs
   const correctSound = useRef(null);
@@ -211,6 +212,7 @@ const ColorGames = ({ cards }) => {
     setTimeout(() => {
       if (allAnswered) {
         setIsGameFinished(true);
+        getRewards(shuffledCards[0].difficulty);
       }
     }, 2500); // 2.5-second delay
 
@@ -321,6 +323,16 @@ const ColorGames = ({ cards }) => {
     }
   };
 
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10 });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20 });
+    } else {
+      setRewards({ coins: 40, exp: 40 });
+    }
+  };
+
   return (
     <div className="relative flex flex-col justify-center">
       {/* Audio elements */}
@@ -339,7 +351,11 @@ const ColorGames = ({ cards }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <Summary gameRecord={gameRecord} questions={cards?.length} />
+            <Summary
+              gameRecord={gameRecord}
+              questions={cards?.length}
+              rewards={rewards}
+            />
           )}
         </>
       ) : (
