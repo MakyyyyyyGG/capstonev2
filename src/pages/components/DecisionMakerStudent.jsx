@@ -44,6 +44,7 @@ import {
   ArrowLeftRight,
 } from "lucide-react";
 import GameHistory from "./GameHistory";
+import Shop from "./Shop";
 
 const DecisionMakerStudent = ({ cards = [] }) => {
   // Add default empty array
@@ -63,6 +64,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [hideWord, setHideWord] = useState(false);
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
 
   // Sound effect refs
   const correctSound = useRef(null);
@@ -143,6 +145,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     setTimeout(() => {
       if (allAnswered) {
         setIsGameFinished(true);
+        getRewards(shuffledCards[0].difficulty);
       }
     }, 2500); // 2.5-second delay
   };
@@ -274,6 +277,20 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     }
   };
 
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
+    }
+  };
+
   return (
     <div className="relative flex flex-col justify-center px-4">
       {/* Audio elements */}
@@ -301,6 +318,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
               <div>
                 <h1 className="text-2xl font-bold">Decision Game</h1>
+                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">

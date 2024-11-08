@@ -24,6 +24,7 @@ import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
+import Shop from "./Shop";
 
 const ColorGames = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -324,13 +325,17 @@ const ColorGames = ({ cards }) => {
     }
   };
 
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
   const getRewards = (difficulty) => {
     if (difficulty === "easy") {
-      setRewards({ coins: 10, exp: 10 });
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
     } else if (difficulty === "medium") {
-      setRewards({ coins: 20, exp: 20 });
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
     } else {
-      setRewards({ coins: 40, exp: 40 });
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
     }
   };
 
@@ -365,6 +370,7 @@ const ColorGames = ({ cards }) => {
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
                 <h1 className="text-2xl font-bold">Color Game</h1>
+                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">

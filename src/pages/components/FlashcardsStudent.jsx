@@ -17,8 +17,8 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/effect-creative";
 import { Pagination, Navigation, EffectCreative } from "swiper/modules";
-
 import "swiper/swiper-bundle.css";
+import Shop from "./Shop";
 
 const handleTextToSpeech = (text) => {
   const utterance = new SpeechSynthesisUtterance(text);
@@ -112,6 +112,7 @@ const FlashcardsStudent = ({ flashcards }) => {
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Flashcards</h1>
+        <Shop />
       </div>
       <div className="flex flex-wrap gap-4">
         <Swiper
