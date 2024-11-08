@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
-  CardHeader,
+  CardFooter,
   CardBody,
   Button,
   Progress,
@@ -271,7 +271,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
   };
 
   return (
-    <div className="relative flex flex-col justify-center">
+    <div className="relative flex flex-col justify-center px-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -375,14 +375,14 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                               card.image3,
                               card.image4,
                             ].filter(Boolean).length === 4
-                              ? "grid-cols-2"
+                              ? "grid-cols-2 max-w-[24rem]"
                               : [
                                   card.image1,
                                   card.image2,
                                   card.image3,
                                   card.image4,
                                 ].filter(Boolean).length === 3
-                              ? "grid-cols-3 max-sm:grid-cols-2"
+                              ? "grid-cols-3 max-sm:grid-cols-2 "
                               : "grid-cols-2"
                           } gap-2 justify-center`}
                         >
@@ -398,125 +398,126 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                   key={idx}
                                   src={`${image}`}
                                   alt={`Image ${idx + 1}`}
-                                  className="w-44 h-44 object-cover border-2 border-[#7469B6] rounded-md"
+                                  className="w-full aspect-square border-2 border-[#7469B6] object-cover rounded-md"
                                 />
                               )
                           )}
                         </div>
-                        <div className="flex flex-col items-center gap-2 w-full">
-                          {/* <h1>Question: {card.question}</h1> */}
-
-                          <div className="w-full text-center bg-white">
-                            <header className="mb-4 mt-1">
-                              <h1 className="text-xl font-bold mb-1">
-                                Enter Your Answer
-                              </h1>
-                              <p className="text-xs text-slate-500">
-                                Enter the answer based on the images above.
-                              </p>
-                            </header>
-                            <form id="otp-form">
-                              <div className="flex flex-wrap items-center justify-center gap-3">
-                                {Array.from({
-                                  length: card.word?.length || 0,
-                                }).map((_, idx) => (
-                                  <input
-                                    key={idx}
-                                    type="text"
-                                    className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded py-4 px-1 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                                    maxLength="1"
-                                    value={userAnswers[index]?.[idx] || ""}
-                                    onChange={(e) => {
-                                      const newAnswer = userAnswers[index]
-                                        ? userAnswers[index].split("")
-                                        : [];
-                                      newAnswer[idx] = e.target.value;
-                                      handleChange(newAnswer.join(""), index);
-                                    }}
-                                    onKeyDown={(e) =>
-                                      handleKeyDown(e, index, idx)
-                                    }
-                                    ref={(el) => {
-                                      if (!inputRefs.current[index]) {
-                                        inputRefs.current[index] = [];
-                                      }
-                                      inputRefs.current[index][idx] = el;
-                                    }}
-                                    disabled={
-                                      feedback[index]?.includes("Correct") ||
-                                      attempts[index] >= 3
-                                    }
-                                    aria-label={`Input ${idx + 1} of ${
-                                      card.word?.length || 0
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <div className="w-full mt-4">
-                                <Button
-                                  radius="md"
-                                  size="lg"
-                                  onClick={() => checkAnswer(index)}
-                                  isDisabled={
-                                    feedback[index]?.includes("Correct") ||
-                                    attempts[index] >= 3 ||
-                                    userAnswers[index]?.length !==
-                                      card.word?.length
-                                  }
-                                  className="w-full h-16 inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-lg font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
-                                  aria-label="Check Answer"
-                                >
-                                  Check Answer
-                                </Button>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-                        <AnimatePresence>
-                          {feedback[index] && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 20 }}
-                              className="flex w-full text-center justify-center rounded-md"
-                            >
-                              <motion.div
-                                key={feedback[index]}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 20 }}
-                                className={
-                                  feedback[index].includes("Correct")
-                                    ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                    : "text-white w-full bg-red-500 p-2 rounded-lg"
-                                }
-                              >
-                                {feedback[index]}
-                              </motion.div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                        <AnimatePresence>
-                          {showEmoji && (
-                            <motion.div
-                              initial={{ scale: 0, opacity: 0, rotate: -45 }}
-                              animate={{
-                                scale: [1.5, 1.8, 1.2, 1],
-                                opacity: 1,
-                                rotate: [0, 10, -10, 0],
-                              }}
-                              exit={{ scale: 0, opacity: 0, rotate: 45 }}
-                              transition={{
-                                duration: 1.2,
-                                ease: [0.36, 1.2, 0.5, 1],
-                              }}
-                              className="absolute top-3/5 left-3/5 transform -translate-x-1/2 -translate-y-1/2 text-9xl"
-                            >
-                              😄
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </CardBody>
+                      <CardFooter className="flex flex-col items-center gap-2 w-full">
+                        {/* <h1>Question: {card.question}</h1> */}
+
+                        <div className="w-full text-center bg-white">
+                          <header className="mb-4 mt-1">
+                            <h1 className="text-xl font-bold mb-1">
+                              Enter Your Answer
+                            </h1>
+                            <p className="text-xs text-slate-500">
+                              Enter the answer based on the images above.
+                            </p>
+                          </header>
+                          <form id="otp-form">
+                            <div className="flex flex-wrap items-center justify-center gap-3">
+                              {Array.from({
+                                length: card.word?.length || 0,
+                              }).map((_, idx) => (
+                                <input
+                                  key={idx}
+                                  type="text"
+                                  className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded py-4 px-1 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                  maxLength="1"
+                                  value={userAnswers[index]?.[idx] || ""}
+                                  onChange={(e) => {
+                                    const newAnswer = userAnswers[index]
+                                      ? userAnswers[index].split("")
+                                      : [];
+                                    newAnswer[idx] = e.target.value;
+                                    handleChange(newAnswer.join(""), index);
+                                  }}
+                                  onKeyDown={(e) =>
+                                    handleKeyDown(e, index, idx)
+                                  }
+                                  ref={(el) => {
+                                    if (!inputRefs.current[index]) {
+                                      inputRefs.current[index] = [];
+                                    }
+                                    inputRefs.current[index][idx] = el;
+                                  }}
+                                  disabled={
+                                    feedback[index]?.includes("Correct") ||
+                                    attempts[index] >= 3
+                                  }
+                                  aria-label={`Input ${idx + 1} of ${
+                                    card.word?.length || 0
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <div className="w-full mt-4 flex flex-col gap-2">
+                              <AnimatePresence>
+                                {feedback[index] && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 20 }}
+                                    className="flex w-full text-center justify-center rounded-md"
+                                  >
+                                    <motion.div
+                                      key={feedback[index]}
+                                      initial={{ opacity: 0, y: 20 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: 20 }}
+                                      className={
+                                        feedback[index].includes("Correct")
+                                          ? "text-white w-full bg-green-500 p-2 rounded-lg"
+                                          : "text-white w-full bg-red-500 p-2 rounded-lg"
+                                      }
+                                    >
+                                      {feedback[index]}
+                                    </motion.div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                              <Button
+                                radius="sm"
+                                size="lg"
+                                color="secondary"
+                                onClick={() => checkAnswer(index)}
+                                isDisabled={
+                                  feedback[index]?.includes("Correct") ||
+                                  attempts[index] >= 3 ||
+                                  userAnswers[index]?.length !==
+                                    card.word?.length
+                                }
+                                className="w-full h-16 justify-center text-lg"
+                                aria-label="Check Answer"
+                              >
+                                Check Answer
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
+                      </CardFooter>
+                      <AnimatePresence>
+                        {showEmoji && (
+                          <motion.div
+                            initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                            animate={{
+                              scale: [1.5, 1.8, 1.2, 1],
+                              opacity: 1,
+                              rotate: [0, 10, -10, 0],
+                            }}
+                            exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                            transition={{
+                              duration: 1.2,
+                              ease: [0.36, 1.2, 0.5, 1],
+                            }}
+                            className="absolute top-[40%] left-[39%] transform -translate-x-1/2 -translate-y-1/2 text-9xl"
+                          >
+                            😄
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </Card>
                   </motion.div>
                 </SwiperSlide>

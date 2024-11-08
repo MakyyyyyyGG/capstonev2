@@ -130,14 +130,14 @@ const FourPicsOneWord = ({ cards = [] }) => {
                             card.image3,
                             card.image4,
                           ].filter(Boolean).length === 4
-                            ? "grid-cols-2"
+                            ? "grid-cols-2 max-w-[24rem]"
                             : [
                                 card.image1,
                                 card.image2,
                                 card.image3,
                                 card.image4,
                               ].filter(Boolean).length === 3
-                            ? "grid-cols-3 max-sm:grid-cols-2"
+                            ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                             : "grid-cols-2"
                         } gap-2 justify-center`}
                       >
@@ -153,7 +153,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                                 key={idx}
                                 src={`${image}`}
                                 alt={`Image ${idx + 1}`}
-                                className="w-44 h-44 object-cover border-2 border-[#7469B6] rounded-md"
+                                className="w-full aspect-square border-2 border-[#7469B6] object-cover rounded-md"
                               />
                             )
                         )}
@@ -255,36 +255,41 @@ const FourPicsOneWord = ({ cards = [] }) => {
                               )}
                           </div>
                         </form>
-                        <div className="w-full mt-4">
+                        <div className="w-full mt-4 flex flex-col gap-2">
+                          <AnimatePresence>
+                            {feedback[index] && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                className="flex w-full text-center justify-center rounded-md"
+                              >
+                                <motion.div
+                                  key={feedback[index]}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 20 }}
+                                  className={
+                                    feedback[index].includes("Correct")
+                                      ? "text-white w-full bg-green-500 p-2 rounded-lg"
+                                      : "text-white w-full bg-red-500 p-2 rounded-lg"
+                                  }
+                                >
+                                  {feedback[index]}
+                                </motion.div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                           <Button
-                            radius="md"
+                            radius="sm"
                             size="lg"
-                            className="w-full h-16 inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-lg font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
+                            color="secondary"
+                            className="w-full h-16 justify-center text-lg"
                             onClick={() => checkAnswer(index)}
                           >
                             Check Answer
                           </Button>
                         </div>
-                        <AnimatePresence>
-                          {feedback[index] && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 20 }}
-                              className="flex w-full text-center justify-center rounded-md"
-                            >
-                              <p
-                                className={
-                                  feedback[index].includes("Correct")
-                                    ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                    : "text-white w-full bg-red-500 p-2 rounded-lg"
-                                }
-                              >
-                                {feedback[index]}
-                              </p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </CardFooter>
                     </div>
                   </Card>

@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardBody, Button, Image, Checkbox } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  Button,
+  Image,
+  Checkbox,
+} from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Volume2 } from "lucide-react";
+import { BiSolidSquareRounded } from "react-icons/bi";
 import {
   InputOTP,
   InputOTPGroup,
@@ -125,10 +133,10 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
         >
           {cards.map((card, index) => (
             <SwiperSlide key={index} className="w-[500px]">
-              <Card className="w-full flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
-                <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
-                  <div className="flex justify-center items-center gap-2">
-                    <div className="text-3xl font-extrabold my-5">
+              <Card className="w-full flex flex-col h-[40rem] aspect-square mx-auto">
+                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                  <div className="flex justify-center items-center gap-2 mb-4">
+                    <div className="text-4xl font-extrabold">
                       <h1>{card.word}</h1>
                     </div>
                     <div className="flex justify-center items-center">
@@ -149,8 +157,8 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                       card.difficulty === "easy"
                         ? "grid-cols-2 justify-center"
                         : card.difficulty === "medium"
-                        ? "grid-cols-3 max-sm:grid-cols-2 justify-center"
-                        : "grid-cols-2 justify-center"
+                        ? "grid-cols-3 justify-center max-sm:grid-cols-2 max-sm:max-w-[24rem]"
+                        : "grid-cols-2 justify-center max-w-[24rem]"
                     } gap-2`}
                   >
                     {card.image1 && (
@@ -161,7 +169,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(0)
-                            ? "border-3 border-[#17C964]"
+                            ? "border-3 border-[#9353D3]"
                             : "border-3 border-transparent"
                         }`}
                         style={{
@@ -173,16 +181,17 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image1}`}
                           alt="Image 1"
-                          className="w-44 h-44 rounded-md aspect-square"
+                          className="w-full aspect-square object-cover rounded-md"
                         />
                         <Checkbox
-                          color="success"
+                          icon={<BiSolidSquareRounded className="w-2 h-2" />}
+                          color="secondary"
+                          className="absolute top-2 right-1 text-[#9353D3] opacity-0"
                           isSelected={
                             selectedImages[index] &&
                             selectedImages[index].includes(0)
                           }
                           onChange={() => handleImageSelect(0, index)}
-                          className="absolute top-2 right-1"
                         />
                       </motion.div>
                     )}
@@ -194,7 +203,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(1)
-                            ? "border-3 border-[#17C964]"
+                            ? "border-3 border-[#9353D3]"
                             : "border-3 border-transparent"
                         }`}
                         style={{
@@ -206,16 +215,17 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image2}`}
                           alt="Image 2"
-                          className="w-44 h-44 rounded-md aspect-square"
+                          className="w-full aspect-square object-cover rounded-md"
                         />
                         <Checkbox
-                          color="success"
+                          icon={<BiSolidSquareRounded className="w-2 h-2" />}
+                          color="secondary"
+                          className="absolute top-2 right-1 text-[#9353D3] opacity-0"
                           isSelected={
                             selectedImages[index] &&
                             selectedImages[index].includes(1)
                           }
                           onChange={() => handleImageSelect(1, index)}
-                          className="absolute top-2 right-1"
                         />
                       </motion.div>
                     )}
@@ -227,7 +237,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(2)
-                            ? "border-3 border-[#17C964]"
+                            ? "border-3 border-[#9353D3]"
                             : "border-3 border-transparent"
                         }`}
                         style={{
@@ -239,16 +249,17 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image3}`}
                           alt="Image 3"
-                          className="w-44 h-44 rounded-md aspect-square"
+                          className="w-full aspect-square object-cover rounded-md"
                         />
                         <Checkbox
-                          color="success"
+                          icon={<BiSolidSquareRounded className="w-2 h-2" />}
+                          color="secondary"
+                          className="absolute top-2 right-1 text-[#9353D3] opacity-0"
                           isSelected={
                             selectedImages[index] &&
                             selectedImages[index].includes(2)
                           }
                           onChange={() => handleImageSelect(2, index)}
-                          className="absolute top-2 right-1"
                         />
                       </motion.div>
                     )}
@@ -260,7 +271,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(3)
-                            ? "border-3 border-[#17C964]"
+                            ? "border-3 border-[#9353D3]"
                             : "border-3 border-transparent"
                         }`}
                         style={{
@@ -272,29 +283,23 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image4}`}
                           alt="Image 4"
-                          className="w-44 h-44 rounded-md aspect-square"
+                          className="w-full aspect-square object-cover rounded-md"
                         />
                         <Checkbox
-                          color="success"
+                          icon={<BiSolidSquareRounded className="w-2 h-2" />}
+                          color="secondary"
+                          className="absolute top-2 right-1 text-[#9353D3] opacity-0"
                           isSelected={
                             selectedImages[index] &&
                             selectedImages[index].includes(3)
                           }
                           onChange={() => handleImageSelect(3, index)}
-                          className="absolute top-2 right-1"
                         />
                       </motion.div>
                     )}
                   </div>
-
-                  <div className="w-full mt-6">
-                    <Button
-                      onClick={handleCheckAnswers}
-                      className="w-full h-16 inline-flex justify-center whitespace-nowrap rounded-lg bg-[#7469B6] px-3.5 py-2.5 text-lg font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
-                    >
-                      Check Answer
-                    </Button>
-                  </div>
+                </CardBody>
+                <CardFooter className="w-full flex flex-col gap-2">
                   <AnimatePresence>
                     {feedback[index] && (
                       <motion.div
@@ -303,7 +308,11 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         exit={{ opacity: 0, y: 20 }}
                         className="flex w-full text-center justify-center rounded-md"
                       >
-                        <p
+                        <motion.div
+                          key={feedback[index]}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 20 }}
                           className={
                             feedback[index].includes("Correct")
                               ? "text-white w-full bg-green-500 p-2 rounded-lg"
@@ -311,11 +320,19 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                           }
                         >
                           {feedback[index]}
-                        </p>
+                        </motion.div>
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </CardBody>
+                  <Button
+                    radius="sm"
+                    color="secondary"
+                    onClick={handleCheckAnswers}
+                    className="w-full h-16 justify-center text-lg"
+                  >
+                    Check Answer
+                  </Button>
+                </CardFooter>
               </Card>
             </SwiperSlide>
           ))}
