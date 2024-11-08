@@ -5,7 +5,7 @@ import Sidebar from "@/pages/components/Sidebar";
 import Flashcards from "@/pages/components/Flashcards";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 
 const Index = () => {
   const router = useRouter();
@@ -52,7 +52,13 @@ const Index = () => {
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
       <div className="w-full flex justify-between items-center">
-        <h1 className="text-2xl font-extrabold">Flashcard</h1>
+        <Link href={`/teacher-dashboard/rooms/${room_code}`}>
+          <div className="flex items-center gap-2">
+            <ChevronLeft size={25} />
+            <h1 className="text-2xl font-extrabold">{flashcards[0]?.title}</h1>
+          </div>
+        </Link>
+
         <Link
           href={{
             pathname: `/teacher-dashboard/rooms/${room_code}/flashcard/${game_id}/edit`,
