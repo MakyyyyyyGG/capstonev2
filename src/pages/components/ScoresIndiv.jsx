@@ -47,7 +47,6 @@ const ScoresIndiv = ({ studentRecords }) => {
 
   useEffect(() => {
     if (studentRecords?.data) {
-      console.log("student records", studentRecords);
       // Process all records regardless of selected month/year
       const allProcessedData = processStudentRecords(studentRecords.data, true);
       setProcessedData(allProcessedData);
