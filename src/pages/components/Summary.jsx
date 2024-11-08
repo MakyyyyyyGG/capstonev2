@@ -199,7 +199,7 @@ const Summary = ({ gameRecord = [], questions, rewards }) => {
                     >
                       <Trophy className="h-8 w-8 text-purple-600" />
                     </motion.div>
-                    <h1 className="text-3xl font-bold">Game Over</h1>
+                    <h1 className="text-3xl font-bold">Game Completed</h1>
                     <h1>
                       {rewards.coins} coins and {rewards.exp} exp +{" "}
                       {rewards.bonus} bonus
