@@ -430,12 +430,11 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                 {card.word}
                               </h1>
                             )}
-                            <div className="max-w-[23rem] min-w-[23rem]">
+                            <div className="max-w-[22rem]">
                               <Image
                                 src={card.image}
                                 alt={card.title}
-                                width="100%"
-                                height="100%"
+                                className="w-full aspect-square object-cover rounded-md"
                               />
                             </div>
                           </CardBody>
