@@ -10,7 +10,14 @@ import {
   Image,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import { RotateCw, RotateCcw, Volume2, Play, Pause } from "lucide-react";
+import {
+  RotateCw,
+  RotateCcw,
+  Volume2,
+  Play,
+  Pause,
+  ChevronLeft,
+} from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -19,7 +26,7 @@ import "swiper/css/effect-creative";
 import { Pagination, Navigation, EffectCreative } from "swiper/modules";
 import "swiper/swiper-bundle.css";
 import Shop from "./Shop";
-
+import { useRouter } from "next/router";
 const handleTextToSpeech = (text) => {
   const utterance = new SpeechSynthesisUtterance(text);
   const synth = window.speechSynthesis;
@@ -45,6 +52,7 @@ const handleTextToSpeech = (text) => {
 };
 
 const FlashcardsStudent = ({ flashcards }) => {
+  const router = useRouter();
   const [showDescription, setShowDescription] = useState({});
   const [audioPlaying, setAudioPlaying] = useState(null);
   const audioRefs = useRef({});
@@ -107,7 +115,10 @@ const FlashcardsStudent = ({ flashcards }) => {
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-        <h1>Flashcards</h1>
+        <div className="flex items-center gap-2" onClick={() => router.back()}>
+          <ChevronLeft size={25} />
+          <h1>{flashcards[0]?.title}</h1>
+        </div>
         <Shop />
       </div>
       <div className="flex flex-wrap gap-4">

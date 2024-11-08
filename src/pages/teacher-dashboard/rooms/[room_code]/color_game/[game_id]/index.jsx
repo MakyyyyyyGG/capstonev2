@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@nextui-org/react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 import { Chip } from "@nextui-org/react";
 import ColorGames from "@/pages/components/ColorGames";
 import Link from "next/link";
+
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -56,7 +57,13 @@ const index = () => {
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
       <div className="w-full flex justify-between items-center">
         <div className="flex gap-4 items-center">
-          <h1 className="text-2xl font-extrabold">Color Game</h1>
+          <div
+            className="flex items-center gap-2"
+            onClick={() => router.back()}
+          >
+            <ChevronLeft size={25} />
+            <h1 className="text-2xl font-extrabold">{cards[0]?.title}</h1>
+          </div>
           {cards && cards.length > 0 && (
             <div className="text-lg font-bold ">
               <Chip

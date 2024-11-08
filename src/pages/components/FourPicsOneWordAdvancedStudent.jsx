@@ -10,7 +10,7 @@ import {
   Checkbox,
 } from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { Volume2 } from "lucide-react";
+import { Volume2, ChevronLeft } from "lucide-react";
 import { BiSolidSquareRounded } from "react-icons/bi";
 import {
   InputOTP,
@@ -342,7 +342,13 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
           <div className="flex w-full justify-center items-center">
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
-                <h1 className="text-2xl font-bold">ThinkPic +</h1>
+                <div
+                  className="flex items-center gap-2"
+                  onClick={() => router.back()}
+                >
+                  <ChevronLeft size={25} />
+                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                </div>
                 <Shop />
               </div>
               <div className="flex gap-4 items-center">

@@ -8,6 +8,7 @@ import {
 } from "@nextui-org/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, RefreshCw, Pause, Volume2 } from "lucide-react";
+import Loader from "./Loader";
 
 const SequenceGame = ({ sequenceGame }) => {
   // Add null check for sequenceGame prop
@@ -21,6 +22,7 @@ const SequenceGame = ({ sequenceGame }) => {
   const [video, setVideo] = useState("");
   const [stepResults, setStepResults] = useState([]);
   const [removedIndex, setRemovedIndex] = useState(null);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const [isPlaying, setIsPlaying] = useState(
     Array(sequenceGame.length).fill(false)
@@ -46,6 +48,23 @@ const SequenceGame = ({ sequenceGame }) => {
     if (sequenceGame) {
       setGameData(sequenceGame);
       console.log("game Data", gameData);
+
+      // Load all images
+      const imagePromises = sequenceGame.map((item) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = item.image;
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+      });
+
+      Promise.all(imagePromises)
+        .then(() => setImagesLoaded(true))
+        .catch((err) => {
+          console.error("Error loading images:", err);
+          setImagesLoaded(true); // Set to true even on error to prevent infinite loading
+        });
     }
   }, [sequenceGame]);
 
@@ -120,6 +139,14 @@ const SequenceGame = ({ sequenceGame }) => {
     setStepResults([]);
     setRemovedIndex(null);
   };
+
+  if (!imagesLoaded) {
+    return (
+      <div className="flex justify-center items-center h-screen w-full">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
@@ -44,15 +44,35 @@ import "swiper/css/effect-creative";
 // import required modules
 import { Pagination, Navigation } from "swiper/modules";
 import { EffectCreative } from "swiper/modules";
+import Loader from "./Loader";
+
 const DecisionMaker = ({ cards }) => {
   const [firstCard, setFirstCard] = useState(null);
   const [selectedCards, setSelectedCards] = useState({});
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   const [hideWord, setHideWord] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   useEffect(() => {
     if (cards?.length > 0) {
       setFirstCard(cards[0]);
+
+      // Load all images
+      const imagePromises = cards.map((card) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = card.image;
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+      });
+
+      Promise.all(imagePromises)
+        .then(() => setImagesLoaded(true))
+        .catch((err) => {
+          console.error("Error loading images:", err);
+          setImagesLoaded(true); // Set to true even on error to prevent infinite loading
+        });
     }
   }, [cards]);
 
@@ -86,6 +106,15 @@ const DecisionMaker = ({ cards }) => {
   const changeIconPair = () => {
     setCurrentPairIndex((prevIndex) => (prevIndex + 1) % buttonPairs.length);
   };
+
+  if (!imagesLoaded) {
+    return (
+      <div className="flex justify-center items-center h-screen w-full">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
       <div className="flex w-full max-w-[50rem] items-center justify-between items-center">

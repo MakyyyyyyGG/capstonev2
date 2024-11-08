@@ -11,7 +11,7 @@ import {
 import { Chip } from "@nextui-org/react";
 import SequenceGame from "@/pages/components/SequenceGame";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 
 const index = () => {
   const router = useRouter();
@@ -78,7 +78,15 @@ const index = () => {
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
       <div className="w-full flex justify-between items-center">
         <div className="flex gap-4 items-center">
-          <h1 className="text-2xl font-extrabold">Sequence Game</h1>
+          <div
+            className="flex items-center gap-2"
+            onClick={() => router.back()}
+          >
+            <ChevronLeft size={25} />
+            <h1 className="text-2xl font-extrabold">
+              {sequenceGame[0]?.title}
+            </h1>
+          </div>
           {difficulty && (
             <div className="text-lg font-bold">
               <Chip

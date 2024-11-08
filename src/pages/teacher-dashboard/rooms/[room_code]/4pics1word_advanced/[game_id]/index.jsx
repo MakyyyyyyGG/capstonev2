@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { Chip } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 import FourPicsOneWordAdvanced from "@/pages/components/FourPicsOneWordAdvanced";
-import Loader from "@/pages/components/Loader";
+
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -60,7 +60,13 @@ const index = () => {
     <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
       <div className="w-full flex justify-between items-center">
         <div className="flex gap-4 items-center">
-          <h1 className="text-2xl font-extrabold">ThinkPic +</h1>
+          <div
+            className="flex items-center gap-2"
+            onClick={() => router.back()}
+          >
+            <ChevronLeft size={25} />
+            <h1 className="text-2xl font-extrabold">{cards[0]?.title}</h1>
+          </div>
           {cards && cards.length > 0 && (
             <div className="text-lg font-bold ">
               <Chip

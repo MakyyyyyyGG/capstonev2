@@ -7,13 +7,50 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/effect-creative";
-import { Pagination, Navigation, EffectCreative } from "swiper/modules";
+import {
+  Pagination,
+  Navigation,
+  EffectCreative,
+  ChevronLeft,
+} from "swiper/modules";
 import Loader from "./Loader";
 
 const Flashcards = ({ flashcards, isLoading }) => {
   const [showDescription, setShowDescription] = useState({});
   const [audioPlaying, setAudioPlaying] = useState(null);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const audioRefs = useRef({});
+  const imageLoadingPromises = useRef([]);
+
+  useEffect(() => {
+    if (flashcards) {
+      // Reset image loading state when flashcards change
+      setImagesLoaded(false);
+      imageLoadingPromises.current = [];
+
+      // Create promises for each image load
+      const promises = flashcards
+        .filter((flashcard) => flashcard.image)
+        .map((flashcard) => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = flashcard.image;
+            img.onload = resolve;
+            img.onerror = reject;
+          });
+        });
+
+      imageLoadingPromises.current = promises;
+
+      // Wait for all images to load
+      Promise.all(promises)
+        .then(() => setImagesLoaded(true))
+        .catch((err) => {
+          console.error("Error loading images:", err);
+          setImagesLoaded(true); // Set to true even on error to prevent infinite loading
+        });
+    }
+  }, [flashcards]);
 
   const toggleCardBody = (id) => {
     // Reset audioPlaying state if the card is being flipped to the front
@@ -28,7 +65,7 @@ const Flashcards = ({ flashcards, isLoading }) => {
   };
 
   const handleAudioPlay = (flashcard_id) => {
-    // Check if there’s an audio currently playing that is different from the selected one
+    // Check if there's an audio currently playing that is different from the selected one
     if (
       audioPlaying &&
       audioPlaying !== flashcard_id &&
@@ -56,7 +93,7 @@ const Flashcards = ({ flashcards, isLoading }) => {
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-      {isLoading ? (
+      {isLoading || !imagesLoaded ? (
         <div className="flex justify-center items-center h-screen w-full">
           <Loader />
         </div>

@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/input-otp";
 import GameHistory from "./GameHistory";
 import Shop from "./Shop";
+import { ChevronLeft } from "lucide-react";
 
 const FourPicsOneWordStudent = ({ cards = [] }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
@@ -312,7 +313,13 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
           <div className="flex w-full justify-center items-center">
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
-                <h1 className="text-2xl font-bold">ThinkPic</h1>
+                <div
+                  className="flex items-center gap-2"
+                  onClick={() => router.back()}
+                >
+                  <ChevronLeft size={25} />
+                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                </div>
                 <Shop />
               </div>
               <div className="flex gap-4 items-center">

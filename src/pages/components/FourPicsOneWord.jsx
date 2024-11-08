@@ -21,16 +21,50 @@ import "swiper/css/effect-creative";
 // import required modules
 import { Pagination, Navigation } from "swiper/modules";
 import { EffectCreative } from "swiper/modules";
+import Loader from "./Loader";
 
 const FourPicsOneWord = ({ cards = [] }) => {
   // Add default empty array
   const [userAnswers, setUserAnswers] = useState([]);
   const [feedback, setFeedback] = useState([]);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const inputRefs = useRef([]);
+  const imageLoadingPromises = useRef([]);
 
   useEffect(() => {
     if (cards && cards.length > 0) {
-      // Add null check
+      // Reset image loading state when cards change
+      setImagesLoaded(false);
+      imageLoadingPromises.current = [];
+
+      // Create promises for each image load
+      const promises = cards.flatMap((card) => {
+        const images = [
+          card.image1,
+          card.image2,
+          card.image3,
+          card.image4,
+        ].filter(Boolean);
+        return images.map((image) => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = image;
+            img.onload = resolve;
+            img.onerror = reject;
+          });
+        });
+      });
+
+      imageLoadingPromises.current = promises;
+
+      // Wait for all images to load
+      Promise.all(promises)
+        .then(() => setImagesLoaded(true))
+        .catch((err) => {
+          console.error("Error loading images:", err);
+          setImagesLoaded(true); // Set to true even on error to prevent infinite loading
+        });
+
       setUserAnswers(Array(cards.length).fill(""));
       setFeedback(Array(cards.length).fill(""));
       console.log(cards);
@@ -94,6 +128,14 @@ const FourPicsOneWord = ({ cards = [] }) => {
         return "default"; // fallback if the difficulty is not recognized
     }
   };
+
+  if (!imagesLoaded) {
+    return (
+      <div className="flex justify-center items-center h-screen w-full">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
