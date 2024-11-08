@@ -43,7 +43,7 @@ const index = () => {
     ) {
       case "easy":
         return "success";
-      case "moderate":
+      case "medium":
         return "warning";
       case "hard":
         return "danger";
@@ -61,8 +61,9 @@ const index = () => {
             <div className="text-lg font-bold ">
               <Chip
                 color={getChipColor(cards[0].difficulty)}
-                radius="sm"
-                className="rounded-md px-1 py-1 capitalize text-white"
+                variant="flat"
+                radius="xl"
+                className="px-1 py-1 capitalize"
               >
                 {cards[0].difficulty}
               </Chip>
@@ -77,8 +78,8 @@ const index = () => {
             pathname: `/teacher-dashboard/rooms/${room_code}/color_game/${game_id}/edit`,
           }}
         >
-          <Button radius="sm" className="bg-[#7469B6] text-white border-0">
-            <Pencil size={22} /> Edit
+          <Button radius="sm" color="secondary">
+            <Pencil size={20} /> Edit
           </Button>
         </Link>
       </div>

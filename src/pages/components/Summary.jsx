@@ -153,10 +153,10 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                     >
                       <Trophy className="h-8 w-8 text-purple-600" />
                     </motion.div>
-                    <h1 className="text-3xl font-bold">Game Over</h1>
+                    <h1 className="text-3xl font-bold">Game Completed</h1>
                   </CardHeader>
 
-                  <CardBody className="text-center space-y-6 pt-4">
+                  <CardBody className="text-center space-y-6 pt-4 max-sm:px-0">
                     <p className="text-muted-foreground">Thanks for playing!</p>
 
                     <div className="grid grid-cols-3 gap-4">
@@ -164,41 +164,47 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-emerald-50 px-4 py-5 rounded-md"
+                        className="bg-emerald-50 px-4 py-5 rounded-md max-sm:px-2"
                       >
-                        <div className="text-2xl font-bold text-emerald-600">
+                        <div className="text-2xl font-bold text-emerald-600 max-sm:text-xl">
                           {latestScore}
                         </div>
-                        <div className="text-sm text-emerald-600">Correct</div>
+                        <div className="text-sm text-emerald-600 max-sm:text-xs">
+                          Correct
+                        </div>
                       </motion.div>
 
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-rose-50 px-4 py-5 rounded-md"
+                        className="bg-rose-50 px-4 py-5 rounded-md max-sm:px-2"
                       >
-                        <div className="text-2xl font-bold text-rose-600">
+                        <div className="text-2xl font-bold text-rose-600 max-sm:text-xl">
                           {incorrectAnswers}
                         </div>
-                        <div className="text-sm text-rose-600">Incorrect</div>
+                        <div className="text-sm text-rose-600 max-sm:text-xs">
+                          Incorrect
+                        </div>
                       </motion.div>
 
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="bg-purple-50 px-4 py-5 rounded-md"
+                        className="bg-purple-50 px-4 py-5 rounded-md max-sm:px-2"
                       >
-                        <div className="text-2xl font-bold text-purple-600">
+                        <div className="text-2xl font-bold text-purple-600 max-sm:text-xl">
                           {accuracy}%
                         </div>
-                        <div className="text-sm text-purple-600">Accuracy</div>
+                        <div className="text-sm text-purple-600 max-sm:text-xs">
+                          Accuracy
+                        </div>
                       </motion.div>
                     </div>
                   </CardBody>
 
-                  <CardFooter className="flex flex-col gap-3 pt-6">
+                  <CardFooter className="flex flex-col gap-3 pt-6 max-sm:px-0">
                     <Button
                       onClick={() => {
                         setShowEndScreen(false); // Hide end screen
@@ -278,7 +284,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                     setShowEndScreen(true);
                   }}
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <ArrowLeft className="h-4 w-4 mr-2 max-sm:hidden" />
                   Back
                 </Button>
               </div>
