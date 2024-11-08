@@ -236,6 +236,19 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     }
   };
 
+  const getRewards = (difficulty) => {
+    switch (difficulty?.toLowerCase()) {
+      case "easy":
+        return { coins: 10, exp: 10 };
+      case "medium":
+        return { coins: 20, exp: 20 };
+      case "hard":
+        return { coins: 40, exp: 40 };
+      default:
+        return { coins: 0, exp: 0 };
+    }
+  };
+
   const renderGames = () => {
     const filteredGames = gameList.filter((game) => {
       return (
@@ -279,17 +292,16 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                       </div>
                       <div className="">
                         <p>{game.game_type}</p>
-
-                        {/* {game.difficulty && (
-                          <Chip
-                            color={getChipColor(game.difficulty)}
-                            radius="sm"
-                            className="text-sm text-white capitalize"
-                          >
-                            {game.difficulty}
-                          </Chip>
-                        )} */}
-                        {/* <p>ID {game.game_id}</p> */}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <div className="flex flex-col items-end">
+                      <p className="text-sm font-semibold">Rewards:</p>
+                      <div className="flex gap-2 text-sm text-gray-600">
+                        <span>{getRewards(game.difficulty).coins} Coins</span>
+                        <span>{getRewards(game.difficulty).exp} EXP</span>
+                        <span>+ Bonus</span>
                       </div>
                     </div>
                   </div>
