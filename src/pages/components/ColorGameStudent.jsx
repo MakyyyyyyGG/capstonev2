@@ -24,6 +24,7 @@ import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
+import Shop from "./Shop";
 
 const ColorGames = ({ cards }) => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -369,6 +370,7 @@ const ColorGames = ({ cards }) => {
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
                 <h1 className="text-2xl font-bold">Color Game</h1>
+                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">

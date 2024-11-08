@@ -44,6 +44,7 @@ import {
   ArrowLeftRight,
 } from "lucide-react";
 import GameHistory from "./GameHistory";
+import Shop from "./Shop";
 
 const DecisionMakerStudent = ({ cards = [] }) => {
   // Add default empty array
@@ -317,6 +318,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
               <div>
                 <h1 className="text-2xl font-bold">Decision Game</h1>
+                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">

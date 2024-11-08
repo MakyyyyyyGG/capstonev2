@@ -13,7 +13,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import GameHistory from "./GameHistory";
 import Summary from "./Summary";
-
+import Shop from "./Shop";
 const SequenceGameStudent = ({ sequenceGame }) => {
   const [gameData, setGameData] = useState([]); // Initialize as empty array
   const [selectedImages, setSelectedImages] = useState([]);
@@ -346,6 +346,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
                 <h1 className="text-2xl font-bold">Sequence Game</h1>
+                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
