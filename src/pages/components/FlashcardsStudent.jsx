@@ -10,7 +10,7 @@ import {
   Image,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import { RotateCw, RotateCcw, Volume2, Play, Pause } from "lucide-react";
+import { RotateCw, RotateCcw, VolumeX, Play, Pause } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -49,6 +49,7 @@ const FlashcardsStudent = ({ flashcards }) => {
   const [audioPlaying, setAudioPlaying] = useState(null);
   const audioRefs = useRef({});
   const [currentFlashcards, setCurrentFlashcards] = useState([]);
+  const [noAudio, setNoAudio] = useState(null);
 
   useEffect(() => {
     if (flashcards) {
@@ -82,7 +83,7 @@ const FlashcardsStudent = ({ flashcards }) => {
   }
 
   const handleAudioPlay = (flashcard_id) => {
-    // Check if there’s an audio currently playing that is different from the selected one
+    // Check if there's an audio currently playing that is different from the selected one
     if (
       audioPlaying &&
       audioPlaying !== flashcard_id &&
@@ -91,7 +92,6 @@ const FlashcardsStudent = ({ flashcards }) => {
       audioRefs.current[audioPlaying].pause();
     }
 
-    // Check if the current audio reference exists before attempting to play/pause
     const currentAudio = audioRefs.current[flashcard_id];
     if (currentAudio) {
       if (currentAudio.paused) {
@@ -101,6 +101,10 @@ const FlashcardsStudent = ({ flashcards }) => {
         currentAudio.pause();
         setAudioPlaying(null);
       }
+    } else {
+      // Show no-audio indicator if no audio is found
+      setNoAudio(flashcard_id);
+      setTimeout(() => setNoAudio(null), 1500); // Hide after 1.5 seconds
     }
   };
 
@@ -161,7 +165,6 @@ const FlashcardsStudent = ({ flashcards }) => {
                                 : "opacity-100"
                             }`}
                             onClick={() =>
-                              flashcard.audio &&
                               handleAudioPlay(flashcard.flashcard_id)
                             }
                           />
@@ -199,6 +202,21 @@ const FlashcardsStudent = ({ flashcards }) => {
                               }}
                               className="w-2 h-2 bg-primary-foreground rounded-full"
                             />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      {/* No Audio Indicator */}
+                      <AnimatePresence>
+                        {noAudio === flashcard.flashcard_id && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="absolute top-0 left-0 right-0 bg-gray-500/90 text-white p-2 flex items-center justify-center"
+                          >
+                            <span className="mr-2">No audio available</span>
+                            <VolumeX size={18} />
                           </motion.div>
                         )}
                       </AnimatePresence>
