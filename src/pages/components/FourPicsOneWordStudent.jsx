@@ -29,6 +29,7 @@ import {
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
 import GameHistory from "./GameHistory";
+import Shop from "./Shop";
 
 const FourPicsOneWordStudent = ({ cards = [] }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
@@ -312,6 +313,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
                 <h1 className="text-2xl font-bold">ThinkPic</h1>
+                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
