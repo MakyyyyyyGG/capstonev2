@@ -39,6 +39,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   const incorrectSound = useRef(null);
 
   const [showEmoji, setShowEmoji] = useState([]);
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
 
   const handleAudioToggle = (index) => {
     if (audioRefs.current[index]) {
@@ -180,6 +181,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
     );
     if (allAnswered) {
       setIsGameFinished(true);
+      getRewards(shuffledCards[0].difficulty);
     }
   };
 
@@ -285,6 +287,20 @@ const SequenceGameStudent = ({ sequenceGame }) => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
     }
   };
 

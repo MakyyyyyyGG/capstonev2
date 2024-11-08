@@ -9,9 +9,9 @@ const useUserStore = create((set) => ({
       exp: initialExp,
     })),
   updateCoinsExp: (newCoins, newExp) =>
-    set(() => ({
-      coins: newCoins,
-      exp: newExp,
+    set((state) => ({
+      coins: newCoins !== null ? newCoins : state.coins,
+      exp: newExp !== null ? newExp : state.exp,
     })),
 }));
 

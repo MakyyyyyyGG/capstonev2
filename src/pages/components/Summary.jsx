@@ -165,7 +165,7 @@ const Summary = ({
         {showEndScreen && (
           <>
             {/* Confetti on top of end screen */}
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
               {/* Conditionally render confetti if score is 10 */}
               {accuracy === "100" && (
                 <motion.div

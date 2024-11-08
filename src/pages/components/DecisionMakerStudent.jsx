@@ -63,6 +63,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [hideWord, setHideWord] = useState(false);
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
 
   // Sound effect refs
   const correctSound = useRef(null);
@@ -143,6 +144,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     setTimeout(() => {
       if (allAnswered) {
         setIsGameFinished(true);
+        getRewards(shuffledCards[0].difficulty);
       }
     }, 2500); // 2.5-second delay
   };
@@ -271,6 +273,20 @@ const DecisionMakerStudent = ({ cards = [] }) => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
     }
   };
 

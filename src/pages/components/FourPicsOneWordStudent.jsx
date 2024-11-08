@@ -45,12 +45,11 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
   const router = useRouter();
   const { game_id } = router.query;
   const inputRefs = useRef([]);
-
   // Sound effect refs
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
-
   const [showEmoji, setShowEmoji] = useState(false);
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
 
   useEffect(() => {
     if (cards?.length > 0 && session) {
@@ -211,6 +210,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
     setTimeout(() => {
       if (allAnswered) {
         setIsGameFinished(true);
+        getRewards(shuffledCards[0].difficulty);
       }
     }, 2500); // 2.5-second delay
   };
@@ -240,10 +240,10 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
 
       const result = await response.json();
       if (response.status === 200) {
-        alert("Game Recorded Successfully");
+        // alert("Game Recorded Successfully");
         await getStudentTries();
       } else if (response.status === 403) {
-        alert(result.message); // Show the limit message
+        // alert(result.message); // Show the limit message
       } else {
         console.log(result);
       }
@@ -270,6 +270,19 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
     }
   };
 
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
+    }
+  };
   return (
     <div className="relative flex flex-col justify-center px-4">
       {/* Audio elements */}
@@ -286,7 +299,11 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <Summary gameRecord={gameRecord} questions={cards.length} />
+            <Summary
+              gameRecord={gameRecord}
+              questions={cards.length}
+              rewards={rewards}
+            />
           )}
         </>
       ) : (
