@@ -26,7 +26,12 @@ import {
 import { Trophy, Home, BarChart3, ArrowLeft, NotepadText } from "lucide-react";
 import { useRouter } from "next/router";
 import useUserStore from "../api/coins_exp/useUserStore";
-const Summary = ({ gameRecord = [], questions, rewards }) => {
+
+const Summary = ({
+  gameRecord = [],
+  questions = 0,
+  rewards = { coins: 0, exp: 0, bonus: 0 },
+}) => {
   const router = useRouter();
   const { updateCoinsExp } = useUserStore(); // Get the update function from the store
 
@@ -140,6 +145,7 @@ const Summary = ({ gameRecord = [], questions, rewards }) => {
       // Update Zustand store with the new values after a successful response
       if (response.ok) {
         updateCoinsExp(data.coins, data.exp);
+        console.log("Coins and exp updated:", data.coins, data.exp);
         setHasUpdatedCoins(true); // Mark as updated
       }
     } catch (error) {

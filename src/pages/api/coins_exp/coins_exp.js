@@ -10,6 +10,8 @@ export default async function handler(req, res) {
         values: [account_id],
       });
 
+      console.log("initial coins and exp", result[0].coins, result[0].exp);
+
       const newCoins = result[0].coins + coins;
       const newExp = result[0].exp + exp;
 
@@ -21,13 +23,11 @@ export default async function handler(req, res) {
       console.log("Updated coins:", newCoins);
       console.log("Updated exp:", newExp);
 
-      return res
-        .status(200)
-        .json({
-          message: "Coins and exp updated",
-          coins: newCoins,
-          exp: newExp,
-        });
+      return res.status(200).json({
+        message: "Coins and exp updated",
+        coins: newCoins,
+        exp: newExp,
+      });
     } catch (error) {
       console.error("Error fetching coins and exp:", error);
       return res.status(500).json({ message: "Failed to fetch coins and exp" });
