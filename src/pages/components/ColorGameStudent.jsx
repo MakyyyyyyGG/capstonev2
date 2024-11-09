@@ -26,7 +26,8 @@ import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
 import Shop from "./Shop";
 import { ChevronLeft } from "lucide-react";
-const ColorGames = ({ cards }) => {
+
+const ColorGames = ({ cards = [] }) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
   const [submissionResults, setSubmissionResults] = useState({});
@@ -368,15 +369,14 @@ const ColorGames = ({ cards }) => {
         <>
           <div className="flex w-full justify-center items-center">
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
-              <div>
-                <div
-                  className="flex items-center gap-2"
+              <div className="flex gap-4 items-center">
+                <ChevronLeft
+                  size={20}
+                  aria-label="Back"
                   onClick={() => router.back()}
-                >
-                  <ChevronLeft size={25} />
-                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
-                </div>
-                <Shop />
+                />
+                <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                <Shop aria-label="Shop" />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
