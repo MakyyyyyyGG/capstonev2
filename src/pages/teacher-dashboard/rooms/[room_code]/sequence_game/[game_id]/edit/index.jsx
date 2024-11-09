@@ -40,6 +40,7 @@ import {
   ScanSearch,
   Upload,
   Trash,
+  VideoOff,
 } from "lucide-react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -77,6 +78,12 @@ const Index = () => {
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [difficulty, setDifficulty] = useState("");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isRecordingOpen,
+    onOpen: onRecordingOpen,
+    onOpenChange: onRecordingOpenChange,
+  } = useDisclosure();
   const {
     isOpen: isImageViewOpen,
     onOpen: onImageViewOpen,
@@ -497,27 +504,94 @@ const Index = () => {
     setFlashcardData(updatedCards);
   };
 
-  const handleAddVideo = (video) => {
-    let embeddableVideoURL;
+  // const handleAddVideo = (e) => {
+  //   let embeddableVideoURL;
+  //   let videoInput;
 
-    if (video.includes("youtu.be")) {
-      // Handle short YouTube URL (e.g., https://youtu.be/<video-id>)
-      const videoId = video.split("/")[3].split("?")[0];
-      const queryParams = video.split("?")[1] ? `?${video.split("?")[1]}` : "";
-      embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
-    } else if (video.includes("youtube.com/watch")) {
-      // Handle standard YouTube URL (e.g., https://www.youtube.com/watch?v=<video-id>)
-      const videoId = video.split("v=")[1].split("&")[0];
-      const queryParams = video.split("&").slice(1).join("&")
-        ? `?${video.split("&").slice(1).join("&")}`
-        : "";
-      embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
-    } else {
-      embeddableVideoURL = video;
+  //   // Check if the input is a file upload or URL
+  //   if (e.target && e.target.files) {
+  //     // Handle file upload
+  //     const file = e.target.files[0];
+  //     if (file) {
+  //       const reader = new FileReader();
+  //       reader.onloadend = () => {
+  //         setVideo(reader.result);
+  //       };
+  //       reader.readAsDataURL(file);
+  //       return;
+  //     }
+  //   } else {
+  //     // Handle URL input
+  //     videoInput = videoURL;
+  //   }
+
+  //   if (!videoInput) {
+  //     console.error("No video input provided");
+  //     return;
+  //   }
+
+  //   if (videoInput.includes("youtu.be")) {
+  //     // Handle short YouTube URL
+  //     const videoId = videoInput.split("/")[3].split("?")[0];
+  //     const queryParams = videoInput.split("?")[1]
+  //       ? `?${videoInput.split("?")[1]}`
+  //       : "";
+  //     embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+  //   } else if (videoInput.includes("youtube.com/watch")) {
+  //     // Handle standard YouTube URL
+  //     const videoId = videoInput.split("v=")[1].split("&")[0];
+  //     const queryParams = videoInput.split("&").slice(1).join("&")
+  //       ? `?${videoInput.split("&").slice(1).join("&")}`
+  //       : "";
+  //     embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+  //   } else {
+  //     embeddableVideoURL = videoInput;
+  //   }
+
+  //   console.log("embeddableVideoURL:", embeddableVideoURL);
+  //   setVideo(embeddableVideoURL);
+  // };
+
+  const handleAddVideo = (event) => {
+    // Handle YouTube URL
+    if (videoURL) {
+      let embeddableVideoURL;
+
+      if (videoURL.includes("youtu.be")) {
+        // Handle short YouTube URL (e.g., https://youtu.be/<video-id>)
+        const videoId = videoURL.split("/")[3].split("?")[0];
+        const queryParams = videoURL.split("?")[1]
+          ? `?${videoURL.split("?")[1]}`
+          : "";
+        embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+      } else if (videoURL.includes("youtube.com/watch")) {
+        // Handle standard YouTube URL (e.g., https://www.youtube.com/watch?v=<video-id>)
+        const videoId = videoURL.split("v=")[1].split("&")[0];
+        const queryParams = videoURL.split("&").slice(1).join("&")
+          ? `?${videoURL.split("&").slice(1).join("&")}`
+          : "";
+        embeddableVideoURL = `https://www.youtube.com/embed/${videoId}${queryParams}`;
+      }
+
+      console.log("embeddableVideoURL:", embeddableVideoURL);
+      setVideo(embeddableVideoURL);
     }
 
-    console.log("embeddableVideoURL:", embeddableVideoURL);
-    setVideo(embeddableVideoURL);
+    // Handle file upload
+    if (event?.target?.files) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setVideo(base64String);
+        console.log("base64String:", base64String);
+      };
+
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+    }
   };
 
   const handleVideoChange = (e) => {
@@ -590,30 +664,56 @@ const Index = () => {
 
           {flashcardData && flashcardData.length > 0 && (
             <>
-              <Input
-                size="lg"
-                radius="sm"
-                variant="bordered"
-                color="secondary"
-                value={title}
-                placeholder="Game Title"
-                onChange={(e) => setTitle(e.target.value)}
-                classNames={{
-                  label: "text-white",
-                  inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
-                }}
-              />
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 <Input
+                  size="lg"
+                  radius="sm"
+                  variant="bordered"
+                  color="secondary"
+                  value={title}
+                  placeholder="Game Title"
+                  onChange={(e) => setTitle(e.target.value)}
+                  classNames={{
+                    label: "text-white",
+                    inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                  }}
+                />
+                {!video ? (
+                  <Button
+                    radius="sm"
+                    size="lg"
+                    color="secondary"
+                    onClick={onOpen}
+                  >
+                    <div className="flex gap-2 items-center">
+                      <Video size={20} />
+                      Add Video
+                    </div>
+                  </Button>
+                ) : (
+                  <Button
+                    radius="sm"
+                    size="lg"
+                    color="danger"
+                    onClick={() => {
+                      setVideoURL("");
+                      setVideo("");
+                    }}
+                  >
+                    <div className="flex gap-2 items-center">
+                      <VideoOff size={20} />
+                      Clear
+                    </div>
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {/* <Input
                   value={videoURL}
                   placeholder="Enter YouTube URL"
                   onChange={handleVideoChange}
                   variant="bordered"
                   color="secondary"
-                  isClearable
-                  onClear={() => {
-                    setVideo("");
-                  }}
                   radius="sm"
                   size="lg"
                   isRequired
@@ -621,44 +721,98 @@ const Index = () => {
                     label: "text-white",
                     inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                   }}
-                />
-                {!video && (
-                  <Button
-                    isDisabled={!videoURL}
-                    onClick={() => handleAddVideo(videoURL)}
-                    radius="sm"
-                    size="lg"
-                    color="secondary"
-                  >
-                    <div className="flex gap-2 items-center">
-                      <Video size={20} />
-                      Add Video
-                    </div>
-                  </Button>
-                )}
-                <Button
-                  radius="sm"
-                  size="lg"
-                  color="danger"
-                  onClick={() => {
-                    setVideoURL("");
-                    setVideo("");
-                  }}
-                >
-                  Clear
-                </Button>
+                /> */}
+
+                <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+                  <ModalContent>
+                    {(onClose) => (
+                      <>
+                        <ModalHeader className="flex flex-col gap-1">
+                          Add Video
+                        </ModalHeader>
+                        <ModalBody>
+                          <Tabs aria-label="Video Options" fullWidth>
+                            <Tab key="url" title="From URL">
+                              <div className="flex gap-2 mt-4">
+                                <Input
+                                  variant="bordered"
+                                  color="secondary"
+                                  isClearable
+                                  radius="sm"
+                                  size="lg"
+                                  isRequired
+                                  onClear={() => setVideoURL("")}
+                                  placeholder="Enter YouTube URL"
+                                  classNames={{
+                                    label: "text-white",
+                                    inputWrapper:
+                                      "bg-[#ffffff] border-1 border-[#7469B6]",
+                                  }}
+                                  value={videoURL}
+                                  onChange={(e) => setVideoURL(e.target.value)}
+                                />
+                                <Button
+                                  isDisabled={!videoURL}
+                                  onClick={() => {
+                                    handleAddVideo();
+                                    onClose();
+                                  }}
+                                  radius="sm"
+                                  size="lg"
+                                  color="secondary"
+                                >
+                                  Add
+                                </Button>
+                              </div>
+                            </Tab>
+                            <Tab key="upload" title="Upload">
+                              <div className="flex gap-2 mt-4">
+                                <input
+                                  type="file"
+                                  accept="video/*"
+                                  onChange={handleAddVideo}
+                                  className="hidden"
+                                  id="videoUpload"
+                                />
+                                <Button
+                                  radius="sm"
+                                  size="lg"
+                                  color="secondary"
+                                  onClick={() =>
+                                    document
+                                      .getElementById("videoUpload")
+                                      .click()
+                                  }
+                                >
+                                  <div className="flex gap-2 items-center">
+                                    <Upload size={20} />
+                                    Upload Video
+                                  </div>
+                                </Button>
+                              </div>
+                            </Tab>
+                          </Tabs>
+                        </ModalBody>
+                      </>
+                    )}
+                  </ModalContent>
+                </Modal>
               </div>
 
               <div className="border-2 border-dashed border-purple-700 rounded-md ">
                 {video ? (
-                  <iframe
-                    src={video}
-                    frameBorder="0"
-                    width="100%"
-                    height={400}
-                    allowFullScreen
-                    title="Sequence Game Video"
-                  />
+                  video.includes("youtube") ? (
+                    <iframe
+                      src={video}
+                      frameBorder="0"
+                      width="100%"
+                      height={400}
+                      allowFullScreen
+                      title="Sequence Game Video"
+                    />
+                  ) : (
+                    <video src={video} width="100%" height={400} controls />
+                  )
                 ) : (
                   <div className="text-center p-4 text-purple-700 h-[400px] flex items-center justify-center">
                     No uploaded video

@@ -154,13 +154,21 @@ const SequenceGame = ({ sequenceGame }) => {
         <>
           <div className="flex w-full justify-center">
             <div className="aspect-video w-full max-w-[50rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
-              <iframe
-                src={gameData[0].video}
-                frameBorder="0"
-                allowFullScreen
-                title="Sequence Game Video"
-                className="w-full h-full object-cover"
-              />
+              {gameData[0].video.includes("youtube") ? (
+                <iframe
+                  src={gameData[0].video}
+                  frameBorder="0"
+                  allowFullScreen
+                  title="Sequence Game Video"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <video
+                  src={gameData[0].video}
+                  controls
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
           </div>
           {/* <h1>{gameData[0].title}</h1> */}
