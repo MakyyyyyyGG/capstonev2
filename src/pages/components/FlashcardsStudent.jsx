@@ -10,7 +10,14 @@ import {
   Image,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import { RotateCw, RotateCcw, Volume2, Play, Pause } from "lucide-react";
+import {
+  RotateCw,
+  RotateCcw,
+  Volume2,
+  Play,
+  Pause,
+  ChevronLeft,
+} from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";

@@ -325,7 +325,6 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                   <ChevronLeft size={25} />
                   <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
                 </div>
-                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -344,6 +343,8 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                   <ArrowLeftRight className="h-4 w-4 mr-1" />
                   Change Icons
                 </Button> */}
+                <Shop />
+
                 {gameRecord &&
                   cards && ( // Add null check
                     <GameHistory gameRecord={gameRecord} cards={cards.length} />

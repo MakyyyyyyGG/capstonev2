@@ -352,7 +352,6 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                   <ChevronLeft size={25} />
                   <h1 className="text-2xl font-bold">{gameData[0]?.title}</h1>
                 </div>
-                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -363,6 +362,8 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                     Attempts used this month: {attemptsUsed} / 8
                   </p>
                 </div>
+                <Shop />
+
                 <GameHistory gameRecord={gameRecord} cards={gameData.length} />
               </div>
             </div>

@@ -320,7 +320,6 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                   <ChevronLeft size={25} />
                   <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
                 </div>
-                <Shop />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -331,6 +330,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                     Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
+                <Shop />
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
                 {/* <h1>Questions Answered: {answeredQuestions}</h1>
               <h1>cards length: {cards.length}</h1> */}

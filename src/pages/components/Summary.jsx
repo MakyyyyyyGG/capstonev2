@@ -218,6 +218,12 @@ const Summary = ({
                 </>
               )}
               <motion.div
+                animate={{ scale: [1, 1.1, 1] }} // Pulsating effect
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  repeatType: "loop",
+                }}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleChestClick}
@@ -248,16 +254,12 @@ const Summary = ({
                   />
                 )}
               </motion.div>
-              {/* <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="h-24 w-24 cursor-pointer"
-                onClick={() => setTriggerConfetti(true)} // Trigger confetti on click
-              >
-                Coins Confetti
-              </motion.button> */}
-              {/* Button to Trigger ConfettiCoins */}
-              {/* Confetti pop when the chest opens */}
+              {/* Text to indicate action */}
+              {/* {!isChestOpened && (
+                <h1 className="text-purple-700 text-center mt-2 text-xl font-bold">
+                  Click the chest to open
+                </h1>
+              )} */}
             </motion.div>
           </div>
         )}

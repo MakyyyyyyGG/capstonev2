@@ -204,8 +204,8 @@ const Shop = () => {
           </motion.div>
         </AnimatePresence>
       )}
-      <Button isIconOnly variant="light" onPress={onOpen}>
-        <ShoppingCart size={24} />
+      <Button color="secondary" radius="sm" onPress={onOpen}>
+        <ShoppingCart size={24} /> Buy Effects
       </Button>
 
       <Modal

@@ -376,7 +376,6 @@ const ColorGames = ({ cards = [] }) => {
                   onClick={() => router.back()}
                 />
                 <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
-                <Shop aria-label="Shop" />
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -387,6 +386,8 @@ const ColorGames = ({ cards = [] }) => {
                     Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
+                <Shop aria-label="Shop" />
+
                 <GameHistory gameRecord={gameRecord} cards={cards?.length} />
               </div>
             </div>

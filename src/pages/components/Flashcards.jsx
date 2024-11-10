@@ -21,6 +21,27 @@ const Flashcards = ({ flashcards, isLoading }) => {
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const audioRefs = useRef({});
 
+  useEffect(() => {
+    if (flashcards && flashcards.length > 0) {
+      const imagePromises = flashcards.map((flashcard) => {
+        return new Promise((resolve) => {
+          if (flashcard.image) {
+            const img = new Image();
+            img.src = flashcard.image;
+            img.onload = resolve;
+            img.onerror = resolve;
+          } else {
+            resolve();
+          }
+        });
+      });
+
+      Promise.all(imagePromises).then(() => {
+        setImagesLoaded(true);
+      });
+    }
+  }, [flashcards]);
+
   const toggleCardBody = (id) => {
     // Reset audioPlaying state if the card is being flipped to the front
     if (showDescription[id]) {
