@@ -18,7 +18,7 @@ export default async function handler(req, res) {
                 FROM user_game_plays
                 INNER JOIN games ON user_game_plays.game_id = games.game_id
                 WHERE user_game_plays.account_id = ? AND games.room_code = ?
-                ORDER BY user_game_plays.created_at DESC`,
+                ORDER BY user_game_plays.created_at ASC`,
         values: [account_id, room_code],
       });
 

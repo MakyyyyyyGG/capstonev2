@@ -11,6 +11,7 @@ export default async function handler(req, res) {
     user_game_plays.score, 
     user_game_plays.created_at, 
     games.game_type, 
+    games.title,
     user_game_plays.account_id, 
     user_game_plays.game_id,
     rooms.room_name,
