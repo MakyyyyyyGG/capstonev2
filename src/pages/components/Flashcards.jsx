@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardBody, CardFooter, Button, Switch } from "@nextui-org/react";
-import { RotateCw, RotateCcw, Volume2, Play, Pause } from "lucide-react";
+import { RotateCw, RotateCcw, VolumeX, Play, Pause } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -20,37 +20,6 @@ const Flashcards = ({ flashcards, isLoading }) => {
   const [audioPlaying, setAudioPlaying] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const audioRefs = useRef({});
-  const imageLoadingPromises = useRef([]);
-
-  useEffect(() => {
-    if (flashcards) {
-      // Reset image loading state when flashcards change
-      setImagesLoaded(false);
-      imageLoadingPromises.current = [];
-
-      // Create promises for each image load
-      const promises = flashcards
-        .filter((flashcard) => flashcard.image)
-        .map((flashcard) => {
-          return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.src = flashcard.image;
-            img.onload = resolve;
-            img.onerror = reject;
-          });
-        });
-
-      imageLoadingPromises.current = promises;
-
-      // Wait for all images to load
-      Promise.all(promises)
-        .then(() => setImagesLoaded(true))
-        .catch((err) => {
-          console.error("Error loading images:", err);
-          setImagesLoaded(true); // Set to true even on error to prevent infinite loading
-        });
-    }
-  }, [flashcards]);
 
   const toggleCardBody = (id) => {
     // Reset audioPlaying state if the card is being flipped to the front
@@ -74,7 +43,6 @@ const Flashcards = ({ flashcards, isLoading }) => {
       audioRefs.current[audioPlaying].pause();
     }
 
-    // Check if the current audio reference exists before attempting to play/pause
     const currentAudio = audioRefs.current[flashcard_id];
     if (currentAudio) {
       if (currentAudio.paused) {
@@ -84,6 +52,10 @@ const Flashcards = ({ flashcards, isLoading }) => {
         currentAudio.pause();
         setAudioPlaying(null);
       }
+    } else {
+      // Show no-audio indicator if no audio is found
+      setNoAudio(flashcard_id);
+      setTimeout(() => setNoAudio(null), 1500); // Hide after 1.5 seconds
     }
   };
 
@@ -154,7 +126,6 @@ const Flashcards = ({ flashcards, isLoading }) => {
                                     : "opacity-100"
                                 }`}
                                 onClick={() =>
-                                  flashcard.audio &&
                                   handleAudioPlay(flashcard.flashcard_id)
                                 }
                               />
@@ -192,6 +163,21 @@ const Flashcards = ({ flashcards, isLoading }) => {
                                   }}
                                   className="w-2 h-2 bg-primary-foreground rounded-full"
                                 />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          {/* No Audio Indicator */}
+                          <AnimatePresence>
+                            {noAudio === flashcard.flashcard_id && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                                className="absolute top-0 left-0 right-0 bg-gray-500/90 text-white p-2 flex items-center justify-center"
+                              >
+                                <span className="mr-2">No audio available</span>
+                                <VolumeX size={18} />
                               </motion.div>
                             )}
                           </AnimatePresence>

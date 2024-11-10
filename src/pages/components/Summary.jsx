@@ -23,8 +23,18 @@ import {
   Modal,
   ModalContent,
 } from "@nextui-org/react";
-import { Trophy, Home, BarChart3, ArrowLeft, NotepadText } from "lucide-react";
+import {
+  Trophy,
+  Home,
+  BarChart3,
+  ArrowLeft,
+  NotepadText,
+  Coins,
+} from "lucide-react";
 import { useRouter } from "next/router";
+import ConfettiCanvas from "react-canvas-confetti";
+import ConfettiCoins from "./ConfettiCoins";
+import ConfettiExp from "./ConfettiExp";
 import useUserStore from "../api/coins_exp/useUserStore";
 
 const Summary = ({
@@ -44,6 +54,7 @@ const Summary = ({
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [showSurvey, setShowSurvey] = useState(false);
   const [hasUpdatedCoins, setHasUpdatedCoins] = useState(false);
+  const [showChestConfetti, setShowChestConfetti] = useState(false); // State for chest confetti
 
   // Prepare data for the LineChart
   const chartData = (gameRecord || []) // Add null check with empty array fallback
@@ -105,10 +116,12 @@ const Summary = ({
   const totalScore = latestScore; // Use the actual score
   const accuracy = ((latestScore / questions) * 100).toFixed(0); // Calculate accuracy as a percentage
 
-  const [showEndScreen, setShowEndScreen] = useState(true); // State to toggle end screen visibility
+  const [showEndScreen, setShowEndScreen] = useState(false); // State to toggle end screen visibility
   const [showSummary, setShowSummary] = useState(false); // State to toggle summary visibility
 
   const applauseRef = useRef(null); // Reference to the applause audio
+  const openChestRef = useRef(null); // Reference to the open chest audio
+  const coinsSfxRef = useRef(null); // Reference to the coins sfx audio
 
   // Play applause sound when the score is 10 and the end screen is shown
   useEffect(() => {
@@ -159,8 +172,96 @@ const Summary = ({
     }
   }, [session, hasUpdatedCoins]);
 
+  const [showChest, setShowChest] = useState(true);
+  const [isChestOpened, setIsChestOpened] = useState(false);
+
+  const handleChestClick = () => {
+    setIsChestOpened(true);
+    openChestRef.current.play(); // Play open chest sound
+    coinsSfxRef.current.play(); // Play coin sfx sound
+
+    // Trigger confetti for chest opening
+    setShowChestConfetti(true);
+    setTimeout(() => setShowChestConfetti(false), 1200);
+
+    setTimeout(() => {
+      setShowChest(false);
+      setShowEndScreen(true);
+    }, 1000);
+  };
+
   return (
     <div>
+      <AnimatePresence>
+        <audio
+          ref={openChestRef}
+          src="/soundfx/audio/openchest.mp3"
+          preload="auto"
+        />
+        <audio
+          ref={coinsSfxRef}
+          src="/soundfx/audio/coinsfx.mp3"
+          preload="auto"
+        />
+        {showChest && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              className="absolute top-[44%] left-[45%] -translate-x-1/2 -translate-y-1/2"
+            >
+              {showChestConfetti && (
+                <>
+                  <ConfettiCoins className="z-20" />
+                  <ConfettiExp className="z-20" />
+                </>
+              )}
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleChestClick}
+                className="h-40 w-40 cursor-pointer"
+              >
+                {/* Closed chest - show before click */}
+                {!isChestOpened && (
+                  <motion.img
+                    src="/chest/closechest.png"
+                    initial={{ rotateX: 0 }}
+                    animate={{ rotateX: isChestOpened ? 180 : 0 }}
+                    transition={{ duration: 0.5 }}
+                    alt="Closed Chest"
+                  />
+                )}
+
+                {/* Open chest - show after click with shake effect */}
+                {isChestOpened && (
+                  <motion.img
+                    src="/chest/openchest.png"
+                    initial={{ scale: 1, rotate: 0 }}
+                    animate={{
+                      scale: 1.05,
+                      rotate: [0, -5, 5, -5, 5, 0], // Shake animation
+                    }}
+                    transition={{ duration: 0.6 }}
+                    alt="Open Chest"
+                  />
+                )}
+              </motion.div>
+              {/* <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="h-24 w-24 cursor-pointer"
+                onClick={() => setTriggerConfetti(true)} // Trigger confetti on click
+              >
+                Coins Confetti
+              </motion.button> */}
+              {/* Button to Trigger ConfettiCoins */}
+              {/* Confetti pop when the chest opens */}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {showEndScreen && (
           <>

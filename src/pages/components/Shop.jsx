@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   Button,
@@ -10,15 +10,35 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
+  Chip,
   Select,
   SelectItem,
   Image,
   useDisclosure,
 } from "@nextui-org/react";
-import { ShoppingCart, XCircle } from "lucide-react";
+import {
+  ShoppingCart,
+  XCircle,
+  Clock,
+  PartyPopper,
+  Zap,
+  Snowflake,
+  Star,
+  Atom,
+  Coins,
+} from "lucide-react";
+import { RiTyphoonFill } from "react-icons/ri";
 import Confetti from "react-confetti";
+import ConfettiFirework from "./ConfettiFirework";
+import ConfettiCrossfire from "./ConfettiCrossfire";
+import ConfettiSnow from "./ConfettiSnow";
+import ConfettiVortex from "./ConfettiVortex";
+import ConfettiStar from "./ConfettiExplosion";
+import ConfettiPhotons from "./ConfettiPhotons";
+import ConfettiRealistic from "./ConfettiRealistic";
 import { useSession } from "next-auth/react";
 import useUserStore from "../api/coins_exp/useUserStore";
+import { color, motion, AnimatePresence } from "framer-motion";
 const Shop = () => {
   const { data: session } = useSession();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -26,31 +46,23 @@ const Shop = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const { updateCoinsExp } = useUserStore(); // Get the update function from the store
+  const confettiInstance = useRef(null);
 
   useEffect(() => {
     let timer;
     if (showConfetti) {
-      // Start countdown from 60
       timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
             setShowConfetti(false);
-            return 60; // Reset to 60 when done
+            return 60;
           }
           return prev - 1;
         });
       }, 1000);
 
-      // Start confetti after 60 seconds
-      const confettiTimer = setTimeout(() => {
-        setShowConfetti(true);
-      }, 60000);
-
-      return () => {
-        clearInterval(timer);
-        clearTimeout(confettiTimer);
-      };
+      return () => clearInterval(timer);
     }
   }, [showConfetti]);
 
@@ -96,140 +108,172 @@ const Shop = () => {
       duration: 60,
       key: "default",
       label: "Default Confetti",
-      config: {
-        colors: ["#ff0000", "#00ff00", "#0000ff"],
-        gravity: 0.03,
-      },
+      color: "bg-[#FF5E5E]",
+      icon: <PartyPopper size={40} />,
     },
     {
       price: 100,
       duration: 60,
       key: "fireworks",
       label: "Fireworks",
-      config: {
-        colors: ["#FFD700", "#FF6B6B", "#4ECDC4"],
-        gravity: 0.1,
-        explosion: true,
-        numberOfPieces: 200,
-      },
+      color: "bg-[#B558F6]",
+      icon: <Zap size={40} />,
     },
     {
       price: 100,
       duration: 60,
       key: "snow",
       label: "Snow",
-      config: {
-        colors: ["#ffffff"],
-        gravity: 0.1,
-        wind: 2,
-        numberOfPieces: 100,
-      },
+      color: "bg-[#48C1E3]",
+      icon: <Snowflake size={40} />,
     },
     {
       price: 100,
       duration: 60,
       key: "stars",
       label: "Stars",
-      config: {
-        colors: ["#FFD700", "#FFFFFF"],
-        shapes: ["star"],
-        gravity: 0.05,
-        numberOfPieces: 50,
-      },
+      color: "bg-[#F5D259]",
+      icon: <Star size={40} />,
+    },
+    {
+      price: 100,
+      duration: 60,
+      key: "vortex",
+      label: "Vortex",
+      color: "bg-[#8CE563]",
+      icon: <RiTyphoonFill className="w-12 h-12" />,
+    },
+    {
+      price: 100,
+      duration: 60,
+      key: "photons",
+      label: "Photons",
+      color: "bg-[#FF7C5E]",
+      icon: <Atom size={40} />,
     },
   ];
 
-  const getConfettiConfig = () => {
-    const variant = variants.find((v) => v.key === selectedVariant);
-    return variant ? variant.config : variants[0].config;
+  const renderSelectedConfetti = () => {
+    switch (selectedVariant) {
+      case "default":
+        return <ConfettiRealistic />;
+      case "fireworks":
+        return <ConfettiFirework />;
+      case "snow":
+        return <ConfettiSnow />;
+      case "stars":
+        return <ConfettiStar />;
+      case "vortex":
+        return <ConfettiVortex />;
+      case "photons":
+        return <ConfettiPhotons />;
+      default:
+        return null;
+    }
   };
 
   return (
     <div>
       {showConfetti && (
-        <div className="fixed inset-0 z-50 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-700/80 px-8 py-4 rounded-full text-2xl font-bold flex flex-col items-center">
-            {countdown}s
-            <Button
-              isIconOnly
-              color="danger"
-              className="mt-2 pointer-events-auto"
-              onClick={handleStopConfetti}
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, scale: 1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="fixed inset-0 z-50 pointer-events-none bg-black/40"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="absolute top-[43%] left-[47%] transform -translate-x-1/2 -translate-y-1/2 bg-purple-700/80 px-8 py-4 rounded-full text-2xl font-bold flex flex-col items-center"
             >
-              <XCircle />
-            </Button>
-          </div>
-          <Confetti
-            width={window.innerWidth}
-            height={window.innerHeight}
-            {...getConfettiConfig()}
-          />
-        </div>
+              {countdown}s
+              <Button
+                isIconOnly
+                color="danger"
+                className="mt-2 pointer-events-auto"
+                onClick={handleStopConfetti}
+              >
+                <XCircle />
+              </Button>
+            </motion.div>
+            {renderSelectedConfetti()}
+          </motion.div>
+        </AnimatePresence>
       )}
-
       <Button isIconOnly variant="light" onPress={onOpen}>
         <ShoppingCart size={24} />
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="5xl">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="5xl"
+        position="center"
+        scrollBehavior="inside"
+      >
         <ModalContent>
-          <ModalHeader>Shop</ModalHeader>
+          <ModalHeader>
+            <h1 className="w-full text-3xl font-bold text-center py-2">Shop</h1>
+          </ModalHeader>
           <ModalBody>
-            <div className="flex flex-wrap gap-4 justify-center items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {variants.map((variant) => (
                 <Card
                   key={variant.key}
-                  className="w-[300px] hover:scale-105 transition-transform"
+                  className="w-full rounded-lg overflow-hidden p-0"
                   isPressable
                   onPress={() =>
                     handleSelectVariant(variant.key, variant.price)
                   }
                 >
-                  <CardHeader>
-                    <div className="flex justify-between items-center w-full">
-                      <div className="flex  flex-col text-left">
+                  <CardHeader className="p-6 w">
+                    <div className="flex justify-between items-start w-full">
+                      <div className="flex flex-col text-left">
                         <h1 className="text-xl font-bold">{variant.label}</h1>
-                        <span>price: {variant.price} Coins</span>
-                        <span>duration: {variant.duration} Seconds</span>
+                        <div className="flex items-center gap-2 text-sm text-[#6B7280]">
+                          <Clock className="w-4 h-4" />
+                          <span>Duration: {variant.duration} Seconds</span>
+                        </div>
                       </div>
-                      <Button
-                        color="secondary"
-                        variant="bordered"
-                        radius="sm"
-                        onPress={() =>
-                          handleSelectVariant(variant.key, variant.price)
-                        }
+                      <Chip
+                        color="default"
+                        size="sm"
+                        className="bg-[#FDDC5C] z-0 text-[10px] h-5 font-black py-0"
                       >
-                        Buy Now
-                      </Button>
+                        <div className="flex items-center gap-1 ">
+                          <Coins className="w-3 h-3" />
+                          <span>{variant.price}</span>
+                        </div>
+                      </Chip>
                     </div>
                   </CardHeader>
-                  <CardBody className="relative group">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Image
-                        src={`/confetti/confetti.gif`}
-                        alt={variant.label}
-                        className="w-full h-48 object-cover"
-                      />
+                  <CardBody className="relative group p-6 pt-0">
+                    <div
+                      className={`rounded-lg w-full h-28 flex items-center justify-center ${variant.color}`}
+                    >
+                      {variant.icon}
                     </div>
-                    <Image
-                      src={`/confetti/${variant.key}.gif`}
-                      alt={variant.label}
-                      className="w-full h-48 object-cover"
-                    />
                   </CardBody>
+                  <CardFooter className="p-6 pt-0">
+                    <Button
+                      color="secondary"
+                      radius="sm"
+                      className="w-full group-hover:shadow-lg transition-all duration-300"
+                      onPress={() =>
+                        handleSelectVariant(variant.key, variant.price)
+                      }
+                    >
+                      Buy Now
+                    </Button>
+                  </CardFooter>
                 </Card>
               ))}
             </div>
           </ModalBody>
-          {/* <ModalFooter>
-            <Button color="danger" variant="light" onPress={onClose}>
-              Close
-            </Button>
-            <Button color="primary" onPress={onClose}>
-              Save
-            </Button>
-          </ModalFooter> */}
         </ModalContent>
       </Modal>
     </div>

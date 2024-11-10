@@ -25,24 +25,27 @@ const Exp = ({ exp }) => {
   const progressPercent = (currentExp / nextLevelExp) * 100;
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Level {level}</span>
-        <span className="text-sm text-gray-500">
-          {currentExp}/{nextLevelExp} EXP
-        </span>
+        <div className="text-sm font-medium">Level {level}</div>
       </div>
-      <Progress
-        size="sm"
-        radius="sm"
-        classNames={{
-          base: "w-full",
-          track: "bg-gray-200",
-          indicator: "bg-gradient-to-r from-blue-500 to-purple-500",
-        }}
-        value={progressPercent}
-        aria-label="Experience progress"
-      />
+      <div className="flex w-48 flex-col gap-1 max-sm:w-28">
+        <Progress
+          size="sm"
+          radius="sm"
+          classNames={{
+            base: "w-full",
+            track: "bg-gray-200",
+            indicator: "bg-gradient-to-r from-blue-500 to-purple-500",
+          }}
+          value={progressPercent}
+          aria-label="Experience progress"
+        />
+        <div className="flex justify-between text-xs text-[#6B7280]">
+          <span>{currentExp} EXP</span>
+          <span>{nextLevelExp} EXP</span>
+        </div>
+      </div>
     </div>
   );
 };
