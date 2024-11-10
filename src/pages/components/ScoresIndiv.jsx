@@ -35,7 +35,7 @@ const ScoresIndiv = ({ studentRecords }) => {
   const [viewChart, setViewChart] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({
-    key: "date",
+    key: null,
     direction: "ascending",
   });
   const [selectedMonth, setSelectedMonth] = useState("all");
@@ -47,7 +47,6 @@ const ScoresIndiv = ({ studentRecords }) => {
 
   useEffect(() => {
     if (studentRecords?.data) {
-      console.log("student records", studentRecords);
       // Process all records regardless of selected month/year
       const allProcessedData = processStudentRecords(studentRecords.data, true);
       setProcessedData(allProcessedData);
@@ -91,73 +90,60 @@ const ScoresIndiv = ({ studentRecords }) => {
       });
     }
 
-    // Group records by game title
-    const groupedByTitle = filteredRecords.reduce((acc, record) => {
-      if (!acc[record.title]) {
-        acc[record.title] = [];
+    // Group records by game title and month/year
+    const groupedByTitleAndDate = filteredRecords.reduce((acc, record) => {
+      const date = new Date(record.created_at);
+      const key = `${record.title}-${
+        date.getMonth() + 1
+      }-${date.getFullYear()}`;
+      if (!acc[key]) {
+        acc[key] = [];
       }
-      acc[record.title].push(record);
+      acc[key].push(record);
       return acc;
     }, {});
 
     // Process each group
     const processedRecords = [];
-    Object.entries(groupedByTitle).forEach(([title, records]) => {
-      // Group by month and year
-      const groupedByDate = records.reduce((acc, record) => {
-        const date = new Date(record.created_at);
-        const key = `${date.getMonth() + 1}-${date.getFullYear()}`;
-        if (!acc[key]) {
-          acc[key] = [];
-        }
-        acc[key].push(record);
-        return acc;
-      }, {});
+    Object.entries(groupedByTitleAndDate).forEach(([key, records]) => {
+      const [title, month, year] = key.split("-");
 
-      // Process each month's records
-      Object.entries(groupedByDate).forEach(([dateKey, monthRecords]) => {
-        const [month, year] = dateKey.split("-");
+      const scores = records
+        .filter((r) => r && r.score !== undefined)
+        .map((r) => (r.score !== undefined ? r.score : "TBA"))
+        .slice(0, 8)
+        .reverse();
 
-        const scores = monthRecords
-          .filter((r) => r && r.score !== undefined)
-          .map((r) => (r.score !== undefined ? r.score : "TBA"))
-          .slice(0, 8)
-          .reverse();
+      const average =
+        scores.filter((score) => score !== "TBA").length > 0
+          ? Math.min(
+              (scores.reduce(
+                (sum, score) => sum + (score !== "TBA" ? score : 0),
+                0
+              ) /
+                scores.filter((score) => score !== "TBA").length /
+                records[0].set_length) *
+                100,
+              100
+            )
+          : 0;
 
-        const average =
-          scores.filter((score) => score !== "TBA").length > 0
-            ? Math.min(
-                (scores.reduce(
-                  (sum, score) => sum + (score !== "TBA" ? score : 0),
-                  0
-                ) /
-                  scores.filter((score) => score !== "TBA").length /
-                  monthRecords[0].set_length) *
-                  100,
-                100
-              )
-            : 0;
-
-        processedRecords.push({
-          gameId: monthRecords[0].game_id,
-          gameType: monthRecords[0].game_type || "Unknown",
-          gameTitle: title,
-          date: new Date(year, month - 1).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-          }),
-          scores: scores.map((score) =>
-            score !== "TBA"
-              ? Math.min(
-                  (score / monthRecords[0].set_length) * 100,
-                  100
-                ).toFixed(2)
-              : "TBA"
-          ),
-          average: average.toFixed(2),
-          month: parseInt(month),
-          year: parseInt(year),
-        });
+      processedRecords.push({
+        gameId: records[0].game_id,
+        gameType: records[0].game_type || "Unknown",
+        gameTitle: title,
+        date: new Date(year, month - 1).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+        }),
+        scores: scores.map((score) =>
+          score !== "TBA"
+            ? Math.min((score / records[0].set_length) * 100, 100).toFixed(2)
+            : "TBA"
+        ),
+        average: average.toFixed(2),
+        month: parseInt(month),
+        year: parseInt(year),
       });
     });
 

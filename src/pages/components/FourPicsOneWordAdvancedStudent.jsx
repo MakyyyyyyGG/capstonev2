@@ -3,13 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardBody,
+  CardFooter,
   Button,
   Image,
   Progress,
   Checkbox,
 } from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { Volume2 } from "lucide-react";
+import { Volume2, ChevronLeft } from "lucide-react";
+import { BiSolidSquareRounded } from "react-icons/bi";
 import {
   InputOTP,
   InputOTPGroup,
@@ -30,6 +32,7 @@ import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import Summary from "./Summary";
 import GameHistory from "./GameHistory";
+import Shop from "./Shop";
 
 const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
@@ -46,7 +49,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [selectedImages, setSelectedImages] = useState([]);
-
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
   // Sound effect refs
   const correctSound = useRef(null);
   const incorrectSound = useRef(null);
@@ -200,6 +203,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
     setTimeout(() => {
       if (allQuestionsCompleted) {
         setIsGameFinished(true);
+        getRewards(shuffledCards[0].difficulty);
       }
     }, 2500); // 2.5-second delay
     // if (allAnswered) {
@@ -288,20 +292,30 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
       const result = await response.json();
 
       if (response.status === 403) {
-        alert(result.message);
       } else {
         console.log(result);
         await getStudentTries();
-
-        alert("Game finished! Your score: " + score);
       }
     } catch (error) {
       console.log(error);
     }
   };
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
+    }
+  };
 
   return (
-    <div className="relative flex flex-col justify-center">
+    <div className="relative flex flex-col justify-center px-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -316,7 +330,11 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
       {isGameFinished ? (
         <>
           {gameRecord.length > 0 && (
-            <Summary gameRecord={gameRecord} questions={cards.length} />
+            <Summary
+              gameRecord={gameRecord}
+              questions={cards.length}
+              rewards={rewards}
+            />
           )}
         </>
       ) : (
@@ -324,7 +342,13 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
           <div className="flex w-full justify-center items-center">
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
-                <h1 className="text-2xl font-bold">ThinkPic +</h1>
+                <div
+                  className="flex items-center gap-2"
+                  onClick={() => router.back()}
+                >
+                  <ChevronLeft size={25} />
+                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                </div>
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -335,6 +359,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                     Attempts this month: {attemptsUsed} / 8
                   </p>
                 </div>
+                <Shop />
+
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
                 {/* <h1>Questions Answered: {answeredQuestions}</h1>
               <h1>cards length: {cards.length}</h1> */}
@@ -397,11 +423,11 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                     transition={{ duration: 0.5 }}
                     className="border-4 rounded-lg"
                   >
-                    <Card className="w-full rounded-md flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
-                      <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
+                    <Card className="w-full rounded-md flex flex-col h-[40rem] aspect-square mx-auto">
+                      <CardBody className="flex flex-col gap-4 px-auto items-center justify-center overflow-hidden">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
-                        <div className="flex justify-center items-center gap-2">
-                          <div className="text-3xl font-extrabold my-5">
+                        <div className="flex justify-center items-center gap-2 mb-4">
+                          <div className="text-4xl font-extrabold">
                             <h1>{card.word}</h1>
                           </div>
                           <div className="flex justify-center items-center">
@@ -425,14 +451,14 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                               card.image3,
                               card.image4,
                             ].filter((image) => image !== null).length === 4
-                              ? "grid-cols-2"
+                              ? "grid-cols-2 max-w-[24rem]"
                               : [
                                   card.image1,
                                   card.image2,
                                   card.image3,
                                   card.image4,
                                 ].filter((image) => image !== null).length === 3
-                              ? "grid-cols-3 max-sm:grid-cols-2"
+                              ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                               : "grid-cols-2"
                           } gap-2 justify-center`}
                         >
@@ -450,7 +476,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                   whileTap={{ scale: 0.95 }}
                                   className={`relative hover:cursor-pointer rounded-md ${
                                     selectedImages[index]?.includes(idx)
-                                      ? "border-3 border-[#17C964]"
+                                      ? "border-3 border-[#9353D3]"
                                       : "border-3 border-transparent"
                                   }`}
                                   style={{
@@ -472,7 +498,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                     }
                                     src={`${image}`}
                                     alt={`Image ${idx + 1}`}
-                                    className={`w-44 h-44 object-cover rounded-md ${
+                                    className={`w-full aspect-square object-cover rounded-md${
                                       attempts[index] >= 3 ||
                                       feedback[index]?.includes("Correct")
                                         ? "opacity-50 cursor-not-allowed"
@@ -480,8 +506,11 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                     }`}
                                   />
                                   <Checkbox
-                                    color="success"
-                                    className="absolute top-2 right-1 text-white"
+                                    icon={
+                                      <BiSolidSquareRounded className="w-2 h-2" />
+                                    }
+                                    color="secondary"
+                                    className="absolute top-2 right-1 text-[#9353D3] opacity-0"
                                     isSelected={selectedImages[index]?.includes(
                                       idx
                                     )}
@@ -497,15 +526,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                               )
                           )}
                         </div>
-                        <div className="w-full mt-6">
-                          <Button
-                            radius="sm"
-                            onClick={handleCheckAnswers}
-                            className="w-full h-16 justify-center text-lg text-white bg-[#7469B6]"
-                          >
-                            Check Answer
-                          </Button>
-                        </div>
+                      </CardBody>
+                      <CardFooter className="w-full flex flex-col gap-2">
                         <AnimatePresence>
                           {feedback[index] && (
                             <motion.div
@@ -530,27 +552,35 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                             </motion.div>
                           )}
                         </AnimatePresence>
-                        <AnimatePresence>
-                          {showEmoji && (
-                            <motion.div
-                              initial={{ scale: 0, opacity: 0, rotate: -45 }}
-                              animate={{
-                                scale: [1.5, 1.8, 1.2, 1],
-                                opacity: 1,
-                                rotate: [0, 10, -10, 0],
-                              }}
-                              exit={{ scale: 0, opacity: 0, rotate: 45 }}
-                              transition={{
-                                duration: 1.2,
-                                ease: [0.36, 1.2, 0.5, 1],
-                              }}
-                              className="absolute top-3/5 left-3/5 transform -translate-x-1/2 -translate-y-1/2 text-9xl"
-                            >
-                              😄
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </CardBody>
+                        <Button
+                          radius="sm"
+                          color="secondary"
+                          onClick={handleCheckAnswers}
+                          className="w-full h-16 justify-center text-lg"
+                        >
+                          Check Answer
+                        </Button>
+                      </CardFooter>
+                      <AnimatePresence>
+                        {showEmoji && (
+                          <motion.div
+                            initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                            animate={{
+                              scale: [1.5, 1.8, 1.2, 1],
+                              opacity: 1,
+                              rotate: [0, 10, -10, 0],
+                            }}
+                            exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                            transition={{
+                              duration: 1.2,
+                              ease: [0.36, 1.2, 0.5, 1],
+                            }}
+                            className="absolute top-[40%] left-[39%] transform -translate-x-1/2 -translate-y-1/2 text-9xl"
+                          >
+                            😄
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </Card>
                   </motion.div>
                 </SwiperSlide>

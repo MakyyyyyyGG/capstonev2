@@ -4,7 +4,7 @@ import Flashcards from "@/pages/components/Flashcards";
 import Link from "next/link";
 import { Chip } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 import DecisionMaker from "@/pages/components/DecisionMaker";
 const index = () => {
   const router = useRouter();
@@ -60,20 +60,27 @@ const index = () => {
     <div className="w-full flex flex-col gap-2 p-4 max-w-[50rem] mx-auto">
       <div className="flex items-center justify-between">
         <div className="flex gap-4 items-center">
-          <h1 className="text-2xl font-extrabold">Decision Maker</h1>
+          <div
+            className="flex items-center gap-2"
+            onClick={() => router.back()}
+          >
+            <ChevronLeft size={25} />
+            <h1 className="text-2xl font-extrabold">{cards[0]?.title}</h1>
+          </div>
           {cards && cards.length > 0 && (
             <div className="text-lg font-bold ">
               <Chip
                 color={getChipColor(cards[0].difficulty)}
-                radius="sm"
-                className="rounded-md px-1 py-1 capitalize text-white"
+                variant="flat"
+                radius="xl"
+                className="px-1 py-1 capitalize"
               >
                 {cards[0].difficulty}
               </Chip>
             </div>
           )}
         </div>
-        <Button radius="sm" className="bg-[#7469B6] text-white border-0">
+        <Button radius="sm" color="secondary">
           <Link
             href={{
               pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,

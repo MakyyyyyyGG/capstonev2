@@ -7,13 +7,13 @@ import {
   Button,
   Progress,
 } from "@nextui-org/react";
-import { X, Check, RefreshCw, Pause, Volume2 } from "lucide-react";
+import { X, Check, RefreshCw, Pause, Volume2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import GameHistory from "./GameHistory";
 import Summary from "./Summary";
-
+import Shop from "./Shop";
 const SequenceGameStudent = ({ sequenceGame }) => {
   const [gameData, setGameData] = useState([]); // Initialize as empty array
   const [selectedImages, setSelectedImages] = useState([]);
@@ -39,6 +39,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   const incorrectSound = useRef(null);
 
   const [showEmoji, setShowEmoji] = useState([]);
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
 
   const handleAudioToggle = (index) => {
     if (audioRefs.current[index]) {
@@ -180,6 +181,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
     );
     if (allAnswered) {
       setIsGameFinished(true);
+      getRewards(shuffledCards[0].difficulty);
     }
   };
 
@@ -288,6 +290,20 @@ const SequenceGameStudent = ({ sequenceGame }) => {
     }
   };
 
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
+    }
+  };
+
   return (
     <div div className="relative flex flex-col justify-center">
       {/* Audio elements */}
@@ -329,7 +345,13 @@ const SequenceGameStudent = ({ sequenceGame }) => {
           <div className="flex w-full justify-center items-center">
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
               <div>
-                <h1 className="text-2xl font-bold">Sequence Game</h1>
+                <div
+                  className="flex items-center gap-2"
+                  onClick={() => router.back()}
+                >
+                  <ChevronLeft size={25} />
+                  <h1 className="text-2xl font-bold">{gameData[0]?.title}</h1>
+                </div>
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -340,6 +362,8 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                     Attempts used this month: {attemptsUsed} / 8
                   </p>
                 </div>
+                <Shop />
+
                 <GameHistory gameRecord={gameRecord} cards={gameData.length} />
               </div>
             </div>

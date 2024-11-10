@@ -17,7 +17,7 @@ export const config = {
 
 const uploadToFirebase = async (base64String, fileName, folder) => {
   const dataUriRegex =
-    /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav));base64,/;
+    /^data:(image\/(?:png|jpg|jpeg|gif)|audio\/(?:mpeg|wav)|video\/(?:mp4|webm));base64,/;
   const match = base64String.match(dataUriRegex);
   if (!match) throw new Error("Invalid Base64 data");
 

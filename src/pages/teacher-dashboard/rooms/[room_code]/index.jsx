@@ -57,6 +57,8 @@ const fetchStudentRecords = async (room_code, setStudentRecords) => {
     const res = await fetch(`/api/reports/game_records?room_code=${room_code}`);
     const data = await res.json();
     setStudentRecords(data.gameRecords);
+    console.log("student records", data.gameRecords);
+    console.log("student records length", data.gameRecords.length);
   } catch (error) {
     console.error("Error fetching student records:", error);
   }

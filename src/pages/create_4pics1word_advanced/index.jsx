@@ -369,6 +369,34 @@ const Index = () => {
       console.error("Error cropping image:", error);
     }
   };
+
+  // Clear images and correct answers when difficulty changes
+  useEffect(() => {
+    const maxImages =
+      difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4;
+
+    const updatedCards = cards.map((card) => {
+      // Clear images beyond the current difficulty limit
+      const newImages = [...card.images];
+      for (let i = maxImages; i < newImages.length; i++) {
+        newImages[i] = null;
+      }
+
+      // Clear correct answers that are beyond the current difficulty limit
+      const newCorrectAnswers = card.correct_answers.filter(
+        (index) => index < maxImages
+      );
+
+      return {
+        ...card,
+        images: newImages,
+        correct_answers: newCorrectAnswers,
+      };
+    });
+
+    setCards(updatedCards);
+  }, [difficulty]);
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
@@ -376,12 +404,13 @@ const Index = () => {
         <h1>Create a new ThinkPic+ Set</h1>
         <div>
           {isLoading ? (
-            <Button isLoading isDisabled color="secondary">
+            <Button isLoading isDisabled color="secondary" radius="sm">
               Create
             </Button>
           ) : (
             <Button
               color="secondary"
+              radius="sm"
               onPress={handleSubmit}
               isDisabled={!title || !difficulty || cards.length < 2}
             >
@@ -619,9 +648,7 @@ const Index = () => {
                             <div className="flex flex-col items-center space-y-2">
                               <Button
                                 radius="sm"
-                                variant="bordered"
                                 color="secondary"
-                                className="border-1"
                                 onClick={() => {
                                   setOpenModalIndices({
                                     cardIndex,
@@ -632,7 +659,10 @@ const Index = () => {
                                 }}
                               >
                                 <Upload size={20} />
-                                Upload Image
+                                <span className="max-sm:hidden">
+                                  Upload Image
+                                </span>
+                                <span className="sm:hidden">Upload</span>
                               </Button>
 
                               <Modal

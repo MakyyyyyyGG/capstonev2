@@ -28,10 +28,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-// import { DateRangePicker } from "@/components/ui/date-range-picker";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUpDown,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import { CSVLink } from "react-csv";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const Scores = ({ studentRecords, students, height }) => {
+  console.log("Student Records", studentRecords);
+  const { data: session } = useSession();
   const [processedData, setProcessedData] = useState([]);
   const [viewChart, setViewChart] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,6 +62,7 @@ const Scores = ({ studentRecords, students, height }) => {
     from: undefined,
     to: undefined,
   });
+  const [selectedRecords, setSelectedRecords] = useState([]);
 
   const recordsPerPage = 10;
 
@@ -125,7 +137,9 @@ const Scores = ({ studentRecords, students, height }) => {
 
     const groupedRecords = filteredRecords.reduce((acc, record) => {
       if (record && record.account_id && record.game_type) {
-        const key = `${record.account_id}-${record.game_type}`;
+        const key = `${record.account_id}-${record.game_type}-${
+          new Date(record.created_at).getMonth() + 1
+        }-${new Date(record.created_at).getFullYear()}`;
         if (!acc[key]) {
           acc[key] = [];
         }
@@ -135,7 +149,7 @@ const Scores = ({ studentRecords, students, height }) => {
     }, {});
 
     return Object.entries(groupedRecords).map(([key, records]) => {
-      const [accountId, gameType] = key.split("-");
+      const [accountId, gameType, month, year] = key.split("-");
       const student = studentMap.get(parseInt(accountId));
 
       const scores = records
@@ -144,6 +158,10 @@ const Scores = ({ studentRecords, students, height }) => {
           r.score !== undefined ? (r.score / r.set_length) * 100 : "TBA"
         )
         .slice(0, 8);
+
+      while (scores.length < 8) {
+        scores.push("TBA");
+      }
 
       const average =
         scores.filter((score) => score !== "TBA").length > 0
@@ -159,7 +177,7 @@ const Scores = ({ studentRecords, students, height }) => {
           : "Unknown",
         gameType: gameType || "Unknown",
         roomName: records[0]?.room_name || "N/A",
-        roomDifficulty: records[0]?.room_difficulty || "N/A",
+        roomDifficulty: records[0]?.room_difficulty || records[0]?.difficulty,
         date:
           records[0] && records[0].created_at
             ? new Date(records[0].created_at).toLocaleDateString("en-US", {
@@ -167,7 +185,10 @@ const Scores = ({ studentRecords, students, height }) => {
                 month: "short",
               })
             : "Unknown",
-        scores: scores.map((score) => parseFloat(score.toFixed(2))),
+        title: records[0]?.title || "N/A",
+        scores: scores.map((score) =>
+          score === "TBA" ? "TBA" : parseFloat(score.toFixed(2))
+        ),
         average: parseFloat(average.toFixed(2)),
       };
     });
@@ -218,105 +239,231 @@ const Scores = ({ studentRecords, students, height }) => {
     (data) => data.roomName !== "N/A" || data.roomDifficulty !== "N/A"
   );
 
+  const handleSelectRecord = (index) => {
+    setSelectedRecords((prev) => {
+      if (prev.includes(index)) {
+        return prev.filter((i) => i !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
+  };
+
+  const exportToExcel = async () => {
+    try {
+      const teacherFirstName = session.user.first_name;
+      const teacherLastName = session.user.last_name;
+
+      // Calculate the overall average of all averages
+      const overallAverage =
+        selectedRecords.reduce(
+          (acc, index) => acc + currentRecords[index].average,
+          0
+        ) / selectedRecords.length;
+
+      const currentDate = new Date();
+      const formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+
+      const newWorksheetData = [
+        ["Liwanag Student Data Sheet"],
+        [" "],
+        ["Teacher Name", teacherFirstName, teacherLastName],
+        [" "],
+        ["Date Exported", formattedDate],
+        [" "],
+        [
+          "Name",
+          "Game Type",
+          "Room",
+          "Difficulty",
+          "Date",
+          "Title",
+          ...Array.from({ length: 8 }, (_, i) => `Attempt ${i + 1}`),
+          "Average",
+        ],
+        ...selectedRecords.map((index) => {
+          const record = currentRecords[index];
+          const row = [
+            record.name,
+            record.gameType,
+            record.roomName,
+            record.roomDifficulty,
+            record.date,
+            record.title,
+            ...record.scores.map((score) => (score === null ? "TBA" : score)),
+            record.average,
+          ];
+          return row;
+        }),
+        [" "],
+        ["Overall Average", overallAverage.toFixed(2)],
+      ];
+
+      const newWorksheet = XLSX.utils.aoa_to_sheet(newWorksheetData);
+      const newWorkbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(
+        newWorkbook,
+        newWorksheet,
+        "Selected Records"
+      );
+
+      const excelBuffer = XLSX.write(newWorkbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], { type: "application/octet-stream" }),
+        `Liwanag_${formattedDate}.xlsx`
+      );
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === "ascending" ? (
+        <ArrowUp className="inline-block ml-1 h-4 w-4" />
+      ) : (
+        <ArrowDown className="inline-block ml-1 h-4 w-4" />
+      );
+    }
+    return (
+      <>
+        <ChevronsUpDown className="inline-block ml-1 h-4 w-4 opacity-50" />
+      </>
+    );
+  };
+
   return (
     <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white   ">
       <CardContent className="p-6">
-        <div className="flex items-center gap-4 pb-4 flex-wrap">
-          {/* <DateRangePicker
-            value={dateRange}
-            onChange={setDateRange}
-          /> */}
+        <div className="flex items-center gap-4 pb-4 flex-wrap justify-between">
+          <div className="flex gap-4 items-center">
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-[180px] bg-white">
+                <SelectValue placeholder="Select Month" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {availableMonths.map((month) => (
+                  <SelectItem key={month} value={month}>
+                    {month === "all"
+                      ? "All Months"
+                      : new Date(0, month - 1).toLocaleString("en-US", {
+                          month: "long",
+                        })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Select Month" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              {availableMonths.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {month === "all"
-                    ? "All Months"
-                    : new Date(0, month - 1).toLocaleString("en-US", {
-                        month: "long",
-                      })}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger className="w-[180px] bg-white">
+                <SelectValue placeholder="Select Year" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {availableYears.map((year) => (
+                  <SelectItem key={year} value={year}>
+                    {year === "all" ? "All Years" : year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-[180px] bg-white">
-              <SelectValue placeholder="Select Year" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              {availableYears.map((year) => (
-                <SelectItem key={year} value={year}>
-                  {year === "all" ? "All Years" : year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {hasRoomData && (
+              <>
+                <Select value={selectedRoom} onValueChange={setSelectedRoom}>
+                  <SelectTrigger className="w-[180px] bg-white">
+                    <SelectValue placeholder="Select Room" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {availableRooms.map((room) => (
+                      <SelectItem key={room} value={room}>
+                        {room === "all" ? "All Rooms" : room}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-          {hasRoomData && (
-            <>
-              <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-                <SelectTrigger className="w-[180px] bg-white">
-                  <SelectValue placeholder="Select Room" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {availableRooms.map((room) => (
-                    <SelectItem key={room} value={room}>
-                      {room === "all" ? "All Rooms" : room}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={selectedDifficulty}
-                onValueChange={setSelectedDifficulty}
-              >
-                <SelectTrigger className="w-[180px] bg-white">
-                  <SelectValue placeholder="Select Difficulty" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {availableDifficulties.map((difficulty) => (
-                    <SelectItem key={difficulty} value={difficulty}>
-                      {difficulty === "all" ? "All Difficulties" : difficulty}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </>
-          )}
+                <Select
+                  value={selectedDifficulty}
+                  onValueChange={setSelectedDifficulty}
+                >
+                  <SelectTrigger className="w-[180px] bg-white">
+                    <SelectValue placeholder="Select Difficulty" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {availableDifficulties.map((difficulty) => (
+                      <SelectItem key={difficulty} value={difficulty}>
+                        {difficulty === "all" ? "All Difficulties" : difficulty}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
+          </div>
+          <div>
+            <Button
+              variant="outline"
+              className=" bg-purple-700 text-white  "
+              color="secondary"
+              size="lg"
+              onClick={exportToExcel}
+            >
+              Export to Excel
+            </Button>
+          </div>
         </div>
 
         <ScrollArea className={`h-[${height}px] rounded-lg border`}>
           <Table>
             <TableHeader className="sticky top-0 bg-background">
               <TableRow>
-                <TableHead onClick={() => sortData("name")}>Name</TableHead>
+                <TableHead>
+                  <input
+                    type="checkbox"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedRecords(currentRecords.map((_, i) => i));
+                      } else {
+                        setSelectedRecords([]);
+                      }
+                    }}
+                    checked={selectedRecords.length === currentRecords.length}
+                  />
+                </TableHead>
+                <TableHead onClick={() => sortData("name")}>
+                  Name {renderSortIcon("name")}
+                </TableHead>
+                <TableHead onClick={() => sortData("title")}>
+                  Title {renderSortIcon("title")}
+                </TableHead>
+
                 <TableHead onClick={() => sortData("gameType")}>
-                  Game Type
+                  Game Type {renderSortIcon("gameType")}
                 </TableHead>
                 {hasRoomData && (
                   <>
                     <TableHead onClick={() => sortData("roomName")}>
-                      Room
+                      Room {renderSortIcon("roomName")}
                     </TableHead>
                     <TableHead onClick={() => sortData("roomDifficulty")}>
-                      Difficulty
+                      Difficulty {renderSortIcon("roomDifficulty")}
                     </TableHead>
                   </>
                 )}
-                <TableHead onClick={() => sortData("date")}>Date</TableHead>
+                <TableHead onClick={() => sortData("date")}>
+                  Date {renderSortIcon("date")}
+                </TableHead>
                 <TableHead className="text-center">Attempts</TableHead>
                 <TableHead
                   className="text-center"
                   onClick={() => sortData("average")}
                 >
-                  Average
+                  Average {renderSortIcon("average")}
                 </TableHead>
+                <TableHead className="text-center">Teacher</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -324,7 +471,15 @@ const Scores = ({ studentRecords, students, height }) => {
               {currentRecords.map((row, index) => (
                 <React.Fragment key={index}>
                   <TableRow className="group hover:bg-gray-100">
-                    <TableCell>{row.name}</TableCell>
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedRecords.includes(index)}
+                        onChange={() => handleSelectRecord(index)}
+                      />
+                    </TableCell>
+                    <TableCell>{row.name} </TableCell>
+                    <TableCell>{row.title}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-normal">
                         {row.gameType}
@@ -338,10 +493,13 @@ const Scores = ({ studentRecords, students, height }) => {
                     )}
                     <TableCell>{row.date}</TableCell>
                     <TableCell className="text-center">
-                      {row.scores.length}
+                      {row.scores.filter((score) => score !== "TBA").length}
                     </TableCell>
                     <TableCell className="text-center">
                       {parseFloat(row.average).toFixed(2)}%
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {session.user.first_name} {session.user.last_name}
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
@@ -356,7 +514,7 @@ const Scores = ({ studentRecords, students, height }) => {
                   </TableRow>
                   {viewChart[index] && (
                     <TableRow>
-                      <TableCell colSpan={hasRoomData ? 8 : 6}>
+                      <TableCell colSpan={hasRoomData ? 10 : 8}>
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
                             data={row.scores.map((score, i) => ({

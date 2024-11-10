@@ -16,6 +16,7 @@ import {
   useDisclosure,
   Card,
   CardBody,
+  CardFooter,
   Image,
   Progress,
 } from "@nextui-org/react";
@@ -41,8 +42,10 @@ import {
   Eye,
   EyeOff,
   ArrowLeftRight,
+  ChevronLeft,
 } from "lucide-react";
 import GameHistory from "./GameHistory";
+import Shop from "./Shop";
 
 const DecisionMakerStudent = ({ cards = [] }) => {
   // Add default empty array
@@ -62,6 +65,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
   const [gameRecord, setGameRecord] = useState([]);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [hideWord, setHideWord] = useState(false);
+  const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
 
   // Sound effect refs
   const correctSound = useRef(null);
@@ -142,6 +146,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     setTimeout(() => {
       if (allAnswered) {
         setIsGameFinished(true);
+        getRewards(shuffledCards[0].difficulty);
       }
     }, 2500); // 2.5-second delay
   };
@@ -273,8 +278,22 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     }
   };
 
+  const calculateBonus = (score) => {
+    return Math.round(score * 0.2); // 20% of score
+  };
+
+  const getRewards = (difficulty) => {
+    if (difficulty === "easy") {
+      setRewards({ coins: 10, exp: 10, bonus: calculateBonus(10) });
+    } else if (difficulty === "medium") {
+      setRewards({ coins: 20, exp: 20, bonus: calculateBonus(20) });
+    } else {
+      setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
+    }
+  };
+
   return (
-    <div className="relative flex flex-col justify-center">
+    <div className="relative flex flex-col justify-center px-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -299,7 +318,13 @@ const DecisionMakerStudent = ({ cards = [] }) => {
           <div className="flex w-full justify-center items-center">
             <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
               <div>
-                <h1 className="text-2xl font-bold">Decision Game</h1>
+                <div
+                  className="flex items-center gap-2"
+                  onClick={() => router.back()}
+                >
+                  <ChevronLeft size={25} />
+                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                </div>
               </div>
               <div className="flex gap-4 items-center">
                 <div className="flex gap-4">
@@ -318,6 +343,8 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                   <ArrowLeftRight className="h-4 w-4 mr-1" />
                   Change Icons
                 </Button> */}
+                <Shop />
+
                 {gameRecord &&
                   cards && ( // Add null check
                     <GameHistory gameRecord={gameRecord} cards={cards.length} />
@@ -417,60 +444,27 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                       >
                         <Card
                           key={card.decision_maker_id}
-                          className="mx-auto w-full h-[40rem] aspect-square overflow-hidden rounded-xl bg-white shadow-lg"
+                          className="mx-auto w-full h-[40rem] gap-2 aspect-square overflow-hidden rounded-xl bg-white shadow-lg"
                         >
-                          <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
+                          <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
                             {!hideWord ? (
-                              <h1 className="text-3xl font-extrabold mb-5 capitalize">
+                              <h1 className="text-4xl font-extrabold mb-5 capitalize">
                                 {card.word}
                               </h1>
                             ) : (
-                              <h1 className="text-3xl font-extrabold mb-5 capitalize opacity-0">
+                              <h1 className="text-4xl font-extrabold mb-5 capitalize opacity-0">
                                 {card.word}
                               </h1>
                             )}
-                            <div className="max-w-[23rem] min-w-[23rem]">
+                            <div className="max-w-[22rem]">
                               <Image
                                 src={card.image}
                                 alt={card.title}
-                                width="100%"
-                                height="100%"
+                                className="w-full aspect-square object-cover rounded-md"
                               />
                             </div>
-                            <div className="flex justify-center gap-4 pt-4 max-w-sm  w-full">
-                              <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="w-full"
-                              >
-                                <Button
-                                  onPress={() => handleVote(card, "positive")}
-                                  color="success"
-                                  variant="flat"
-                                  isDisabled={feedback[card.decision_maker_id]}
-                                  className="w-full h-16 text-lg"
-                                  radius="sm"
-                                >
-                                  {buttonPairs[currentPairIndex].positive}
-                                </Button>
-                              </motion.div>
-                              <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="w-full"
-                              >
-                                <Button
-                                  onPress={() => handleVote(card, "negative")}
-                                  color="danger"
-                                  variant="flat"
-                                  isDisabled={feedback[card.decision_maker_id]}
-                                  className="w-full h-16 text-lg"
-                                  radius="sm"
-                                >
-                                  {buttonPairs[currentPairIndex].negative}
-                                </Button>
-                              </motion.div>
-                            </div>
+                          </CardBody>
+                          <CardFooter className="w-full flex flex-col gap-2">
                             <AnimatePresence>
                               {feedback[card.decision_maker_id] && (
                                 <motion.div
@@ -496,31 +490,65 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                 </motion.div>
                               )}
                             </AnimatePresence>
-                            <AnimatePresence>
-                              {showEmoji && (
-                                <motion.div
-                                  initial={{
-                                    scale: 0,
-                                    opacity: 0,
-                                    rotate: -45,
-                                  }}
-                                  animate={{
-                                    scale: [1.5, 1.8, 1.2, 1],
-                                    opacity: 1,
-                                    rotate: [0, 10, -10, 0],
-                                  }}
-                                  exit={{ scale: 0, opacity: 0, rotate: 45 }}
-                                  transition={{
-                                    duration: 1.2,
-                                    ease: [0.36, 1.2, 0.5, 1],
-                                  }}
-                                  className="absolute z-10 top-3/5 left-3/5 transform -translate-x-1/2 -translate-y-1/2 text-9xl"
+                            <div className="flex justify-center gap-2 w-full">
+                              <motion.div
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="w-full"
+                              >
+                                <Button
+                                  onPress={() => handleVote(card, "positive")}
+                                  color="success"
+                                  variant="flat"
+                                  isDisabled={feedback[card.decision_maker_id]}
+                                  className="w-full h-16 text-lg font-bold"
+                                  radius="sm"
                                 >
-                                  😄
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </CardBody>
+                                  {buttonPairs[currentPairIndex].positive}
+                                </Button>
+                              </motion.div>
+                              <motion.div
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="w-full"
+                              >
+                                <Button
+                                  onPress={() => handleVote(card, "negative")}
+                                  color="danger"
+                                  variant="flat"
+                                  isDisabled={feedback[card.decision_maker_id]}
+                                  className="w-full h-16 text-lg font-bold"
+                                  radius="sm"
+                                >
+                                  {buttonPairs[currentPairIndex].negative}
+                                </Button>
+                              </motion.div>
+                            </div>
+                          </CardFooter>
+                          <AnimatePresence>
+                            {showEmoji && (
+                              <motion.div
+                                initial={{
+                                  scale: 0,
+                                  opacity: 0,
+                                  rotate: -45,
+                                }}
+                                animate={{
+                                  scale: [1.5, 1.8, 1.2, 1],
+                                  opacity: 1,
+                                  rotate: [0, 10, -10, 0],
+                                }}
+                                exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                                transition={{
+                                  duration: 1.2,
+                                  ease: [0.36, 1.2, 0.5, 1],
+                                }}
+                                className="absolute z-10 top-[40%] left-[39%] transform -translate-x-1/2 -translate-y-1/2 text-9xl"
+                              >
+                                😄
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </Card>
                       </motion.div>
                     </SwiperSlide>

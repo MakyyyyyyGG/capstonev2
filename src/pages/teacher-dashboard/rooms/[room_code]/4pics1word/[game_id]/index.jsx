@@ -4,7 +4,7 @@ import { Chip } from "@nextui-org/react";
 import FourPicsOneWord from "@/pages/components/FourPicsOneWord";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
-import { Pencil } from "lucide-react";
+import { Pencil, ChevronLeft } from "lucide-react";
 import Loader from "@/pages/components/Loader";
 const Index = () => {
   const router = useRouter();
@@ -48,7 +48,7 @@ const Index = () => {
     ) {
       case "easy":
         return "success";
-      case "moderate":
+      case "medium":
         return "warning";
       case "hard":
         return "danger";
@@ -61,13 +61,20 @@ const Index = () => {
     <div className="w-full flex flex-col gap-2 p-4 max-w-[50rem] mx-auto">
       <div className="w-full flex justify-between items-center">
         <div className="flex gap-4 items-center">
-          <h1 className="text-2xl font-extrabold">ThinkPic</h1>
+          <div
+            className="flex items-center gap-2"
+            onClick={() => router.back()}
+          >
+            <ChevronLeft size={25} />
+            <h1 className="text-2xl font-extrabold">{cards[0]?.title}</h1>
+          </div>
           {cards && cards.length > 0 && (
             <div className="text-lg font-bold ">
               <Chip
                 color={getChipColor(cards[0].difficulty)}
-                radius="sm"
-                className="rounded-md px-1 py-1 capitalize text-white"
+                variant="flat"
+                radius="xl"
+                className="px-1 py-1 capitalize"
               >
                 {cards[0].difficulty}
               </Chip>
@@ -80,8 +87,8 @@ const Index = () => {
             pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word/${game_id}/edit`,
           }}
         >
-          <Button radius="sm" className="bg-[#7469B6] text-white border-0">
-            <Pencil size={22} /> Edit
+          <Button radius="sm" color="secondary">
+            <Pencil size={20} /> Edit
           </Button>
         </Link>
       </div>

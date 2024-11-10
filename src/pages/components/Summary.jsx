@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
   LineChart,
@@ -22,11 +23,29 @@ import {
   Modal,
   ModalContent,
 } from "@nextui-org/react";
-import { Trophy, Home, BarChart3, ArrowLeft, NotepadText } from "lucide-react";
+import {
+  Trophy,
+  Home,
+  BarChart3,
+  ArrowLeft,
+  NotepadText,
+  Coins,
+} from "lucide-react";
 import { useRouter } from "next/router";
+import ConfettiCanvas from "react-canvas-confetti";
+import ConfettiCoins from "./ConfettiCoins";
+import ConfettiExp from "./ConfettiExp";
+import useUserStore from "../api/coins_exp/useUserStore";
 
-const Summary = ({ gameRecord = [], questions = 10 }) => {
+const Summary = ({
+  gameRecord = [],
+  questions = 0,
+  rewards = { coins: 0, exp: 0, bonus: 0 },
+}) => {
   const router = useRouter();
+  const { updateCoinsExp } = useUserStore(); // Get the update function from the store
+
+  const { data: session, status } = useSession();
   // Add default values for both props
   const currentMonth = new Date().toLocaleString("default", { month: "short" });
   const currentYear = new Date().getFullYear().toString();
@@ -34,6 +53,8 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [showSurvey, setShowSurvey] = useState(false);
+  const [hasUpdatedCoins, setHasUpdatedCoins] = useState(false);
+  const [showChestConfetti, setShowChestConfetti] = useState(false); // State for chest confetti
 
   // Prepare data for the LineChart
   const chartData = (gameRecord || []) // Add null check with empty array fallback
@@ -95,25 +116,159 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
   const totalScore = latestScore; // Use the actual score
   const accuracy = ((latestScore / questions) * 100).toFixed(0); // Calculate accuracy as a percentage
 
-  const [showEndScreen, setShowEndScreen] = useState(true); // State to toggle end screen visibility
+  const [showEndScreen, setShowEndScreen] = useState(false); // State to toggle end screen visibility
   const [showSummary, setShowSummary] = useState(false); // State to toggle summary visibility
 
   const applauseRef = useRef(null); // Reference to the applause audio
+  const openChestRef = useRef(null); // Reference to the open chest audio
+  const coinsSfxRef = useRef(null); // Reference to the coins sfx audio
 
   // Play applause sound when the score is 10 and the end screen is shown
   useEffect(() => {
-    if (showEndScreen && totalScore === 10) {
+    if (showEndScreen && totalScore === questions) {
       applauseRef.current.play();
     }
   }, [showEndScreen, totalScore]);
 
+  //api call to update the coins and exp of the student
+  const updateCoinsExpInDatabase = async () => {
+    if (hasUpdatedCoins || !session?.user?.id) return; // Skip if already updated or no user ID
+
+    const account_id = session.user.id;
+    try {
+      const response = await fetch(
+        `/api/coins_exp/coins_exp?account_id=${account_id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            account_id: account_id,
+            coins: rewards.coins + rewards.bonus,
+            exp: rewards.exp,
+            // bonus: rewards.bonus,
+            score: latestScore,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log("Coins and exp updated:", data);
+
+      // Update Zustand store with the new values after a successful response
+      if (response.ok) {
+        updateCoinsExp(data.coins, data.exp);
+        console.log("Coins and exp updated:", data.coins, data.exp);
+        setHasUpdatedCoins(true); // Mark as updated
+      }
+    } catch (error) {
+      console.error("Error updating coins and exp:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!hasUpdatedCoins && session?.user?.id) {
+      updateCoinsExpInDatabase();
+    }
+  }, [session, hasUpdatedCoins]);
+
+  const [showChest, setShowChest] = useState(true);
+  const [isChestOpened, setIsChestOpened] = useState(false);
+
+  const handleChestClick = () => {
+    setIsChestOpened(true);
+    openChestRef.current.play(); // Play open chest sound
+    coinsSfxRef.current.play(); // Play coin sfx sound
+
+    // Trigger confetti for chest opening
+    setShowChestConfetti(true);
+    setTimeout(() => setShowChestConfetti(false), 1200);
+
+    setTimeout(() => {
+      setShowChest(false);
+      setShowEndScreen(true);
+    }, 1000);
+  };
+
   return (
     <div>
+      <AnimatePresence>
+        <audio
+          ref={openChestRef}
+          src="/soundfx/audio/openchest.mp3"
+          preload="auto"
+        />
+        <audio
+          ref={coinsSfxRef}
+          src="/soundfx/audio/coinsfx.mp3"
+          preload="auto"
+        />
+        {showChest && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              className="absolute top-[44%] left-[45%] -translate-x-1/2 -translate-y-1/2"
+            >
+              {showChestConfetti && (
+                <>
+                  <ConfettiCoins className="z-20" />
+                  <ConfettiExp className="z-20" />
+                </>
+              )}
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }} // Pulsating effect
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  repeatType: "loop",
+                }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleChestClick}
+                className="h-40 w-40 cursor-pointer"
+              >
+                {/* Closed chest - show before click */}
+                {!isChestOpened && (
+                  <motion.img
+                    src="/chest/closechest.png"
+                    initial={{ rotateX: 0 }}
+                    animate={{ rotateX: isChestOpened ? 180 : 0 }}
+                    transition={{ duration: 0.5 }}
+                    alt="Closed Chest"
+                  />
+                )}
+
+                {/* Open chest - show after click with shake effect */}
+                {isChestOpened && (
+                  <motion.img
+                    src="/chest/openchest.png"
+                    initial={{ scale: 1, rotate: 0 }}
+                    animate={{
+                      scale: 1.05,
+                      rotate: [0, -5, 5, -5, 5, 0], // Shake animation
+                    }}
+                    transition={{ duration: 0.6 }}
+                    alt="Open Chest"
+                  />
+                )}
+              </motion.div>
+              {/* Text to indicate action */}
+              {/* {!isChestOpened && (
+                <h1 className="text-purple-700 text-center mt-2 text-xl font-bold">
+                  Click the chest to open
+                </h1>
+              )} */}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {showEndScreen && (
           <>
             {/* Confetti on top of end screen */}
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
               {/* Conditionally render confetti if score is 10 */}
               {accuracy === "100" && (
                 <motion.div
@@ -153,7 +308,11 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                     >
                       <Trophy className="h-8 w-8 text-purple-600" />
                     </motion.div>
-                    <h1 className="text-3xl font-bold">Game Over</h1>
+                    <h1 className="text-3xl font-bold">Game Completed</h1>
+                    <h1>
+                      {rewards.coins} coins and {rewards.exp} exp +{" "}
+                      {rewards.bonus} bonus
+                    </h1>
                   </CardHeader>
 
                   <CardBody className="text-center space-y-6 pt-4">
@@ -211,7 +370,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                       <BarChart3 className="h-4 w-4 mr-2" />
                       View Summary
                     </Button>
-                    <Button
+                    {/* <Button
                       color="success"
                       variant="flat"
                       className="w-full"
@@ -220,7 +379,7 @@ const Summary = ({ gameRecord = [], questions = 10 }) => {
                     >
                       <NotepadText className="h-4 w-4 mr-2" />
                       Answer Survey (Please 😭)
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="outline"
                       radius="sm"

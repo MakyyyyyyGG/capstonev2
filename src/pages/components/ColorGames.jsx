@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardBody,
+  CardFooter,
   Image,
   Input,
   Checkbox,
@@ -146,7 +147,7 @@ const ColorGames = ({ cards }) => {
               <Card className="w-full flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
                 <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
                   <div className="flex justify-center items-center gap-2">
-                    <div className="text-3xl font-extrabold mb-5 capitalize">
+                    <div className="text-4xl font-extrabold mb-5 capitalize">
                       <h1>{card.color}</h1>
                     </div>
                   </div>
@@ -158,14 +159,14 @@ const ColorGames = ({ cards }) => {
                         card.image3,
                         card.image4,
                       ].filter((image) => image !== null).length === 4
-                        ? "grid-cols-2"
+                        ? "grid-cols-2 max-w-[24rem]"
                         : [
                             card.image1,
                             card.image2,
                             card.image3,
                             card.image4,
                           ].filter((image) => image !== null).length === 3
-                        ? "grid-cols-3 max-sm:grid-cols-2"
+                        ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                         : "grid-cols-2"
                     } gap-2 justify-center`}
                   >
@@ -180,7 +181,7 @@ const ColorGames = ({ cards }) => {
                               selectedImages[card.color_game_id]?.includes(
                                 imageIndex
                               )
-                                ? "border-3 border-[#17C964]"
+                                ? "border-3 border-[#9353D3]"
                                 : "border-3 border-transparent"
                             }`}
                             onClick={() =>
@@ -208,27 +209,20 @@ const ColorGames = ({ cards }) => {
                                     image
                                   )
                                 }
-                                className="absolute top-2 right-1 z-99"
+                                className="absolute top-2 right-1 opacity-0"
                               />
                               <Image
                                 src={image}
                                 alt={`Image ${imageIndex + 1}`}
-                                className="w-44 h-44 object-cover rounded-lg"
+                                className="w-full aspect-square object-cover rounded-md"
                               />
                             </div>
                           </motion.div>
                         )
                     )}
                   </div>
-                  <div className="w-full mt-6">
-                    <Button
-                      radius="sm"
-                      className="w-full h-16 text-lg justify-center text-white bg-[#7469B6]"
-                      onClick={() => handleSubmit(card.color_game_id)}
-                    >
-                      Check Answer
-                    </Button>
-                  </div>
+                </CardBody>
+                <CardFooter className="w-full flex flex-col gap-2">
                   <AnimatePresence>
                     {submissionResults[card.color_game_id] && (
                       <motion.div
@@ -252,7 +246,14 @@ const ColorGames = ({ cards }) => {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </CardBody>
+                  <Button
+                    radius="sm"
+                    className="w-full h-16 text-lg justify-center text-white bg-[#7469B6]"
+                    onClick={() => handleSubmit(card.color_game_id)}
+                  >
+                    Check Answer
+                  </Button>
+                </CardFooter>
               </Card>
             </SwiperSlide>
           ))}

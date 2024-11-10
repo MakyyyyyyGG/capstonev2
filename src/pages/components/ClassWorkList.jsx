@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardBody, Chip, Button, Skeleton } from "@nextui-org/react";
 import Link from "next/link";
-import { Trash2, Edit, LayoutGrid, Grid2x2, Palette } from "lucide-react";
+import {
+  Trash2,
+  Edit,
+  LayoutGrid,
+  Grid2x2,
+  Palette,
+  Coins,
+  Star,
+} from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { FaRegLightbulb } from "react-icons/fa";
 import { LiaListOlSolid } from "react-icons/lia";
@@ -236,6 +244,19 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     }
   };
 
+  const getRewards = (difficulty) => {
+    switch (difficulty?.toLowerCase()) {
+      case "easy":
+        return { coins: 10, exp: 10 };
+      case "medium":
+        return { coins: 20, exp: 20 };
+      case "hard":
+        return { coins: 40, exp: 40 };
+      default:
+        return { coins: 0, exp: 0 };
+    }
+  };
+
   const renderGames = () => {
     const filteredGames = gameList.filter((game) => {
       return (
@@ -279,18 +300,29 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                       </div>
                       <div className="">
                         <p>{game.game_type}</p>
-
-                        {/* {game.difficulty && (
-                          <Chip
-                            color={getChipColor(game.difficulty)}
-                            radius="sm"
-                            className="text-sm text-white capitalize"
-                          >
-                            {game.difficulty}
-                          </Chip>
-                        )} */}
-                        {/* <p>ID {game.game_id}</p> */}
                       </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-center text-nowrap">
+                    <div className="flex items-center mr-2 gap-4">
+                      {/* <p className="text-sm font-semibold">Rewards:</p> */}
+                      <div className="flex gap-4 text-sm text-gray-600 max-sm:flex-col max-sm:gap-1">
+                        <div className="flex items-center gap-1.5">
+                          <Coins className="h-5 w-5 text-yellow-500" />
+                          <span>{getRewards(game.difficulty).coins}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Star className="5-4 w-5 text-purple-500" />
+                          <span>{getRewards(game.difficulty).exp} EXP</span>
+                        </div>
+                      </div>
+                      <Chip
+                        variant="bordered"
+                        size="sm"
+                        className="border border-purple-200 text-purple-600 z-0 text-[10px] h-5 font-black py-0"
+                      >
+                        <span>+ Bonus</span>
+                      </Chip>
                     </div>
                   </div>
                 </div>
@@ -347,13 +379,11 @@ const ClassWorkList = ({ room_code, games = [] }) => {
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="flashcard">Flashcard</SelectItem>
               <SelectItem value="thinkpic">ThinkPic</SelectItem>
-              <SelectItem value="thinkpic_plus">ThinkPic +</SelectItem>
-              <SelectItem value="color_game">Color Game</SelectItem>
-              <SelectItem value="color_game_advanced">
-                Color Game Advanced
-              </SelectItem>
-              <SelectItem value="decision_maker">Decision Maker</SelectItem>
-              <SelectItem value="sequence_game">Sequence Game</SelectItem>
+              <SelectItem value="thinkpic +">ThinkPic +</SelectItem>
+              <SelectItem value="color game">Color Game</SelectItem>
+
+              <SelectItem value="decision maker">Decision Maker</SelectItem>
+              <SelectItem value="sequence game">Sequence Game</SelectItem>
             </SelectContent>
           </Select>
 

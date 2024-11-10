@@ -5,7 +5,8 @@ export default async function handler(req, res) {
     const { room_code } = req.query;
     try {
       const gameRecords = await query({
-        query: `SELECT user_game_plays.score, user_game_plays.created_at, games.game_type, user_game_plays.account_id, user_game_plays.game_id,
+        query: `SELECT user_game_plays.score, user_game_plays.created_at, games.game_type, games.difficulty, games.title, user_game_plays.account_id, user_game_plays.game_id,
+                rooms.room_name,
                 CASE 
                   WHEN games.game_type = 'Color Game' THEN (SELECT COUNT(*) FROM color_game WHERE color_game_set_id = (SELECT color_game_set_id FROM color_game_sets WHERE game_id = user_game_plays.game_id))
                   WHEN games.game_type = 'Decision Maker' THEN (SELECT COUNT(*) FROM decision_maker WHERE decision_maker_set_id = (SELECT decision_maker_set_id FROM decision_maker_sets WHERE game_id = user_game_plays.game_id))
@@ -14,8 +15,9 @@ export default async function handler(req, res) {
                   WHEN games.game_type = 'Sequence Game' THEN (SELECT COUNT(*) FROM sequence_game WHERE sequence_game_set_id = (SELECT sequence_game_sets_id FROM sequence_game_sets WHERE game_id = user_game_plays.game_id))
                   ELSE NULL
                 END AS set_length
-                FROM user_game_plays
+                FROM user_game_plays  
                 INNER JOIN games ON user_game_plays.game_id = games.game_id
+                INNER JOIN rooms ON games.room_code = rooms.room_code
                 WHERE games.room_code = ? 
                 ORDER BY user_game_plays.created_at ASC`,
         values: [room_code],
