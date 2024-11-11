@@ -39,6 +39,17 @@ import ConfettiRealistic from "./ConfettiRealistic";
 import { useSession } from "next-auth/react";
 import useUserStore from "../api/coins_exp/useUserStore";
 import { color, motion, AnimatePresence } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import toast, { Toaster } from "react-hot-toast";
+
 const Shop = () => {
   const { data: session } = useSession();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -69,7 +80,6 @@ const Shop = () => {
   const handleSelectVariant = (variant, price) => {
     setSelectedVariant(variant);
     handleBuy(variant, price);
-    setShowConfetti(true);
     onClose();
   };
 
@@ -90,9 +100,15 @@ const Shop = () => {
         }
       );
       const data = await response.json();
-      console.log("data", data);
-      updateCoinsExp(data.coins, null);
+      if (response.status === 400) {
+        toast.error(data.message);
+      } else {
+        updateCoinsExp(data.coins, null);
+        toast.success("Purchase successful!");
+        setShowConfetti(true);
+      }
     } catch (error) {
+      toast.error("Error buying: " + error.message);
       console.error("Error buying:", error);
     }
   };
@@ -173,7 +189,8 @@ const Shop = () => {
   };
 
   return (
-    <div>
+    <>
+      <Toaster />
       {showConfetti && (
         <AnimatePresence>
           <motion.div
@@ -188,7 +205,7 @@ const Shop = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="absolute top-[43%] left-[47%] transform -translate-x-1/2 -translate-y-1/2 bg-purple-700/80 px-8 py-4 rounded-full text-2xl font-bold flex flex-col items-center"
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-700/80 px-8 py-4 rounded-full text-2xl font-bold flex flex-col items-center"
             >
               {countdown}s
               <Button
@@ -204,79 +221,97 @@ const Shop = () => {
           </motion.div>
         </AnimatePresence>
       )}
-      <Button color="secondary" radius="sm" onPress={onOpen}>
-        <ShoppingCart size={24} /> Buy Effects
-      </Button>
+      <div>
+        <Button color="secondary" radius="sm" onPress={onOpen}>
+          <ShoppingCart size={24} /> Buy Effects
+        </Button>
 
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        size="5xl"
-        position="center"
-        scrollBehavior="inside"
-      >
-        <ModalContent>
-          <ModalHeader>
-            <h1 className="w-full text-3xl font-bold text-center py-2">Shop</h1>
-          </ModalHeader>
-          <ModalBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {variants.map((variant) => (
-                <Card
-                  key={variant.key}
-                  className="w-full rounded-lg overflow-hidden p-0"
-                  isPressable
-                  onPress={() =>
-                    handleSelectVariant(variant.key, variant.price)
-                  }
-                >
-                  <CardHeader className="p-6 w">
-                    <div className="flex justify-between items-start w-full">
-                      <div className="flex flex-col text-left">
-                        <h1 className="text-xl font-bold">{variant.label}</h1>
-                        <div className="flex items-center gap-2 text-sm text-[#6B7280]">
-                          <Clock className="w-4 h-4" />
-                          <span>Duration: {variant.duration} Seconds</span>
+        <Modal
+          isOpen={isOpen}
+          onClose={onClose}
+          size="5xl"
+          position="center"
+          scrollBehavior="inside"
+        >
+          <ModalContent>
+            <ModalHeader>
+              <h1 className="w-full text-3xl font-bold text-center py-2">
+                Shop
+              </h1>
+            </ModalHeader>
+            <ModalBody>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {variants.map((variant) => (
+                  <Card
+                    key={variant.key}
+                    className="w-full rounded-lg overflow-hidden p-0"
+                    isPressable
+                  >
+                    <CardHeader className="p-6 w">
+                      <div className="flex justify-between items-start w-full">
+                        <div className="flex flex-col text-left">
+                          <h1 className="text-xl font-bold">{variant.label}</h1>
+                          <div className="flex items-center gap-2 text-sm text-[#6B7280]">
+                            <Clock className="w-4 h-4" />
+                            <span>{variant.duration} Seconds</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 border border-purple-500 rounded-full bg-purple-500/10 p-1 px-2 ">
+                          <Coins className="w-5 h-5" color="gold" />
+                          <span className="text-lg font-bold">
+                            {variant.price}
+                          </span>
                         </div>
                       </div>
-                      <Chip
-                        color="default"
-                        size="sm"
-                        className="bg-[#FDDC5C] z-0 text-[10px] h-5 font-black py-0"
+                    </CardHeader>
+                    <CardBody className="relative group p-6 pt-0">
+                      <div
+                        className={`rounded-lg w-full h-28 flex items-center justify-center ${variant.color}`}
                       >
-                        <div className="flex items-center gap-1 ">
-                          <Coins className="w-3 h-3" />
-                          <span>{variant.price}</span>
-                        </div>
-                      </Chip>
-                    </div>
-                  </CardHeader>
-                  <CardBody className="relative group p-6 pt-0">
-                    <div
-                      className={`rounded-lg w-full h-28 flex items-center justify-center ${variant.color}`}
-                    >
-                      {variant.icon}
-                    </div>
-                  </CardBody>
-                  <CardFooter className="p-6 pt-0">
-                    <Button
-                      color="secondary"
-                      radius="sm"
-                      className="w-full group-hover:shadow-lg transition-all duration-300"
-                      onPress={() =>
-                        handleSelectVariant(variant.key, variant.price)
-                      }
-                    >
-                      Buy Now
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </div>
+                        {variant.icon}
+                      </div>
+                    </CardBody>
+                    <CardFooter className="p-6 pt-0">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            color="secondary"
+                            radius="sm"
+                            className="w-full group-hover:shadow-lg transition-all duration-300"
+                          >
+                            Buy Now
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <h2>Confirm Purchase</h2>
+                            <p>
+                              Are you sure you want to buy {variant.label} for{" "}
+                              {variant.price} coins?
+                            </p>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() =>
+                                handleSelectVariant(variant.key, variant.price)
+                              }
+                            >
+                              Confirm
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </div>
+    </>
   );
 };
 

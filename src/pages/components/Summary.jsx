@@ -123,6 +123,17 @@ const Summary = ({
   const openChestRef = useRef(null); // Reference to the open chest audio
   const coinsSfxRef = useRef(null); // Reference to the coins sfx audio
 
+  // Preload chest images
+  useEffect(() => {
+    const preloadImage = (src) => {
+      const img = new Image();
+      img.src = src;
+    };
+
+    preloadImage("/chest/closechest.png");
+    preloadImage("/chest/openchest.png");
+  }, []);
+
   // Play applause sound when the score is 10 and the end screen is shown
   useEffect(() => {
     if (showEndScreen && totalScore === questions) {

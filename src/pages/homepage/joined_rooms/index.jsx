@@ -20,14 +20,17 @@ import {
 import { useRouter } from "next/router";
 import { MoreVertical, Trash2, Search, Copy } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
-
+import Stickers from "@/pages/components/Stickers";
+import { useSession } from "next-auth/react";
 const JoinedRoom = ({ rooms = [], onUnenroll }) => {
+  const { data: session } = useSession();
   // Add default empty array for rooms prop
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
-
+  const [ownedStickers, setOwnedStickers] = useState([]);
+  const [stickers, setStickers] = useState([]);
   // Function to filter rooms based on the search query and difficulty
   const filteredRooms = (rooms || []).filter(
     // Add null check with empty array fallback
@@ -53,6 +56,9 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
 
   useEffect(() => {
     // Simulate loading
+    fetchStickers();
+    fetchOwnedStickers();
+
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -91,6 +97,42 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
   const copyToClipboard = (roomCode) => {
     navigator.clipboard.writeText(roomCode);
     toast.success("Room code copied to clipboard!");
+  };
+
+  //fetchs stickers
+  const fetchStickers = async () => {
+    try {
+      const response = await fetch(`/api/stickers/stickers`, {
+        method: "GET",
+      });
+      const data = await response.json();
+      // console.log("stickers:", data);
+      setStickers(data);
+    } catch (error) {
+      console.error("Error fetching stickers:", error);
+    }
+  };
+
+  // Function to fetch owned stickers
+  const fetchOwnedStickers = async () => {
+    console.log("fetching owned stickers");
+    try {
+      const response = await fetch(
+        `/api/stickers/owned_sticker?account_id=${session?.user?.id}`,
+        {
+          method: "GET",
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setOwnedStickers(data);
+      // console.log("sticker data from joined rooms:", data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching stickers:", error);
+    }
   };
 
   return (
@@ -145,7 +187,15 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
           </Select>
         </div>
       </div>
-      <h1 className="text-4xl my-6 font-bold">Joined Rooms</h1>
+      <div className="flex items-center  gap-4">
+        <h1 className="text-4xl my-6 font-bold">Joined Rooms</h1>
+        <Stickers
+          stickers={stickers}
+          ownedStickers={ownedStickers}
+          onRefetch={fetchOwnedStickers}
+        />
+      </div>
+
       {filteredRooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center w-full rounded-lg p-4">
           <img

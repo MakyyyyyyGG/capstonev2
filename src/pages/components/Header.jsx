@@ -35,11 +35,12 @@ import "driver.js/dist/driver.css";
 import Coins from "./Coins";
 import Exp from "./Exp";
 import useUserStore from "../api/coins_exp/useUserStore";
+import Stickers from "./Stickers";
 const Header = ({ isCollapsed, toggleCollapse }) => {
   const router = useRouter();
 
   const { coins, exp, setInitialValues } = useUserStore();
-
+  const [ownedStickers, setOwnedStickers] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: session, status } = useSession();
@@ -513,52 +514,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     setIsEditing(false);
   };
 
-  async function getUserData() {
-    const getData = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    const apiEndpoint =
-      session.user.role === "student"
-        ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
-        : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
-
-    try {
-      const response = await fetch(apiEndpoint, getData);
-      const data = await response.json();
-      const user = data.usersData[0];
-      if (user) {
-        setFirstName(user.first_name || "");
-        setLastName(user.last_name || "");
-        setAge(user.age || "");
-        setGender(user.gender || "");
-        setBday(user.bday || "");
-        setProfileImage(
-          user.profile_image
-            ? `${user.profile_image}?${new Date().getTime()}`
-            : ""
-        );
-
-        const decryptedPassword = crypto
-          .createHash("sha256")
-          .update(user.password)
-          .digest("hex");
-        setCurrentPassword(decryptedPassword);
-      }
-      setUserData(user);
-      setInitialValues(user.coins, user.exp);
-      console.log("user data", user);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  }
-
-  useEffect(() => {
-    getUserData();
-  }, []);
-
   if (status === "loading") {
     return <p>Loading...</p>;
   }
@@ -620,12 +575,62 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     onOpen();
   };
 
+  async function getUserData() {
+    // await fetchStickers(); // Ensure stickers are fetched before proceeding
+    const getData = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const apiEndpoint =
+      session.user.role === "student"
+        ? `/api/accounts_student/profile_manage?account_id=${session.user.id}`
+        : `/api/accounts_teacher/profile_manage?account_id=${session.user.id}`;
+
+    try {
+      const response = await fetch(apiEndpoint, getData);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const user = data.usersData[0];
+      if (user) {
+        setFirstName(user.first_name || "");
+        setLastName(user.last_name || "");
+        setAge(user.age || "");
+        setGender(user.gender || "");
+        setBday(user.bday || "");
+        setProfileImage(
+          user.profile_image
+            ? `${user.profile_image}?${new Date().getTime()}`
+            : ""
+        );
+
+        const decryptedPassword = crypto
+          .createHash("sha256")
+          .update(user.password)
+          .digest("hex");
+        setCurrentPassword(decryptedPassword);
+      }
+      setUserData(user);
+      setInitialValues(user.coins, user.exp);
+      console.log("user data", user);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
   return (
     <div>
       <Toaster />
       <Navbar isBordered maxWidth={"full"}>
         <NavbarContent justify="start">
-          <NavbarBrand className="mr-4">
+          <NavbarBrand className="mr-4 flex items-center gap-8">
             {session?.user?.role === "teacher" && (
               <div
                 onClick={toggleCollapse}
@@ -641,17 +646,20 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                 session?.user?.role === "student" ? "ml-0" : "ml-8"
               }`}
             >
-              LNK
+              LIWANAG
             </p>
+            <div className="flex items-center gap-4">
+              {session?.user?.role === "student" && (
+                <>
+                  <Coins coins={coins} />
+                  <Exp exp={exp} />
+                </>
+              )}
+            </div>
           </NavbarBrand>
         </NavbarContent>
         <NavbarContent as="div" className="items-center" justify="end">
-          {session?.user?.role === "student" && (
-            <>
-              <Coins coins={coins} />
-              <Exp exp={exp} />
-            </>
-          )}
+          {session?.user?.role === "student" && <>{/* <Shop /> */}</>}
 
           <div className="flex gap-4">
             {session?.user?.role === "teacher" ? (
