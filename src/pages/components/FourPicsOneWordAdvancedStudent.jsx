@@ -459,7 +459,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                   card.image4,
                                 ].filter((image) => image !== null).length === 3
                               ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
-                              : "grid-cols-2"
+                              : "grid-cols-2 w-full"
                           } gap-2 justify-center`}
                         >
                           {[
@@ -476,8 +476,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                   whileTap={{ scale: 0.95 }}
                                   className={`relative hover:cursor-pointer rounded-md ${
                                     selectedImages[index]?.includes(idx)
-                                      ? "border-3 border-[#9353D3]"
-                                      : "border-3 border-transparent"
+                                      ? "border-4 border-[#9353D3]"
+                                      : "border-4 border-transparent"
                                   }`}
                                   style={{
                                     transition:
@@ -498,7 +498,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                     }
                                     src={`${image}`}
                                     alt={`Image ${idx + 1}`}
-                                    className={`w-full aspect-square object-cover rounded-md${
+                                    className={`w-full aspect-square object-cover rounded-md border-3 border-transparent${
                                       attempts[index] >= 3 ||
                                       feedback[index]?.includes("Correct")
                                         ? "opacity-50 cursor-not-allowed"

@@ -410,8 +410,8 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                     transition={{ duration: 0.5 }}
                     className="border-4 rounded-lg"
                   >
-                    <Card className="w-full rounded-md flex flex-col gap-4 h-[40rem] aspect-square mx-auto">
-                      <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
+                    <Card className="w-full rounded-md flex flex-col gap-2 h-[40rem] aspect-square mx-auto">
+                      <CardBody className="flex gap-2 px-auto items-center justify-center pb-0">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
                         <div
                           className={`grid ${
@@ -428,9 +428,9 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                   card.image3,
                                   card.image4,
                                 ].filter(Boolean).length === 3
-                              ? "grid-cols-3 max-sm:grid-cols-2 "
+                              ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                               : "grid-cols-2"
-                          } gap-2 justify-center`}
+                          } gap-2 justify-center px-4`}
                         >
                           {[
                             card.image1,
@@ -444,13 +444,13 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                   key={idx}
                                   src={`${image}`}
                                   alt={`Image ${idx + 1}`}
-                                  className="w-full aspect-square border-2 border-[#7469B6] object-cover rounded-md"
+                                  className="w-full aspect-square border-2 border-[#9353d3] object-cover rounded-md"
                                 />
                               )
                           )}
                         </div>
                       </CardBody>
-                      <CardFooter className="flex flex-col items-center gap-2 w-full">
+                      <CardFooter className="flex flex-col items-center gap-2 w-full pt-0">
                         {/* <h1>Question: {card.question}</h1> */}
 
                         <div className="w-full text-center bg-white">

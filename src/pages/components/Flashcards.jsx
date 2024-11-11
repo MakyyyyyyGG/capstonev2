@@ -20,6 +20,7 @@ const Flashcards = ({ flashcards, isLoading }) => {
   const [audioPlaying, setAudioPlaying] = useState(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const audioRefs = useRef({});
+  const [noAudio, setNoAudio] = useState(null);
 
   useEffect(() => {
     if (flashcards && flashcards.length > 0) {

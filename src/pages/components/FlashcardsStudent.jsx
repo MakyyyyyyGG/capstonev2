@@ -13,7 +13,7 @@ import { Button } from "@nextui-org/react";
 import {
   RotateCw,
   RotateCcw,
-  Volume2,
+  VolumeX,
   Play,
   Pause,
   ChevronLeft,
