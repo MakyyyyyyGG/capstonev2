@@ -195,7 +195,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                                 key={idx}
                                 src={`${image}`}
                                 alt={`Image ${idx + 1}`}
-                                className="w-full aspect-square border-2 border-[#7469B6] object-cover rounded-md"
+                                className="w-full aspect-square border-2 border-[#9353d3] object-cover rounded-md"
                               />
                             )
                         )}
