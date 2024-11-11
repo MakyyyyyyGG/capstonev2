@@ -202,7 +202,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                   <div
                     className={`grid ${
                       card.difficulty === "easy"
-                        ? "grid-cols-2 justify-center"
+                        ? "grid-cols-2 w-full justify-center"
                         : card.difficulty === "medium"
                         ? "grid-cols-3 justify-center max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                         : "grid-cols-2 justify-center max-w-[24rem]"
@@ -216,8 +216,8 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(0)
-                            ? "border-3 border-[#9353D3]"
-                            : "border-3 border-transparent"
+                            ? "border-4 border-[#9353D3]"
+                            : "border-4 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -228,7 +228,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image1}`}
                           alt="Image 1"
-                          className="w-full aspect-square object-cover rounded-md"
+                          className="w-full aspect-square object-cover rounded-md border-3 border-transparent"
                         />
                         <Checkbox
                           icon={<BiSolidSquareRounded className="w-2 h-2" />}
@@ -250,8 +250,8 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(1)
-                            ? "border-3 border-[#9353D3]"
-                            : "border-3 border-transparent"
+                            ? "border-4 border-[#9353D3]"
+                            : "border-4 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -262,7 +262,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image2}`}
                           alt="Image 2"
-                          className="w-full aspect-square object-cover rounded-md"
+                          className="w-full aspect-square object-cover rounded-md border-3 border-transparent"
                         />
                         <Checkbox
                           icon={<BiSolidSquareRounded className="w-2 h-2" />}
@@ -284,8 +284,8 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(2)
-                            ? "border-3 border-[#9353D3]"
-                            : "border-3 border-transparent"
+                            ? "border-4 border-[#9353D3]"
+                            : "border-4 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -296,7 +296,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image3}`}
                           alt="Image 3"
-                          className="w-full aspect-square object-cover rounded-md"
+                          className="w-full aspect-square object-cover rounded-md border-3 border-transparent"
                         />
                         <Checkbox
                           icon={<BiSolidSquareRounded className="w-2 h-2" />}
@@ -318,8 +318,8 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(3)
-                            ? "border-3 border-[#9353D3]"
-                            : "border-3 border-transparent"
+                            ? "border-4 border-[#9353D3]"
+                            : "border-4 border-transparent"
                         }`}
                         style={{
                           transition:
@@ -330,7 +330,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         <img
                           src={`${card.image4}`}
                           alt="Image 4"
-                          className="w-full aspect-square object-cover rounded-md"
+                          className="w-full aspect-square object-cover rounded-md border-3 border-transparent"
                         />
                         <Checkbox
                           icon={<BiSolidSquareRounded className="w-2 h-2" />}
