@@ -309,11 +309,18 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                       <div className="flex gap-4 text-sm text-gray-600 max-sm:flex-col max-sm:gap-1">
                         <div className="flex items-center gap-1.5">
                           <Coins className="h-5 w-5 text-yellow-500" />
-                          <span>{getRewards(game.difficulty).coins}</span>
+                          <span className="text-lg font-bold">
+                            {getRewards(game.difficulty).coins}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <Star className="5-4 w-5 text-purple-500" />
-                          <span>{getRewards(game.difficulty).exp} EXP</span>
+                          <Star
+                            className="5-4 w-5 text-purple-500"
+                            size={100}
+                          />
+                          <span className="text-lg font-bold">
+                            {getRewards(game.difficulty).exp} EXP
+                          </span>
                         </div>
                       </div>
                       <Chip
@@ -321,20 +328,24 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                         size="sm"
                         className="border border-purple-200 text-purple-600 z-0 text-[10px] h-5 font-black py-0"
                       >
-                        <span>+ Bonus</span>
+                        <span className="text-xs">+ Bonus</span>
                       </Chip>
                     </div>
                   </div>
                 </div>
               </Link>
               <div>
-                <Button
-                  isIconOnly
-                  color="transparent"
-                  onPress={() => handleDeleteGame(game.game_id, game.game_type)}
-                >
-                  <Trash2 color="red" />
-                </Button>
+                {session.user.role === "teacher" && (
+                  <Button
+                    isIconOnly
+                    color="transparent"
+                    onPress={() =>
+                      handleDeleteGame(game.game_id, game.game_type)
+                    }
+                  >
+                    <Trash2 color="red" />
+                  </Button>
+                )}
               </div>
             </Card>
           </div>

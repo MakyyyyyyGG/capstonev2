@@ -45,6 +45,10 @@ export default async function handler(req, res) {
 
       console.log("initial coins and exp", result[0].coins, result[0].exp);
 
+      if (result[0].coins < price) {
+        return res.status(400).json({ message: "Not enough coins" });
+      }
+
       const newCoins = result[0].coins - price;
 
       console.log("Coins left", newCoins);

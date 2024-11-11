@@ -8,6 +8,7 @@ import {
   Shapes,
   GraduationCap,
   Trophy,
+  Sparkles,
   Copy,
   Users,
 } from "lucide-react";
@@ -285,7 +286,7 @@ const IndividualRoom = () => {
                   aria-label="Options"
                   fullWidth
                   classNames={{
-                    tabList: "mt-4  border-gray-300 border bg-white",
+                    tabList: "mt-4  border-gray-300 border bg-white rounded-lg",
                   }}
                   selectedKey={selectedTab}
                   onSelectionChange={setSelectedTab}

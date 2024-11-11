@@ -52,6 +52,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
   const incorrectSound = useRef(null);
   const [showEmoji, setShowEmoji] = useState(false);
   const [rewards, setRewards] = useState({ coins: 0, exp: 0 });
+  const [hintsUsed, setHintsUsed] = useState(0);
 
   useEffect(() => {
     if (cards?.length > 0 && session) {
@@ -285,6 +286,25 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
       setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
     }
   };
+
+  const useHint = (index) => {
+    if (hintsUsed >= 3) return; // Limit to 3 hints per game
+    const correctAnswer = shuffledCards[index].word.toLowerCase();
+    const newAnswer = [...(userAnswers[index] || "")];
+    for (let i = 0; i < correctAnswer.length; i++) {
+      if (!newAnswer[i]) {
+        newAnswer[i] = correctAnswer[i];
+        break;
+      }
+    }
+    setUserAnswers((prevAnswers) => {
+      const updatedAnswers = [...prevAnswers];
+      updatedAnswers[index] = newAnswer.join("");
+      return updatedAnswers;
+    });
+    setHintsUsed((prevHints) => prevHints + 1);
+  };
+
   return (
     <div className="relative flex flex-col justify-center px-4">
       {/* Audio elements */}
@@ -519,6 +539,21 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                 aria-label="Check Answer"
                               >
                                 Check Answer
+                              </Button>
+                              <Button
+                                radius="sm"
+                                size="lg"
+                                color="primary"
+                                onClick={() => useHint(index)}
+                                isDisabled={
+                                  feedback[index]?.includes("Correct") ||
+                                  attempts[index] >= 3 ||
+                                  hintsUsed >= 3
+                                }
+                                className="w-full h-16 justify-center text-lg mt-2"
+                                aria-label="Use Hint"
+                              >
+                                Use Hint ({3 - hintsUsed} left)
                               </Button>
                             </div>
                           </form>
