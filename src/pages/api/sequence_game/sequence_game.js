@@ -61,6 +61,8 @@ const handlePostRequest = async (req, res) => {
   const { title, room_code, account_id, sequence, video, difficulty } =
     req.body;
 
+  console.log(req.body);
+
   try {
     const gameType = "Sequence Game";
     const gameResult = await query({
@@ -88,43 +90,43 @@ const handlePostRequest = async (req, res) => {
 
     const groupId = groupResult.insertId;
 
-    const sequencePromises = sequence.map(async (sequence) => {
-      let imageUrl = sequence.image;
-      let audioUrl = sequence.audio;
+    // Use for...of loop to ensure order is maintained
+    for (const sequenceItem of sequence) {
+      let imageUrl = sequenceItem.image;
+      let audioUrl = sequenceItem.audio;
 
-      if (sequence.image) {
-        if (sequence.image.startsWith("data:image")) {
+      if (sequenceItem.image) {
+        if (sequenceItem.image.startsWith("data:image")) {
           const imageFileName = `${Date.now()}-${Math.random()
             .toString(36)
             .substr(2, 9)}.png`;
           imageUrl = await uploadToFirebase(
-            sequence.image,
+            sequenceItem.image,
             imageFileName,
             "sequence_game/images"
           );
-        } else if (!sequence.image.startsWith("http")) {
+        } else if (!sequenceItem.image.startsWith("http")) {
           throw new Error("Invalid image format");
         }
       }
 
-      if (sequence.audio) {
+      if (sequenceItem.audio) {
         const audioFileName = `${Date.now()}-${Math.random()
           .toString(36)
           .substr(2, 9)}.mp3`;
         audioUrl = await uploadToFirebase(
-          sequence.audio,
+          sequenceItem.audio,
           audioFileName,
           "sequence_game/audio"
         );
       }
 
-      return query({
+      await query({
         query: `INSERT INTO sequence_game (sequence_game_set_id, step, image, audio) VALUES (?, ?, ?, ?)`,
-        values: [groupId, sequence.step, imageUrl, audioUrl],
+        values: [groupId, sequenceItem.step, imageUrl, audioUrl],
       });
-    });
+    }
 
-    await Promise.all(sequencePromises);
     res.status(200).json({ groupId, gameId });
   } catch (error) {
     console.error("Error creating sequence:", error);

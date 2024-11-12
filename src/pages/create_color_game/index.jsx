@@ -386,7 +386,6 @@ const Index = ({ images }) => {
                           <div className="flex flex-col items-center space-y-2">
                             <Button
                               radius="sm"
-                              variant="bordered"
                               color="secondary"
                               className="border-1"
                               onPress={() => handleEdit(cardIndex, imageIndex)}

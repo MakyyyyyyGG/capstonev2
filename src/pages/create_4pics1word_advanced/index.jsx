@@ -422,7 +422,7 @@ const Index = () => {
       <div className="flex gap-2 items-center z-0 max-sm:flex-col">
         <Input
           isRequired
-          placeholder="Title"
+          placeholder="Enter Title"
           size="lg"
           radius="sm"
           classNames={{
@@ -475,7 +475,7 @@ const Index = () => {
                 <form action="" className="w-full">
                   <div className="flex gap-2 shrink w-full mb-4 items-center">
                     <Input
-                      label="Word"
+                      label="Enter Question"
                       radius="sm"
                       size="sm"
                       variant="bordered"
@@ -503,6 +503,9 @@ const Index = () => {
                       </Button>
                     )}
                   </div>
+                  <span className="text-xs text-gray-500">
+                    Upload images and select which image is the correct answer
+                  </span>
                   <div className={`grid grid-cols-2 gap-2 justify-around`}>
                     {card.images
                       .slice(
