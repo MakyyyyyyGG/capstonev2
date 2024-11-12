@@ -5,6 +5,7 @@ import {
   Input,
   Card,
   CardBody,
+  CardFooter,
   Image,
   Chip,
   Button,
@@ -127,7 +128,7 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
     );
 
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Toaster />
         {filteredStickers.map((sticker) => {
           const isOwned = ownedStickers.some(
@@ -139,7 +140,7 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
           return (
             <Card
               key={sticker.sticker_id}
-              className={`${
+              className={`w-full p-4 ${
                 sticker.type === "common"
                   ? "bg-gray-200"
                   : sticker.type === "rare"
@@ -149,38 +150,84 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
                   : "bg-yellow-200"
               }`}
             >
-              <CardBody className="w-full flex flex-col gap-2 justify-center">
+              <CardBody className="relative w-full flex flex-col gap-2 justify-center aspect-square">
+                <div className="absolute top-0 right-0 z-20">
+                  <Chip
+                    variant="flat"
+                    color={color}
+                    className={`drop-shadow-md px-2 text-xs border ${
+                      sticker.type === "common"
+                        ? "border-gray-300"
+                        : sticker.type === "rare"
+                        ? "border-sky-400"
+                        : sticker.type === "epic"
+                        ? "border-emerald-500"
+                        : "border-amber-300"
+                    }`}
+                  >
+                    {label}
+                  </Chip>
+                </div>
+
                 <Image
                   src={`${sticker.url}.png`}
                   alt="Sticker"
                   style={{
                     width: "100%",
                     height: "auto",
-                    aspectRatio: "1 / 1",
                     // border: "1px solid #7469B6",
                     // objectFit: "cover",
                   }}
+                  className="object-contain"
                 />
+              </CardBody>
+              <CardFooter className="w-full flex flex-col gap-2 justify-center">
                 {sticker.coin_cost === null && (
-                  <h1>Reach Level {sticker.level_requirement} to unlock</h1>
+                  <h1 className="text-md text-[#6B7280]">
+                    Reach Level {sticker.level_requirement} to unlock
+                  </h1>
                 )}
-                <span className="text-xl font-bold">
-                  {sticker.name} Sticker
-                </span>
-                <div className="flex justify-between w-full items-center">
-                  <Chip variant="flat" color={color}>
-                    {label}
-                  </Chip>
+                <div className="flex flex-row w-full justify-between">
+                  <span
+                    className={` text-xl font-bold text-left w-full  ${
+                      sticker.type === "common"
+                        ? ""
+                        : sticker.type === "rare"
+                        ? "text-sky-950"
+                        : sticker.type === "epic"
+                        ? "text-emerald-900"
+                        : "text-amber-950"
+                    }`}
+                  >
+                    {sticker.name} Sticker
+                  </span>
+                </div>
+
+                <div className="w-full mt-2">
                   {sticker.coin_cost > 0 ? (
                     <>
                       <span className="text-sm text-gray-500"></span>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           {isOwned ? (
-                            <Button isDisabled>Owned</Button>
+                            <Button
+                              radius="sm"
+                              color="secondary"
+                              isDisabled
+                              className="w-full"
+                            >
+                              Owned
+                            </Button>
                           ) : (
-                            <Button isDisabled={!isClaimable}>
-                              <Coins size={16} /> {sticker.coin_cost}
+                            <Button
+                              radius="sm"
+                              color="secondary"
+                              isDisabled={!isClaimable}
+                              className="w-full"
+                            >
+                              <Coins size={16} />
+                              {sticker.coin_cost}
+                              <span>Buy</span>
                             </Button>
                           )}
                         </AlertDialogTrigger>
@@ -208,7 +255,12 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
                   ) : (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button isDisabled={isOwned || !isClaimable}>
+                        <Button
+                          radius="sm"
+                          color="secondary"
+                          isDisabled={isOwned || !isClaimable}
+                          className="w-full"
+                        >
                           {isOwned ? "Owned" : "Claim"}
                         </Button>
                       </AlertDialogTrigger>
@@ -229,7 +281,7 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
                     </AlertDialog>
                   )}
                 </div>
-              </CardBody>
+              </CardFooter>
             </Card>
           );
         })}
@@ -240,87 +292,92 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
   return (
     <>
       <Button onClick={onOpen}>Open Stickers</Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="5xl">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="5xl"
+        scrollBehavior="inside"
+      >
         <ModalContent>
-          <ModalHeader>Stickers</ModalHeader>
-          <ModalBody>
-            <div className="flex flex-col gap-4">
-              <Input
-                clearable
-                startContent={<Search size={22} color="#6B7280" />}
-                type="text"
-                placeholder="Search Stickers"
-                radius="sm"
-                size="lg"
-                color="secondary"
-                variant="bordered"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                classNames={{
-                  label: "text-white",
-                  inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
-                }}
+          <ModalHeader className="font-bold text-xl flex flex-col gap-4">
+            Stickers
+            <Input
+              clearable
+              startContent={<Search size={22} color="#6B7280" />}
+              type="text"
+              placeholder="Search Stickers"
+              radius="sm"
+              size="lg"
+              color="secondary"
+              variant="bordered"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              classNames={{
+                label: "text-white",
+                inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+              }}
+            />
+            <Tabs
+              color="secondary"
+              radius="sm"
+              variant="bordered"
+              classNames={{
+                tabList: "border-gray-300 border bg-white rounded-lg",
+              }}
+              size="lg"
+              aria-label="Sticker Types"
+              fullWidth
+              selectedKey={activeTab}
+              onSelectionChange={setActiveTab}
+            >
+              <Tab
+                id="common"
+                key="common"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <Star className="max-sm:w-4 max-sm:h-4" />
+                    <span>Common</span>
+                  </div>
+                }
               />
-              <Tabs
-                color="secondary"
-                radius="sm"
-                variant="bordered"
-                classNames={{
-                  tabList: "border-gray-300 border bg-white rounded-lg",
-                }}
-                size="lg"
-                aria-label="Sticker Types"
-                fullWidth
-                selectedKey={activeTab}
-                onSelectionChange={setActiveTab}
-              >
-                <Tab
-                  id="common"
-                  key="common"
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <Star className="max-sm:w-4 max-sm:h-4" />
-                      <span>Common</span>
-                    </div>
-                  }
-                />
-                <Tab
-                  id="rare"
-                  key="rare"
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <Medal className="max-sm:w-4 max-sm:h-4" />
-                      <span>Rare</span>
-                    </div>
-                  }
-                />
-                <Tab
-                  id="epic"
-                  key="epic"
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <Crown className="max-sm:w-4 max-sm:h-4" />
-                      <span>Epic</span>
-                    </div>
-                  }
-                />
-                <Tab
-                  id="legendary"
-                  key="legendary"
-                  title={
-                    <div className="flex items-center space-x-2">
-                      <Sparkles className="max-sm:w-4 max-sm:h-4" />
-                      <span>Legendary</span>
-                    </div>
-                  }
-                />
-              </Tabs>
-              <div className="content">{renderContent()}</div>
-            </div>
+              <Tab
+                id="rare"
+                key="rare"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <Medal className="max-sm:w-4 max-sm:h-4" />
+                    <span>Rare</span>
+                  </div>
+                }
+              />
+              <Tab
+                id="epic"
+                key="epic"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <Crown className="max-sm:w-4 max-sm:h-4" />
+                    <span>Epic</span>
+                  </div>
+                }
+              />
+              <Tab
+                id="legendary"
+                key="legendary"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="max-sm:w-4 max-sm:h-4" />
+                    <span>Legendary</span>
+                  </div>
+                }
+              />
+            </Tabs>
+          </ModalHeader>
+          <ModalBody className="py-6">
+            <div className="content">{renderContent()}</div>
           </ModalBody>
-          <ModalFooter>
+          {/* <ModalFooter>
             <Button onClick={onClose}>Close</Button>
-          </ModalFooter>
+          </ModalFooter> */}
         </ModalContent>
       </Modal>
     </>

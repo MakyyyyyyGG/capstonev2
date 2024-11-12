@@ -524,37 +524,39 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                   </motion.div>
                                 )}
                               </AnimatePresence>
-                              <Button
-                                radius="sm"
-                                size="lg"
-                                color="secondary"
-                                onClick={() => checkAnswer(index)}
-                                isDisabled={
-                                  feedback[index]?.includes("Correct") ||
-                                  attempts[index] >= 3 ||
-                                  userAnswers[index]?.length !==
-                                    card.word?.length
-                                }
-                                className="w-full h-16 justify-center text-lg"
-                                aria-label="Check Answer"
-                              >
-                                Check Answer
-                              </Button>
-                              <Button
-                                radius="sm"
-                                size="lg"
-                                color="primary"
-                                onClick={() => useHint(index)}
-                                isDisabled={
-                                  feedback[index]?.includes("Correct") ||
-                                  attempts[index] >= 3 ||
-                                  hintsUsed >= 3
-                                }
-                                className="w-full h-16 justify-center text-lg mt-2"
-                                aria-label="Use Hint"
-                              >
-                                Use Hint ({3 - hintsUsed} left)
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  radius="sm"
+                                  size="lg"
+                                  color="secondary"
+                                  onClick={() => checkAnswer(index)}
+                                  isDisabled={
+                                    feedback[index]?.includes("Correct") ||
+                                    attempts[index] >= 3 ||
+                                    userAnswers[index]?.length !==
+                                      card.word?.length
+                                  }
+                                  className="w-full h-16 justify-center text-lg"
+                                  aria-label="Check Answer"
+                                >
+                                  Check Answer
+                                </Button>
+                                <Button
+                                  radius="sm"
+                                  size="lg"
+                                  color="primary"
+                                  onClick={() => useHint(index)}
+                                  isDisabled={
+                                    feedback[index]?.includes("Correct") ||
+                                    attempts[index] >= 3 ||
+                                    hintsUsed >= 3
+                                  }
+                                  className="w-full h-16 justify-center text-lg"
+                                  aria-label="Use Hint"
+                                >
+                                  Use Hint ({3 - hintsUsed} left)
+                                </Button>
+                              </div>
                             </div>
                           </form>
                         </div>
