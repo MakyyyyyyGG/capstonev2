@@ -1,5 +1,6 @@
 import React from "react";
 import { Progress } from "@nextui-org/react";
+import { Star } from "lucide-react";
 
 const Exp = ({ exp }) => {
   // Calculate level and progress with increasing exp requirements
@@ -27,7 +28,8 @@ const Exp = ({ exp }) => {
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
-        <div className="text-sm font-medium">Level {level}</div>
+        <Star className="5-4 w-5 text-purple-500" size={100} />
+        <div className="text-md font-medium">Level {level}</div>
       </div>
       <div className="flex w-48 flex-col gap-1 max-sm:w-28">
         <Progress
@@ -41,10 +43,10 @@ const Exp = ({ exp }) => {
           value={progressPercent}
           aria-label="Experience progress"
         />
-        <div className="flex justify-between text-xs text-[#6B7280]">
+        {/* <div className="flex justify-between text-xs text-[#6B7280]">
           <span>{currentExp} EXP</span>
           <span>{nextLevelExp} EXP</span>
-        </div>
+        </div> */}
       </div>
     </div>
   );

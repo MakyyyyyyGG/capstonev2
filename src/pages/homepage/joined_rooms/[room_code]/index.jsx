@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
-import { SquareLibrary, Trophy } from "lucide-react";
+import { SquareLibrary, Trophy, Sparkles } from "lucide-react";
 import ClassWorkList from "@/pages/components/ClassWorkList";
-
+import Stickers from "@/pages/components/Stickers";
 import ScoresIndiv from "@/pages/components/ScoresIndiv";
 import Loader from "@/pages/components/Loader";
 import { driver } from "driver.js";
@@ -135,7 +135,8 @@ const IndividualRoom = () => {
                   aria-label="Options"
                   fullWidth
                   classNames={{
-                    tabList: "mt-4  border-gray-300 border bg-white",
+                    tabList:
+                      " mt-4  border-gray-300 border bg-white rounded-lg",
                   }}
                   selectedKey={selectedTab}
                   onSelectionChange={setSelectedTab}
@@ -160,6 +161,16 @@ const IndividualRoom = () => {
                       </div>
                     }
                   ></Tab>
+                  <Tab
+                    id="stickers"
+                    key="stickers"
+                    title={
+                      <div className="flex items-center space-x-2">
+                        <Sparkles className="max-sm:w-4 max-sm:h-4" />
+                        <span>Stickers</span>
+                      </div>
+                    }
+                  ></Tab>
                 </Tabs>
               </div>
             </div>
@@ -176,6 +187,7 @@ const IndividualRoom = () => {
                   <ScoresIndiv studentRecords={studentRecords} />
                 </div>
               )}
+              {selectedTab === "stickers" && <Stickers />}
 
               <div className="mt-5"></div>
               {/* Add more details as needed */}
