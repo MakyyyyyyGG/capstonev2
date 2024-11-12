@@ -117,7 +117,7 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
         icon: <Star />,
       },
       rare: { label: "Rare", color: "primary", icon: <Medal /> },
-      epic: { label: "Epic", color: "success", icon: <Crown /> },
+      epic: { label: "Epic", color: "secondary", icon: <Crown /> },
       legendary: { label: "Legendary", color: "warning", icon: <Sparkles /> },
     };
 
@@ -146,8 +146,8 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
                   : sticker.type === "rare"
                   ? "bg-blue-200"
                   : sticker.type === "epic"
-                  ? "bg-green-200"
-                  : "bg-yellow-200"
+                  ? "bg-purple-200"
+                  : "bg-yellow-100"
               }`}
             >
               <CardBody className="relative w-full flex flex-col gap-2 justify-center aspect-square">
@@ -161,7 +161,7 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
                         : sticker.type === "rare"
                         ? "border-sky-400"
                         : sticker.type === "epic"
-                        ? "border-emerald-500"
+                        ? "border-purple-500"
                         : "border-amber-300"
                     }`}
                   >
@@ -291,7 +291,9 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
 
   return (
     <>
-      <Button onClick={onOpen}>Open Stickers</Button>
+      <Button onClick={onOpen} radius="sm" size="lg" color="secondary">
+        <Sparkles size={20} /> Stickers Collection
+      </Button>
       <Modal
         isOpen={isOpen}
         onClose={onClose}

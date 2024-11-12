@@ -187,7 +187,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
           </Select>
         </div>
       </div>
-      <div className="flex items-center  gap-4">
+      <div className="flex items-center gap-4">
         <h1 className="text-4xl my-6 font-bold">Joined Rooms</h1>
         <Stickers
           stickers={stickers}
@@ -205,85 +205,74 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
           />
         </div>
       ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 rounded-lg mr-4 auto-cols-auto">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 rounded-lg auto-cols-fr">
           {filteredRooms.map((room) => (
-            <li key={room.room_id}>
+            <li key={room.room_id} className="flex">
               {isLoading ? (
-                <Skeleton className="h-[300px] rounded-lg" />
+                <Skeleton className="h-[300px] rounded-lg w-full" />
               ) : (
-                <div className="relative">
-                  <div className="block w-full">
-                    <Card
-                      isPressable
-                      className="relative w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
-                      onClick={() =>
-                        router.push(`/homepage/joined_rooms/${room.room_code}`)
-                      }
-                    >
-                      <CardHeader className="absolute w-full items-center text-center flex justify-between">
-                        <Chip
-                          color={getChipColor(room.room_difficulty)}
-                          radius="xl"
-                          className="text-base text-white py-4"
-                        >
-                          {room.room_difficulty}
-                        </Chip>
-                        <Dropdown>
-                          <DropdownTrigger>
-                            <Button
-                              color="transparent"
-                              isIconOnly
-                              aria-label="More options"
-                            >
-                              <MoreVertical size={22} color="#ffffff" />
-                            </Button>
-                          </DropdownTrigger>
-                          <DropdownMenu>
-                            <DropdownItem
-                              key="unenroll"
-                              startContent={<Trash2 size={22} color="red" />}
-                              description="Unenroll from this room"
-                              color="error"
-                              onClick={() => unEnroll(room.student_room_id)}
-                            >
-                              Unenroll
-                            </DropdownItem>
-                          </DropdownMenu>
-                        </Dropdown>
-                      </CardHeader>
+                <div className="relative w-full">
+                  <Card
+                    isPressable
+                    className="relative w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
+                    onClick={() =>
+                      router.push(`/homepage/joined_rooms/${room.room_code}`)
+                    }
+                  >
+                    <CardHeader className="absolute w-full items-center text-center flex justify-between">
+                      <Chip
+                        color={getChipColor(room.room_difficulty)}
+                        radius="xl"
+                        className="text-base text-white py-4"
+                      >
+                        {room.room_difficulty}
+                      </Chip>
+                      <Dropdown>
+                        <DropdownTrigger>
+                          <Button
+                            color="transparent"
+                            isIconOnly
+                            aria-label="More options"
+                          >
+                            <MoreVertical size={22} color="#ffffff" />
+                          </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu>
+                          <DropdownItem
+                            key="unenroll"
+                            startContent={<Trash2 size={22} color="red" />}
+                            description="Unenroll from this room"
+                            color="error"
+                            onClick={() => unEnroll(room.student_room_id)}
+                          >
+                            Unenroll
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </Dropdown>
+                    </CardHeader>
 
-                      <CardBody className="flex h-2/4 flex-col justify-center items-center w-full">
-                        <h1 className="text-2xl text-bold text-white font-bold">
-                          {room.room_name}
-                        </h1>
-                      </CardBody>
+                    <CardBody className="flex h-2/4 flex-col justify-center items-center w-full">
+                      <h1 className="text-2xl text-bold text-white font-bold">
+                        {room.room_name}
+                      </h1>
+                    </CardBody>
 
-                      <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
-                        <div className="p-2 text-[#7469B6] flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            {/* <Button
-                              color="transparent"
-                              isIconOnly
-                              onClick={() => copyToClipboard(room.room_code)}
-                            >
-                              <Copy size={22} />
-                            </Button> */}
-                            <h1 className="font-bold">
-                              Code: {room.room_code}
-                            </h1>
-                          </div>
-                          <div className="flex items-center gap-6">
-                            <h1>{room.email}</h1>
-                            <Avatar
-                              src={room.profile_image}
-                              className="w-10 h-10"
-                              alt="Teacher profile"
-                            />
-                          </div>
+                    <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
+                      <div className="p-2 text-[#7469B6] flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <h1 className="font-bold">Code: {room.room_code}</h1>
                         </div>
-                      </CardFooter>
-                    </Card>
-                  </div>
+                        <div className="flex items-center gap-6">
+                          <h1>{room.email}</h1>
+                          <Avatar
+                            src={room.profile_image}
+                            className="w-10 h-10"
+                            alt="Teacher profile"
+                          />
+                        </div>
+                      </div>
+                    </CardFooter>
+                  </Card>
                 </div>
               )}
             </li>

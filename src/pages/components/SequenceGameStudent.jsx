@@ -181,7 +181,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
     );
     if (allAnswered) {
       setIsGameFinished(true);
-      getRewards(shuffledCards[0].difficulty);
+      getRewards(gameData[0].difficulty);
     }
   };
 
