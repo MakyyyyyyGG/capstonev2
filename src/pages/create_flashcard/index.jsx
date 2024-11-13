@@ -111,10 +111,8 @@ const Index = () => {
       toast.error("You need to add at least 2 flashcards");
       return;
     }
-    if (
-      flashcards.some((flashcard) => !flashcard.term || !flashcard.description)
-    ) {
-      toast.error("All flashcards must have a term and description");
+    if (flashcards.some((flashcard) => !flashcard.term)) {
+      toast.error("All flashcards must have a term");
       return;
     }
     if (flashcards.some((flashcard) => !flashcard.image)) {
@@ -726,20 +724,26 @@ const Index = () => {
                           </div>
                         </div>
                       ) : (
-                        <Button
-                          radius="sm"
-                          color="secondary"
-                          className="border-1 w-full"
-                          onClick={() => {
-                            const newFlashcards = [...flashcards];
-                            newFlashcards[index].isRecordingModalOpen = true;
-                            setFlashcards(newFlashcards);
-                            setCurrentIndex(index);
-                          }}
-                        >
-                          <Mic size={20} />
-                          Record Audio
-                        </Button>
+                        <>
+                          <Button
+                            radius="sm"
+                            color="secondary"
+                            className="border-1 w-full"
+                            onClick={() => {
+                              const newFlashcards = [...flashcards];
+                              newFlashcards[index].isRecordingModalOpen = true;
+                              setFlashcards(newFlashcards);
+                              setCurrentIndex(index);
+                            }}
+                          >
+                            <Mic size={20} />
+                            Record Audio
+                          </Button>
+                          <span className="text-xs text-gray-500 ">
+                            Record an audio to help with pronunciation
+                            (optional)
+                          </span>
+                        </>
                       )}
                     </div>
                     <div className="flex shrink flex-col w-full gap-2">
@@ -753,7 +757,7 @@ const Index = () => {
                           label: "",
                           inputWrapper: "border-1 border-[#7469B6]",
                         }}
-                        label={`Term`}
+                        label={`Enter Term`}
                         value={flashcard.term}
                         onChange={(e) =>
                           handleFlashcardChange(index, "term", e.target.value)
@@ -772,7 +776,7 @@ const Index = () => {
                         }}
                         type="text"
                         variant="bordered"
-                        label={`Description`}
+                        label={`Enter Description (optional)`}
                         value={flashcard.description}
                         onChange={(e) =>
                           handleFlashcardChange(

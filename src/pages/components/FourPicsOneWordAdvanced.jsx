@@ -124,7 +124,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
     const newFeedback = [...feedback];
 
     selectedImages.forEach((selectedIdxs, cardIndex) => {
-      if (selectedIdxs.length > 0) {
+      if (selectedIdxs?.length > 0) {
         const correctAnswers = cards[cardIndex].correct_answer
           .split(",")
           .map(Number);

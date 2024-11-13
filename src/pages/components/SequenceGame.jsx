@@ -11,6 +11,7 @@ import { X, Check, RefreshCw, Pause, Volume2 } from "lucide-react";
 import Loader from "./Loader";
 
 const SequenceGame = ({ sequenceGame }) => {
+  console.log("sequenceGame", sequenceGame);
   // Add null check for sequenceGame prop
   if (!sequenceGame) {
     return <div>Loading...</div>;

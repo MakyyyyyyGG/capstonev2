@@ -442,9 +442,8 @@ const Index = () => {
                 <form action="" className="w-full">
                   <div className="flex shrink w-full mb-4">
                     <Input
-                      isRequired
                       radius="sm"
-                      label="Word"
+                      label="Enter Word"
                       variant="bordered"
                       color="secondary"
                       classNames={{
@@ -459,6 +458,7 @@ const Index = () => {
                       }}
                     />
                   </div>
+
                   <div className={`grid grid-cols-2 gap-2 justify-around`}>
                     {card.images
                       .slice(

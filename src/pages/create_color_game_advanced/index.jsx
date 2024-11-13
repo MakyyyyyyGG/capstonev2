@@ -281,7 +281,6 @@ const Index = () => {
     } else {
       setDifficulty("easy");
     }
-    console.log("Sequence:", sequence);
   };
 
   const removeFlashcard = (index) => {
@@ -693,7 +692,7 @@ const Index = () => {
               >
                 <CardHeader className="flex px-3 justify-between items-center z-0">
                   <div className="pl-2 text-xl font-bold">
-                    <h1>{index + 1}</h1>
+                    <h1>Step {index + 1}</h1>
                   </div>
                   <div className="flex">
                     <Button
@@ -959,7 +958,6 @@ const Index = () => {
                         ) : (
                           <Button
                             radius="sm"
-                            variant="bordered"
                             color="secondary"
                             className="border-1 "
                             onClick={() => {
