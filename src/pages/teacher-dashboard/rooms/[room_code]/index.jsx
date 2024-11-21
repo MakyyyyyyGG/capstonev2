@@ -11,7 +11,9 @@ import {
   Sparkles,
   Copy,
   Users,
+  BookOpen,
 } from "lucide-react";
+import AssignmentList from "@/pages/components/AssignmentList";
 import toast, { Toaster } from "react-hot-toast";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -89,6 +91,7 @@ const IndividualRoom = () => {
   const [selectedTab, setSelectedTab] = useState("");
   const [studentRecords, setStudentRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [assignments, setAssignments] = useState([]);
   const router = useRouter();
 
   const { room_code } = router.query;
@@ -105,6 +108,22 @@ const IndividualRoom = () => {
     }
   };
 
+  //fetch assignments
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch(
+        `/api/assignment/assignment?room_code=${room_code}`
+      );
+      const data = await response.json();
+      setAssignments(data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching assignments:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const fetchAllData = async () => {
       if (room_code) {
@@ -112,6 +131,7 @@ const IndividualRoom = () => {
         try {
           await Promise.all([
             fetchGames(),
+            fetchAssignments(),
             fetchRoomDetails(room_code, setRoomData),
             fetchStudents(room_code, setStudents),
             fetchStudentRecords(room_code, setStudentRecords),
@@ -247,6 +267,7 @@ const IndividualRoom = () => {
       return () => clearTimeout(timer); // Cleanup timeout
     }
   }, []);
+
   return (
     <div className="w-full">
       <Toaster />
@@ -311,6 +332,16 @@ const IndividualRoom = () => {
                           size={20}
                         />
                         <span>Classworks</span>
+                      </div>
+                    }
+                  />
+                  <Tab
+                    id="assignments"
+                    key="assignments"
+                    title={
+                      <div className="flex items-center space-x-2">
+                        <BookOpen className="max-sm:w-4 max-sm:h-4" size={20} />
+                        <span>Assignments</span>
                       </div>
                     }
                   />
@@ -409,6 +440,16 @@ const IndividualRoom = () => {
                   <div className="flex items-center gap-4 w-full">
                     <div className="flex flex-col w-full">
                       <ClassWorkList room_code={room_code} games={games} />
+                    </div>
+                  </div>
+                )}
+                {selectedTab === "assignments" && (
+                  <div className="flex items-center gap-4 w-full">
+                    <div className="flex flex-col w-full">
+                      <AssignmentList
+                        assignments={assignments}
+                        onDelete={fetchAssignments}
+                      />
                     </div>
                   </div>
                 )}

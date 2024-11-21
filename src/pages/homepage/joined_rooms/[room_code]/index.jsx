@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
 import { SquareLibrary, Trophy, Sparkles } from "lucide-react";
 import ClassWorkList from "@/pages/components/ClassWorkList";
-import Stickers from "@/pages/components/Stickers";
+import AssignmentList from "@/pages/components/AssignmentList";
 import ScoresIndiv from "@/pages/components/ScoresIndiv";
 import Loader from "@/pages/components/Loader";
 import { driver } from "driver.js";
@@ -27,7 +27,7 @@ const fetchRoomDetails = async (room_code, setRoomData, setLoading) => {
 const IndividualRoom = () => {
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [loading, setLoading] = useState(true);
-
+  const [assignments, setAssignments] = useState([]);
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
   }
@@ -55,6 +55,7 @@ const IndividualRoom = () => {
       setLoading(true); // Ensure loading state is set to true when room_code changes
       fetchRoomDetails(room_code, setRoomData, setLoading);
       fetchGames();
+      fetchAssignments();
       fetchStudentRecord();
     }
   }, [room_code]);
@@ -112,6 +113,22 @@ const IndividualRoom = () => {
     }
   };
 
+  //fetch assignments
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch(
+        `/api/assignment/assignment?room_code=${room_code}`
+      );
+      const data = await response.json();
+      setAssignments(data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching assignments:", error);
+      throw error;
+    }
+  };
+
   return (
     <div className="w-full">
       {loading ? (
@@ -162,12 +179,12 @@ const IndividualRoom = () => {
                     }
                   ></Tab>
                   <Tab
-                    id="stickers"
-                    key="stickers"
+                    id="assigment"
+                    key="assigment"
                     title={
                       <div className="flex items-center space-x-2">
                         <Sparkles className="max-sm:w-4 max-sm:h-4" />
-                        <span>Stickers</span>
+                        <span>Assignments</span>
                       </div>
                     }
                   ></Tab>
@@ -187,7 +204,11 @@ const IndividualRoom = () => {
                   <ScoresIndiv studentRecords={studentRecords} />
                 </div>
               )}
-              {selectedTab === "stickers" && <Stickers />}
+              {selectedTab === "assigment" && (
+                <div className="flex items-center gap-4 w-full">
+                  <AssignmentList assignments={assignments} />
+                </div>
+              )}
 
               <div className="mt-5"></div>
               {/* Add more details as needed */}

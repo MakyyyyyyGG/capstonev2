@@ -79,6 +79,14 @@ const CreateClassWork = ({ room_code }) => {
       description:
         "Practice the students' critical thinking skills by identifying right and wrong actions to help proper decision making in real life.",
     },
+    {
+      title: "Assignment",
+      path: "create_assignment",
+      icon: <ListTree size={25} className="text-[#7C3AED]" />,
+      iconBg: "bg-[#7C3AED]/10",
+      description:
+        "Create assignments to assess students' understanding and reinforce learning through structured tasks.",
+    },
   ];
 
   return (
@@ -89,7 +97,7 @@ const CreateClassWork = ({ room_code }) => {
         radius="sm"
         onPress={onOpen}
       >
-        Game
+        Create
       </Button>
       <Modal
         isOpen={isOpen}
