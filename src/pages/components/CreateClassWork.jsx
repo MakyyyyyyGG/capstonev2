@@ -5,7 +5,7 @@ import {
   Palette,
   Grid2x2,
   Grid2x2Plus,
-  ListTree,
+  NotebookPen,
 } from "lucide-react";
 import { TbCards } from "react-icons/tb";
 import { FaRegLightbulb } from "react-icons/fa";
@@ -86,7 +86,7 @@ const CreateClassWork = ({ room_code }) => {
     {
       title: "Assignment",
       path: "create_assignment",
-      icon: <ListTree size={25} className="text-[#7C3AED]" />,
+      icon: <NotebookPen size={25} className="text-[#7C3AED]" />,
       iconBg: "bg-[#7C3AED]/10",
       description:
         "Create assignments to assess students' understanding and reinforce learning through structured tasks.",
