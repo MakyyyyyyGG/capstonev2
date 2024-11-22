@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
-import { SquareLibrary, Trophy, Sparkles } from "lucide-react";
+import { SquareLibrary, Trophy, NotebookPen } from "lucide-react";
 import ClassWorkList from "@/pages/components/ClassWorkList";
 import AssignmentList from "@/pages/components/AssignmentList";
 import ScoresIndiv from "@/pages/components/ScoresIndiv";
@@ -183,7 +183,7 @@ const IndividualRoom = () => {
                     key="assigment"
                     title={
                       <div className="flex items-center space-x-2">
-                        <Sparkles className="max-sm:w-4 max-sm:h-4" />
+                        <NotebookPen className="max-sm:w-4 max-sm:h-4" />
                         <span>Assignments</span>
                       </div>
                     }
