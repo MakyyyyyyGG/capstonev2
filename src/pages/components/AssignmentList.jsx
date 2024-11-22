@@ -89,7 +89,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col text-left">
+            <div className="flex flex-col text-left ml-4">
               <div className="font-bold mb-1">{assignment.title}</div>
               <div>
                 <p className="truncate text-sm mb-1">
