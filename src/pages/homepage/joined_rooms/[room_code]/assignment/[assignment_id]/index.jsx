@@ -292,157 +292,146 @@ const index = () => {
           </div>
         </CardBody>
 
-        <CardFooter>
-          {submittedAssignment?.assignmentResult?.media && (
-            <div className="w-full">
-              <Divider className="my-4" />
-              <h3 className="w-full text-2xl text-left mb-4">
-                Submitted Assignments
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.values(submittedAssignment.assignmentResult.media).map(
-                  (url, index) => {
-                    if (url.includes("youtu")) {
-                      return (
-                        <div key={index} className="relative">
-                          <iframe
-                            width="100%"
-                            height="300px"
-                            src={url.replace("youtu.be/", "youtube.com/embed/")}
-                            title="YouTube video"
-                            className="rounded-lg"
-                            allowFullScreen
-                          />
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                isIconOnly
-                                color="danger"
-                                startContent={<Trash2 size={22} />}
-                                className="absolute top-2 right-2"
-                              />
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Are you sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete your submitted media.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() =>
-                                    handleDeleteSubmittedMedia(index)
-                                  }
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      );
-                    } else if (url.includes(".mp4")) {
-                      return (
-                        <div
-                          key={index}
-                          className="relative bg-black h-[300px] rounded-lg flex items-center justify-center"
-                        >
-                          <video
-                            controls
-                            className="w-full h-[300px] rounded-lg"
-                          >
-                            <source src={url} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                isIconOnly
-                                color="danger"
-                                startContent={<Trash2 size={22} />}
-                                className="absolute top-2 right-2"
-                              />
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Are you sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete your submitted media.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() =>
-                                    handleDeleteSubmittedMedia(index)
-                                  }
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div
-                          key={index}
-                          className="relative bg-black object-contain w-full h-[300px] rounded-lg"
-                        >
-                          <img
-                            src={url}
-                            alt="Submitted assignment media"
-                            className="object-contain w-full h-[300px] rounded-lg"
-                          />
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                isIconOnly
-                                color="danger"
-                                startContent={<Trash2 size={22} />}
-                                className="absolute top-2 right-2"
-                              />
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Are you sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete your submitted media.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() =>
-                                    handleDeleteSubmittedMedia(index)
-                                  }
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      );
-                    }
+        {submittedAssignment?.assignmentResult?.media && (
+          <div className="w-full p-3 pt-0">
+            <Divider className="my-4" />
+            <h3 className="w-full text-2xl text-left mb-4">
+              Submitted Assignments
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.values(submittedAssignment.assignmentResult.media).map(
+                (url, index) => {
+                  if (url.includes("youtu")) {
+                    return (
+                      <div key={index} className="relative">
+                        <iframe
+                          width="100%"
+                          height="300px"
+                          src={url.replace("youtu.be/", "youtube.com/embed/")}
+                          title="YouTube video"
+                          className="rounded-lg"
+                          allowFullScreen
+                        />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              isIconOnly
+                              color="danger"
+                              startContent={<Trash2 size={22} />}
+                              className="absolute top-2 right-2"
+                            />
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete your submitted media.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  handleDeleteSubmittedMedia(index)
+                                }
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    );
+                  } else if (url.includes(".mp4")) {
+                    return (
+                      <div
+                        key={index}
+                        className="relative bg-black h-[300px] rounded-lg flex items-center justify-center"
+                      >
+                        <video controls className="w-full h-[300px] rounded-lg">
+                          <source src={url} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              isIconOnly
+                              color="danger"
+                              startContent={<Trash2 size={22} />}
+                              className="absolute top-2 right-2"
+                            />
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete your submitted media.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  handleDeleteSubmittedMedia(index)
+                                }
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div
+                        key={index}
+                        className="relative bg-black object-contain w-full h-[300px] rounded-lg"
+                      >
+                        <img
+                          src={url}
+                          alt="Submitted assignment media"
+                          className="object-contain w-full h-[300px] rounded-lg"
+                        />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              isIconOnly
+                              color="danger"
+                              startContent={<Trash2 size={22} />}
+                              className="absolute top-2 right-2"
+                            />
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete your submitted media.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  handleDeleteSubmittedMedia(index)
+                                }
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    );
                   }
-                )}
-              </div>
+                }
+              )}
             </div>
-          )}
-        </CardFooter>
+          </div>
+        )}
       </Card>
       <Card className="w-full mb-8 p-4">
         <CardHeader className="flex flex-col gap-2">
