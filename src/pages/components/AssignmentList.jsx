@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Trash } from "lucide-react";
+import { Trash2, NotebookPen } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   AlertDialog,
@@ -71,25 +71,40 @@ const AssignmentList = ({ assignments, onDelete }) => {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Assignments</h1>
       {assignmentArray.map((assignment) => (
-        <Card key={assignment.assignment_id} className="w-full" shadow="sm">
+        <Card
+          key={assignment.assignment_id}
+          isPressable
+          radius="sm"
+          className=" shadow-none border-gray-300 border flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200   hover:border-purple-700 max-sm:px-4 max-sm:py-3"
+          shadow="sm"
+        >
           <Link
             href={`${roleRedirect}/${assignment.room_code}/assignment/${assignment.assignment_id}`}
-            className="w-full"
+            className="w-full flex items-center gap-4"
           >
-            <CardHeader className="font-bold text-xl flex justify-between items-center">
-              {assignment.title}
-            </CardHeader>
-            <CardBody>
-              <p>{assignment.instruction}</p>
-            </CardBody>
-            <CardFooter className="text-sm text-gray-500">
-              Created:{" "}
-              {new Date(assignment.created_at).toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </CardFooter>
+            <div className="font-bold text-xl flex justify-between items-center">
+              <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
+                <div className="flex items-center justify-center w-[60px] h-[60px] bg-[#7C3AED]/10 text-[#7C3AED] rounded-xl">
+                  <NotebookPen className="text-3xl" />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="font-bold mb-1">{assignment.title}</div>
+              <div>
+                <p className="truncate text-sm mb-1">
+                  {assignment.instruction}
+                </p>
+              </div>
+              <div className="text-xs text-gray-500">
+                Created:{" "}
+                {new Date(assignment.created_at).toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </div>
+            </div>
           </Link>
           {session?.user?.role === "teacher" && (
             <AlertDialog
@@ -104,7 +119,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
               <AlertDialogTrigger asChild>
                 <Button
                   isIconOnly
-                  startContent={<Trash size={20} />}
+                  startContent={<Trash2 size={20} />}
                   color="danger"
                   variant="light"
                   onClick={(e) => {
