@@ -4,6 +4,8 @@ import {
   Card,
   CardHeader,
   CardBody,
+  CardFooter,
+  Divider,
   Button,
   Modal,
   ModalContent,
@@ -17,7 +19,7 @@ import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Pencil, Youtube, Upload, Trash } from "lucide-react";
+import { CalendarDays, Youtube, Upload, Trash2 } from "lucide-react";
 import ReactPlayer from "react-player";
 import toast, { Toaster } from "react-hot-toast";
 import {
@@ -222,160 +224,101 @@ const index = () => {
   if (!assignment) return null;
 
   return (
-    <div className="p-8">
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
-      <h1 className="text-3xl font-bold mb-8">
+      {/* <h1 className="text-3xl font-bold mb-8">
         Assignment id: {assignment_id}
-      </h1>
-      <Card className="w-full mb-8">
-        <CardHeader className="flex flex-col items-start">
-          <h1 className="text-3xl font-bold">{assignment.title}</h1>
-          <p className="text-gray-500">
-            Due:{" "}
-            {dueDate
-              ? formatter.format(dueDate.toDate(getLocalTimeZone()))
-              : "No due date"}
-          </p>
+      </h1> */}
+      <Card className="w-full mb-2 p-4">
+        <CardHeader className="flex flex-col gap-2">
+          <div className="flex w-full items-center">
+            <h1 className="text-3xl font-bold">{assignment.title}</h1>
+          </div>
+          <div className="flex w-full items-center text-sm text-left text-gray-500">
+            <CalendarDays className="mr-2 h-4 w-4" />
+            <p className="text-gray-500">
+              Due:{" "}
+              {dueDate
+                ? formatter.format(dueDate.toDate(getLocalTimeZone()))
+                : "No due date"}
+            </p>
+          </div>
         </CardHeader>
+        <Divider className="my-4 mx-3" />
         <CardBody>
           <p className="text-lg mb-8">{assignment.instruction}</p>
-
-          <div className="flex items-center space-x-4 mb-4">
-            <h3>Attach</h3>
-
-            <Button
-              auto
-              isIconOnly
-              startContent={<Youtube />}
-              onClick={() => setShowModal({ ...showModal, video: true })}
-            />
-            <Button
-              auto
-              isIconOnly
-              startContent={<Upload />}
-              onClick={() => setShowModal({ ...showModal, image: true })}
-            />
-          </div>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit();
-            }}
-            className="mt-4 mb-8"
-          >
-            <h3>Uploaded Media:</h3>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {mediaList.map((media, index) => (
-                <li key={index} className="relative">
-                  {media.type === "video" || media.name?.includes("mp4") ? (
-                    <ReactPlayer url={media.content} controls width="100%" />
-                  ) : media.type === "link" ? (
-                    <a
-                      href={media.content}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {media.content}
-                    </a>
-                  ) : media.type === "image" ? (
-                    <div>
-                      <p>{media.name}</p>
-                      {media.content.endsWith(".mp4") ? (
-                        <video src={media.content} controls width="100%" />
-                      ) : (
-                        <img
-                          src={media.content}
-                          alt={media.name}
-                          className="w-full h-auto rounded-lg"
-                        />
-                      )}
-                    </div>
-                  ) : null}
-                  <Button
-                    isIconOnly
-                    startContent={<Trash />}
-                    onClick={() => handleDeleteMedia(index)}
-                    className="absolute top-2 right-2"
-                  />
-                </li>
-              ))}
-            </ul>
-            {isPastDue ? (
-              <div className="text-red-500 mt-4">
-                Assignment submission is closed as the due date has passed.
-              </div>
-            ) : submittedAssignment?.assignmentResult?.grade ? (
-              <div className="text-gray-500 mt-4">
-                Assignment has already been graded
-                <h1 className="text-xl font-bold mb-4">
-                  Grade: {submittedAssignment?.assignmentResult?.grade}
-                </h1>
-              </div>
-            ) : (
-              <Button type="submit">Submit</Button>
-            )}
-          </form>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {media.map((item) => {
               if (item.url.includes("youtu")) {
                 return (
-                  <div key={item.assignment_media_id} className="aspect-video">
+                  <div key={item.assignment_media_id}>
                     <iframe
                       width="100%"
-                      height="100%"
+                      height="300px"
                       src={item.url.replace("youtu.be/", "youtube.com/embed/")}
                       title="YouTube video"
+                      className="rounded-lg"
                       allowFullScreen
                     />
                   </div>
                 );
               } else if (item.url.includes(".mp4")) {
                 return (
-                  <video
-                    key={item.assignment_media_id}
-                    controls
-                    className="w-full"
-                  >
-                    <source src={item.url} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                  <div className="bg-black h-[300px] rounded-lg flex items-center justify-center">
+                    <video
+                      key={item.assignment_media_id}
+                      controls
+                      className="w-full h-[300px] rounded-lg"
+                    >
+                      <source src={item.url} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
                 );
               } else {
                 return (
-                  <img
-                    key={item.assignment_media_id}
-                    src={item.url}
-                    alt="Assignment media"
-                    className="w-full h-auto rounded-lg"
-                  />
+                  <div className="bg-black object-contain w-full h-[300px] rounded-lg">
+                    <img
+                      key={item.assignment_media_id}
+                      src={item.url}
+                      alt="Assignment media"
+                      className="object-contain w-full h-[300px] rounded-lg"
+                    />
+                  </div>
                 );
               }
             })}
           </div>
+        </CardBody>
 
+        <CardFooter>
           {submittedAssignment?.assignmentResult?.media && (
-            <div className="mt-8">
-              <h3 className="text-xl font-bold mb-4">Submitted Assignment:</h3>
+            <div className="w-full">
+              <Divider className="my-4" />
+              <h3 className="w-full text-2xl text-left mb-4">
+                Submitted Assignments
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.values(submittedAssignment.assignmentResult.media).map(
                   (url, index) => {
                     if (url.includes("youtu")) {
                       return (
-                        <div key={index} className="relative aspect-video">
+                        <div key={index} className="relative">
                           <iframe
                             width="100%"
-                            height="100%"
+                            height="300px"
                             src={url.replace("youtu.be/", "youtube.com/embed/")}
                             title="YouTube video"
+                            className="rounded-lg"
                             allowFullScreen
                           />
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
                                 isIconOnly
-                                startContent={<Trash />}
+                                color="danger"
+                                startContent={<Trash2 size={22} />}
                                 className="absolute top-2 right-2"
                               />
                             </AlertDialogTrigger>
@@ -405,8 +348,14 @@ const index = () => {
                       );
                     } else if (url.includes(".mp4")) {
                       return (
-                        <div key={index} className="relative">
-                          <video controls className="w-full">
+                        <div
+                          key={index}
+                          className="relative bg-black h-[300px] rounded-lg flex items-center justify-center"
+                        >
+                          <video
+                            controls
+                            className="w-full h-[300px] rounded-lg"
+                          >
                             <source src={url} type="video/mp4" />
                             Your browser does not support the video tag.
                           </video>
@@ -414,7 +363,8 @@ const index = () => {
                             <AlertDialogTrigger asChild>
                               <Button
                                 isIconOnly
-                                startContent={<Trash />}
+                                color="danger"
+                                startContent={<Trash2 size={22} />}
                                 className="absolute top-2 right-2"
                               />
                             </AlertDialogTrigger>
@@ -444,17 +394,21 @@ const index = () => {
                       );
                     } else {
                       return (
-                        <div key={index} className="relative">
+                        <div
+                          key={index}
+                          className="relative bg-black object-contain w-full h-[300px] rounded-lg"
+                        >
                           <img
                             src={url}
                             alt="Submitted assignment media"
-                            className="w-full h-auto rounded-lg"
+                            className="object-contain w-full h-[300px] rounded-lg"
                           />
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
                                 isIconOnly
-                                startContent={<Trash />}
+                                color="danger"
+                                startContent={<Trash2 size={22} />}
                                 className="absolute top-2 right-2"
                               />
                             </AlertDialogTrigger>
@@ -488,6 +442,143 @@ const index = () => {
               </div>
             </div>
           )}
+        </CardFooter>
+      </Card>
+      <Card className="w-full mb-8 p-4">
+        <CardHeader className="flex flex-col gap-2">
+          <h3 className="text-2xl text-left w-full">Submit Assignment</h3>
+          <div className="flex w-full flex-col items-center space-x-4">
+            <h3 className="text-left w-full">Attach</h3>
+            <div className="flex space-x-3">
+              <Button
+                auto
+                isIconOnly
+                size="lg"
+                radius="full"
+                color="secondary"
+                variant="bordered"
+                className="border-1 border-[#7469B6]"
+                startContent={<Youtube />}
+                onClick={() => setShowModal({ ...showModal, video: true })}
+              />
+              <Button
+                auto
+                isIconOnly
+                size="lg"
+                radius="full"
+                color="secondary"
+                variant="bordered"
+                className="border-1 border-[#7469B6]"
+                startContent={<Upload />}
+                onClick={() => setShowModal({ ...showModal, image: true })}
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardBody>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className=""
+          >
+            {/* <h3>Uploaded Media:</h3> */}
+            <ul className="flex flex-col gap-2">
+              {mediaList.map((media, index) => (
+                <li
+                  key={index}
+                  className="flex items-center relative border-1 border-gray-300 rounded-md pl-2"
+                >
+                  {media.type === "video" || media.name?.includes("mp4") ? (
+                    <div className="flex gap-4 items-center">
+                      <ReactPlayer
+                        url={media.content}
+                        controls
+                        width="200px"
+                        height="100px"
+                      />
+                      <div className="capitalize text-[#6B7280]">
+                        {media.type}
+                      </div>
+                    </div>
+                  ) : media.type === "link" ? (
+                    <div className="flex gap-4 items-center">
+                      <a
+                        href={media.content}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {media.content}
+                      </a>
+                      <div className="capitalize text-[#6B7280]">
+                        {media.type}
+                      </div>
+                    </div>
+                  ) : media.type === "image" ? (
+                    <div className="flex gap-4 items-center">
+                      {media.content.endsWith(".mp4") ? (
+                        <video
+                          src={media.content}
+                          controls
+                          width="200px"
+                          height="100px"
+                        />
+                      ) : (
+                        <div>
+                          <div className="bg-black object-contain w-[200px] h-[100px]">
+                            <img
+                              src={media.content}
+                              alt={media.name}
+                              className="object-contain w-[200px] h-[100px]"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <div>
+                        <p>{media.name}</p>
+                        <div className="capitalize text-[#6B7280]">
+                          {media.type}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    color="danger"
+                    startContent={<Trash2 />}
+                    onClick={() => handleDeleteMedia(index)}
+                    className="absolute right-4"
+                  />
+                </li>
+              ))}
+            </ul>
+            {isPastDue ? (
+              <div className="w-full text-center text-sm text-red-500 mt-4">
+                Assignment submission is closed as the due date has passed.
+              </div>
+            ) : submittedAssignment?.assignmentResult?.grade ? (
+              <div className="mt-4 flex justify-between">
+                <p className="text-sm text-gray-500">
+                  Assignment has already been graded
+                </p>
+                <h1 className="text-lg font-bold">
+                  Grade: {submittedAssignment?.assignmentResult?.grade}
+                </h1>
+              </div>
+            ) : (
+              <Button
+                radius="sm"
+                size="lg"
+                type="submit"
+                color="secondary"
+                className="mt-4 w-full"
+              >
+                Submit
+              </Button>
+            )}
+          </form>
         </CardBody>
       </Card>
 
@@ -495,28 +586,51 @@ const index = () => {
       {showModal.video && (
         <Modal
           isOpen
+          size="lg"
           onClose={() => setShowModal({ ...showModal, video: false })}
         >
           <ModalContent>
             <ModalHeader>Attach Video</ModalHeader>
             <ModalBody>
-              <Tabs>
+              <Tabs fullWidth>
+                <Tab title="From URL">
+                  <div className="flex gap-2 mt-4">
+                    <Input
+                      variant="bordered"
+                      color="secondary"
+                      isClearable
+                      radius="sm"
+                      size="lg"
+                      placeholder="Enter YouTube URL"
+                      classNames={{
+                        label: "text-white",
+                        inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                      }}
+                      value={youtubeUrl}
+                      onChange={(e) => setYoutubeUrl(e.target.value)}
+                    />
+                    <Button
+                      onClick={() => handleAddUrl("video", youtubeUrl)}
+                      radius="sm"
+                      size="lg"
+                      color="secondary"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                </Tab>
                 <Tab title="Upload">
                   <input
                     type="file"
                     accept="video/*"
                     onChange={(e) => handleFileUpload(e, "video")}
+                    class="block w-full text-sm text-slate-500 mt-4 
+                    file:mr-4 file:py-3 file:px-6
+                    file:rounded-md file:border-0
+                    file:text-base 
+                    file:bg-[#7828C8] file:text-white
+                    hover:file:bg-[#9353D3]"
                   />
-                </Tab>
-                <Tab title="URL">
-                  <Input
-                    label="Video URL"
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)}
-                  />
-                  <Button onClick={() => handleAddUrl("video", youtubeUrl)}>
-                    Confirm
-                  </Button>
                 </Tab>
               </Tabs>
             </ModalBody>
@@ -528,28 +642,51 @@ const index = () => {
       {showModal.image && (
         <Modal
           isOpen
+          size="lg"
           onClose={() => setShowModal({ ...showModal, image: false })}
         >
           <ModalContent>
             <ModalHeader>Attach Image</ModalHeader>
             <ModalBody>
-              <Tabs>
+              <Tabs fullWidth>
+                <Tab title="From URL">
+                  <div className="flex gap-2 mt-4">
+                    <Input
+                      variant="bordered"
+                      color="secondary"
+                      isClearable
+                      radius="sm"
+                      size="lg"
+                      placeholder="Enter Image URL"
+                      classNames={{
+                        label: "text-white",
+                        inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                      }}
+                      value={urlLink}
+                      onChange={(e) => setUrlLink(e.target.value)}
+                    />
+                    <Button
+                      onClick={() => handleAddUrl("image", urlLink)}
+                      radius="sm"
+                      size="lg"
+                      color="secondary"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                </Tab>
                 <Tab title="Upload">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileUpload(e, "image")}
+                    class="block w-full text-sm text-slate-500 mt-4 
+                    file:mr-4 file:py-3 file:px-6
+                    file:rounded-md file:border-0
+                    file:text-base 
+                    file:bg-[#7828C8] file:text-white
+                    hover:file:bg-[#9353D3]"
                   />
-                </Tab>
-                <Tab title="URL">
-                  <Input
-                    label="Image URL"
-                    value={urlLink}
-                    onChange={(e) => setUrlLink(e.target.value)}
-                  />
-                  <Button onClick={() => handleAddUrl("image", urlLink)}>
-                    Confirm
-                  </Button>
                 </Tab>
               </Tabs>
             </ModalBody>
