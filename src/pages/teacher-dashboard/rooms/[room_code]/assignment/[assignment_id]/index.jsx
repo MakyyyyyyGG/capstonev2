@@ -4,6 +4,7 @@ import {
   Card,
   CardHeader,
   CardBody,
+  Divider,
   Button,
   Tabs,
   Tab,
@@ -11,7 +12,7 @@ import {
 import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { Pencil, CalendarDays } from "lucide-react";
 import StudentSubmissions from "@/pages/components/StudentSubmissions";
 
 const index = () => {
@@ -57,28 +58,44 @@ const index = () => {
   if (!assignment) return null;
 
   return (
-    <div className="p-8">
-      <Tabs aria-label="Assignment tabs">
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
+      <Tabs
+        aria-label="Assignment tabs"
+        fullWidth
+        color="secondary"
+        radius="sm"
+        size="lg"
+        classNames={{
+          tabList: "mt-4  border-gray-300 border bg-white rounded-lg",
+        }}
+      >
         <Tab key="details" title="Assignment Details">
-          <Card className="w-full mb-8">
-            <CardHeader className="flex flex-col items-start">
-              <Link
-                href={{
-                  pathname: `/teacher-dashboard/rooms/${room_code}/assignment/${assignment_id}/edit`,
-                }}
-              >
-                <Button radius="sm" color="secondary">
-                  <Pencil size={20} /> Edit
-                </Button>
-              </Link>
-              <h1 className="text-3xl font-bold">{assignment.title}</h1>
-              <p className="text-gray-500">
-                Due:{" "}
-                {dueDate
-                  ? formatter.format(dueDate.toDate(getLocalTimeZone()))
-                  : "No due date"}
-              </p>
+          <Card className="w-full mb-8 p-4">
+            <CardHeader className="flex flex-col gap-2">
+              <div className="flex w-full items-center justify-between">
+                <h1 className="text-3xl font-bold">{assignment.title}</h1>{" "}
+                <Link
+                  href={{
+                    pathname: `/teacher-dashboard/rooms/${room_code}/assignment/${assignment_id}/edit`,
+                  }}
+                >
+                  <Button radius="sm" color="secondary">
+                    <Pencil size={20} /> Edit
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="flex w-full items-center text-sm text-left text-gray-500">
+                <CalendarDays className="mr-2 h-4 w-4" />
+                <p>
+                  Due:{" "}
+                  {dueDate
+                    ? formatter.format(dueDate.toDate(getLocalTimeZone()))
+                    : "No due date"}
+                </p>
+              </div>
             </CardHeader>
+            <Divider className="my-4 mx-3" />
             <CardBody>
               <p className="text-lg mb-8">{assignment.instruction}</p>
 
@@ -86,41 +103,43 @@ const index = () => {
                 {media.map((item) => {
                   if (item.url.includes("youtu")) {
                     return (
-                      <div
-                        key={item.assignment_media_id}
-                        className="aspect-video"
-                      >
+                      <div key={item.assignment_media_id}>
                         <iframe
                           width="100%"
-                          height="100%"
+                          height="300px"
                           src={item.url.replace(
                             "youtu.be/",
                             "youtube.com/embed/"
                           )}
                           title="YouTube video"
+                          className="rounded-lg"
                           allowFullScreen
                         />
                       </div>
                     );
                   } else if (item.url.includes(".mp4")) {
                     return (
-                      <video
-                        key={item.assignment_media_id}
-                        controls
-                        className="w-full"
-                      >
-                        <source src={item.url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
+                      <div className="bg-black h-[300px] rounded-lg flex items-center justify-center">
+                        <video
+                          key={item.assignment_media_id}
+                          controls
+                          className="w-full h-[300px] rounded-lg"
+                        >
+                          <source src={item.url} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
                     );
                   } else {
                     return (
-                      <img
-                        key={item.assignment_media_id}
-                        src={item.url}
-                        alt="Assignment media"
-                        className="w-full h-auto rounded-lg"
-                      />
+                      <div className="bg-black object-contain w-full h-[300px] rounded-lg">
+                        <img
+                          key={item.assignment_media_id}
+                          src={item.url}
+                          alt="Assignment media"
+                          className="object-contain w-full h-[300px] rounded-lg"
+                        />
+                      </div>
                     );
                   }
                 })}
