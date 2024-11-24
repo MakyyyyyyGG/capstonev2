@@ -8,11 +8,16 @@ import {
   Button,
   Tabs,
   Tab,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  useDisclosure,
 } from "@nextui-org/react";
 import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
 import Link from "next/link";
-import { Pencil, CalendarDays } from "lucide-react";
+import { Pencil, CalendarDays, ScanSearch } from "lucide-react";
 import StudentSubmissions from "@/pages/components/StudentSubmissions";
 
 const index = () => {
@@ -29,6 +34,14 @@ const index = () => {
 
   //get students that submitted assignment
   const [submittedStudents, setSubmittedStudents] = useState([]);
+
+  const [modalImage, setModalImage] = useState("");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const openImageModal = (url) => {
+    setModalImage(url);
+    onOpen();
+  };
 
   const getStudentSubmissions = async () => {
     const res = await fetch(
@@ -132,13 +145,22 @@ const index = () => {
                     );
                   } else {
                     return (
-                      <div className="bg-black object-contain w-full h-[300px] rounded-lg">
+                      <div className="relative bg-black object-contain w-full h-[300px] rounded-lg">
                         <img
                           key={item.assignment_media_id}
                           src={item.url}
                           alt="Assignment media"
                           className="object-contain w-full h-[300px] rounded-lg"
                         />
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          color="secondary"
+                          className="absolute top-2 right-2"
+                          onPress={() => openImageModal(item.url)}
+                        >
+                          <ScanSearch size={18} />
+                        </Button>
                       </div>
                     );
                   }
@@ -151,6 +173,32 @@ const index = () => {
           <StudentSubmissions submittedStudents={submittedStudents} />
         </Tab>
       </Tabs>
+
+      {/* Enlarged Image */}
+      <Modal size="5xl" isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="pb-0">Image</ModalHeader>
+              <ModalBody className="p-4">
+                {modalImage ? (
+                  <div className="bg-black object-contain w-full rounded-lg">
+                    <img
+                      src={modalImage}
+                      alt="Enlarged"
+                      className="object-contain w-full max-h-[560px] rounded-lg"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center">
+                    No image to display
+                  </p>
+                )}
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

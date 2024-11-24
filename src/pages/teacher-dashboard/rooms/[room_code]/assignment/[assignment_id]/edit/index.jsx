@@ -309,10 +309,8 @@ const index = () => {
                             className="object-contain w-[200px] h-[100px]"
                           />
                         </div>
-                        <div className="flex flex-col max-w-[850px] truncate">
-                          <p className="text-ellipsis overflow-hidden ">
-                            {media.name}
-                          </p>
+                        <div>
+                          <p>{media.name}</p>
                           <div className="capitalize text-[#6B7280]">
                             {media.type}
                           </div>
