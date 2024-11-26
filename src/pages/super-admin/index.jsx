@@ -16,6 +16,35 @@ export default function Signup() {
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   // console.log("Email:", email);
+  //   // console.log("Password:", password);
+
+  //   if (
+  //     email === process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL &&
+  //     password === process.env.NEXT_PUBLIC_SUPER_ADMIN_PASSWORD
+  //   ) {
+  //     router.push("/super-admin/account-management");
+  //     return;
+  //   } else {
+  //     setError("Invalid email or password");
+  //     console.log("Invalid super admin credentials");
+  //   }
+
+  //   setLoading(false);
+  // };
+
+  // const handleGoogleSignIn = async () => {
+  //   await signIn("google");
+  // };
+
+  // const handleFacebookSignIn = async () => {
+  //   await signIn("facebook");
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -45,13 +74,13 @@ export default function Signup() {
 
   // Redirect to homepage if session is active
   if (status === "authenticated") {
-    if (session.user.role == "student") {
+    if (session.user.role === "student") {
       console.log("redirected to student homepage");
       router.push(`/homepage`);
-    } else if (session.user.role == "teacher") {
+    } else if (session.user.role === "teacher") {
       console.log("redirected to teacher homepage");
       router.push(`/teacher-dashboard`);
-    } else if (session.user.role == "admin") {
+    } else if (session.user.role === "admin") {
       console.log("redirected to admin dashboard");
       router.push(`/super-admin/account-management`);
     }
@@ -90,7 +119,7 @@ export default function Signup() {
       <div className="flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold">Sign In</h2>
+            <h2 className="text-2xl font-bold">Sign In as Super Admin</h2>
             <p className="text-muted-foreground mt-2">
               Welcome back! Please enter your credentials.
             </p>
@@ -159,7 +188,7 @@ export default function Signup() {
               {loading ? "Signing In..." : "Sign In"}
             </Button>
 
-            <Button
+            {/* <Button
               onClick={() => router.push("/teacher-signup")}
               size="lg"
               variant="bordered"
@@ -168,8 +197,8 @@ export default function Signup() {
               className="w-full border-1"
             >
               Become a Teacher
-            </Button>
-
+            </Button> */}
+            {/* 
             <div className="text-center">
               <Link
                 href="/reset_password"
@@ -177,9 +206,9 @@ export default function Signup() {
               >
                 Forgot Password?
               </Link>
-            </div>
+            </div> */}
 
-            <div className="relative">
+            {/* <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t"></div>
               </div>
@@ -262,15 +291,15 @@ export default function Signup() {
                 </svg>
                 Continue with Facebook
               </Button>
-            </div>
+            </div> */}
           </form>
-
+          {/* 
           <p className="text-center text-sm text-muted-foreground">
             New to Noted?{" "}
             <Link href="/signup" className="text-[#6B4DE6] hover:underline">
               Create an account
             </Link>
-          </p>
+          </p> */}
         </div>
       </div>
     </div>

@@ -8,8 +8,9 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Trash2, NotebookPen } from "lucide-react";
+import { Trash2, NotebookPen, Search } from "lucide-react";
 import toast from "react-hot-toast";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,9 +28,17 @@ const AssignmentList = ({ assignments, onDelete }) => {
   const { data: session } = useSession();
   const [roleRedirect, setRoleRedirect] = useState("");
   const [alertStates, setAlertStates] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Handle case where assignments is not an array
   const assignmentArray = Array.isArray(assignments) ? assignments : [];
+
+  // Filter assignments based on search query
+  const filteredAssignments = assignmentArray.filter(
+    (assignment) =>
+      assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      assignment.instruction.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     if (session) {
@@ -69,8 +78,20 @@ const AssignmentList = ({ assignments, onDelete }) => {
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      <h1 className="text-2xl font-bold">Assignments</h1>
-      {assignmentArray.map((assignment) => (
+      <div className="flex justify-between items-center">
+        <div className="w-full z-0">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground mx-2" />
+            <Input
+              placeholder="Search Assignments"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white h-[50px] border-gray-300"
+            />
+          </div>
+        </div>
+      </div>
+      {filteredAssignments.map((assignment) => (
         <Card
           key={assignment.assignment_id}
           isPressable

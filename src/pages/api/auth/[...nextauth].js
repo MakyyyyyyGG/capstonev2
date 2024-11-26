@@ -63,8 +63,12 @@ export const authOptions = {
           SELECT account_id, email, password, user_role, first_name, last_name
           FROM teachers
           WHERE email = ?
+          UNION
+          SELECT account_id, email, password, user_role, first_name, last_name
+          FROM admin
+          WHERE email = ?
         `,
-        values: [email, email],
+        values: [email, email, email],
       });
 
       if (existingUser.length === 0) {

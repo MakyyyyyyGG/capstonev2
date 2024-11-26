@@ -615,7 +615,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       }
       setUserData(user);
       setInitialValues(user.coins, user.exp);
-      console.log("user data", user);
+      // console.log("user data", user);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -666,11 +666,11 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
               <div id="create-room">
                 <CreateRoom />
               </div>
-            ) : (
+            ) : session?.user?.role === "student" ? (
               <div id="join-room">
                 <JoinRoom />
               </div>
-            )}
+            ) : null}
             <Dropdown
               isOpen={isDropdownOpen}
               onOpenChange={setIsDropdownOpen}

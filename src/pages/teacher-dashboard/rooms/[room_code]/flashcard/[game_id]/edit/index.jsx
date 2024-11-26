@@ -85,6 +85,7 @@ const Index = () => {
       });
       const data = await res.json();
       setFlashcardData(data);
+      console.log(data);
       if (res.ok) {
         console.log("Flashcards fetched successfully");
         console.log("data:", data);
