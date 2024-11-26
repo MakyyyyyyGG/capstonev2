@@ -14,12 +14,19 @@ import {
   Tabs,
   Tab,
   Input,
+  useDisclosure,
 } from "@nextui-org/react";
 import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { CalendarDays, Youtube, Upload, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  Youtube,
+  Upload,
+  Trash2,
+  ScanSearch,
+} from "lucide-react";
 import ReactPlayer from "react-player";
 import toast, { Toaster } from "react-hot-toast";
 import {
@@ -55,6 +62,14 @@ const index = () => {
     dateStyle: "long",
     timeStyle: "short",
   });
+
+  const [modalImage, setModalImage] = useState("");
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const openImageModal = (url) => {
+    setModalImage(url);
+    onOpen();
+  };
 
   const handleAddMedia = (type, content, name = null) => {
     const newMediaList = [...mediaList, { type, content, name }];
@@ -278,13 +293,21 @@ const index = () => {
                 );
               } else {
                 return (
-                  <div className="bg-black object-contain w-full h-[300px] rounded-lg">
+                  <div className="relative bg-black object-contain w-full h-[300px] rounded-lg">
                     <img
                       key={item.assignment_media_id}
                       src={item.url}
                       alt="Assignment media"
                       className="object-contain w-full h-[300px] rounded-lg"
                     />
+                    <Button
+                      isIconOnly
+                      color="secondary"
+                      className="absolute bottom-2 right-2"
+                      onPress={() => openImageModal(item.url)}
+                    >
+                      <ScanSearch size={22} />
+                    </Button>
                   </div>
                 );
               }
@@ -424,6 +447,14 @@ const index = () => {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        <Button
+                          isIconOnly
+                          color="secondary"
+                          className="absolute bottom-2 right-2"
+                          onPress={() => openImageModal(url)}
+                        >
+                          <ScanSearch size={22} />
+                        </Button>
                       </div>
                     );
                   }
@@ -682,6 +713,32 @@ const index = () => {
           </ModalContent>
         </Modal>
       )}
+
+      {/* Enlarged Image */}
+      <Modal size="5xl" isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="pb-0">Image</ModalHeader>
+              <ModalBody className="p-4">
+                {modalImage ? (
+                  <div className="bg-black object-contain w-full rounded-lg">
+                    <img
+                      src={modalImage}
+                      alt="Enlarged"
+                      className="object-contain w-full max-h-[560px] rounded-lg"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-gray-500 h-[560px] text-center">
+                    No image to display
+                  </p>
+                )}
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

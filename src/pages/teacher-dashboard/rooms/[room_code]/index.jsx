@@ -11,7 +11,7 @@ import {
   Sparkles,
   Copy,
   Users,
-  BookOpen,
+  NotebookPen,
 } from "lucide-react";
 import AssignmentList from "@/pages/components/AssignmentList";
 import toast, { Toaster } from "react-hot-toast";
@@ -340,7 +340,10 @@ const IndividualRoom = () => {
                     key="assignments"
                     title={
                       <div className="flex items-center space-x-2">
-                        <BookOpen className="max-sm:w-4 max-sm:h-4" size={20} />
+                        <NotebookPen
+                          className="max-sm:w-4 max-sm:h-4"
+                          size={20}
+                        />
                         <span>Assignments</span>
                       </div>
                     }
