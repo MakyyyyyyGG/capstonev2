@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
   Table,
   TableHeader,
   TableBody,
@@ -17,7 +21,15 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
-import { Trash2, PencilLine, Plus, ChevronUp, ChevronDown } from "lucide-react";
+import {
+  Trash2,
+  PencilLine,
+  Plus,
+  ChevronUp,
+  ChevronDown,
+  ArrowLeft,
+  Search,
+} from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   AlertDialog,
@@ -275,38 +287,59 @@ const SuperAdmin = () => {
   );
 
   return (
-    <div className="p-8">
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">User Management</h1>
-        <div className="flex gap-2">
-          <Button color="primary" startContent={<Plus />} onClick={onOpen}>
+      <div className="flex justify-between items-center mb-2 max-sm:flex-col">
+        <h1 className="text-2xl font-bold max-sm:mb-2 max-sm:text-left max-sm:w-full">
+          User Management
+        </h1>
+        <div className="flex gap-2 max-sm:justify-between max-sm:w-full">
+          <Button
+            size="md"
+            radius="sm"
+            color="secondary"
+            startContent={<Plus className="h-4 w-4" />}
+            onClick={onOpen}
+          >
             Add User
           </Button>
           <Button
-            color="secondary"
+            size="md"
+            radius="sm"
+            variant="light"
             onClick={() => (window.location.href = "/")}
+            startContent={<ArrowLeft className="h-4 w-4" />}
           >
             Back to Home
           </Button>
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-2">
         <Input
           placeholder="Enter username or email"
+          type="text"
+          radius="sm"
+          size="lg"
+          color="secondary"
+          variant="bordered"
+          startContent={<Search size={20} color="#6B7280" />}
+          classNames={{
+            label: "text-white",
+            inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+          }}
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
         />
       </div>
 
-      <div className="flex gap-8">
-        <div className="flex-1">
-          <h2 className="text-xl font-bold mb-4">Teachers</h2>
-          <div className="h-[500px] overflow-y-auto">
-            <Table aria-label="Teachers table">
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="flex-1 p-4 rounded-md max-sm:p-2">
+          <CardHeader className="text-xl font-bold">Teachers</CardHeader>
+          <CardBody className="h-[500px] overflow-y-auto">
+            <Table removeWrapper aria-label="Teachers table">
               <TableHeader>
-                <TableColumn>
+                <TableColumn className="pl-4 py-4">
                   <div
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleSort("name")}
@@ -320,7 +353,7 @@ const SuperAdmin = () => {
                       ))}
                   </div>
                 </TableColumn>
-                <TableColumn>
+                <TableColumn className="py-4">
                   <div
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleSort("email")}
@@ -334,18 +367,20 @@ const SuperAdmin = () => {
                       ))}
                   </div>
                 </TableColumn>
-                <TableColumn>ACTIONS</TableColumn>
+                <TableColumn className="text-right pr-4 py-4">
+                  ACTIONS
+                </TableColumn>
               </TableHeader>
               <TableBody>
                 {teachers.map((user) => (
                   <TableRow key={user.account_id}>
-                    <TableCell>{`${user.first_name} ${user.last_name}`}</TableCell>
+                    <TableCell className="pl-4">{`${user.first_name} ${user.last_name}`}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
+                    <TableCell className="flex justify-end pr-1">
+                      <div className="flex gap-1">
                         <Button
                           isIconOnly
-                          color="primary"
+                          color="secondary"
                           variant="light"
                           onClick={() => handleEdit(user)}
                         >
@@ -367,15 +402,15 @@ const SuperAdmin = () => {
                 ))}
               </TableBody>
             </Table>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
 
-        <div className="flex-1">
-          <h2 className="text-xl font-bold mb-4">Students</h2>
-          <div className="h-[500px] overflow-y-auto">
-            <Table aria-label="Students table">
+        <Card className="flex-1 p-4 rounded-md max-sm:p-2">
+          <CardHeader className="text-xl font-bold">Students</CardHeader>
+          <CardBody className="h-[500px] overflow-y-auto">
+            <Table removeWrapper aria-label="Students table">
               <TableHeader>
-                <TableColumn>
+                <TableColumn className="pl-4 py-4">
                   <div
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleSort("name")}
@@ -389,7 +424,7 @@ const SuperAdmin = () => {
                       ))}
                   </div>
                 </TableColumn>
-                <TableColumn>
+                <TableColumn className="py-4">
                   <div
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => handleSort("email")}
@@ -403,18 +438,20 @@ const SuperAdmin = () => {
                       ))}
                   </div>
                 </TableColumn>
-                <TableColumn>ACTIONS</TableColumn>
+                <TableColumn className="text-right pr-4 py-4">
+                  ACTIONS
+                </TableColumn>
               </TableHeader>
               <TableBody>
                 {students.map((user) => (
                   <TableRow key={user.account_id}>
-                    <TableCell>{`${user.first_name} ${user.last_name}`}</TableCell>
+                    <TableCell className="pl-4">{`${user.first_name} ${user.last_name}`}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
+                    <TableCell className="flex justify-end pr-1">
+                      <div className="flex gap-1">
                         <Button
                           isIconOnly
-                          color="primary"
+                          color="secondary"
                           variant="light"
                           onClick={() => handleEdit(user)}
                         >
@@ -436,20 +473,26 @@ const SuperAdmin = () => {
                 ))}
               </TableBody>
             </Table>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       </div>
 
       <Modal isOpen={isOpen} onClose={handleClose}>
-        <ModalContent>
+        <ModalContent className="p-2">
           <form onSubmit={handleSubmit}>
-            <ModalHeader>
+            <ModalHeader className="text-xl font-semi-bold">
               {editingId ? "Edit User" : "Add New User"}
             </ModalHeader>
             <ModalBody>
               <div className="flex flex-col gap-4">
                 <Input
                   label="First Name"
+                  radius="sm"
+                  color="secondary"
+                  variant="bordered"
+                  classNames={{
+                    inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                  }}
                   value={formData.firstName || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, firstName: e.target.value })
@@ -458,6 +501,12 @@ const SuperAdmin = () => {
                 />
                 <Input
                   label="Last Name"
+                  radius="sm"
+                  color="secondary"
+                  variant="bordered"
+                  classNames={{
+                    inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                  }}
                   value={formData.lastName || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, lastName: e.target.value })
@@ -466,30 +515,52 @@ const SuperAdmin = () => {
                 />
                 <Input
                   label="Username"
+                  radius="sm"
+                  color="secondary"
+                  variant="bordered"
+                  classNames={{
+                    inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                  }}
                   value={formData.email || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
                   required
                 />
-                <p className="text-sm text-gray-500">
-                  Password is hidden. <br /> Enter password if you want to
-                  change it
-                </p>
-                <Input
-                  label="Password"
-                  type="password"
-                  value={formData.password || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  required={!editingId}
-                />
+                <div>
+                  <Input
+                    label="Password"
+                    type="password"
+                    radius="sm"
+                    color="secondary"
+                    variant="bordered"
+                    classNames={{
+                      inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    }}
+                    value={formData.password || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    required={!editingId}
+                  />
+                  <p className="px-1 mt-1 text-center text-sm text-gray-500 italic">
+                    Password is hidden. <br /> Enter password if you want to
+                    change it.
+                  </p>
+                </div>
+
                 {/* <h1>{userRoleFromAPI}</h1> */}
                 <Select
                   defaultSelectedKeys="" // add this line
                   selectedKeys={userRoleFromAPI}
                   label="Role"
+                  radius="sm"
+                  color="secondary"
+                  variant="bordered"
+                  classNames={{
+                    trigger: "bg-[#ffffff] border-1 border-[#7469B6]",
+                    dropdown: "bg-[#ffffff] border-1 border-[#7469B6]",
+                  }}
                   value={formData.role || userRoleFromAPI}
                   onChange={(e) =>
                     setFormData({ ...formData, role: e.target.value })
@@ -506,10 +577,10 @@ const SuperAdmin = () => {
               </div>
             </ModalBody>
             <ModalFooter>
-              <Button color="danger" variant="light" onClick={handleClose}>
+              <Button radius="sm" variant="light" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button color="primary" type="submit">
+              <Button color="secondary" radius="sm" type="submit">
                 {editingId ? "Update" : "Create"}
               </Button>
             </ModalFooter>
