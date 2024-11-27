@@ -4,6 +4,7 @@ import crypto from "crypto";
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { email, password } = req.body;
+    console.log(req.bodyz);
     const hashedPassword = crypto
       .createHash("sha256")
       .update(password)
@@ -20,8 +21,12 @@ export default async function handler(req, res) {
           SELECT email, password, user_role, first_name, last_name
           FROM teachers
           WHERE email = ?
+          UNION
+          SELECT email, password, user_role, first_name, last_name
+          FROM admin
+          WHERE email = ?
         `,
-        values: [email, email],
+        values: [email, email, email],
       });
 
       if (userResult.length === 0) {
@@ -39,7 +44,12 @@ export default async function handler(req, res) {
       }
 
       // If the user is authenticated, return the user data
-      res.status(200).json({ email: user.email });
+      res.status(200).json({
+        email: user.email,
+        user_role: user.user_role,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      });
     } catch (error) {
       console.error("Error querying users:", error);
       res.status(500).json({ error: "Failed to query users" });

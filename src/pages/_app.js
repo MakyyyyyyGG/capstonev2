@@ -47,12 +47,12 @@ function AppContent({ Component, pageProps }) {
                 isCollapsed={isCollapsedSidebar}
                 toggleCollapse={toggleSidebarCollapseHandler}
               />
-            ) : (
+            ) : session.user.role === "teacher" ? (
               <Sidebar
                 isCollapsed={isCollapsedSidebar}
                 toggleCollapse={toggleSidebarCollapseHandler}
               />
-            )}
+            ) : null}
             <Component {...pageProps} />
           </div>
         </>
