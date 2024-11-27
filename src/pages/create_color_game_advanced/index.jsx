@@ -537,34 +537,6 @@ const Index = () => {
                   </div>
                 </Button>
               )} */}
-              {!video ? (
-                <Button
-                  radius="sm"
-                  size="lg"
-                  color="secondary"
-                  onClick={onOpen}
-                >
-                  <div className="flex gap-2 items-center">
-                    <Video size={20} />
-                    Add Video
-                  </div>
-                </Button>
-              ) : (
-                <Button
-                  radius="sm"
-                  size="lg"
-                  color="danger"
-                  onClick={() => {
-                    setVideoURL("");
-                    setVideo("");
-                  }}
-                >
-                  <div className="flex gap-2 items-center">
-                    <VideoOff size={20} />
-                    Clear
-                  </div>
-                </Button>
-              )}
             </div>
             <div className="flex gap-2"></div>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
@@ -611,7 +583,7 @@ const Index = () => {
                           </div>
                         </Tab>
                         <Tab key="upload" title="Upload">
-                          <div className="flex gap-2 mt-4">
+                          <div className="flex justify-end gap-2 mt-4">
                             <input
                               type="file"
                               accept="video/*"
@@ -640,7 +612,7 @@ const Index = () => {
                 )}
               </ModalContent>
             </Modal>
-            <div className="relative border-2 border-dashed border-purple-700 rounded-md ">
+            <div className="relative border-2 border-dashed bg-gray-100 border-purple-700 rounded-md ">
               {videoURL ? (
                 <>
                   <iframe
@@ -676,7 +648,35 @@ const Index = () => {
                 </>
               ) : (
                 <div className="text-center p-4 text-purple-700 h-[400px] flex items-center justify-center">
-                  No uploaded video
+                  {/* No uploaded video */}
+                  {!video ? (
+                    <Button
+                      radius="sm"
+                      size="lg"
+                      color="secondary"
+                      onClick={onOpen}
+                    >
+                      <div className="flex gap-2 items-center">
+                        <Video size={20} />
+                        Add Video
+                      </div>
+                    </Button>
+                  ) : (
+                    <Button
+                      radius="sm"
+                      size="lg"
+                      color="danger"
+                      onClick={() => {
+                        setVideoURL("");
+                        setVideo("");
+                      }}
+                    >
+                      <div className="flex gap-2 items-center">
+                        <VideoOff size={20} />
+                        Clear
+                      </div>
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

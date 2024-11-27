@@ -678,34 +678,6 @@ const Index = () => {
                     inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                   }}
                 />
-                {!video ? (
-                  <Button
-                    radius="sm"
-                    size="lg"
-                    color="secondary"
-                    onClick={onOpen}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <Video size={20} />
-                      Add Video
-                    </div>
-                  </Button>
-                ) : (
-                  <Button
-                    radius="sm"
-                    size="lg"
-                    color="danger"
-                    onClick={() => {
-                      setVideoURL("");
-                      setVideo("");
-                    }}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <VideoOff size={20} />
-                      Clear
-                    </div>
-                  </Button>
-                )}
               </div>
               <div className="flex gap-2">
                 {/* <Input
@@ -766,7 +738,7 @@ const Index = () => {
                               </div>
                             </Tab>
                             <Tab key="upload" title="Upload">
-                              <div className="flex gap-2 mt-4">
+                              <div className="flex justify-end gap-2 mt-4">
                                 <input
                                   type="file"
                                   accept="video/*"
@@ -799,23 +771,74 @@ const Index = () => {
                 </Modal>
               </div>
 
-              <div className="border-2 border-dashed border-purple-700 rounded-md ">
+              <div className="relative border-2 border-dashed border-purple-700 bg-gray-100 rounded-md ">
                 {video ? (
                   video.includes("youtube") ? (
-                    <iframe
-                      src={video}
-                      frameBorder="0"
-                      width="100%"
-                      height={400}
-                      allowFullScreen
-                      title="Sequence Game Video"
-                    />
+                    <>
+                      {" "}
+                      <iframe
+                        src={video}
+                        frameBorder="0"
+                        width="100%"
+                        height={400}
+                        allowFullScreen
+                        title="Sequence Game Video"
+                      />
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        color="danger"
+                        className="absolute top-2 right-2"
+                        // onClick={() => setVideoURL(null)}
+                      >
+                        <Trash2 size={18} />
+                      </Button>
+                    </>
                   ) : (
-                    <video src={video} width="100%" height={400} controls />
+                    <>
+                      <video src={video} width="100%" height={400} controls />
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        color="danger"
+                        className="absolute top-2 right-2"
+                        // onClick={() => setVideo(null)}
+                      >
+                        <Trash2 size={18} />
+                      </Button>
+                    </>
                   )
                 ) : (
                   <div className="text-center p-4 text-purple-700 h-[400px] flex items-center justify-center">
-                    No uploaded video
+                    {/* No uploaded video */}
+                    {!video ? (
+                      <Button
+                        radius="sm"
+                        size="lg"
+                        color="secondary"
+                        onClick={onOpen}
+                      >
+                        <div className="flex gap-2 items-center">
+                          <Video size={20} />
+                          Add Video
+                        </div>
+                      </Button>
+                    ) : (
+                      <Button
+                        radius="sm"
+                        size="lg"
+                        color="danger"
+                        onClick={() => {
+                          setVideoURL("");
+                          setVideo("");
+                        }}
+                      >
+                        <div className="flex gap-2 items-center">
+                          <VideoOff size={20} />
+                          Clear
+                        </div>
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

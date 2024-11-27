@@ -35,7 +35,7 @@ const Dashboard = () => {
         );
         const data = await res.json();
         setRooms(data.roomsData);
-        console.log("fetching rooms", data.roomsData);
+        // console.log("fetching rooms", data.roomsData);
       } catch (error) {
         console.error("Error fetching rooms:", error);
       } finally {
