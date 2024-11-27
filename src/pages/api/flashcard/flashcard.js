@@ -10,7 +10,7 @@ import {
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "200mb",
+      sizeLimit: "100mb",
     },
   },
 };
@@ -33,7 +33,7 @@ const uploadToFirebase = async (base64String, fileName, folder) => {
     const uploadResult = await uploadBytes(storageRef, file, {
       contentType: file.type,
       customMetadata: {
-        maxSizeBytes: "209715200", // 200MB in bytes
+        maxSizeBytes: "104857600", // 100MB in bytes
       },
     });
 
@@ -58,7 +58,7 @@ const deleteFromFirebase = async (filePath) => {
 };
 
 const handlePostRequest = async (req, res) => {
-  const { title, room_code, account_id, flashcards, dueDate, type } = req.body;
+  const { title, room_code, account_id, flashcards } = req.body;
   try {
     const gameType = "Flashcard";
     const gameResult = await query({
@@ -68,8 +68,8 @@ const handlePostRequest = async (req, res) => {
     const gameId = gameResult.insertId;
 
     const groupResult = await query({
-      query: `INSERT INTO flashcard_sets (title, room_code, account_id, game_id, due_date, type, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW()  )`,
-      values: [title, room_code, account_id, gameId, dueDate, type],
+      query: `INSERT INTO flashcard_sets (title, room_code, account_id, game_id) VALUES (?, ?, ?, ?)`,
+      values: [title, room_code, account_id, gameId],
     });
 
     const groupId = groupResult.insertId;
@@ -167,9 +167,7 @@ const handleGetRequest = async (req, res) => {
 
 const handlePutRequest = async (req, res) => {
   const { flashcard_id } = req.query;
-  const { flashcards, title, due_date, type } = req.body;
-
-  console.log(req.body);
+  const { flashcards } = req.body;
 
   try {
     const currentFlashcardResults = await query({
@@ -233,18 +231,6 @@ const handlePutRequest = async (req, res) => {
       ],
     });
 
-    //console log these
-    console.log(title);
-    console.log(due_date);
-    console.log(type);
-    console.log(flashcards.flashcard_set_id);
-    //update title, due_date, type
-    await query({
-      query:
-        "UPDATE flashcard_sets SET title = ?, due_date = ?, type = ? WHERE flashcard_set_id = ?",
-      values: [title, due_date, type, flashcards.flashcard_set_id],
-    });
-
     if (flashcardResults.affectedRows > 0) {
       res.status(200).json({ message: "Flashcard updated successfully" });
     } else {
@@ -259,14 +245,18 @@ const handlePutRequest = async (req, res) => {
 const handleDeleteRequest = async (req, res) => {
   const { game_id } = req.query;
   try {
-    // Get all flashcards related to the game_id
+    // Get all flashcards to delete their files from Firebase
     const flashcards = await query({
       query:
         "SELECT image, audio FROM flashcards JOIN flashcard_sets ON flashcards.flashcard_set_id = flashcard_sets.flashcard_set_id WHERE flashcard_sets.game_id = ?",
       values: [game_id],
     });
 
-    // Do not delete files from Firebase
+    // Delete files from Firebase
+    for (const flashcard of flashcards) {
+      if (flashcard.image) await deleteFromFirebase(flashcard.image);
+      if (flashcard.audio) await deleteFromFirebase(flashcard.audio);
+    }
 
     const flashcardResults = await query({
       query: "DELETE FROM games WHERE game_id = ?",
