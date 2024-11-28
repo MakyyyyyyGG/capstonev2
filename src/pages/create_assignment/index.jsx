@@ -90,10 +90,14 @@ const Index = () => {
           method: "POST",
           body: JSON.stringify(formData),
         });
+
+        const data = await response.json();
         if (!response.ok) {
           throw new Error("Failed to create assignment");
         }
-        router.push(`/assignment/${room_code}`);
+        router.push(
+          `/teacher-dashboard/rooms/${room_code}/assignment/${data.assignmentId}`
+        );
       })(),
       {
         loading: "Creating assignment...",

@@ -303,7 +303,7 @@ const SuperAdmin = () => {
           >
             Add User
           </Button>
-          <Button
+          {/* <Button
             size="md"
             radius="sm"
             variant="light"
@@ -311,7 +311,7 @@ const SuperAdmin = () => {
             startContent={<ArrowLeft className="h-4 w-4" />}
           >
             Back to Home
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -334,7 +334,7 @@ const SuperAdmin = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="flex-1 p-4 rounded-md max-sm:p-2">
+        <Card className="flex-1 p-4 rounded-lg max-sm:p-2">
           <CardHeader className="text-xl font-bold">Teachers</CardHeader>
           <CardBody className="h-[500px] overflow-y-auto">
             <Table removeWrapper aria-label="Teachers table">
@@ -486,6 +486,7 @@ const SuperAdmin = () => {
             <ModalBody>
               <div className="flex flex-col gap-4">
                 <Input
+                  isRequired
                   label="First Name"
                   radius="sm"
                   color="secondary"
@@ -500,6 +501,7 @@ const SuperAdmin = () => {
                   required
                 />
                 <Input
+                  isRequired
                   label="Last Name"
                   radius="sm"
                   color="secondary"
@@ -514,6 +516,7 @@ const SuperAdmin = () => {
                   required
                 />
                 <Input
+                  isRequired
                   label="Username"
                   radius="sm"
                   color="secondary"
@@ -529,6 +532,7 @@ const SuperAdmin = () => {
                 />
                 <div>
                   <Input
+                    isRequired
                     label="Password"
                     type="password"
                     radius="sm"
@@ -551,6 +555,7 @@ const SuperAdmin = () => {
 
                 {/* <h1>{userRoleFromAPI}</h1> */}
                 <Select
+                  isRequired
                   defaultSelectedKeys="" // add this line
                   selectedKeys={userRoleFromAPI}
                   label="Role"
