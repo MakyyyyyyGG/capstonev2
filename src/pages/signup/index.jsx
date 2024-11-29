@@ -130,7 +130,11 @@ function Signup() {
     }
   }
   const isFormValid =
-    passwordLength && passwordUpper && passwordNumber && passwordSpecial;
+    passwordLength &&
+    passwordUpper &&
+    passwordNumber &&
+    passwordSpecial &&
+    password === confirmPassword;
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
@@ -284,6 +288,46 @@ function Signup() {
                   />
                 </div>
               </div>
+              <div className="w-full rounded-lg flex flex-col  py-2 hover:cursor-default">
+                <Checkbox
+                  size="sm"
+                  isSelected={passwordLength}
+                  className=" hover:cursor-default"
+                >
+                  At least 8 characters long.
+                </Checkbox>
+                <Checkbox
+                  size="sm"
+                  isSelected={passwordUpper}
+                  className=" hover:cursor-default"
+                >
+                  Contains uppercase letter.
+                </Checkbox>
+                <Checkbox
+                  size="sm"
+                  isSelected={passwordNumber}
+                  className=" hover:cursor-default"
+                >
+                  Contains number.
+                </Checkbox>
+                <Checkbox
+                  size="sm"
+                  isSelected={passwordSpecial}
+                  className=" hover:cursor-default"
+                >
+                  Contains special character.
+                </Checkbox>
+
+                <Checkbox
+                  size="sm"
+                  isSelected={
+                    password && confirmPassword && password === confirmPassword
+                  }
+                  className="hover:cursor-default"
+                >
+                  Passwords match.
+                </Checkbox>
+              </div>
               {message && (
                 <div className="text-red-500 text-sm flex items-center gap-2">
                   <div>
@@ -306,7 +350,7 @@ function Signup() {
                     label: "text-white",
                     inputWrapper: "bg-[#6B4DE6] hover:bg-[#5B3DD6] ",
                   }}
-                  disabled={!passwordLength}
+                  disabled={!isFormValid}
                 >
                   {loading ? "Signing Up..." : "Sign Up"}
                 </Button>
@@ -321,14 +365,14 @@ function Signup() {
                     label: "text-white",
                     inputWrapper: "bg-[#6B4DE6] hover:bg-[#5B3DD6] ",
                   }}
-                  disabled={!passwordLength}
+                  disabled={!isFormValid}
                 >
                   {loading ? "Signing Up..." : "Sign Up"}
                 </Button>
               )}
             </div>
 
-            <div className="relative">
+            {/* <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t"></div>
               </div>
@@ -337,9 +381,9 @@ function Signup() {
                   OR
                 </span>
               </div>
-            </div>
+            </div> */}
 
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               <Button
                 radius="sm"
                 variant="bordered"
@@ -411,7 +455,7 @@ function Signup() {
                 </svg>
                 Continue with Facebook
               </Button>
-            </div>
+            </div> */}
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
