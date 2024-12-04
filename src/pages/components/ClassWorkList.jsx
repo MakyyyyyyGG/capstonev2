@@ -303,24 +303,24 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-4 items-center text-nowrap">
-                    <div className="flex items-center mr-2 gap-4">
-                      {/* <p className="text-sm font-semibold">Rewards:</p> */}
+                    {game.game_type !== "Flashcard" && (
+                    <div className="flex gap-4 items-center text-nowrap">
+                      <div className="flex items-center mr-2 gap-4">
                       <div className="flex gap-4 text-sm text-gray-600 max-sm:flex-col max-sm:gap-1">
                         <div className="flex items-center gap-1.5">
-                          <Coins className="h-5 w-5 text-yellow-500" />
-                          <span className="text-lg font-bold">
-                            {getRewards(game.difficulty).coins}
-                          </span>
+                        <Coins className="h-5 w-5 text-yellow-500" />
+                        <span className="text-lg font-bold">
+                          {getRewards(game.difficulty).coins}
+                        </span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <Star
-                            className="5-4 w-5 text-purple-500"
-                            size={100}
-                          />
-                          <span className="text-lg font-bold">
-                            {getRewards(game.difficulty).exp} EXP
-                          </span>
+                        <Star
+                          className="5-4 w-5 text-purple-500"
+                          size={100}
+                        />
+                        <span className="text-lg font-bold">
+                          {getRewards(game.difficulty).exp} EXP
+                        </span>
                         </div>
                       </div>
                       <Chip
@@ -330,8 +330,9 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                       >
                         <span className="text-xs">+ Bonus</span>
                       </Chip>
+                      </div>
                     </div>
-                  </div>
+                    )}
                 </div>
               </Link>
               <div>
