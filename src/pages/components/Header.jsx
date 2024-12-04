@@ -625,6 +625,13 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     getUserData();
   }, []);
 
+  const homeRedirect = () => {
+    if (session.user.role === "student") {
+      router.push("/homepage");
+    } else {
+      router.push("/teacher-dashboard");
+    }
+  };
   return (
     <div>
       <Toaster />
@@ -642,9 +649,10 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
               </div>
             )}
             <p
+              onClick={homeRedirect}
               className={`hidden sm:block font-bold text-inherit ${
                 session?.user?.role === "student" ? "ml-0" : "ml-8"
-              }`}
+              } hover:cursor-pointer`}
             >
               LIWANAG
             </p>
