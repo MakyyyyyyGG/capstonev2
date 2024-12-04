@@ -1,19 +1,41 @@
+import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
-export const middleware = async function (req) {
-  // Get the session token from cookies
-  const token =
-    req.cookies.get("next-auth.session-token") ||
-    req.cookies.get("__Secure-next-auth.session-token");
+export async function middleware(request) {
+  const token = await getToken({ req: request });
+  const path = request.nextUrl.pathname;
 
-  // If there's no token, redirect to the login page
-  if (!token) {
-    return NextResponse.redirect(new URL("/", req.url));
+  // Allow access to static assets and root without authentication
+  if (
+    path.startsWith('/_next/') ||
+    path.startsWith('/api/') ||
+    path.startsWith('/static/') ||
+    path.startsWith('/images/') ||
+    path.startsWith('/assets/') ||
+    path.startsWith('/auth/') ||
+    path === '/' ||
+    path === '/favicon.ico'
+  ) {
+    return NextResponse.next();
   }
 
-  // Allow the request to continue if authenticated
+  // If user is not logged in, redirect to root page
+  if (!token) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // If user is a student
+  if (token.role === "student") {
+    // Only allow access to homepage and its sub-routes
+    if (!path.startsWith("/homepage")) {
+      return NextResponse.redirect(new URL("/homepage", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // For other roles (like teachers), allow access to all protected routes
   return NextResponse.next();
-};
+}
 
 // Specify routes where the middleware should apply
 export const config = {
