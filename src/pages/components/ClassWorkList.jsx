@@ -3,7 +3,7 @@ import { Card, CardBody, Chip, Button, Skeleton } from "@nextui-org/react";
 import Link from "next/link";
 import {
   Trash2,
-  Edit,
+  Play,
   LayoutGrid,
   Grid2x2,
   Palette,
@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AnimatePresence, motion } from "framer-motion";
 
 const ClassWorkList = ({ room_code, games = [] }) => {
   const [roleRedirect, setRoleRedirect] = useState("");
@@ -33,6 +34,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
   const [gameList, setGameList] = useState([]);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
+  // const { data: session, status } = useSession();
 
   useEffect(() => {
     setLoading(true);
@@ -227,6 +229,76 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     }
   };
 
+  const getGameTypeIconStudent = (game_type) => {
+    const typeColor = getTypeColor(game_type);
+    switch (game_type.toLowerCase()) {
+      case "flashcard":
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <TbCards className="text-4xl text-white" />
+          </div>
+        );
+      case "thinkpic":
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <Grid2x2 className="w-7 h-7 text-white" />
+          </div>
+        );
+      case "thinkpic +":
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <LayoutGrid className="w-7 h-7 text-white" />
+          </div>
+        );
+      case "color game":
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <Palette className="w-8 h-8 text-white" />
+          </div>
+        );
+      case "color game advanced":
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <Palette className="w-8 h-8 text-white" />
+          </div>
+        );
+      case "decision maker":
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <FaRegLightbulb className="text-3xl -rotate-[15deg] text-white" />
+          </div>
+        );
+      case "sequence game":
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <LiaListOlSolid className="text-3xl text-white" />
+          </div>
+        );
+      default:
+        return (
+          <div
+            className={`flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full`}
+          >
+            <TbCards className="text-4xl text-white" />
+          </div>
+        ); // Default to flashcards if game type is unknown
+    }
+  };
+
   // Helper function to return the Chip color based on difficulty
   const getChipColor = (difficulty) => {
     if (!difficulty) return "default"; // Return a default color if difficulty is null or undefined
@@ -271,85 +343,203 @@ const ClassWorkList = ({ room_code, games = [] }) => {
 
     return filteredGames.length ? (
       filteredGames.map((game) => (
-        <li key={game.game_id} className="flex w-full items-center ">
-          <div className="flex w-full items-center">
-            <Card
-              isPressable
-              radius="sm"
-              className=" shadow-none border-gray-300 border flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200   hover:border-purple-700 max-sm:px-4 max-sm:py-3"
-            >
-              <Link href={getRedirectUrl(game)} className="w-full">
-                <div className="flex w-full h-[70px] items-center justify-between max-sm:scale-[95%]">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-[60px] h-[60px]  rounded-xl">
-                      {getGameTypeIcon(game.game_type)}
+        <li key={game.game_id} className="w-full">
+          {session?.user?.role === "teacher" ? (
+            <div className="flex w-full items-center">
+              <Card
+                isPressable
+                radius="sm"
+                className="shadow-none border-gray-300 border flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 hover:border-purple-700 max-sm:px-4 max-sm:py-3"
+              >
+                <Link href={getRedirectUrl(game)} className="w-full">
+                  <div className="flex w-full h-[70px] items-center justify-between max-sm:scale-[95%]">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-center w-[60px] h-[60px]  rounded-xl">
+                        {getGameTypeIcon(game.game_type)}
+                      </div>
+                      <div className="text-left ml-4">
+                        <div className="text-lg font-bold flex items-center gap-2">
+                          <h1>{game.title} </h1>
+                          {game.difficulty && (
+                            <Chip
+                              variant="flat"
+                              size="sm"
+                              color={getChipColor(game.difficulty)}
+                              className=" capitalize"
+                            >
+                              {game.difficulty}
+                            </Chip>
+                          )}
+                        </div>
+                        <div className="">
+                          <p>{game.game_type}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-left ml-4">
-                      <div className="text-lg font-bold flex items-center gap-2">
-                        <h1>{game.title} </h1>
+                    {/* {game.game_type !== "Flashcard" && (
+                      <div className="flex gap-4 items-center text-nowrap">
+                        <div className="flex items-center mr-2 gap-4">
+                          <div className="flex gap-4 text-sm text-gray-600 max-sm:flex-col max-sm:gap-1">
+                            <div className="flex items-center gap-1.5">
+                              <Coins className="h-5 w-5 text-yellow-500" />
+                              <span className="text-lg font-bold">
+                                {getRewards(game.difficulty).coins}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Star
+                                className="5-4 w-5 text-purple-500"
+                                size={100}
+                              />
+                              <span className="text-lg font-bold">
+                                {getRewards(game.difficulty).exp} EXP
+                              </span>
+                            </div>
+                          </div>
+                          <Chip
+                            variant="bordered"
+                            size="sm"
+                            className="border border-purple-200 text-purple-600 z-0 text-[10px] h-5 font-black py-0"
+                          >
+                            <span className="text-xs">+ Bonus</span>
+                          </Chip>
+                        </div>
+                      </div>
+                    )} */}
+                  </div>
+                </Link>
+                <div>
+                  {session.user.role === "teacher" && (
+                    <Button
+                      isIconOnly
+                      color="transparent"
+                      onPress={() =>
+                        handleDeleteGame(game.game_id, game.game_type)
+                      }
+                    >
+                      <Trash2 color="red" />
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            </div>
+          ) : session?.user?.role === "student" ? (
+            <div className="w-full">
+              <Card
+                key={game.game_id}
+                isPressable
+                radius="sm"
+                className="shadow-lg border-gray-300 border h-[160px] flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 hover:border-purple-700 max-sm:px-4 max-sm:py-3"
+              >
+                <div
+                  className={`absolute bottom-0 right-0 w-[160px] h-[160px] bg-transparent z-0`}
+                >
+                  <div
+                    className={`w-0 h-0 border-b-[160px] border-l-[160px] ${
+                      game.difficulty === "easy"
+                        ? "border-b-green-400 z-0"
+                        : game.difficulty === "medium"
+                        ? "border-b-yellow-400 z-0"
+                        : game.difficulty === "hard"
+                        ? "border-b-red-400 z-0"
+                        : "border-b-gray-400 z-0"
+                    } border-l-transparent`}
+                    // style={{
+                    //   filter: "drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.25))",
+                    // }}
+                  />
+                </div>
+                {/* <div
+                  className={`absolute top-0 right-0 w-[80px] h-[80px] bg-transparent`}
+                >
+                  <div
+                    className={`w-0 h-0 border-t-[100px] border-l-[100px] ${
+                      game.difficulty === "easy"
+                        ? "border-t-green-400 "
+                        : game.difficulty === "medium"
+                        ? "border-t-yellow-400"
+                        : game.difficulty === "hard"
+                        ? "border-t-red-400"
+                        : "border-t-gray-400"
+                    } border-l-transparent`}
+                    style={{
+                      filter: "drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.25))",
+                    }}
+                  />
+                </div>
+                <div
+                  className={`absolute top-0 right-0 w-10 h-10 bg-transparent`}
+                >
+                  <div className="w-0 h-0 border-t-[40px] border-l-[40px] border-t-white border-l-transparent" />
+                </div> */}
+                <div className="absolute bottom-4 right-5">
+                  <div className="flex items-center gap-1.5">
+                    <Play className="h-4 w-5 text-white" />
+                    <span className="text-lg text-white font-bold">Play</span>
+                  </div>
+                </div>
+                <Link
+                  href={getRedirectUrl(game)}
+                  className="w-full h-[160px] flex items-center"
+                >
+                  <div className="flex flex-col w-full gap-4 z-20">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
+                        {getGameTypeIconStudent(game.game_type)}
+                      </div>
+                      <div className="text-left ml-2">
+                        <div className="text-lg font-bold flex items-center gap-2">
+                          <h1>{game.title}</h1>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            {game.game_type}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {game.game_type !== "Flashcard" && (
+                      <div className="flex gap-4 items-center justify-between">
+                        <div className="flex items-center mr-2 gap-4">
+                          <div className="flex gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-1.5">
+                              <Coins className="h-4 w-5 text-yellow-500" />
+                              <span className="text-lg font-bold">
+                                {getRewards(game.difficulty).coins}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Star className="h-4 w-5 text-purple-500" />
+                              <span className="text-lg font-bold">
+                                {getRewards(game.difficulty).exp} EXP
+                              </span>
+                            </div>
+                          </div>
+                          {/* <Chip
+                              variant="bordered"
+                              size="sm"
+                              className="border border-purple-200 text-purple-600 z-0 text-[10px] h-5 font-black py-0"
+                            >
+                              <span className="text-xs">+ Bonus</span>
+                            </Chip> */}
+                        </div>
                         {game.difficulty && (
                           <Chip
                             variant="flat"
                             size="sm"
                             color={getChipColor(game.difficulty)}
-                            className=" capitalize"
+                            className="capitalize px-2"
                           >
                             {game.difficulty}
                           </Chip>
                         )}
                       </div>
-                      <div className="">
-                        <p>{game.game_type}</p>
-                      </div>
-                    </div>
-                  </div>
-                    {game.game_type !== "Flashcard" && (
-                    <div className="flex gap-4 items-center text-nowrap">
-                      <div className="flex items-center mr-2 gap-4">
-                      <div className="flex gap-4 text-sm text-gray-600 max-sm:flex-col max-sm:gap-1">
-                        <div className="flex items-center gap-1.5">
-                        <Coins className="h-5 w-5 text-yellow-500" />
-                        <span className="text-lg font-bold">
-                          {getRewards(game.difficulty).coins}
-                        </span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                        <Star
-                          className="5-4 w-5 text-purple-500"
-                          size={100}
-                        />
-                        <span className="text-lg font-bold">
-                          {getRewards(game.difficulty).exp} EXP
-                        </span>
-                        </div>
-                      </div>
-                      <Chip
-                        variant="bordered"
-                        size="sm"
-                        className="border border-purple-200 text-purple-600 z-0 text-[10px] h-5 font-black py-0"
-                      >
-                        <span className="text-xs">+ Bonus</span>
-                      </Chip>
-                      </div>
-                    </div>
                     )}
-                </div>
-              </Link>
-              <div>
-                {session.user.role === "teacher" && (
-                  <Button
-                    isIconOnly
-                    color="transparent"
-                    onPress={() =>
-                      handleDeleteGame(game.game_id, game.game_type)
-                    }
-                  >
-                    <Trash2 color="red" />
-                  </Button>
-                )}
-              </div>
-            </Card>
-          </div>
+                  </div>
+                </Link>
+              </Card>
+            </div>
+          ) : null}
         </li>
       ))
     ) : (
@@ -418,10 +608,23 @@ const ClassWorkList = ({ room_code, games = [] }) => {
       </div>
 
       <div className="flex w-full">
-        <ul className="w-full flex flex-col gap-4">
+        <ul
+          className={`w-full gap-4 ${
+            session?.user?.role === "teacher"
+              ? "flex flex-col"
+              : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          }`}
+        >
           {loading
             ? Array.from({ length: games.length }).map((_, index) => (
-                <Skeleton key={index} className="w-full h-[100px] rounded-md" />
+                <Skeleton
+                  key={index}
+                  className={`w-full rounded-md ${
+                    session?.user?.role === "teacher"
+                      ? "h-[100px]"
+                      : "h-[160px]"
+                  }`}
+                />
               ))
             : renderGames()}
         </ul>
