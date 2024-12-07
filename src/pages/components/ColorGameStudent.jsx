@@ -25,7 +25,8 @@ import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
 import Shop from "./Shop";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft, CircleCheck } from "lucide-react";
+import { Arrow } from "@radix-ui/react-select";
 
 const ColorGames = ({ cards = [] }) => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -341,7 +342,7 @@ const ColorGames = ({ cards = [] }) => {
   };
 
   return (
-    <div className="relative flex flex-col justify-center px-4">
+    <div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -367,24 +368,35 @@ const ColorGames = ({ cards = [] }) => {
         </>
       ) : (
         <>
-          <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
-              <div className="flex gap-4 items-center">
-                <ChevronLeft
-                  size={20}
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-md p-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center">
+              <div className="flex gap-4 items-center cursor-pointer">
+                <ArrowLeft
+                  size={24}
                   aria-label="Back"
                   onClick={() => router.back()}
+                  className="text-purple-700"
                 />
-                <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                <span className="text-2xl font-bold text-purple-700">
+                  {cards[0]?.title}
+                </span>
               </div>
               <div className="flex gap-4 items-center">
-                <div className="flex gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    Score: {score} / {cards?.length}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Attempts this month: {attemptsUsed} / 8
-                  </p>
+                <div className="flex gap-4 items-center">
+                  <div className="flex gap-2 items-center">
+                    <CircleCheck className="w-6 h-6 text-white fill-green-500" />
+                    <span className="text-lg font-bold text-purple-700">
+                      {score}/{cards.length}
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
+                    Monthly Tries: {attemptsUsed}/8
+                  </div>
                 </div>
                 <Shop aria-label="Shop" />
 
@@ -402,7 +414,12 @@ const ColorGames = ({ cards = [] }) => {
               </div>
             </div>
           )}
-          <div className="flex w-full justify-center items-center ">
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-full px-4 my-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
             <div className="w-full max-w-[50rem] my-4">
               <Progress
                 value={(answer / (cards?.length || 1)) * 100}
@@ -430,6 +447,9 @@ const ColorGames = ({ cards = [] }) => {
               }}
               modules={[EffectCreative]}
               className="mySwiper w-full drop-shadow-lg rounded-md"
+              style={{
+                filter: "drop-shadow(4px 4px 0px #7828C8",
+              }}
               onSwiper={(swiper) => setSwiperInstance(swiper)}
               onSlideChange={() => console.log("slide change")}
               onSwiperSlideChange={() => console.log("swiper slide change")}
@@ -443,15 +463,15 @@ const ColorGames = ({ cards = [] }) => {
                         borderColor: feedback[index]?.includes("Correct")
                           ? "#22c55e" // green for correct
                           : attempts[index] >= 3
-                          ? "#ef4444"
-                          : "#e5e7eb", // red for out of attempts, default for others
+                          ? "#ef4444" // red for out of attempts, default for others
+                          : "#d8b4fe",
                       }}
                       transition={{ duration: 0.5 }}
-                      className="border-4 rounded-lg"
+                      className="border-4 bg-white rounded-lg"
                     >
-                      <Card className="w-full rounded-md flex flex-col gap-2 h-[40rem] aspect-square mx-auto">
-                        <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
-                          <div className="text-4xl font-extrabold mb-5 capitalize">
+                      <Card className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
+                        <CardBody className="flex py-0 flex-col gap-2 px-auto items-center justify-center">
+                          <div className="text-4xl text-purple-700 font-extrabold mb-5 capitalize">
                             <p>{card.color}</p>
                           </div>
                           <div
@@ -472,7 +492,7 @@ const ColorGames = ({ cards = [] }) => {
                                   3
                                 ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                                 : "grid-cols-2"
-                            } gap-2 justify-center`}
+                            } gap-4 justify-center`}
                           >
                             {[
                               card.image1,
@@ -493,12 +513,17 @@ const ColorGames = ({ cards = [] }) => {
                                     (
                                       selectedImages[card.color_game_id] || []
                                     ).includes(imageIndex)
-                                      ? "border-3 border-[#9353D3]"
-                                      : "border-3 border-transparent"
+                                      ? "border-3 border-purple-300 bg-white"
+                                      : "border-3 border-transparent bg-white"
                                   }`}
                                   style={{
                                     transition:
                                       "border-color 0.3s ease, transform 0.3s ease",
+                                    filter: (
+                                      selectedImages[card.color_game_id] || []
+                                    ).includes(imageIndex)
+                                      ? "drop-shadow(4px 4px 0px #7828C8)"
+                                      : "none", // Apply shadow only when selected
                                   }}
                                   onClick={() =>
                                     handleImageSelect(
@@ -570,18 +595,28 @@ const ColorGames = ({ cards = [] }) => {
                               </motion.div>
                             )}
                           </AnimatePresence>
-                          <Button
-                            radius="sm"
-                            className="w-full h-16 text-lg justify-center text-white bg-[#7469B6]"
-                            onClick={() => handleSubmit(index)}
-                            isDisabled={
-                              (attempts[index] || 0) >= 3 ||
-                              !(selectedImages[card.color_game_id] || []).length
-                            }
-                            aria-label="Check answers"
+                          <motion.div
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="w-full"
                           >
-                            Check Answer
-                          </Button>
+                            <Button
+                              radius="sm"
+                              className="w-full h-16 justify-center text-purple-700 text-lg bg-white border-4 border-purple-300"
+                              style={{
+                                filter: "drop-shadow(4px 4px 0px #7828C8",
+                              }}
+                              onClick={() => handleSubmit(index)}
+                              isDisabled={
+                                (attempts[index] || 0) >= 3 ||
+                                !(selectedImages[card.color_game_id] || [])
+                                  .length
+                              }
+                              aria-label="Check answers"
+                            >
+                              Check Answer
+                            </Button>
+                          </motion.div>
                         </CardFooter>
                         <AnimatePresence>
                           {showEmoji && (

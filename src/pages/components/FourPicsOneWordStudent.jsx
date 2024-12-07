@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/input-otp";
 import GameHistory from "./GameHistory";
 import Shop from "./Shop";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft, CircleCheck } from "lucide-react";
 
 const FourPicsOneWordStudent = ({ cards = [] }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
@@ -306,7 +306,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
   };
 
   return (
-    <div className="relative flex flex-col justify-center px-4">
+    <div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -330,25 +330,35 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
         </>
       ) : (
         <>
-          <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-md p-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center">
               <div>
                 <div
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 cursor-pointer"
                   onClick={() => router.back()}
                 >
-                  <ChevronLeft size={25} />
-                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                  <ArrowLeft size={24} className="text-purple-700" />
+                  <span className="text-2xl font-bold text-purple-700">
+                    {cards[0]?.title}
+                  </span>
                 </div>
               </div>
               <div className="flex gap-4 items-center">
-                <div className="flex gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    Score: {score} / {cards.length}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Attempts this month: {attemptsUsed} / 8
-                  </p>
+                <div className="flex gap-4 items-center">
+                  <div className="flex gap-2 items-center">
+                    <CircleCheck className="w-6 h-6 text-white fill-green-500" />
+                    <span className="text-lg font-bold text-purple-700">
+                      {score}/{cards.length}
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
+                    Monthly Tries: {attemptsUsed}/8
+                  </div>
                 </div>
                 <Shop />
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
@@ -367,13 +377,18 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
               </div>
             </div>
           )}
-          <div className="flex w-full justify-center items-center ">
-            <div className="w-full max-w-[50rem] my-4">
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-full px-4 my-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="w-full max-w-[50rem] my-3">
               <Progress
                 value={(answeredQuestions / cards.length) * 100}
                 classNames={{
                   value: "text-foreground/60",
-                  indicator: "bg-[#7469B6]",
+                  indicator: "bg-purple-500",
                   track: "bg-slate-200",
                 }}
               />
@@ -395,6 +410,9 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
               }}
               modules={[EffectCreative]}
               className="mySwiper w-full drop-shadow-lg rounded-md"
+              style={{
+                filter: "drop-shadow(4px 4px 0px #7828C8",
+              }}
               onSwiper={(swiper) => setSwiperInstance(swiper)}
             >
               {shuffledCards.map((card, index) => (
@@ -404,13 +422,13 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                       borderColor: feedback[index]?.includes("Correct")
                         ? "#22c55e" // green for correct
                         : attempts[index] >= 3
-                        ? "#ef4444"
-                        : "#e5e7eb", // red for out of attempts, default for others
+                        ? "#ef4444" // red for out of attempts, default for others
+                        : "#d8b4fe",
                     }}
                     transition={{ duration: 0.5 }}
-                    className="border-4 rounded-lg"
+                    className="border-4 bg-white rounded-lg"
                   >
-                    <Card className="w-full rounded-md flex flex-col gap-2 h-[40rem] aspect-square mx-auto">
+                    <Card className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
                       <CardBody className="flex gap-2 px-auto items-center justify-center pb-0">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
                         <div
@@ -430,7 +448,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                 ].filter(Boolean).length === 3
                               ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                               : "grid-cols-2"
-                          } gap-2 justify-center px-4`}
+                          } gap-4 justify-center px-4`}
                         >
                           {[
                             card.image1,
@@ -444,7 +462,10 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                   key={idx}
                                   src={`${image}`}
                                   alt={`Image ${idx + 1}`}
-                                  className="w-full aspect-square border-2 border-[#9353d3] object-cover rounded-md"
+                                  className="w-full aspect-square border-4 border-purple-300 bg-white object-cover rounded-md"
+                                  style={{
+                                    filter: "drop-shadow(4px 4px 0px #7828C8",
+                                  }}
                                 />
                               )
                           )}
@@ -455,22 +476,26 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
 
                         <div className="w-full text-center bg-white">
                           <header className="mb-4 mt-1">
-                            <h1 className="text-xl font-bold mb-1">
-                              Enter Your Answer
+                            <h1 className="text-xl font-bold text-purple-700 mb-1">
+                              Enter Your Answer!
                             </h1>
-                            <p className="text-xs text-slate-500">
+                            {/* <p className="text-xs text-slate-500">
                               Enter the answer based on the images above.
-                            </p>
+                            </p> */}
                           </header>
                           <form id="otp-form">
                             <div className="flex flex-wrap items-center justify-center gap-3">
                               {Array.from({
                                 length: card.word?.length || 0,
                               }).map((_, idx) => (
-                                <input
+                                <motion.input
                                   key={idx}
                                   type="text"
-                                  className="w-12 h-12 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded py-4 px-1 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                  className="w-12 h-12 text-center text-xl font-bold rounded-lg border-4 border-purple-300 focus:border-purple-500 focus:outline-none uppercase"
+                                  style={{
+                                    filter: "drop-shadow(4px 4px 0px #7828C8",
+                                  }}
+                                  whileFocus={{ scale: 1.1 }}
                                   maxLength="1"
                                   value={userAnswers[index]?.[idx] || ""}
                                   onChange={(e) => {
@@ -499,7 +524,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                 />
                               ))}
                             </div>
-                            <div className="w-full mt-4 flex flex-col gap-2">
+                            <div className="w-full mt-4 flex flex-col gap-4">
                               <AnimatePresence>
                                 {feedback[index] && (
                                   <motion.div
@@ -519,43 +544,76 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                           : "text-white w-full bg-red-500 p-2 rounded-lg"
                                       }
                                     >
+                                      {/* <motion.div
+                                      key={feedback[index]}
+                                      initial={{ opacity: 0, y: 20 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: 20 }}
+                                      className={
+                                        feedback[index].includes("Correct")
+                                          ? "text-green-600 w-full border-4 border-green-300 bg-white p-2 rounded-lg"
+                                          : "text-red-600 w-full border-4 border-red-300 bg-white p-2 rounded-lg"
+                                      }
+                                      style={{
+                                        filter:
+                                          "drop-shadow(4px 4px 0px #ef4444",
+                                      }}
+                                    > */}
                                       {feedback[index]}
                                     </motion.div>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
-                              <div className="flex gap-2">
-                                <Button
-                                  radius="sm"
-                                  size="lg"
-                                  color="secondary"
-                                  onClick={() => checkAnswer(index)}
-                                  isDisabled={
-                                    feedback[index]?.includes("Correct") ||
-                                    attempts[index] >= 3 ||
-                                    userAnswers[index]?.length !==
-                                      card.word?.length
-                                  }
-                                  className="w-full h-16 justify-center text-lg"
-                                  aria-label="Check Answer"
+                              <div className="flex gap-6">
+                                <motion.div
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className="w-full"
                                 >
-                                  Check Answer
-                                </Button>
-                                <Button
-                                  radius="sm"
-                                  size="lg"
-                                  color="primary"
-                                  onClick={() => useHint(index)}
-                                  isDisabled={
-                                    feedback[index]?.includes("Correct") ||
-                                    attempts[index] >= 3 ||
-                                    hintsUsed >= 3
-                                  }
-                                  className="w-full h-16 justify-center text-lg"
-                                  aria-label="Use Hint"
-                                >
-                                  Use Hint ({3 - hintsUsed} left)
-                                </Button>
+                                  <Button
+                                    radius="sm"
+                                    size="lg"
+                                    onClick={() => checkAnswer(index)}
+                                    isDisabled={
+                                      feedback[index]?.includes("Correct") ||
+                                      attempts[index] >= 3 ||
+                                      userAnswers[index]?.length !==
+                                        card.word?.length
+                                    }
+                                    className="w-full h-16 justify-center text-purple-700 text-lg bg-white border-4 border-purple-300"
+                                    // className="w-full h-16 justify-center text-white text-lg bg-gradient-to-b from-purple-500 to-purple-600"
+                                    aria-label="Check Answer"
+                                    style={{
+                                      filter: "drop-shadow(4px 4px 0px #7828C8",
+                                    }}
+                                    // style={{
+                                    //   filter: "drop-shadow(3px 3px 1px #9ca3af",
+                                    // }}
+                                  >
+                                    Check Answer
+                                  </Button>
+                                  <Button
+                                    radius="sm"
+                                    size="lg"
+                                    onClick={() => useHint(index)}
+                                    isDisabled={
+                                      feedback[index]?.includes("Correct") ||
+                                      attempts[index] >= 3 ||
+                                      hintsUsed >= 3
+                                    }
+                                    className="w-full h-16 justify-center text-blue-700 text-lg bg-white border-4 border-blue-300"
+                                    // className="w-full h-16 justify-center text-white text-lg bg-gradient-to-b from-blue-500 to-blue-600"
+                                    aria-label="Use Hint"
+                                    style={{
+                                      filter: "drop-shadow(4px 4px 0px #3b82f6",
+                                    }}
+                                    // style={{
+                                    //   filter: "drop-shadow(3px 3px 1px #9ca3af",
+                                    // }}
+                                  >
+                                    Use Hint ({3 - hintsUsed} left)
+                                  </Button>
+                                </motion.div>
                               </div>
                             </div>
                           </form>

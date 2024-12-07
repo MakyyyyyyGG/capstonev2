@@ -222,8 +222,16 @@ const Shop = () => {
         </AnimatePresence>
       )}
       <div>
-        <Button color="secondary" radius="sm" onPress={onOpen}>
-          <ShoppingCart size={24} /> Buy Effects
+        <Button
+          color="secondary"
+          radius="sm"
+          onPress={onOpen}
+          className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
+          style={{
+            filter: "drop-shadow(4px 4px 0px #7828C8",
+          }}
+        >
+          <ShoppingCart size={20} /> Buy Effects
         </Button>
 
         <Modal

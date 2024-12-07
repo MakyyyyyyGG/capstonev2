@@ -42,7 +42,8 @@ import {
   Eye,
   EyeOff,
   ArrowLeftRight,
-  ChevronLeft,
+  ArrowLeft,
+  CircleCheck,
 } from "lucide-react";
 import GameHistory from "./GameHistory";
 import Shop from "./Shop";
@@ -293,7 +294,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
   };
 
   return (
-    <div className="relative flex flex-col justify-center px-4">
+    <div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -315,25 +316,35 @@ const DecisionMakerStudent = ({ cards = [] }) => {
         </>
       ) : (
         <>
-          <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-2">
-              <div>
-                <div
-                  className="flex items-center gap-2"
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-md p-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center">
+              <div className="flex gap-4 items-center cursor-pointer">
+                <ArrowLeft
+                  size={24}
+                  aria-label="Back"
                   onClick={() => router.back()}
-                >
-                  <ChevronLeft size={25} />
-                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
-                </div>
+                  className="text-purple-700"
+                />
+                <span className="text-2xl font-bold text-purple-700">
+                  {cards[0]?.title}
+                </span>
               </div>
               <div className="flex gap-4 items-center">
-                <div className="flex gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    Score: {score} / {cards?.length || 0}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Attempts this month: {attemptsUsed} / 8
-                  </p>
+                <div className="flex gap-4 items-center">
+                  <div className="flex gap-2 items-center">
+                    <CircleCheck className="w-6 h-6 text-white fill-green-500" />
+                    <span className="text-lg font-bold text-purple-700">
+                      {score}/{cards.length}
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
+                    Monthly Tries: {attemptsUsed}/8
+                  </div>
                 </div>
                 {/* <Button
                   variant="flat"
@@ -362,46 +373,66 @@ const DecisionMakerStudent = ({ cards = [] }) => {
               </div>
             </div>
           )}
-          <div className="flex w-full justify-center items-center ">
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-full px-4 my-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
             <div className="w-full max-w-[50rem] my-4">
               <Progress
                 value={(answer / (cards?.length || 1)) * 100}
                 classNames={{
                   value: "text-foreground/60",
-                  indicator: "bg-[#7469B6]",
+                  indicator: "bg-purple-500",
                   track: "bg-slate-200",
                 }}
               />
             </div>
           </div>
-          <div className="flex w-full max-w-[50rem] items-center justify-between items-center mx-auto mb-4">
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-end items-center bg-white border-4 border-purple-300 rounded-md p-4 mb-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            {/* <div className="flex w-full max-w-[50rem] mx-auto justify-end items-center">
+            <div
+              className="flex items-center gap-4 bg-white border-4 border-purple-300 rounded-md p-4 mb-4"
+              style={{
+                filter: "drop-shadow(4px 4px 0px #7828C8",
+              }}
+            > */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Button
                   radius="sm"
-                  isIconOnly
-                  color="secondary"
-                  variant="flat"
                   startContent={hideWord ? <EyeOff /> : <Eye />}
                   onClick={() => setHideWord(!hideWord)}
-                ></Button>
-                {hideWord ? (
-                  <span className="text-sm text-default-500">Hide Word</span>
-                ) : (
-                  <span className="text-sm text-default-500">Show Word</span>
-                )}
+                  className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
+                  style={{
+                    filter: "drop-shadow(4px 4px 0px #7828C8",
+                  }}
+                >
+                  {hideWord ? (
+                    <span className="text-sm text-purple-700">Hide Word</span>
+                  ) : (
+                    <span className="text-sm text-purple-700">Show Word</span>
+                  )}
+                </Button>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   radius="sm"
-                  isIconOnly
-                  variant="flat"
-                  color="secondary"
                   onPress={changeIconPair}
+                  className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
+                  style={{
+                    filter: "drop-shadow(4px 4px 0px #7828C8",
+                  }}
                 >
-                  <ArrowLeftRight className="h-4 w-4" />
+                  <ArrowLeftRight className="h-4 w-4" />{" "}
+                  <span className="text-sm text-purple-700">Change Icons</span>
                 </Button>
-                <span className="text-sm text-default-500">Change Icons</span>
               </div>
             </div>
           </div>
@@ -420,6 +451,9 @@ const DecisionMakerStudent = ({ cards = [] }) => {
               }}
               modules={[EffectCreative]}
               className="mySwiper w-full drop-shadow-lg rounded-md"
+              style={{
+                filter: "drop-shadow(4px 4px 0px #7828C8",
+              }}
               onSwiper={(swiper) => setSwiperInstance(swiper)}
               onSlideChange={() => console.log("slide change")}
               onSwiperSlideChange={() => console.log("swiper slide change")}
@@ -437,22 +471,22 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                               ? "#22c55e"
                               : feedback[card.decision_maker_id]
                               ? "#ef4444"
-                              : "#e5e7eb",
+                              : "#d8b4fe",
                         }}
                         transition={{ duration: 0.5 }}
-                        className="border-4 rounded-lg"
+                        className="border-4 rounded-lg bg-white"
                       >
                         <Card
                           key={card.decision_maker_id}
-                          className="mx-auto w-full h-[40rem] gap-2 aspect-square overflow-hidden rounded-xl bg-white shadow-lg"
+                          className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4"
                         >
                           <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
                             {!hideWord ? (
-                              <h1 className="text-4xl font-extrabold mb-5 capitalize">
+                              <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize">
                                 {card.word}
                               </h1>
                             ) : (
-                              <h1 className="text-4xl font-extrabold mb-5 capitalize opacity-0">
+                              <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize opacity-0">
                                 {card.word}
                               </h1>
                             )}
@@ -460,7 +494,10 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                               <Image
                                 src={card.image}
                                 alt={card.title}
-                                className="w-full aspect-square object-cover rounded-md"
+                                className="w-full aspect-square border-4 border-purple-300 bg-white object-cover rounded-md"
+                                style={{
+                                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                                }}
                               />
                             </div>
                           </CardBody>
@@ -490,7 +527,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                 </motion.div>
                               )}
                             </AnimatePresence>
-                            <div className="flex justify-center gap-2 w-full">
+                            <div className="flex justify-center gap-6 w-full">
                               <motion.div
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.95 }}
@@ -501,7 +538,10 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                   color="success"
                                   variant="flat"
                                   isDisabled={feedback[card.decision_maker_id]}
-                                  className="w-full h-16 text-lg font-bold"
+                                  className="w-full h-16 justify-center text-green-700 text-lg bg-white border-4 border-green-300"
+                                  style={{
+                                    filter: "drop-shadow(4px 4px 0px #22c55e",
+                                  }}
                                   radius="sm"
                                 >
                                   {buttonPairs[currentPairIndex].positive}
@@ -517,7 +557,10 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                   color="danger"
                                   variant="flat"
                                   isDisabled={feedback[card.decision_maker_id]}
-                                  className="w-full h-16 text-lg font-bold"
+                                  className="w-full h-16 justify-center text-red-700 text-lg bg-white border-4 border-red-300"
+                                  style={{
+                                    filter: "drop-shadow(4px 4px 0px #ef4444",
+                                  }}
                                   radius="sm"
                                 >
                                   {buttonPairs[currentPairIndex].negative}
