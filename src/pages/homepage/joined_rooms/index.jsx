@@ -17,6 +17,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
+import Loader from "@/pages/components/Loader";
 import { useRouter } from "next/router";
 import { MoreVertical, Trash2, Search, Copy } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -196,15 +197,19 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
         />
       </div>
 
-      {filteredRooms.length === 0 ? (
+        {isLoading ? (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader/>
+        </div>
+        ) : filteredRooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center w-full rounded-lg p-4">
           <img
-            src="/no-room.svg"
-            alt="empty-room"
-            className="w-[40%] h-[40%] m-auto object-cover"
+          src="/no-room.svg"
+          alt="empty-room"
+          className="w-[40%] h-[40%] m-auto object-cover"
           />
         </div>
-      ) : (
+        ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 rounded-lg auto-cols-fr">
           {filteredRooms.map((room) => (
             <li key={room.room_id} className="flex">
