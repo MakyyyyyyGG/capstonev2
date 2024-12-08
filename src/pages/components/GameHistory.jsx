@@ -57,7 +57,10 @@ const GameHistory = ({ gameRecord = [], cards }) => {
       <Button
         isIconOnly
         onClick={onOpen}
-        className="bg-[#7469B6] text-white border-0"
+        className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
+        style={{
+          filter: "drop-shadow(4px 4px 0px #7828C8",
+        }}
       >
         <History size={20} />
       </Button>

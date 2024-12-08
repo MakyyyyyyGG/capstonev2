@@ -124,7 +124,7 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
     const filteredStickers = stickers.filter(
       (sticker) =>
         sticker.type === activeTab &&
-        sticker.name.includes(searchQuery.toLowerCase())
+        sticker.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (

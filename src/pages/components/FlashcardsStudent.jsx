@@ -16,7 +16,7 @@ import {
   VolumeX,
   Play,
   Pause,
-  ChevronLeft,
+  ArrowLeft,
 } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -117,19 +117,26 @@ const FlashcardsStudent = ({ flashcards }) => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-      <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
+    <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto pt-4">
+      <div
+        className="flex w-full max-w-[50rem] mx-auto justify-between items-center bg-white border-4 border-purple-300 rounded-md p-4"
+        style={{
+          filter: "drop-shadow(4px 4px 0px #7828C8",
+        }}
+      >
         <div className="flex items-center gap-2" onClick={() => router.back()}>
-          <ChevronLeft size={25} />
-          <h1>{flashcards[0]?.title}</h1>
+          <ArrowLeft size={24} className="text-purple-700" />
+          <span className="text-2xl font-bold text-purple-700">
+            {flashcards[0]?.title}
+          </span>
         </div>
         <Shop />
       </div>
       <div className="flex flex-wrap gap-4">
         <Swiper
-          pagination={{
-            type: "progressbar",
-          }}
+          // pagination={{
+          //   type: "progressbar",
+          // }}
           grabCursor={true}
           effect={"creative"}
           creativeEffect={{
@@ -143,7 +150,10 @@ const FlashcardsStudent = ({ flashcards }) => {
           }}
           navigation={true}
           modules={[Pagination, Navigation, EffectCreative]}
-          className="mySwiper w-full drop-shadow-lg rounded-md items"
+          className="mySwiper w-full drop-shadow-lg rounded-md"
+          style={{
+            filter: "drop-shadow(4px 4px 0px #7828C8",
+          }}
         >
           {currentFlashcards.map((flashcard) => (
             <SwiperSlide key={flashcard.flashcard_id}>
@@ -155,10 +165,10 @@ const FlashcardsStudent = ({ flashcards }) => {
                 className="relative w-full h-full"
                 style={{ perspective: 1000 }}
               >
-                <Card className="w-full h-[500px] rounded-md">
+                <Card className="w-full h-[500px] border-4 border-purple-300 rounded-md">
                   {!showDescription[flashcard.flashcard_id] && (
                     <CardBody className="flex flex-col justify-center items-center gap-4">
-                      <div className="flex text-6xl font-extrabold">
+                      <div className="flex text-6xl text-purple-700 font-extrabold">
                         <p>{flashcard.term}</p>
                       </div>
                     </CardBody>
@@ -170,12 +180,15 @@ const FlashcardsStudent = ({ flashcards }) => {
                           <img
                             src={flashcard.image}
                             alt={flashcard.term}
-                            className={`w-full border-2 border-[#7469B6] rounded-md aspect-square object-cover cursor-pointer ${
+                            className={`w-full border-4 border-purple-300 bg-white rounded-md aspect-square object-cover cursor-pointer ${
                               flashcard.audio &&
                               audioPlaying === flashcard.flashcard_id
                                 ? "opacity-80"
                                 : "opacity-100"
                             }`}
+                            style={{
+                              filter: "drop-shadow(4px 4px 0px #7828C8)",
+                            }}
                             onClick={() =>
                               handleAudioPlay(flashcard.flashcard_id)
                             }
@@ -245,6 +258,10 @@ const FlashcardsStudent = ({ flashcards }) => {
                       radius="sm"
                       color="secondary"
                       onClick={() => toggleCardBody(flashcard.flashcard_id)}
+                      className="justify-center text-purple-700 bg-white border-4 border-purple-300 mb-2"
+                      style={{
+                        filter: "drop-shadow(4px 4px 0px #7828C8",
+                      }}
                     >
                       {showDescription[flashcard.flashcard_id] ? (
                         <RotateCcw size={20} />

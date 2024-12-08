@@ -384,7 +384,7 @@ const IndividualRoom = () => {
                             color={
                               roomData[0]?.room_difficulty === "Easy"
                                 ? "success"
-                                : roomData[0]?.room_difficulty === "Medium"
+                                : roomData[0]?.room_difficulty === "Moderate"
                                 ? "warning"
                                 : "danger"
                             }

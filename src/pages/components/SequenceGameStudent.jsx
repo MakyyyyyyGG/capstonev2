@@ -7,7 +7,15 @@ import {
   Button,
   Progress,
 } from "@nextui-org/react";
-import { X, Check, RefreshCw, Pause, Volume2, ChevronLeft } from "lucide-react";
+import {
+  X,
+  Check,
+  RefreshCw,
+  Pause,
+  Volume2,
+  ArrowLeft,
+  CircleCheck,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -158,7 +166,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
       setAnswer((prevAnswer) => prevAnswer + 1);
     } else {
       if (newAttempts[index] >= 3) {
-        newFeedback[index] = "Out of attempts. Moving to next question.";
+        newFeedback[index] = "Out of attempts.";
 
         // Play incorrect sound
         incorrectSound.current.play();
@@ -305,7 +313,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
   };
 
   return (
-    <div div className="relative flex flex-col justify-center">
+    <div div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -325,10 +333,78 @@ const SequenceGameStudent = ({ sequenceGame }) => {
         </>
       ) : (
         <>
+          <div
+            className="flex w-full max-w-[80rem] mx-auto justify-between items-center bg-white border-4 border-purple-300 rounded-md p-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="flex w-full items-center justify-between items-center">
+              <div>
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => router.back()}
+                >
+                  <ArrowLeft size={24} className="text-purple-700" />
+                  <span className="text-2xl font-bold text-purple-700">
+                    {gameData[0]?.title}
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-4 items-center">
+                <div className="flex gap-4 items-center">
+                  <div className="flex gap-2 items-center">
+                    <CircleCheck className="w-6 h-6 text-white fill-green-500" />
+                    <span className="text-lg font-bold text-purple-700">
+                      {score}/{gameData.length}
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
+                    Monthly Tries: {attemptsUsed}/8
+                  </div>
+                </div>
+                <Shop />
+
+                <GameHistory gameRecord={gameRecord} cards={gameData.length} />
+              </div>
+            </div>
+          </div>
+          {attemptsUsed >= 8 && (
+            <div className="flex w-full justify-center items-center">
+              <div className="w-full max-w-[80rem] bg-red-400 rounded-lg mt-3 p-3">
+                <p className="text-sm text-white text-center">
+                  You have used all your attempts for this month. Your score
+                  wont be recorded. Wait for next month.
+                </p>
+              </div>
+            </div>
+          )}
+          <div
+            className="flex w-full max-w-[80rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-full px-4 my-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="w-full max-w-[80rem] my-4">
+              <Progress
+                value={(answer / gameData.length) * 100}
+                classNames={{
+                  value: "text-foreground/60",
+                  indicator: "bg-[#7469B6]",
+                  track: "bg-slate-200",
+                }}
+              />
+            </div>
+          </div>
           {gameData && gameData.length > 0 && gameData[0].video && (
             <>
-              <div className="flex w-full justify-center pt-4">
-                <div className="aspect-video w-full max-w-[50rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
+              <div
+                className="flex w-full max-w-[80rem] mx-auto justify-between items-center bg-white border-4 border-purple-300 rounded-md p-1 mb-4"
+                style={{
+                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                }}
+              >
+                <div className="aspect-video w-full max-w-[80rem] max-h-[300px] rounded-md overflow-hidden 'bg-black'">
                   <iframe
                     src={gameData[0].video}
                     frameBorder="0"
@@ -342,61 +418,20 @@ const SequenceGameStudent = ({ sequenceGame }) => {
               {/* <h1 className="text-2xl font-bold">{gameData[0].title}</h1> */}
             </>
           )}
-          <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
-              <div>
-                <div
-                  className="flex items-center gap-2"
-                  onClick={() => router.back()}
-                >
-                  <ChevronLeft size={25} />
-                  <h1 className="text-2xl font-bold">{gameData[0]?.title}</h1>
-                </div>
-              </div>
-              <div className="flex gap-4 items-center">
-                <div className="flex gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    Score: {score} / {gameData.length}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Attempts used this month: {attemptsUsed} / 8
-                  </p>
-                </div>
-                <Shop />
-
-                <GameHistory gameRecord={gameRecord} cards={gameData.length} />
-              </div>
-            </div>
-          </div>
-          {attemptsUsed >= 8 && (
-            <div className="flex w-full justify-center items-center">
-              <div className="w-full max-w-[50rem] bg-red-400 rounded-lg mt-3 p-3">
-                <p className="text-sm text-white text-center">
-                  You have used all your attempts for this month. Your score
-                  wont be recorded. Wait for next month.
-                </p>
-              </div>
-            </div>
-          )}
-          <div className="flex w-full justify-center items-center ">
-            <div className="w-full max-w-[50rem] my-4">
-              <Progress
-                value={(answer / gameData.length) * 100}
-                classNames={{
-                  value: "text-foreground/60",
-                  indicator: "bg-[#7469B6]",
-                  track: "bg-slate-200",
-                }}
-              />
-            </div>
-          </div>
           <div className="flex justify-center items-center mb-4">
-            <div className="w-full max-w-[50rem] grid md:grid-cols-2 gap-3">
-              <Card className="p-4 max-md:h-96">
+            <div className="w-full max-w-[80rem] grid md:grid-cols-2 gap-4">
+              <Card
+                className="bg-white border-4 border-purple-300 rounded-md p-4 max-md:h-96"
+                style={{
+                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                }}
+              >
                 <CardHeader>
-                  <h1 className="text-xl font-bold">Available Steps</h1>
+                  <h1 className="text-xl text-purple-700 font-bold">
+                    Available Steps
+                  </h1>
                 </CardHeader>
-                <CardBody className="relative border rounded-lg shadow-inner">
+                <CardBody className="relative border-2 border-purple-300 rounded-md shadow-inner">
                   {sequenceGame &&
                     sequenceGame.map(
                       (item, index) =>
@@ -407,7 +442,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleImageSelect(item.image, index)}
-                            className="absolute w-24 h-24 m-4 aspect-square rounded-lg overflow-hidden border"
+                            className="absolute w-24 h-24 m-4 aspect-square rounded-md overflow-hidden border border-purple-300"
                           >
                             <img
                               src={item.image}
@@ -419,9 +454,16 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                     )}
                 </CardBody>
               </Card>
-              <Card className="p-4">
+              <Card
+                className="bg-white border-4 border-purple-300 p-4 rounded-md"
+                style={{
+                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                }}
+              >
                 <CardHeader>
-                  <h1 className="text-xl font-bold">Arrange the Sequence</h1>
+                  <h1 className="text-xl text-purple-700 font-bold">
+                    Arrange the Sequence
+                  </h1>
                 </CardHeader>
                 <CardBody className="flex flex-col gap-3">
                   {sequenceGame &&
@@ -433,11 +475,11 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                               ? "#22c55e" // green for correct
                               : attempts[index] >= 3
                               ? "#ef4444" // red for out of attempts
-                              : "transparent" // keep transparent if no feedback or attempts
-                            : "transparent", // no border if feedback is empty
+                              : "#d8b4fe" // keep transparent if no feedback or attempts
+                            : "#d8b4fe", // no border if feedback is empty
                         }}
-                        transition={{ duration: 0.5 }}
-                        className={`border-2 rounded-lg ${
+                        transition={{ duration: 0.1 }}
+                        className={`border-4 rounded-lg ${
                           feedback[index] ? "" : "border-transparent"
                         }`} // no border class initially
                         style={{
@@ -446,7 +488,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                       >
                         <Card
                           key={index}
-                          className="flex flex-col items-center gap-4 p-4 bg-white rounded-md border shadow-sm"
+                          className="flex flex-col items-center gap-4 p-4 bg-white rounded-md shadow-sm"
                         >
                           {/* display the available attems here */}
                           <div className="flex w-full gap-4 justify-between items-center">
@@ -468,8 +510,10 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                             </div>
 
                             <div className="flex-1">
-                              <h3 className="font-medium">Step {index + 1}</h3>
-                              <p className="text-sm text-muted-foreground">
+                              <h3 className="font-semibold text-purple-700">
+                                Step {index + 1}
+                              </h3>
+                              <p className="text-sm text-purple-500">
                                 {item.step}
                               </p>
                             </div>
@@ -508,37 +552,57 @@ const SequenceGameStudent = ({ sequenceGame }) => {
 
                             {selectedImages[index] && (
                               <>
-                                <div className="flex gap-1">
-                                  <Button
-                                    isIconOnly
-                                    radius="sm"
-                                    variant="flat"
-                                    onClick={() => handleRemoveImage(index)}
-                                    isDisabled={
-                                      attempts[index] >= 3 ||
-                                      feedback[index] === "Correct!"
-                                    }
+                                <div className="flex gap-2">
+                                  <motion.div
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.95 }}
                                   >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    isIconOnly
-                                    radius="sm"
-                                    variant="flat"
-                                    color="success"
-                                    onClick={() =>
-                                      attempts[index] < 3 &&
-                                      !feedback[index]?.includes("Correct")
-                                        ? handleCheckStep(index, index)
-                                        : null
-                                    }
-                                    isDisabled={
-                                      feedback[index] === "Correct!" ||
-                                      attempts[index] >= 3
-                                    }
+                                    <Button
+                                      isIconOnly
+                                      radius="sm"
+                                      variant="flat"
+                                      onClick={() => handleRemoveImage(index)}
+                                      isDisabled={
+                                        attempts[index] >= 3 ||
+                                        feedback[index] === "Correct!"
+                                      }
+                                      className="w-full justify-center text-gray-700 bg-white border-4 border-gray-300"
+                                      style={{
+                                        filter:
+                                          "drop-shadow(4px 4px 0px #6b7280",
+                                      }}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </motion.div>
+                                  <motion.div
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.95 }}
                                   >
-                                    <Check className="h-4 w-4" />
-                                  </Button>
+                                    <Button
+                                      isIconOnly
+                                      radius="sm"
+                                      variant="flat"
+                                      color="success"
+                                      onClick={() =>
+                                        attempts[index] < 3 &&
+                                        !feedback[index]?.includes("Correct")
+                                          ? handleCheckStep(index, index)
+                                          : null
+                                      }
+                                      isDisabled={
+                                        feedback[index] === "Correct!" ||
+                                        attempts[index] >= 3
+                                      }
+                                      className="w-full justify-center text-green-700 bg-white border-4 border-green-300"
+                                      style={{
+                                        filter:
+                                          "drop-shadow(4px 4px 0px #22c55e",
+                                      }}
+                                    >
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                  </motion.div>
                                 </div>
                               </>
                             )}
@@ -592,9 +656,22 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                     ))}
                 </CardBody>
                 <CardFooter className="flex justify-between items-center py-4">
-                  <Button onClick={handleReset} variant="bordered" radius="sm">
-                    <RefreshCw className="h-4 w-4 mr-2" /> Reset
-                  </Button>
+                  <motion.div
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      onClick={handleReset}
+                      variant="bordered"
+                      radius="sm"
+                      className="justify-center text-purple-700 bg-white border-4 border-purple-300"
+                      style={{
+                        filter: "drop-shadow(4px 4px 0px #7828C8",
+                      }}
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2 " /> Reset
+                    </Button>
+                  </motion.div>
                 </CardFooter>
               </Card>
             </div>

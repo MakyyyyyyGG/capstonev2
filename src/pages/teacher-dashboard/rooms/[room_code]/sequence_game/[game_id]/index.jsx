@@ -75,7 +75,7 @@ const index = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 p-4 max-w-[50rem] mx-auto">
+    <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <div className="w-full flex justify-between items-center">
         <div className="flex gap-4 items-center">
           <div

@@ -150,11 +150,11 @@ const SequenceGame = ({ sequenceGame }) => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+    <div className="w-full flex flex-col gap-4 max-w-[80rem] mx-auto">
       {gameData && gameData.length > 0 && gameData[0].video && (
         <>
           <div className="flex w-full justify-center">
-            <div className="aspect-video w-full max-w-[50rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
+            <div className="aspect-video w-full max-w-[80rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
               {gameData[0].video.includes("youtube") ? (
                 <iframe
                   src={gameData[0].video}
@@ -176,7 +176,7 @@ const SequenceGame = ({ sequenceGame }) => {
         </>
       )}
       <div className="flex justify-center items-center">
-        <div className="w-full max-w-[50rem] grid md:grid-cols-2 gap-3">
+        <div className="w-full max-w-[80rem] grid md:grid-cols-2 gap-3">
           <Card className="p-4 max-md:h-96">
             <CardHeader>
               <h1 className="text-xl font-bold">Available Steps</h1>

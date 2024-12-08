@@ -10,7 +10,7 @@ import {
   Checkbox,
 } from "@nextui-org/react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { Volume2, ChevronLeft } from "lucide-react";
+import { Volume2, ArrowLeft, CircleCheck } from "lucide-react";
 import { BiSolidSquareRounded } from "react-icons/bi";
 import {
   InputOTP,
@@ -315,7 +315,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
   };
 
   return (
-    <div className="relative flex flex-col justify-center px-4">
+    <div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}
       <audio
         ref={correctSound}
@@ -339,28 +339,37 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
         </>
       ) : (
         <>
-          <div className="flex w-full justify-center items-center">
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center pt-4">
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-md p-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="flex w-full max-w-[50rem] items-center justify-between items-center">
               <div>
                 <div
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 cursor-pointer"
                   onClick={() => router.back()}
                 >
-                  <ChevronLeft size={25} />
-                  <h1 className="text-2xl font-bold">{cards[0]?.title}</h1>
+                  <ArrowLeft size={24} className="text-purple-700" />
+                  <span className="text-2xl font-bold text-purple-700">
+                    {cards[0]?.title}
+                  </span>
                 </div>
               </div>
               <div className="flex gap-4 items-center">
-                <div className="flex gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    Score: {score} / {cards.length}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Attempts this month: {attemptsUsed} / 8
-                  </p>
+                <div className="flex gap-4 items-center">
+                  <div className="flex gap-2 items-center">
+                    <CircleCheck className="w-6 h-6 text-white fill-green-500" />
+                    <span className="text-lg font-bold text-purple-700">
+                      {score}/{cards.length}
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
+                    Monthly Tries: {attemptsUsed}/8
+                  </div>
                 </div>
                 <Shop />
-
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
                 {/* <h1>Questions Answered: {answeredQuestions}</h1>
               <h1>cards length: {cards.length}</h1> */}
@@ -377,21 +386,33 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
               </div>
             </div>
           )}
-          <div className="flex w-full justify-center items-center ">
+          <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-full px-4 my-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
             <div className="w-full max-w-[50rem] my-4">
               <Progress
                 value={(answer / cards.length) * 100}
                 classNames={{
                   value: "text-foreground/60",
-                  indicator: "bg-[#7469B6]",
+                  indicator: "bg-purple-500",
                   track: "bg-slate-200",
                 }}
               />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-6">
-            Choose the correct image(s)
-          </h1>
+          {/* <div
+            className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-md p-4 mb-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <h1 className="text-2xl font-bold text-center">
+              Choose the correct image(s)
+            </h1>
+          </div> */}
           <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto rounded-xl mb-4">
             <Swiper
               grabCursor={true}
@@ -407,6 +428,9 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
               }}
               modules={[EffectCreative]}
               className="mySwiper w-full drop-shadow-lg rounded-md"
+              style={{
+                filter: "drop-shadow(4px 4px 0px #7828C8",
+              }}
               onSwiper={(swiper) => setSwiperInstance(swiper)}
               onSlideChange={() => console.log("slide change")}
             >
@@ -417,24 +441,24 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                       borderColor: feedback[index]?.includes("Correct")
                         ? "#22c55e" // green for correct
                         : attempts[index] >= 3
-                        ? "#ef4444"
-                        : "#e5e7eb", // red for out of attempts, default for others
+                        ? "#ef4444" // red for out of attempts, default for others
+                        : "#d8b4fe",
                     }}
                     transition={{ duration: 0.5 }}
-                    className="border-4 rounded-lg"
+                    className="border-4 bg-white rounded-lg"
                   >
-                    <Card className="w-full rounded-md flex flex-col h-[40rem] aspect-square mx-auto">
+                    <Card className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
                       <CardBody className="flex flex-col gap-4 px-auto items-center justify-center overflow-hidden">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
                         <div className="flex justify-center items-center gap-2 mb-4">
-                          <div className="text-4xl font-extrabold">
+                          <div className="text-4xl text-purple-700 font-extrabold">
                             <h1>{card.word}</h1>
                           </div>
                           <div className="flex justify-center items-center">
                             {card.word && (
                               <Button
                                 isIconOnly
-                                className="text-[#7469B6]"
+                                className="text-purple-700"
                                 variant="light"
                                 onPress={() => handleTextToSpeech(card.word)}
                               >
@@ -460,7 +484,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                 ].filter((image) => image !== null).length === 3
                               ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                               : "grid-cols-2 w-full"
-                          } gap-2 justify-center`}
+                          } gap-4 justify-center`}
                         >
                           {[
                             card.image1,
@@ -476,12 +500,15 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                   whileTap={{ scale: 0.95 }}
                                   className={`relative hover:cursor-pointer rounded-md ${
                                     selectedImages[index]?.includes(idx)
-                                      ? "border-4 border-[#9353D3]"
-                                      : "border-4 border-transparent"
+                                      ? "border-4 border-purple-300 bg-white"
+                                      : "border-4 border-transparent bg-white"
                                   }`}
                                   style={{
                                     transition:
                                       "border-color 0.3s ease, transform 0.3s ease",
+                                    filter: selectedImages[index]?.includes(idx)
+                                      ? "drop-shadow(4px 4px 0px #7828C8)"
+                                      : "none", // Apply shadow only when the image is selected
                                   }}
                                 >
                                   <img
@@ -552,14 +579,23 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                             </motion.div>
                           )}
                         </AnimatePresence>
-                        <Button
-                          radius="sm"
-                          color="secondary"
-                          onClick={handleCheckAnswers}
-                          className="w-full h-16 justify-center text-lg"
+                        <motion.div
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="w-full"
                         >
-                          Check Answer
-                        </Button>
+                          <Button
+                            radius="sm"
+                            color="secondary"
+                            onClick={handleCheckAnswers}
+                            className="w-full h-16 justify-center text-purple-700 text-lg bg-white border-4 border-purple-300"
+                            style={{
+                              filter: "drop-shadow(4px 4px 0px #7828C8",
+                            }}
+                          >
+                            Check Answer
+                          </Button>
+                        </motion.div>
                       </CardFooter>
                       <AnimatePresence>
                         {showEmoji && (
