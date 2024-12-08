@@ -152,8 +152,9 @@ const IndividualRoom = () => {
                   aria-label="Options"
                   fullWidth
                   classNames={{
-                    tabList:
-                      " mt-4  border-gray-300 border bg-white rounded-lg",
+                    tabList: "mt-4  border-gray-300 border bg-white rounded-lg",
+                    // cursor:
+                    //   "w-full bg-gradient-to-br from-purple-400 to-purple-600", //If you want to use gradient
                   }}
                   selectedKey={selectedTab}
                   onSelectionChange={setSelectedTab}
