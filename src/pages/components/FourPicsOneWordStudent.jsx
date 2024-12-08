@@ -592,6 +592,12 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                   >
                                     Check Answer
                                   </Button>
+                                </motion.div>{" "}
+                                <motion.div
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className="w-full"
+                                >
                                   <Button
                                     radius="sm"
                                     size="lg"
