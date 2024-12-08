@@ -429,9 +429,17 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                 key={game.game_id}
                 isPressable
                 radius="sm"
-                className="shadow-lg border-gray-300 border h-[160px] flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 hover:border-purple-700 max-sm:px-4 max-sm:py-3"
+                className={`shadow-lg border-gray-300 border h-[160px] flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 hover:border-purple-700 max-sm:px-4 max-sm:py-3 ${
+                  game.difficulty?.toLowerCase() === "easy"
+                    ? "bg-gradient-to-br from-white to-emerald-100"
+                    : game.difficulty?.toLowerCase() === "medium"
+                    ? "bg-gradient-to-br from-white to-yellow-100"
+                    : game.difficulty?.toLowerCase() === "hard"
+                    ? "bg-gradient-to-br from-white to-red-100"
+                    : "bg-gradient-to-br from-white to-gray-100"
+                }`}
               >
-                <div
+                {/* <div
                   className={`absolute bottom-0 right-0 w-[160px] h-[160px] bg-transparent z-0`}
                 >
                   <div
@@ -448,7 +456,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                     //   filter: "drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.25))",
                     // }}
                   />
-                </div>
+                </div> */}
                 {/* <div
                   className={`absolute top-0 right-0 w-[80px] h-[80px] bg-transparent`}
                 >
@@ -472,36 +480,56 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                 >
                   <div className="w-0 h-0 border-t-[40px] border-l-[40px] border-t-white border-l-transparent" />
                 </div> */}
-                <div className="absolute bottom-4 right-5">
+                {/* <div className="absolute bottom-4 right-5">
                   <div className="flex items-center gap-1.5">
                     <Play className="h-4 w-5 text-white" />
                     <span className="text-lg text-white font-bold">Play</span>
                   </div>
-                </div>
+                </div> */}
                 <Link
                   href={getRedirectUrl(game)}
                   className="w-full h-[160px] flex items-center"
                 >
                   <div className="flex flex-col w-full gap-4 z-20">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
-                        {getGameTypeIconStudent(game.game_type)}
+                    <div className="flex items-center gap-2 justify-between">
+                      <div className="flex">
+                        <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
+                          {getGameTypeIconStudent(game.game_type)}
+                        </div>
+                        <div className="text-left ml-2">
+                          <div className="text-lg font-bold flex items-center gap-2">
+                            <h1>{game.title}</h1>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              {game.game_type}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-left ml-2">
-                        <div className="text-lg font-bold flex items-center gap-2">
-                          <h1>{game.title}</h1>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">
-                            {game.game_type}
-                          </p>
-                        </div>
+                      <div className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg">
+                        <Play className="h-4 w-4 text-white" />
+                        <span className="text-sm font-semibold text-white">
+                          Play
+                        </span>
                       </div>
                     </div>
                     {game.game_type !== "Flashcard" && (
                       <div className="flex gap-4 items-center justify-between">
                         <div className="flex items-center mr-2 gap-4">
                           <div className="flex gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-1.5">
+                              {game.difficulty && (
+                                <Chip
+                                  variant="flat"
+                                  size="sm"
+                                  color={getChipColor(game.difficulty)}
+                                  className="capitalize px-2"
+                                >
+                                  {game.difficulty}
+                                </Chip>
+                              )}
+                            </div>
                             <div className="flex items-center gap-1.5">
                               <Coins className="h-4 w-5 text-yellow-500" />
                               <span className="text-lg font-bold">
@@ -523,7 +551,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                               <span className="text-xs">+ Bonus</span>
                             </Chip> */}
                         </div>
-                        {game.difficulty && (
+                        {/* {game.difficulty && (
                           <Chip
                             variant="flat"
                             size="sm"
@@ -532,7 +560,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                           >
                             {game.difficulty}
                           </Chip>
-                        )}
+                        )} */}
                       </div>
                     )}
                   </div>
@@ -575,10 +603,10 @@ const ClassWorkList = ({ room_code, games = [] }) => {
             defaultValue="all"
           >
             <SelectTrigger className="w-full bg-white h-[50px] border-gray-300">
-              <SelectValue placeholder="Game Type" />
+              <SelectValue label="Game Type" />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">Game Type</SelectItem>
               <SelectItem value="flashcard">Flashcard</SelectItem>
               <SelectItem value="thinkpic">ThinkPic</SelectItem>
               <SelectItem value="thinkpic +">ThinkPic +</SelectItem>
@@ -598,7 +626,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">Difficulty</SelectItem>
               <SelectItem value="easy">Easy</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="hard">Hard</SelectItem>
