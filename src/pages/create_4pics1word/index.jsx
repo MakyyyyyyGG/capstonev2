@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import ReactCrop from "react-image-crop";
@@ -355,11 +355,83 @@ const Index = () => {
     }
   };
 
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#title",
+          popover: {
+            title: "Set Title",
+            description: "Enter a title for your flashcard set",
+          },
+        },
+        {
+          element: "#difficulty",
+          popover: {
+            title: "Set Difficulty",
+            description:
+              "Choose difficulty level - Easy (2 images), Medium (3 images), or Hard (4 images)",
+          },
+        },
+        {
+          element: "#remove-card-btn",
+          popover: {
+            title: "Remove Card",
+            description: "Click here to remove card",
+          },
+        },
+        {
+          element: "#word",
+          popover: {
+            title: "Enter Word",
+            description: "Add a word to the card",
+          },
+        },
+        {
+          element: "#upload-image-btn",
+          popover: {
+            title: "Upload Image",
+            description: "Add an image to your flashcard",
+          },
+        },
+        {
+          element: "#add-card-btn",
+          popover: {
+            title: "Add More Cards",
+            description: "Click here to add more cards to your set",
+          },
+        },
+        {
+          element: "#create-btn",
+          popover: {
+            title: "Create Flashcard Set",
+            description: "When you're done, click here to create your card set",
+          },
+        },
+      ],
+    })
+  );
+
+  useEffect(() => {
+    // if (room_code) {
+    //   driverObj.current.drive();
+    //   // setHasTourShown(true);
+    // }
+    const isTutorialShown = !localStorage.getItem("create-thinkpic-tutorial");
+    if (isTutorialShown) {
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("create-thinkpic-tutorial", "true");
+      }, 1000);
+    }
+  }, [room_code]);
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-        <h1 className="">Create a new ThinkPic Set</h1>
+        <h1 className="">Create a new ThinkPic Set (4 Pics 1 Word)</h1>
         <div>
           {isLoading ? (
             <Button
@@ -373,6 +445,7 @@ const Index = () => {
             </Button>
           ) : (
             <Button
+              id="create-btn"
               radius="sm"
               color="secondary"
               onPress={handleSubmit}
@@ -385,6 +458,7 @@ const Index = () => {
       </div>
       <div className="flex gap-2 items-center z-0 max-md:flex-col">
         <Input
+          id="title"
           placeholder="Enter title"
           size="lg"
           radius="sm"
@@ -398,6 +472,7 @@ const Index = () => {
           color="secondary"
         />
         <Select
+          id="difficulty"
           size="lg"
           radius="sm"
           classNames={{
@@ -428,6 +503,7 @@ const Index = () => {
               </div>
               <div className="flex">
                 <Button
+                  id="remove-card-btn"
                   radius="sm"
                   isIconOnly
                   color="danger"
@@ -442,6 +518,7 @@ const Index = () => {
                 <form action="" className="w-full">
                   <div className="flex shrink w-full mb-4">
                     <Input
+                      id="word"
                       radius="sm"
                       label="Enter Word"
                       variant="bordered"
@@ -500,6 +577,7 @@ const Index = () => {
                                 </Button> */}
 
                                 <Button
+                                  id="remove-card-btn"
                                   isIconOnly
                                   onClick={() => {
                                     const updatedCards = [...cards];
@@ -517,6 +595,7 @@ const Index = () => {
                           ) : (
                             <div className="flex flex-col items-center space-y-2">
                               <Button
+                                id="upload-image-btn"
                                 radius="sm"
                                 color="secondary"
                                 onClick={() => {
@@ -728,6 +807,7 @@ const Index = () => {
         ))}
       </div>
       <Button
+        id="add-card-btn"
         size="lg"
         radius="sm"
         color="secondary"

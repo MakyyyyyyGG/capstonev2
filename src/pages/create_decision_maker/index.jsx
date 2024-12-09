@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { useSession } from "next-auth/react";
 import {
   Button,
@@ -243,6 +243,80 @@ const index = () => {
     setCards(newCards);
   };
 
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#title",
+          popover: {
+            title: "Set Title",
+            description:
+              "Enter a descriptive title for your decision maker game",
+          },
+        },
+        {
+          element: "#remove-card-btn",
+          popover: {
+            title: "Remove Card",
+            description: "Click here to remove this scenario card",
+          },
+        },
+        {
+          element: "#description",
+          popover: {
+            title: "Add Description",
+            description: "Enter a description for this scenario",
+          },
+        },
+        {
+          element: "#decision",
+          popover: {
+            title: "Set Decision",
+            description:
+              "Choose whether this scenario should have a yes or no response",
+          },
+        },
+        {
+          element: "#upload-image-btn",
+          popover: {
+            title: "Upload Image",
+            description: "Add an image to illustrate this scenario",
+          },
+        },
+        {
+          element: "#add-card-btn",
+          popover: {
+            title: "Add New Scenario",
+            description: "Click here to add another scenario card",
+          },
+        },
+        {
+          element: "#create-btn",
+          popover: {
+            title: "Create Game",
+            description:
+              "When you've added all your scenarios, click here to create your decision maker game",
+          },
+        },
+      ],
+    })
+  );
+
+  useEffect(() => {
+    // if (room_code) {
+    //   driverObj.current.drive();
+    //   // setHasTourShown(true);
+    // }
+    const isTutorialShown = !localStorage.getItem("create-sequence-tutorial");
+    if (isTutorialShown) {
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("create-sequence-tutorial", "true");
+      }, 1000);
+    }
+  }, [room_code]);
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 mx-auto  max-w-[80rem]">
       <Toaster />
@@ -292,6 +366,7 @@ const index = () => {
           </Button>
         ) : (
           <Button
+            id="create-btn"
             color="secondary"
             radius="sm"
             onPress={handleSubmit}
@@ -304,6 +379,7 @@ const index = () => {
       {/* <h1>Room Code: {room_code}</h1> */}
       <div className="items-center z-0">
         <Input
+          id="title"
           isRequired
           placeholder="Enter title"
           classNames={{
@@ -395,6 +471,7 @@ const index = () => {
                   </>
                 )}*/}
                 <Button
+                  id="remove-card-btn"
                   isIconOnly
                   color="danger"
                   radius="sm"
@@ -559,6 +636,7 @@ const index = () => {
                 </Modal>
                 <div className="flex w-full flex-col gap-4">
                   <Input
+                    id="description"
                     size="lg"
                     radius="sm"
                     placeholder="Enter Description"
@@ -625,6 +703,7 @@ const index = () => {
                   </Modal>
 
                   <RadioGroup
+                    id="decision"
                     label="Decision"
                     color="secondary"
                     value={card.correct_answer}
@@ -706,8 +785,8 @@ const index = () => {
                       </div>
                     ) : (
                       <Button
+                        id="upload-image-btn"
                         radius="sm"
-                        variant="bordered"
                         color="secondary"
                         className="border-1 "
                         onClick={() => {
@@ -740,6 +819,7 @@ const index = () => {
         ))}
       </div>
       <Button
+        id="add-card-btn"
         size="lg"
         radius="sm"
         color="secondary"

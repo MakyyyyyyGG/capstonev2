@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import {
@@ -445,6 +445,87 @@ const Index = () => {
     }, "image/jpeg");
   };
 
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#title",
+          popover: {
+            title: "Set Title",
+            description: "Enter a descriptive title for your sequence set",
+          },
+        },
+        {
+          element: "#add-video-btn",
+          popover: {
+            title: "Add Sequence Video",
+            description:
+              "Add a video to demonstrate the sequence of steps. You can upload a video file or paste a YouTube/Vimeo URL. The video will help students understand the correct order of steps.",
+          },
+        },
+        {
+          element: "#remove-card-btn",
+          popover: {
+            title: "Remove Step",
+            description: "Click here to remove this step from the sequence",
+          },
+        },
+        {
+          element: "#upload-image-btn",
+          popover: {
+            title: "Upload Image",
+            description: "Add an image to illustrate this step in the sequence",
+          },
+        },
+        {
+          element: "#add-audio-btn",
+          popover: {
+            title: "Add Audio",
+            description:
+              "Record audio instructions or explanations for this step",
+          },
+        },
+        {
+          element: "#sequence-description",
+          popover: {
+            title: "Step Description",
+            description:
+              "Write detailed instructions for completing this step in the sequence",
+          },
+        },
+        {
+          element: "#add-card-btn",
+          popover: {
+            title: "Add New Step",
+            description: "Click here to add another step to your sequence",
+          },
+        },
+        {
+          element: "#create-btn",
+          popover: {
+            title: "Create Sequence Set",
+            description:
+              "When you've added all your steps, click here to create your sequence set",
+          },
+        },
+      ],
+    })
+  );
+
+  useEffect(() => {
+    // if (room_code) {
+    //   driverObj.current.drive();
+    //   // setHasTourShown(true);
+    // }
+    const isTutorialShown = !localStorage.getItem("create-sequence-tutorial");
+    if (isTutorialShown) {
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("create-sequence-tutorial", "true");
+      }, 1000);
+    }
+  }, [room_code]);
   return (
     <div className="w-full">
       <Toaster />
@@ -499,6 +580,7 @@ const Index = () => {
                 </Button>
               ) : (
                 <Button
+                  id="create-btn"
                   radius="sm"
                   color="secondary"
                   isDisabled={!title}
@@ -512,6 +594,7 @@ const Index = () => {
           <div className="flex flex-col gap-4">
             <div className="flex gap-2">
               <Input
+                id="title"
                 size="lg"
                 radius="sm"
                 placeholder="Enter title"
@@ -651,6 +734,7 @@ const Index = () => {
                   {/* No uploaded video */}
                   {!video ? (
                     <Button
+                      id="add-video-btn"
                       radius="sm"
                       size="lg"
                       color="secondary"
@@ -696,6 +780,7 @@ const Index = () => {
                   </div>
                   <div className="flex">
                     <Button
+                      id="remove-card-btn"
                       radius="sm"
                       isIconOnly
                       color="danger"
@@ -957,6 +1042,7 @@ const Index = () => {
                           </div>
                         ) : (
                           <Button
+                            id="upload-image-btn"
                             radius="sm"
                             color="secondary"
                             className="border-1 "
@@ -1017,6 +1103,7 @@ const Index = () => {
                       </div>
                     ) : (
                       <Button
+                        id="add-audio-btn"
                         radius="sm"
                         color="secondary"
                         className=" w-full"
@@ -1142,6 +1229,7 @@ const Index = () => {
                   </div> */}
                   <div className="flex w-full gap-2">
                     <Textarea
+                      id="sequence-description"
                       rows={5}
                       radius="sm"
                       type="text"
@@ -1173,6 +1261,7 @@ const Index = () => {
             ))}
           </div>
           <Button
+            id="add-card-btn"
             size="lg"
             radius="sm"
             color="secondary"

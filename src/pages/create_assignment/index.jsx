@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Input,
   Textarea,
@@ -16,22 +16,83 @@ import {
 } from "@nextui-org/react";
 import { Youtube, Upload, Trash2 } from "lucide-react";
 import { now, getLocalTimeZone } from "@internationalized/date";
-
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import ReactPlayer from "react-player";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import toast, { Toaster } from "react-hot-toast";
+
 const Index = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const { room_code } = router.query;
   const [mediaList, setMediaList] = useState([]);
+  const [title, setTitle] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [urlLink, setUrlLink] = useState("");
   const [showModal, setShowModal] = useState({
     video: false,
     image: false,
   });
+
+  const driverObj = driver({
+    showProgress: true,
+    steps: [
+      {
+        element: "#assignment-title",
+        popover: {
+          title: "Assignment Title",
+          description: "Enter a title for your assignment",
+        },
+      },
+      {
+        element: "#assignment-instruction",
+        popover: {
+          title: "Instructions",
+          description: "Add instructions for your students (optional)",
+        },
+      },
+      {
+        element: "#due-date",
+        popover: {
+          title: "Due Date",
+          description: "Set a due date for the assignment",
+        },
+      },
+      {
+        element: "#add-video-btn",
+        popover: {
+          title: "Add Video",
+          description: "Click to add a video from YouTube or upload one",
+        },
+      },
+      {
+        element: "#add-image-btn",
+        popover: {
+          title: "Upload Image",
+          description: "Click to add an image from URL or upload one",
+        },
+      },
+      {
+        element: "#create-assignment-btn",
+        popover: {
+          title: "Create Assignment",
+          description: "Click to create and save your assignment",
+        },
+      },
+    ],
+  });
+
+  useEffect(() => {
+    const isTutorialShown = !localStorage.getItem("create-assignment-tutorial");
+    if (isTutorialShown) {
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("create-assignment-tutorial", "true");
+      }, 1000);
+    }
+  }, [room_code]);
 
   const handleAddMedia = (type, content, name = null) => {
     const newMediaList = [...mediaList, { type, content, name }];
@@ -115,13 +176,11 @@ const Index = () => {
       </div>
 
       <Card className="w-full border border-[#7469B6] rounded-md flex p-4">
-        {/* <CardHeader>
-          <h1>Create Assignment</h1>
-        </CardHeader> */}
         <CardBody>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-4">
               <Input
+                id="assignment-title"
                 label="Title"
                 radius="sm"
                 variant="bordered"
@@ -130,8 +189,10 @@ const Index = () => {
                   label: "",
                   inputWrapper: "border-1 border-[#7469B6]",
                 }}
+                onChange={(e) => setTitle(e.target.value)}
               />
               <Textarea
+                id="assignment-instruction"
                 label="Instruction (Optional)"
                 radius="sm"
                 variant="bordered"
@@ -142,6 +203,7 @@ const Index = () => {
                 }}
               />
               <DatePicker
+                id="due-date"
                 label="Due Date"
                 variant="bordered"
                 hideTimeZone
@@ -156,9 +218,10 @@ const Index = () => {
             </div>
 
             <div className="flex flex-col items-center space-x-4 mt-4 ">
-              <h3 className="text-left w-full">Attach</h3>
+              <h3 className="text-left bolder font-bold	 w-full">Attach</h3>
               <div className="flex space-x-3">
                 <Button
+                  id="add-video-btn"
                   auto
                   isIconOnly
                   size="lg"
@@ -170,6 +233,7 @@ const Index = () => {
                   onClick={() => setShowModal({ ...showModal, video: true })}
                 />
                 <Button
+                  id="add-image-btn"
                   auto
                   isIconOnly
                   size="lg"
@@ -190,7 +254,7 @@ const Index = () => {
                     key={index}
                     className="flex items-center relative border-1 border-gray-300 rounded-md pl-2"
                   >
-                    {media.type === "video" || media.name.includes("mp4") ? (
+                    {media.type === "video" || media.name?.includes("mp4") ? (
                       <div className="flex gap-4 items-center">
                         <ReactPlayer
                           url={media.content}
@@ -217,7 +281,7 @@ const Index = () => {
                       </div>
                     ) : media.type === "image" ? (
                       <div className="flex gap-4 items-center">
-                        {media.content.endsWith(".mp4") ? (
+                        {media.content?.endsWith(".mp4") ? (
                           <video
                             src={media.content}
                             controls
@@ -256,11 +320,13 @@ const Index = () => {
               </ul>
             </div>
             <Button
+              id="create-assignment-btn"
               radius="sm"
               size="lg"
               type="submit"
               color="secondary"
               className="mt-4 w-full"
+              isDisabled={!title}
             >
               Create Assignment
             </Button>
@@ -310,7 +376,7 @@ const Index = () => {
                     type="file"
                     accept="video/*"
                     onChange={(e) => handleFileUpload(e, "video")}
-                    class="block w-full text-sm text-slate-500 mt-4 
+                    className="block w-full text-sm text-slate-500 mt-4 
                     file:mr-4 file:py-3 file:px-6
                     file:rounded-md file:border-0
                     file:text-base 
@@ -366,7 +432,7 @@ const Index = () => {
                     type="file"
                     accept="image/*"
                     onChange={(e) => handleFileUpload(e, "image")}
-                    class="block w-full text-sm text-slate-500 mt-4 
+                    className="block w-full text-sm text-slate-500 mt-4 
                     file:mr-4 file:py-3 file:px-6
                     file:rounded-md file:border-0
                     file:text-base 
