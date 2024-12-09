@@ -175,7 +175,9 @@ const index = () => {
         if (!response.ok) {
           throw new Error("Failed to update assignment");
         }
-        // router.push(`/assignment/${room_code}`);
+        const currentPath = router.asPath;
+        const newPath = currentPath.replace("/edit", "");
+        router.push(newPath);
       })(),
       {
         loading: "Updating assignment...",

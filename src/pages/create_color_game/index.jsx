@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { LibraryBig, Trash2, Plus, Pencil } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -240,6 +240,75 @@ const Index = ({ images }) => {
     { name: "White", className: "bg-gray-100", value: "white" },
   ];
 
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "input[placeholder='Enter Title']",
+          popover: {
+            title: "Set Title",
+            description: "Enter a title for your color game set",
+          },
+        },
+        {
+          element: "#difficulty",
+          popover: {
+            title: "Set Difficulty",
+            description:
+              "Choose difficulty level - Easy (2 images), Medium (3 images), or Hard (4 images)",
+          },
+        },
+        {
+          element: "#remove-card-btn",
+          popover: {
+            title: "Remove Card",
+            description: "Click here to remove a card from your set",
+          },
+        },
+        {
+          element: ".grid-cols-5",
+          popover: {
+            title: "Choose Color",
+            description: "Select a color for this card",
+          },
+        },
+        {
+          element: "#select-image-btn",
+          popover: {
+            title: "Select Images",
+            description: "Click to select images that match the chosen color",
+          },
+        },
+        {
+          element: "#add-card-btn",
+          popover: {
+            title: "Add More Cards",
+            description: "Click here to add more color cards to your set",
+          },
+        },
+        {
+          element: "#create-btn",
+          popover: {
+            title: "Create Color Game",
+            description:
+              "When you're done, click here to create your color game",
+          },
+        },
+      ],
+    })
+  );
+
+  useEffect(() => {
+    const isTutorialShown = !localStorage.getItem("create-color-game-tutorial");
+    if (isTutorialShown) {
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("create-color-game-tutorial", "true");
+      }, 1000);
+    }
+  }, []);
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
@@ -251,6 +320,7 @@ const Index = ({ images }) => {
           </Button>
         ) : (
           <Button
+            id="create-btn"
             onClick={handleSubmit}
             color="secondary"
             radius="sm"
@@ -282,6 +352,7 @@ const Index = ({ images }) => {
             onChange={(e) => setTitle(e.target.value)}
           />
           <Select
+            id="difficulty"
             size="lg"
             radius="sm"
             classNames={{
@@ -310,6 +381,7 @@ const Index = ({ images }) => {
                   <h1>{cardIndex + 1}</h1>
                 </div>
                 <Button
+                  id="remove-card-btn"
                   radius="sm"
                   isIconOnly
                   onPress={() => handleRemoveCard(cardIndex)}
@@ -385,6 +457,7 @@ const Index = ({ images }) => {
                         ) : (
                           <div className="flex flex-col items-center space-y-2">
                             <Button
+                              id="select-image-btn"
                               radius="sm"
                               color="secondary"
                               className="border-1"
@@ -559,6 +632,7 @@ const Index = ({ images }) => {
         </ModalContent>
       </Modal>
       <Button
+        id="add-card-btn"
         size="lg"
         radius="sm"
         color="secondary"

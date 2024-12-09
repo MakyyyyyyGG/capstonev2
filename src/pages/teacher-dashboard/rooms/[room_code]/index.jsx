@@ -242,6 +242,14 @@ const IndividualRoom = () => {
               },
             },
             {
+              element: "#assignments",
+              popover: {
+                title: "Assignments",
+                description:
+                  "Click here to access assignments you have created and grade student works",
+              },
+            },
+            {
               element: "#students",
               popover: {
                 title: "Students",
@@ -262,7 +270,7 @@ const IndividualRoom = () => {
         });
         driverObj.drive();
         localStorage.setItem("roomCreated", "true");
-      }, 500); // 1 second delay
+      }, 1000); // 1 second delay
 
       return () => clearTimeout(timer); // Cleanup timeout
     }

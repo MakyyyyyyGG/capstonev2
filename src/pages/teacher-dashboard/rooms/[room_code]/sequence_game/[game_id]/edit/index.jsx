@@ -232,6 +232,9 @@ const Index = () => {
         }
       }
       toast.success("Flashcards updated successfully", { id: toastId });
+      const currentPath = router.asPath;
+      const newPath = currentPath.replace("/edit", "");
+      router.push(newPath);
     } catch (error) {
       console.error("Error updating flashcards:", error);
       toast.error("Error updating flashcards", { id: toastId });

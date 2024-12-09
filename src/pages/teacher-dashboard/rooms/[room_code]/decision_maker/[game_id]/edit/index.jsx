@@ -301,6 +301,9 @@ const index = () => {
 
           // Only alert and fetch once after all updates succeed
           fetchCards();
+          const currentPath = router.asPath;
+          const newPath = currentPath.replace("/edit", "");
+          router.push(newPath);
         } catch (error) {
           console.error("Error submitting form:", error);
           throw error;
