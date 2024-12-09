@@ -360,7 +360,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                     Monthly Tries: {attemptsUsed}/8
                   </div>
                 </div>
-                <Shop />
+                {/* <Shop /> */}
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
                 {/* <h1>Questions Answered: {answeredQuestions}</h1>
               <h1>cards length: {cards.length}</h1> */}
@@ -429,7 +429,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                     className="border-4 bg-white rounded-lg"
                   >
                     <Card className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
-                      <CardBody className="flex gap-2 px-auto items-center justify-center pb-0">
+                      <CardBody className="flex gap-2 px-auto items-center justify-center py-0 ">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
                         <div
                           className={`grid ${
@@ -491,9 +491,24 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                 <motion.input
                                   key={idx}
                                   type="text"
-                                  className="w-12 h-12 text-center text-xl font-bold rounded-lg border-4 border-purple-300 focus:border-purple-500 focus:outline-none uppercase"
+                                  className={`w-12 h-12 text-center text-xl font-bold rounded-lg border-4 uppercase focus:outline-none ${
+                                    feedback[index]?.includes("Correct") ||
+                                    attempts[index] >= 3
+                                      ? "border-purple-200 text-gray-500" // Disabled state
+                                      : "border-purple-300 focus:border-purple-500" // Normal and focus state
+                                  }`}
                                   style={{
-                                    filter: "drop-shadow(4px 4px 0px #7828C8",
+                                    backgroundColor:
+                                      feedback[index]?.includes("Correct") ||
+                                      attempts[index] >= 3
+                                        ? "#F3F4F6"
+                                        : "white", // Slightly gray background when disabled
+                                    filter:
+                                      feedback[index]?.includes("Correct") ||
+                                      attempts[index] >= 3
+                                        ? "drop-shadow(4px 4px 0px #a78bfa)" // Softer shadow for disabled state
+                                        : "drop-shadow(4px 4px 0px #7828C8)", // Normal shadow
+                                    opacity: 1,
                                   }}
                                   whileFocus={{ scale: 1.1 }}
                                   maxLength="1"

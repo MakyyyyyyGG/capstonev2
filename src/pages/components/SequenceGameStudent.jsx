@@ -363,7 +363,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                     Monthly Tries: {attemptsUsed}/8
                   </div>
                 </div>
-                <Shop />
+                {/* <Shop /> */}
 
                 <GameHistory gameRecord={gameRecord} cards={gameData.length} />
               </div>

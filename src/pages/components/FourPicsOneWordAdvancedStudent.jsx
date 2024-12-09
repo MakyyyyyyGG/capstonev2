@@ -369,7 +369,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                     Monthly Tries: {attemptsUsed}/8
                   </div>
                 </div>
-                <Shop />
+                {/* <Shop /> */}
                 <GameHistory gameRecord={gameRecord} cards={cards.length} />
                 {/* <h1>Questions Answered: {answeredQuestions}</h1>
               <h1>cards length: {cards.length}</h1> */}

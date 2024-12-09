@@ -354,7 +354,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                   <ArrowLeftRight className="h-4 w-4 mr-1" />
                   Change Icons
                 </Button> */}
-                <Shop />
+                {/* <Shop /> */}
 
                 {gameRecord &&
                   cards && ( // Add null check
