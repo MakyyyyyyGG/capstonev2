@@ -44,6 +44,7 @@ import {
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import toast, { Toaster } from "react-hot-toast";
+import PreviewDecisionMaker from "@/pages/components/PreviewDecisionMaker";
 
 const index = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -360,21 +361,26 @@ const index = () => {
             </PopoverContent>
           </Popover>
         </div>
-        {isLoading ? (
-          <Button isLoading isDisabled color="secondary" radius="sm">
-            Create
-          </Button>
-        ) : (
-          <Button
-            id="create-btn"
-            color="secondary"
-            radius="sm"
-            onPress={handleSubmit}
-            isDisabled={!title || cards.length === 0}
-          >
-            Create
-          </Button>
-        )}
+        <div className="flex gap-2 items-center">
+          <PreviewDecisionMaker />
+          <div>
+            {isLoading ? (
+              <Button isLoading isDisabled color="secondary" radius="sm">
+                Create
+              </Button>
+            ) : (
+              <Button
+                id="create-btn"
+                color="secondary"
+                radius="sm"
+                onPress={handleSubmit}
+                isDisabled={!title || cards.length === 0}
+              >
+                Create
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
       {/* <h1>Room Code: {room_code}</h1> */}
       <div className="items-center z-0">

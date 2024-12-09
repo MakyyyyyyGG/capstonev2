@@ -33,7 +33,7 @@ import {
   Link,
   Upload,
 } from "lucide-react";
-
+import PreviewThinkpic from "@/pages/components/PreviewThinkpic";
 const Index = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -432,28 +432,31 @@ const Index = () => {
       <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1 className="">Create a new ThinkPic Set (4 Pics 1 Word)</h1>
-        <div>
-          {isLoading ? (
-            <Button
-              radius="sm"
-              isDisabled
-              isLoading
-              color="secondary"
-              onPress={handleSubmit}
-            >
-              Create
-            </Button>
-          ) : (
-            <Button
-              id="create-btn"
-              radius="sm"
-              color="secondary"
-              onPress={handleSubmit}
-              isDisabled={!title}
-            >
-              Create
-            </Button>
-          )}
+        <div className="flex gap-2 items-center">
+          <PreviewThinkpic />
+          <div>
+            {isLoading ? (
+              <Button
+                radius="sm"
+                isDisabled
+                isLoading
+                color="secondary"
+                onPress={handleSubmit}
+              >
+                Create
+              </Button>
+            ) : (
+              <Button
+                id="create-btn"
+                radius="sm"
+                color="secondary"
+                onPress={handleSubmit}
+                isDisabled={!title}
+              >
+                Create
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex gap-2 items-center z-0 max-md:flex-col">

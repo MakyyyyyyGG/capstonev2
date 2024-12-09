@@ -36,6 +36,7 @@ import {
   Tab,
 } from "@nextui-org/react";
 import toast, { Toaster } from "react-hot-toast";
+import PreviewThinkpicPlus from "@/pages/components/PreviewThinkpicPlus";
 const Index = () => {
   const { data: session } = useSession();
   const [difficulty, setDifficulty] = useState("easy");
@@ -474,22 +475,25 @@ const Index = () => {
       <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create a new ThinkPic+ Set</h1>
-        <div>
-          {isLoading ? (
-            <Button isLoading isDisabled color="secondary" radius="sm">
-              Create
-            </Button>
-          ) : (
-            <Button
-              id="create-btn"
-              color="secondary"
-              radius="sm"
-              onPress={handleSubmit}
-              isDisabled={!title || !difficulty || cards.length < 2}
-            >
-              Create
-            </Button>
-          )}
+        <div className="flex gap-2 items-center">
+          <PreviewThinkpicPlus />
+          <div>
+            {isLoading ? (
+              <Button isLoading isDisabled color="secondary" radius="sm">
+                Create
+              </Button>
+            ) : (
+              <Button
+                id="create-btn"
+                color="secondary"
+                radius="sm"
+                onPress={handleSubmit}
+                isDisabled={!title || !difficulty || cards.length < 2}
+              >
+                Create
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex gap-2 items-center z-0 max-sm:flex-col">
