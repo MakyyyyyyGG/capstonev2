@@ -398,7 +398,7 @@ const ColorGames = ({ cards = [] }) => {
                     Monthly Tries: {attemptsUsed}/8
                   </div>
                 </div>
-                <Shop aria-label="Shop" />
+                {/* <Shop aria-label="Shop" /> */}
 
                 <GameHistory gameRecord={gameRecord} cards={cards?.length} />
               </div>

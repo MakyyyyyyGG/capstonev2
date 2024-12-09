@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/router";
 import ConfettiCanvas from "react-canvas-confetti";
+import Shop from "@/pages/components/Shop";
 import ConfettiCoins from "./ConfettiCoins";
 import ConfettiExp from "./ConfettiExp";
 import useUserStore from "../api/coins_exp/useUserStore";
@@ -369,6 +370,9 @@ const Summary = ({
                   </CardBody>
 
                   <CardFooter className="flex flex-col gap-3 pt-6">
+                    <div className="w-full">
+                      <Shop aria-label="Shop" />
+                    </div>
                     <Button
                       onClick={() => {
                         setShowEndScreen(false); // Hide end screen

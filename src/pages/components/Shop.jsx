@@ -15,10 +15,11 @@ import {
   SelectItem,
   Image,
   useDisclosure,
+  CircularProgress,
 } from "@nextui-org/react";
 import {
   ShoppingCart,
-  XCircle,
+  X,
   Clock,
   PartyPopper,
   Zap,
@@ -120,7 +121,7 @@ const Shop = () => {
 
   const variants = [
     {
-      price: 100,
+      price: 1,
       duration: 60,
       key: "default",
       label: "Default Confetti",
@@ -205,16 +206,23 @@ const Shop = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-700/80 px-8 py-4 rounded-full text-2xl font-bold flex flex-col items-center"
+              className="fixed bottom-0 right-0 transform -translate-x-1/2 text-purple-700 bg-white rounded-full -translate-y-1/2 px-3 py-3 text-2xl font-bold flex flex-col items-center m-4"
             >
-              {countdown}s
               <Button
-                isIconOnly
-                color="danger"
-                className="mt-2 pointer-events-auto"
+                color="secondary"
+                className="pointer-events-auto h-12 rounded-full bg-white border-4 border-purple-700 text-purple-700"
                 onClick={handleStopConfetti}
               >
-                <XCircle />
+                {/* <CircularProgress
+                  aria-label="Countdown"
+                  formatOptions={{ style: "unit", unit: "second" }}
+                  color="warning"
+                  showValueLabel={true}
+                  size="lg"
+                  value={countdown}
+                /> */}
+                <span className="text-2xl">{countdown}s</span>
+                <X className="font-bold text-purple-700" />
               </Button>
             </motion.div>
             {renderSelectedConfetti()}
@@ -226,12 +234,9 @@ const Shop = () => {
           color="secondary"
           radius="sm"
           onPress={onOpen}
-          className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
-          style={{
-            filter: "drop-shadow(4px 4px 0px #7828C8",
-          }}
+          className="w-full justify-center text-white bg-emerald-500"
         >
-          <ShoppingCart size={20} /> Buy Effects
+          <ShoppingCart className="h-4 w-4 mr-2" /> Buy Effects
         </Button>
 
         <Modal

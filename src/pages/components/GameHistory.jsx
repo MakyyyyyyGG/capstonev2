@@ -30,6 +30,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 const GameHistory = ({ gameRecord = [], cards }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -54,16 +55,22 @@ const GameHistory = ({ gameRecord = [], cards }) => {
 
   return (
     <div>
-      <Button
-        isIconOnly
-        onClick={onOpen}
-        className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
-        style={{
-          filter: "drop-shadow(4px 4px 0px #7828C8",
-        }}
+      <motion.div
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.95 }}
+        className="w-full"
       >
-        <History size={20} />
-      </Button>
+        <Button
+          onClick={onOpen}
+          variant="outline"
+          className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
+          style={{
+            filter: "drop-shadow(4px 4px 0px #7828C8",
+          }}
+        >
+          <History size={20} />
+        </Button>
+      </motion.div>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}

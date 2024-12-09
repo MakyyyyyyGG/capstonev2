@@ -130,7 +130,7 @@ const FlashcardsStudent = ({ flashcards }) => {
             {flashcards[0]?.title}
           </span>
         </div>
-        <Shop />
+        {/* <Shop /> */}
       </div>
       <div className="flex flex-wrap gap-4">
         <Swiper
