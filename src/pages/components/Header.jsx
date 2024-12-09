@@ -826,8 +826,9 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               />
                               <div className="flex flex-col justify-center text-sm">
                                 <Button
+                                  radius="sm"
                                   onClick={editProfilePicture}
-                                  className="bg-[#7469B6] text-white border-0"
+                                  color="secondary"
                                   aria-label="Update Profile Picture"
                                 >
                                   Update Picture
@@ -840,6 +841,11 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                         accept="image/*"
                                         onChange={handleImageChange}
                                         aria-label="Choose Profile Picture"
+                                        className="block w-full text-sm text-slate-500 
+                                        file:mr-3 file:py-1 file:px-3
+                                        file:rounded-md file:border-0
+                                        file:text-sm file:bg-[#7828C8] 
+                                        file:text-white hover:file:bg-[#9353D3]"
                                       />
                                     </div>
                                     <div className="flex justify-end gap-3">
@@ -854,7 +860,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                       <Button
                                         size="sm"
                                         onClick={handleProfilePicture}
-                                        className="bg-[#7469B6] text-white border-0"
+                                        color="secondary"
                                         aria-label="Save Profile Picture"
                                       >
                                         Save
@@ -927,7 +933,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               Cancel
                             </Button>
                             <Button
-                              className="bg-[#7469B6] text-white border-0"
+                              color="secondary"
                               size="sm"
                               onClick={handleSaveClick}
                               aria-label="Save Profile Changes"
@@ -970,7 +976,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           <Button
                             size="sm"
                             radius="full"
-                            className="px-4 bg-[#7469B6] text-white border-0 max-sm:hidden"
+                            color="secondary"
+                            className="px-4 max-sm:hidden"
                             onClick={handleUpdateClick}
                           >
                             Update
@@ -988,7 +995,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                       <Button
                         size="sm"
                         radius="full"
-                        className="px-4 bg-[#7469B6] text-white border-0 sm:hidden"
+                        color="secondary"
+                        className="px-4 sm:hidden"
                         onClick={handleLocUpdateClick}
                       >
                         Update
@@ -1102,7 +1110,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               Cancel
                             </Button>
                             <Button
-                              className="bg-[#7469B6] text-white border-0"
+                              color="secondary"
                               size="sm"
                               onClick={handleLocationSaveClick}
                             >
@@ -1135,7 +1143,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           <Button
                             size="sm"
                             radius="full"
-                            className="px-4 bg-[#7469B6] text-white border-0 max-sm:hidden"
+                            color="secondary"
+                            className="px-4 max-sm:hidden"
                             onClick={handleLocUpdateClick}
                           >
                             Update
@@ -1215,7 +1224,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               Cancel
                             </Button>
                             <Button
-                              className="bg-[#7469B6] text-white border-0"
+                              color="secondary"
                               size="sm"
                               onClick={() => {
                                 handleResetPassword();
@@ -1236,7 +1245,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                           <Button
                             size="sm"
                             radius="full"
-                            className="px-4 bg-[#7469B6] text-white border-0 max-sm:hidden"
+                            color="secondary"
+                            className="px-4 max-sm:hidden"
                             onClick={handlePassUpdateClick}
                           >
                             Update
