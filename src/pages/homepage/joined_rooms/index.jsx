@@ -204,7 +204,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
       ) : filteredRooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center w-full rounded-lg p-4">
           <img
-            src="/no-room.svg"
+            src="/no-game.svg"
             alt="empty-room"
             className="w-[40%] h-[40%] m-auto object-cover"
           />
