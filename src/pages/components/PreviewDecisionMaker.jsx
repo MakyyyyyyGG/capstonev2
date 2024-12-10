@@ -7,6 +7,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
+import { Play } from "lucide-react";
 
 const PreviewDecisionMaker = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -14,13 +15,19 @@ const PreviewDecisionMaker = () => {
 
   return (
     <div>
-      <Button onPress={onOpen} radius="sm" color="secondary" className="">
+      <Button
+        onPress={onOpen}
+        radius="sm"
+        color="secondary"
+        className=""
+        startContent={<Play size={18} />}
+      >
         Preview
       </Button>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        size="xl"
+        size="3xl"
         scrollBehavior={scrollBehavior}
       >
         <ModalContent>

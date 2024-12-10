@@ -29,7 +29,7 @@ import {
 } from "@nextui-org/react";
 import { getImages } from "@/pages/api/getImages";
 import toast, { Toaster } from "react-hot-toast";
-import PreviewColorGame from "@/pages/components/PreviewColorGame";
+// import PreviewColorGame from "@/pages/components/PreviewColorGame";
 
 export async function getStaticProps() {
   const images = getImages();
@@ -316,7 +316,7 @@ const Index = ({ images }) => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Color Game</h1>
         <div className="flex gap-2 items-center">
-          <PreviewColorGame />
+          {/* <PreviewColorGame /> */}
           <div>
             {isLoading ? (
               <Button isDisabled isLoading color="secondary">

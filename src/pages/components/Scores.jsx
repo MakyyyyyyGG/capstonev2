@@ -41,7 +41,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 const Scores = ({ studentRecords, students, height }) => {
-  console.log("Student Records", studentRecords);
+  // console.log("Student Records", studentRecords);
   const { data: session } = useSession();
   const [processedData, setProcessedData] = useState([]);
   const [viewChart, setViewChart] = useState({});

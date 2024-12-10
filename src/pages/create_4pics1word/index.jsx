@@ -33,7 +33,7 @@ import {
   Link,
   Upload,
 } from "lucide-react";
-import PreviewThinkpic from "@/pages/components/PreviewThinkpic";
+// import PreviewThinkpic from "@/pages/components/PreviewThinkpic";
 const Index = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -433,7 +433,7 @@ const Index = () => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1 className="">Create a new ThinkPic Set (4 Pics 1 Word)</h1>
         <div className="flex gap-2 items-center">
-          <PreviewThinkpic />
+          {/* <PreviewThinkpic /> */}
           <div>
             {isLoading ? (
               <Button

@@ -43,7 +43,7 @@ import {
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import toast, { Toaster } from "react-hot-toast";
-import PreviewSequenceGame from "@/pages/components/PreviewSequenceGame";
+// import PreviewSequenceGame from "@/pages/components/PreviewSequenceGame";
 
 const Index = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -575,7 +575,7 @@ const Index = () => {
               </Popover>
             </div>
             <div className="flex gap-2 items-center">
-              <PreviewSequenceGame />
+              {/* <PreviewSequenceGame /> */}
               <div>
                 {isLoading ? (
                   <Button isLoading isDisabled color="secondary" radius="sm">

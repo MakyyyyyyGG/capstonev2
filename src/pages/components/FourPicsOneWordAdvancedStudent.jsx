@@ -9,23 +9,11 @@ import {
   Progress,
   Checkbox,
 } from "@nextui-org/react";
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { Volume2, ArrowLeft, CircleCheck } from "lucide-react";
 import { BiSolidSquareRounded } from "react-icons/bi";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator,
-} from "@/components/ui/input-otp";
+
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  Navigation,
-  Pagination,
-  Scrollbar,
-  A11y,
-  EffectCreative,
-} from "swiper/modules";
+import { EffectCreative } from "swiper/modules";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import "swiper/swiper-bundle.css";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
@@ -60,35 +60,47 @@ const IndividualRoom = () => {
     }
   }, [room_code]);
 
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#classworks",
+          popover: {
+            title: "Classworks",
+            description:
+              "Access your teacher's uploaded classwork materials and assignments",
+            side: "left",
+          },
+        },
+        {
+          element: "#scores",
+          popover: {
+            title: "Scores",
+            description:
+              "View your performance and scores from completed classworks and games",
+            side: "left",
+          },
+        },
+        {
+          element: "#assignments",
+          popover: {
+            title: "Assignments",
+            description: "View and complete assignments given by your teacher",
+            side: "left",
+          },
+        },
+      ],
+    })
+  );
+
   useEffect(() => {
     const isFirstRoomJoin = !localStorage.getItem("roomJoined");
     if (isFirstRoomJoin) {
-      const timer = setTimeout(() => {
-        const driverObj = driver({
-          steps: [
-            {
-              element: "#classworks",
-              popover: {
-                title: "Classworks",
-                description:
-                  "Access your teacher's uploaded classwork materials and assignments",
-                side: "left",
-              },
-            },
-            {
-              element: "#scores",
-              popover: {
-                title: "Scores",
-                description:
-                  "View your performance and scores from completed classworks and games",
-                side: "left",
-              },
-            },
-          ],
-        });
-        driverObj.drive();
-      }, 500);
-      localStorage.setItem("roomJoined", "true");
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("roomJoined", "true");
+      }, 1000);
     }
   }, []);
 
@@ -180,7 +192,7 @@ const IndividualRoom = () => {
                     }
                   ></Tab>
                   <Tab
-                    id="assigment"
+                    id="assignments"
                     key="assigment"
                     title={
                       <div className="flex items-center space-x-2">

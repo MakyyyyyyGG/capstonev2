@@ -10,7 +10,11 @@ import {
 import { TbCards } from "react-icons/tb";
 import { FaRegLightbulb } from "react-icons/fa";
 import { LiaListOlSolid } from "react-icons/lia";
-import Link from "next/link";
+import PreviewFlashcard from "./PreviewFlashcard";
+import PreviewDecisionMaker from "./PreviewDecisionMaker";
+import PreviewSequenceGame from "./PreviewSequenceGame";
+import PreviewThinkpicPlus from "./PreviewThinkpicPlus";
+import PreviewColorGame from "./PreviewColorGame";
 import {
   Card,
   CardHeader,
@@ -32,6 +36,7 @@ const CreateClassWork = ({ room_code }) => {
   const educ = [
     {
       title: "Flashcard",
+      preview: <PreviewFlashcard />,
       path: "create_flashcard",
       icon: <TbCards size={25} className="text-[#7C3AED] " />,
       iconBg: "bg-[#7C3AED]/10",
@@ -46,6 +51,7 @@ const CreateClassWork = ({ room_code }) => {
       path: "create_4pics1word",
       icon: <Grid2x2 size={25} className="text-[#7C3AED]" />,
       iconBg: "bg-[#7C3AED]/10",
+      preview: <PreviewThinkpicPlus />,
       description:
         "Challenge students to guess the word that connects to the images. Test the students' problem solving skills and their vocabulary.",
     },
@@ -54,6 +60,7 @@ const CreateClassWork = ({ room_code }) => {
       path: "create_4pics1word_advanced",
       icon: <LayoutGrid size={25} className="text-[#7C3AED]" />,
       iconBg: "bg-[#7C3AED]/10",
+      preview: <PreviewThinkpicPlus />,
       description:
         "Challenge students to guess the word using the images as the options. This will further test the student's skills in problem solving.",
     },
@@ -62,6 +69,7 @@ const CreateClassWork = ({ room_code }) => {
       path: "create_color_game",
       icon: <Palette size={25} className="text-[#7C3AED]" />,
       iconBg: "bg-[#7C3AED]/10",
+      preview: <PreviewColorGame />,
       description:
         "Enchance students' color recognition skills through identifying images that will match to a specific color.",
     },
@@ -70,6 +78,7 @@ const CreateClassWork = ({ room_code }) => {
       path: "create_color_game_advanced",
       icon: <LiaListOlSolid size={25} className="text-[#7C3AED]" />,
       iconBg: "bg-[#7C3AED]/10",
+      preview: <PreviewSequenceGame />,
       description:
         "Challenge students by asking them to identify and arrange the sequence of images in chronological order.",
     },
@@ -80,6 +89,7 @@ const CreateClassWork = ({ room_code }) => {
         <FaRegLightbulb size={25} className="text-[#7C3AED] -rotate-[15deg]" />
       ),
       iconBg: "bg-[#7C3AED]/10",
+      preview: <PreviewDecisionMaker />,
       description:
         "Practice the students' critical thinking skills by identifying right and wrong actions to help proper decision making in real life.",
     },
@@ -108,7 +118,7 @@ const CreateClassWork = ({ room_code }) => {
         onOpenChange={onOpenChange}
         placement="center"
         scrollBehavior="inside"
-        size="3xl"
+        size="5xl"
       >
         <ModalContent>
           <ModalHeader className="flex justify-center items-center">
@@ -136,17 +146,20 @@ const CreateClassWork = ({ room_code }) => {
                                   className="w-full h-full flex flex-col justify-center items-center"
                                 > */}
                   <CardHeader className="flex gap-5 pt-5 items-center justify-start">
-                    <div className="flex items-center">
-                      <div
-                        className={`flex items-center justify-center w-[50px] h-[50px] p-1 rounded-md ${game.iconBg}`}
-                      >
-                        {game.icon}
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex items-center justify-center w-[50px] h-[50px] p-1 rounded-md ${game.iconBg}`}
+                        >
+                          {game.icon}
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="font-bold text-xl text-left">
+                            {game.title}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex flex-col ml-3 items-center justify-start">
-                        <p className="font-bold text-xl text-left w-full">
-                          {game.title}
-                        </p>
-                      </div>
+                      <div className="ml-auto">{game.preview}</div>
                     </div>
                   </CardHeader>
                   <CardBody className="overflow-visible pt-0 pb-5 text-left">
@@ -175,17 +188,20 @@ const CreateClassWork = ({ room_code }) => {
                     className="w-full h-full flex flex-col justify-center items-center"
                   > */}
                   <CardHeader className="flex gap-5 pt-5 items-center justify-start">
-                    <div className="flex items-center">
-                      <div
-                        className={`flex items-center justify-center w-[50px] h-[50px] p-1 rounded-md ${game.iconBg}`}
-                      >
-                        {game.icon}
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex items-center justify-center w-[50px] h-[50px] p-1 rounded-md ${game.iconBg}`}
+                        >
+                          {game.icon}
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="font-bold text-xl text-left">
+                            {game.title}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex flex-col ml-3 items-center justify-start">
-                        <p className="font-bold text-xl text-left w-full">
-                          {game.title}
-                        </p>
-                      </div>
+                      <div className="ml-auto">{game.preview}</div>
                     </div>
                   </CardHeader>
                   <CardBody className="overflow-visible pt-0 pb-5 text-left">

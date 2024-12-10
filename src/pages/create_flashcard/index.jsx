@@ -36,12 +36,12 @@ import {
   ScanSearch,
   Upload,
 } from "lucide-react";
-import { message } from "antd";
+// import { message } from "antd";
 import toast, { Toaster } from "react-hot-toast";
-import PreviewFlashcard from "@/pages/components/PreviewFlashcard";
+// import PreviewFlashcard from "@/pages/components/PreviewFlashcard";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import Loader from "@/pages/components/Loader";
+// import Loader from "@/pages/components/Loader";
 const Index = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -470,7 +470,7 @@ const Index = () => {
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
             <h1 className="">Create a new flashcard set</h1>
             <div className="flex gap-2 items-center">
-              <PreviewFlashcard />
+              {/* <PreviewFlashcard /> */}
               <div id="create-btn">
                 {isLoading ? (
                   <Button color="secondary" isDisabled isLoading radius="sm">
