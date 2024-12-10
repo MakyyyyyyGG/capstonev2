@@ -29,6 +29,7 @@ import {
 } from "@nextui-org/react";
 import { getImages } from "@/pages/api/getImages";
 import toast, { Toaster } from "react-hot-toast";
+import PreviewColorGame from "@/pages/components/PreviewColorGame";
 
 export async function getStaticProps() {
   const images = getImages();
@@ -314,26 +315,32 @@ const Index = ({ images }) => {
       <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Color Game</h1>
-        {isLoading ? (
-          <Button isDisabled isLoading color="secondary">
-            Create
-          </Button>
-        ) : (
-          <Button
-            id="create-btn"
-            onClick={handleSubmit}
-            color="secondary"
-            radius="sm"
-            isDisabled={
-              !title ||
-              cards.some(
-                (card) => card.images.some((img) => img === null) || !card.color
-              )
-            }
-          >
-            Create
-          </Button>
-        )}
+        <div className="flex gap-2 items-center">
+          <PreviewColorGame />
+          <div>
+            {isLoading ? (
+              <Button isDisabled isLoading color="secondary">
+                Create
+              </Button>
+            ) : (
+              <Button
+                id="create-btn"
+                onClick={handleSubmit}
+                color="secondary"
+                radius="sm"
+                isDisabled={
+                  !title ||
+                  cards.some(
+                    (card) =>
+                      card.images.some((img) => img === null) || !card.color
+                  )
+                }
+              >
+                Create
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>

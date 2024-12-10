@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { message } from "antd";
 import toast, { Toaster } from "react-hot-toast";
-
+import PreviewFlashcard from "@/pages/components/PreviewFlashcard";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Loader from "@/pages/components/Loader";
@@ -469,21 +469,24 @@ const Index = () => {
           <h1>session: {session?.user?.id}</h1> */}
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
             <h1 className="">Create a new flashcard set</h1>
-            <div id="create-btn">
-              {isLoading ? (
-                <Button color="secondary" isDisabled isLoading radius="sm">
-                  Create
-                </Button>
-              ) : (
-                <Button
-                  radius="sm"
-                  color="secondary"
-                  isDisabled={!title}
-                  onClick={handleCreateFlashcard}
-                >
-                  Create
-                </Button>
-              )}
+            <div className="flex gap-2 items-center">
+              <PreviewFlashcard />
+              <div id="create-btn">
+                {isLoading ? (
+                  <Button color="secondary" isDisabled isLoading radius="sm">
+                    Create
+                  </Button>
+                ) : (
+                  <Button
+                    radius="sm"
+                    color="secondary"
+                    isDisabled={!title}
+                    onClick={handleCreateFlashcard}
+                  >
+                    Create
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
           <div id="flashcard-title" className="items-center z-0">
