@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardBody, CardFooter, Button, Switch } from "@nextui-org/react";
-import { RotateCw, RotateCcw, VolumeX, Play, Pause } from "lucide-react";
+import {
+  RotateCw,
+  RotateCcw,
+  VolumeX,
+  Play,
+  Pause,
+  Volume2,
+} from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -140,7 +147,17 @@ const Flashcards = ({ flashcards, isLoading }) => {
                       {showDescription[flashcard.flashcard_id] && (
                         <CardBody className="w-full flex px-8 justify-center items-center flex-row gap-4 scale-x-[-1] max-sm:flex-col max-sm:justify-center max-sm:py-4">
                           {flashcard.image && (
-                            <div className="flex max-w-96 justify-center items-center rounded-md">
+                            <div className="flex flex-col max-w-96 justify-center items-center rounded-md relative">
+                              {flashcard.audio && (
+                                <div
+                                  className="absolute top-4 left-4 z-10 bg-purple-600 p-2 rounded-full"
+                                  onClick={() =>
+                                    handleAudioPlay(flashcard.flashcard_id)
+                                  }
+                                >
+                                  <Volume2 className="h-5 w-5 text-white" />
+                                </div>
+                              )}
                               <img
                                 src={flashcard.image}
                                 alt={flashcard.term}
