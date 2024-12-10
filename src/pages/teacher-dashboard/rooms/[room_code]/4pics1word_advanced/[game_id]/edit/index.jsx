@@ -791,6 +791,9 @@ const Index = () => {
           }
           if (allUpdatesSuccessful) {
             fetchCards(); // Refresh cards after updating
+            const currentPath = router.asPath;
+            const newPath = currentPath.replace("/edit", "");
+            router.push(newPath);
           }
         } catch (error) {
           console.error("Error saving cards:", error);

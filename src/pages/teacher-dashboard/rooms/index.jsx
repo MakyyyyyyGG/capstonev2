@@ -78,16 +78,6 @@ const Rooms = ({ rooms = [], onRoomDeleted }) => {
             alt="No rooms available"
             className="w-[40%] h-[40%] m-auto object-cover"
           />
-          <p className="text-lg font-medium text-gray-600 mt-4">
-            No rooms available. Create a new room to get started!
-          </p>
-          <Button
-            className="mt-4"
-            color="primary"
-            onClick={() => router.push("/teacher-dashboard/create-room")}
-          >
-            Create Room
-          </Button>
         </div>
       ) : (
         // Render rooms

@@ -363,7 +363,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                     Monthly Tries: {attemptsUsed}/8
                   </div>
                 </div>
-                <Shop />
+                {/* <Shop /> */}
 
                 <GameHistory gameRecord={gameRecord} cards={gameData.length} />
               </div>
@@ -390,7 +390,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                 value={(answer / gameData.length) * 100}
                 classNames={{
                   value: "text-foreground/60",
-                  indicator: "bg-[#7469B6]",
+                  indicator: "bg-purple-500",
                   track: "bg-slate-200",
                 }}
               />

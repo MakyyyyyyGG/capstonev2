@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import Header from "@/pages/components/Header";
 import Sidebar from "@/pages/components/Sidebar";
 import { useSession } from "next-auth/react";
@@ -34,12 +36,12 @@ import {
   ScanSearch,
   Upload,
 } from "lucide-react";
-import { message } from "antd";
+// import { message } from "antd";
 import toast, { Toaster } from "react-hot-toast";
-
+// import PreviewFlashcard from "@/pages/components/PreviewFlashcard";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import Loader from "@/pages/components/Loader";
+// import Loader from "@/pages/components/Loader";
 const Index = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -83,9 +85,84 @@ const Index = () => {
     setIsCollapsedSidebar((prev) => !prev);
   }
 
+  const [hasTourShown, setHasTourShown] = useState(false);
+
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#flashcard-title",
+          popover: {
+            title: "Flashcard Title",
+            description: "Enter a title for your flashcard set",
+          },
+        },
+        {
+          element: "#remove-flashcard-btn",
+          popover: {
+            title: "Remove Flashcard",
+            description: "Click here to remove flashcard",
+          },
+        },
+        {
+          element: "#upload-image-btn",
+          popover: {
+            title: "Upload Image",
+            description: "Add an image to your flashcard",
+          },
+        },
+        {
+          element: "#record-audio-btn",
+          popover: {
+            title: "Record Audio",
+            description: "Optionally record audio for pronunciation",
+          },
+        },
+        {
+          element: "#term-input",
+          popover: {
+            title: "Enter Term",
+            description: "Type the term for this flashcard",
+          },
+        },
+        {
+          element: "#description-input",
+          popover: {
+            title: "Enter Description",
+            description: "Add an optional description for this term",
+          },
+        },
+        {
+          element: "#add-flashcard-btn",
+          popover: {
+            title: "Add More Flashcards",
+            description: "Click here to add more flashcards to your set",
+          },
+        },
+        {
+          element: "#create-btn",
+          popover: {
+            title: "Create Flashcard Set",
+            description:
+              "When you're done, click here to create your flashcard set",
+          },
+        },
+      ],
+    })
+  );
+
   useEffect(() => {
-    if (room_code) {
-      console.log("room_code:", room_code);
+    // if (room_code && !hasTourShown) {
+    //   driverObj.current.drive();
+    //   setHasTourShown(true);
+    // }
+    const isTutorialShown = !localStorage.getItem("create-flashcard-tutorial");
+    if (isTutorialShown) {
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("create-flashcard-tutorial", "true");
+      }, 1000);
     }
   }, [room_code]);
 
@@ -392,24 +469,27 @@ const Index = () => {
           <h1>session: {session?.user?.id}</h1> */}
           <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
             <h1 className="">Create a new flashcard set</h1>
-            <div>
-              {isLoading ? (
-                <Button color="secondary" isDisabled isLoading radius="sm">
-                  Create
-                </Button>
-              ) : (
-                <Button
-                  radius="sm"
-                  color="secondary"
-                  isDisabled={!title}
-                  onClick={handleCreateFlashcard}
-                >
-                  Create
-                </Button>
-              )}
+            <div className="flex gap-2 items-center">
+              {/* <PreviewFlashcard /> */}
+              <div id="create-btn">
+                {isLoading ? (
+                  <Button color="secondary" isDisabled isLoading radius="sm">
+                    Create
+                  </Button>
+                ) : (
+                  <Button
+                    radius="sm"
+                    color="secondary"
+                    isDisabled={!title}
+                    onClick={handleCreateFlashcard}
+                  >
+                    Create
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-          <div className="items-center z-0">
+          <div id="flashcard-title" className="items-center z-0">
             <Input
               isRequired
               placeholder="Enter title"
@@ -430,14 +510,16 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {flashcards.map((flashcard, index) => (
               <Card
+                id={index === 0 ? "flashcard-1" : undefined}
                 key={index}
-                className="w-full  rounded-md flex m-auto p-2  border-1 border-[#7469B6]"
+                className="w-full rounded-md flex m-auto p-2 border-1 border-[#7469B6]"
               >
                 <CardHeader className="flex   items-center justify-between ">
                   <div className="pl-2 text-xl font-bold">
                     <h1>{index + 1}</h1>
                   </div>
                   <Button
+                    id="remove-flashcard-btn"
                     radius="sm"
                     isIconOnly
                     color="danger"
@@ -680,6 +762,7 @@ const Index = () => {
                         </div>
                       ) : (
                         <Button
+                          id="upload-image-btn"
                           radius="sm"
                           color="secondary"
                           className="border-1 "
@@ -726,6 +809,7 @@ const Index = () => {
                       ) : (
                         <>
                           <Button
+                            id="record-audio-btn"
                             radius="sm"
                             color="secondary"
                             className="border-1 w-full"
@@ -745,9 +829,10 @@ const Index = () => {
                           </span>
                         </>
                       )}
-                    </div>
+                    </div>{" "}
                     <div className="flex shrink flex-col w-full gap-2">
                       <Input
+                        id="term-input"
                         isClearable
                         onClear={() => handleFlashcardChange(index, "term", "")}
                         type="text"
@@ -766,6 +851,7 @@ const Index = () => {
                     </div>
                     <div className="flex w-full gap-2">
                       <Textarea
+                        id="description-input"
                         rows={5}
                         radius="sm"
                         disableAnimation
@@ -890,6 +976,7 @@ const Index = () => {
             ))}
           </div>
           <Button
+            id="add-flashcard-btn"
             size="lg"
             radius="sm"
             color="secondary"

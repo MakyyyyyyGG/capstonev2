@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import ReactCrop from "react-image-crop";
@@ -36,6 +36,7 @@ import {
   Tab,
 } from "@nextui-org/react";
 import toast, { Toaster } from "react-hot-toast";
+// import PreviewThinkpicPlus from "@/pages/components/PreviewThinkpicPlus";
 const Index = () => {
   const { data: session } = useSession();
   const [difficulty, setDifficulty] = useState("easy");
@@ -397,30 +398,107 @@ const Index = () => {
     setCards(updatedCards);
   }, [difficulty]);
 
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#title",
+          popover: {
+            title: "Set Title",
+            description: "Enter a title for your flashcard set",
+          },
+        },
+        {
+          element: "#difficulty",
+          popover: {
+            title: "Set Difficulty",
+            description:
+              "Choose difficulty level - Easy (2 images), Medium (3 images), or Hard (4 images)",
+          },
+        },
+        {
+          element: "#remove-card-btn",
+          popover: {
+            title: "Remove Card",
+            description: "Click here to remove card",
+          },
+        },
+        {
+          element: "#word",
+          popover: {
+            title: "Enter Word",
+            description: "Add a word to the card",
+          },
+        },
+        {
+          element: "#upload-image-btn",
+          popover: {
+            title: "Upload Image",
+            description: "Add an image to your flashcard",
+          },
+        },
+        {
+          element: "#add-card-btn",
+          popover: {
+            title: "Add More Cards",
+            description: "Click here to add more cards to your set",
+          },
+        },
+        {
+          element: "#create-btn",
+          popover: {
+            title: "Create Flashcard Set",
+            description: "When you're done, click here to create your card set",
+          },
+        },
+      ],
+    })
+  );
+
+  useEffect(() => {
+    // if (room_code) {
+    //   driverObj.current.drive();
+    //   // setHasTourShown(true);
+    // }
+    const isTutorialShown = !localStorage.getItem("create-thinkpic+-tutorial");
+    if (isTutorialShown) {
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("create-thinkpic+-tutorial", "true");
+      }, 1000);
+    }
+  }, [room_code]);
+
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create a new ThinkPic+ Set</h1>
-        <div>
-          {isLoading ? (
-            <Button isLoading isDisabled color="secondary" radius="sm">
-              Create
-            </Button>
-          ) : (
-            <Button
-              color="secondary"
-              radius="sm"
-              onPress={handleSubmit}
-              isDisabled={!title || !difficulty || cards.length < 2}
-            >
-              Create
-            </Button>
-          )}
+        <div className="flex gap-2 items-center">
+          {/* <PreviewThinkpicPlus /> */}
+          <div>
+            {isLoading ? (
+              <Button isLoading isDisabled color="secondary" radius="sm">
+                Create
+              </Button>
+            ) : (
+              <Button
+                id="create-btn"
+                color="secondary"
+                radius="sm"
+                onPress={handleSubmit}
+                isDisabled={!title || !difficulty || cards.length < 2}
+              >
+                Create
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex gap-2 items-center z-0 max-sm:flex-col">
         <Input
+          id="title"
           isRequired
           placeholder="Enter Title"
           size="lg"
@@ -434,6 +512,7 @@ const Index = () => {
           onChange={(e) => setTitle(e.target.value)}
         />
         <Select
+          id="difficulty"
           size="lg"
           radius="sm"
           classNames={{
@@ -463,6 +542,7 @@ const Index = () => {
                 <h1>{cardIndex + 1}</h1>
               </div>
               <Button
+                id="remove-card-btn"
                 isIconOnly
                 color="danger"
                 onPress={() => handleRemoveCard(cardIndex)}
@@ -475,6 +555,7 @@ const Index = () => {
                 <form action="" className="w-full">
                   <div className="flex gap-2 shrink w-full mb-4 items-center">
                     <Input
+                      id="word"
                       label="Enter Question"
                       radius="sm"
                       size="sm"
@@ -503,9 +584,9 @@ const Index = () => {
                       </Button>
                     )}
                   </div>
-                  <span className="text-xs text-gray-500">
+                  {/* <span className="text-xs text-gray-500">
                     Upload images and select which image is the correct answer
-                  </span>
+                  </span> */}
                   <div className={`grid grid-cols-2 gap-2 justify-around`}>
                     {card.images
                       .slice(
@@ -650,6 +731,7 @@ const Index = () => {
                           ) : (
                             <div className="flex flex-col items-center space-y-2">
                               <Button
+                                id="upload-image-btn"
                                 radius="sm"
                                 color="secondary"
                                 onClick={() => {
@@ -905,6 +987,7 @@ const Index = () => {
         </Modal> */}
       </div>
       <Button
+        id="add-card-btn"
         size="lg"
         radius="sm"
         color="secondary"

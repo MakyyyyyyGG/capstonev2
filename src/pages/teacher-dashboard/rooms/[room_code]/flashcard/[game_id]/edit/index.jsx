@@ -202,6 +202,10 @@ const Index = () => {
             }
           }
           setHasUnsavedChanges(false);
+          // After successful save, navigate back
+          const currentPath = router.asPath;
+          const newPath = currentPath.replace("/edit", "");
+          router.push(newPath);
         })(),
         {
           loading: "Saving flashcards...",

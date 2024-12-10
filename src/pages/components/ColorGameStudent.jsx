@@ -398,7 +398,7 @@ const ColorGames = ({ cards = [] }) => {
                     Monthly Tries: {attemptsUsed}/8
                   </div>
                 </div>
-                <Shop aria-label="Shop" />
+                {/* <Shop aria-label="Shop" /> */}
 
                 <GameHistory gameRecord={gameRecord} cards={cards?.length} />
               </div>
@@ -425,7 +425,7 @@ const ColorGames = ({ cards = [] }) => {
                 value={(answer / (cards?.length || 1)) * 100}
                 classNames={{
                   value: "text-foreground/60",
-                  indicator: "bg-[#7469B6]",
+                  indicator: "bg-purple-500",
                   track: "bg-slate-200",
                 }}
                 aria-label="Game progress"

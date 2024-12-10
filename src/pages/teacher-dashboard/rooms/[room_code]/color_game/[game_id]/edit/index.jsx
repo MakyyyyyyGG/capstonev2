@@ -270,6 +270,9 @@ const index = () => {
             const data = await response.json();
             console.log("Color game created successfully:", data);
           }
+          const currentPath = router.asPath;
+          const newPath = currentPath.replace("/edit", "");
+          router.push(newPath);
         } catch (error) {
           console.error("Error creating color game:", error);
           throw error;

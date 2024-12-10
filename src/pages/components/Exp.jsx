@@ -12,7 +12,7 @@ const Exp = ({ exp }) => {
     while (remainingExp >= currentLevelRequirement) {
       remainingExp -= currentLevelRequirement;
       level++;
-      currentLevelRequirement = Math.floor(100 * Math.pow(1.5, level)); // Increase by 50% each level
+      currentLevelRequirement = Math.floor(100 * Math.pow(1.05, level)); // Increase by 50% each level
     }
 
     return {

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Chip, Button, Skeleton } from "@nextui-org/react";
+import {
+  Card,
+  CardBody,
+  Chip,
+  Button,
+  Skeleton,
+  CardFooter,
+} from "@nextui-org/react";
 import Link from "next/link";
 import {
   Trash2,
@@ -376,36 +383,6 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                         </div>
                       </div>
                     </div>
-                    {/* {game.game_type !== "Flashcard" && (
-                      <div className="flex gap-4 items-center text-nowrap">
-                        <div className="flex items-center mr-2 gap-4">
-                          <div className="flex gap-4 text-sm text-gray-600 max-sm:flex-col max-sm:gap-1">
-                            <div className="flex items-center gap-1.5">
-                              <Coins className="h-5 w-5 text-yellow-500" />
-                              <span className="text-lg font-bold">
-                                {getRewards(game.difficulty).coins}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <Star
-                                className="5-4 w-5 text-purple-500"
-                                size={100}
-                              />
-                              <span className="text-lg font-bold">
-                                {getRewards(game.difficulty).exp} EXP
-                              </span>
-                            </div>
-                          </div>
-                          <Chip
-                            variant="bordered"
-                            size="sm"
-                            className="border border-purple-200 text-purple-600 z-0 text-[10px] h-5 font-black py-0"
-                          >
-                            <span className="text-xs">+ Bonus</span>
-                          </Chip>
-                        </div>
-                      </div>
-                    )} */}
                   </div>
                 </Link>
                 <div>
@@ -429,7 +406,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                 key={game.game_id}
                 isPressable
                 radius="sm"
-                className={`shadow-lg border-gray-300 border h-[160px] flex flex-row items-center w-full py-4 px-6 hover:bg-gray-200 hover:border-purple-700 max-sm:px-4 max-sm:py-3 ${
+                className={`shadow-lg min-h-[210px] border-gray-300 border flex flex-col items-center w-full hover:bg-gray-200 hover:border-purple-700 max-sm:px-6 max-sm:py-5 p-2 ${
                   game.difficulty?.toLowerCase() === "easy"
                     ? "bg-gradient-to-br from-white to-emerald-100"
                     : game.difficulty?.toLowerCase() === "medium"
@@ -439,97 +416,46 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                     : "bg-gradient-to-br from-white to-gray-100"
                 }`}
               >
-                {/* <div
-                  className={`absolute bottom-0 right-0 w-[160px] h-[160px] bg-transparent z-0`}
-                >
-                  <div
-                    className={`w-0 h-0 border-b-[160px] border-l-[160px] ${
-                      game.difficulty === "easy"
-                        ? "border-b-green-400 z-0"
-                        : game.difficulty === "medium"
-                        ? "border-b-yellow-400 z-0"
-                        : game.difficulty === "hard"
-                        ? "border-b-red-400 z-0"
-                        : "border-b-gray-400 z-0"
-                    } border-l-transparent`}
-                    // style={{
-                    //   filter: "drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.25))",
-                    // }}
-                  />
-                </div> */}
-                {/* <div
-                  className={`absolute top-0 right-0 w-[80px] h-[80px] bg-transparent`}
-                >
-                  <div
-                    className={`w-0 h-0 border-t-[100px] border-l-[100px] ${
-                      game.difficulty === "easy"
-                        ? "border-t-green-400 "
-                        : game.difficulty === "medium"
-                        ? "border-t-yellow-400"
-                        : game.difficulty === "hard"
-                        ? "border-t-red-400"
-                        : "border-t-gray-400"
-                    } border-l-transparent`}
-                    style={{
-                      filter: "drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.25))",
-                    }}
-                  />
-                </div>
-                <div
-                  className={`absolute top-0 right-0 w-10 h-10 bg-transparent`}
-                >
-                  <div className="w-0 h-0 border-t-[40px] border-l-[40px] border-t-white border-l-transparent" />
-                </div> */}
-                {/* <div className="absolute bottom-4 right-5">
-                  <div className="flex items-center gap-1.5">
-                    <Play className="h-4 w-5 text-white" />
-                    <span className="text-lg text-white font-bold">Play</span>
-                  </div>
-                </div> */}
-                <Link
-                  href={getRedirectUrl(game)}
-                  className="w-full h-[160px] flex items-center"
-                >
-                  <div className="flex flex-col w-full gap-4 z-20">
-                    <div className="flex items-center gap-2 justify-between">
-                      <div className="flex">
-                        <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
-                          {getGameTypeIconStudent(game.game_type)}
-                        </div>
-                        <div className="text-left ml-2">
-                          <div className="text-lg font-bold flex items-center gap-2">
-                            <h1>{game.title}</h1>
+                <CardBody className="w-full">
+                  <div className="flex flex-col w-full gap-4 z-20 ">
+                    <div className="flex items-center gap-2 ">
+                      <div className="flex justify-between  w-full ">
+                        <div className="flex">
+                          <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
+                            {getGameTypeIconStudent(game.game_type)}
                           </div>
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              {game.game_type}
-                            </p>
+                          <div className="text-left ml-2">
+                            <div className="text-lg font-bold flex items-center gap-2">
+                              <div>
+                                <h1>{game.title}</h1>
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">
+                                {game.game_type}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg">
-                        <Play className="h-4 w-4 text-white" />
-                        <span className="text-sm font-semibold text-white">
-                          Play
-                        </span>
+
+                        <div>
+                          {game.difficulty && (
+                            <Chip
+                              variant="flat"
+                              size="sm"
+                              color={getChipColor(game.difficulty)}
+                              className="capitalize px-2"
+                            >
+                              {game.difficulty}
+                            </Chip>
+                          )}
+                        </div>
                       </div>
                     </div>
                     {game.game_type !== "Flashcard" && (
                       <div className="flex gap-4 items-center justify-between">
                         <div className="flex items-center mr-2 gap-4">
                           <div className="flex gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-1.5">
-                              {game.difficulty && (
-                                <Chip
-                                  variant="flat"
-                                  size="sm"
-                                  color={getChipColor(game.difficulty)}
-                                  className="capitalize px-2"
-                                >
-                                  {game.difficulty}
-                                </Chip>
-                              )}
-                            </div>
                             <div className="flex items-center gap-1.5">
                               <Coins className="h-4 w-5 text-yellow-500" />
                               <span className="text-lg font-bold">
@@ -543,28 +469,21 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                               </span>
                             </div>
                           </div>
-                          {/* <Chip
-                              variant="bordered"
-                              size="sm"
-                              className="border border-purple-200 text-purple-600 z-0 text-[10px] h-5 font-black py-0"
-                            >
-                              <span className="text-xs">+ Bonus</span>
-                            </Chip> */}
                         </div>
-                        {/* {game.difficulty && (
-                          <Chip
-                            variant="flat"
-                            size="sm"
-                            color={getChipColor(game.difficulty)}
-                            className="capitalize px-2"
-                          >
-                            {game.difficulty}
-                          </Chip>
-                        )} */}
                       </div>
                     )}
                   </div>
-                </Link>
+                </CardBody>
+                <CardFooter className="w-full justify-end">
+                  <Link href={getRedirectUrl(game)} className="w-full">
+                    <Button className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg w-full">
+                      <Play className="h-4 w-4 text-white" />
+                      <span className="text-sm font-semibold text-white">
+                        Play
+                      </span>
+                    </Button>
+                  </Link>
+                </CardFooter>
               </Card>
             </div>
           ) : null}

@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
 import { useRouter } from "next/router";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -377,6 +375,10 @@ const index = () => {
             }
           }
           setHasUnsavedChanges(false); // Reset unsaved changes flag
+          // After successful save, navigate back
+          const currentPath = router.asPath;
+          const newPath = currentPath.replace("/edit", "");
+          router.push(newPath);
         } catch (error) {
           console.error("Error saving cards:", error);
           throw error;
