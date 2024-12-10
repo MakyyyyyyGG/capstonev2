@@ -28,10 +28,10 @@ const Exp = ({ exp }) => {
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
-        <Star className="5-4 w-5 text-purple-500" size={100} />
+        <Star className="w-5 w-5 text-purple-500 max-sm:w-4" />
         <div className="text-md font-medium">Level {level}</div>
       </div>
-      <div className="flex w-48 flex-col gap-1 max-sm:w-28">
+      <div className="flex w-48 flex-col gap-1 max-sm:hidden">
         <Progress
           size="sm"
           radius="sm"

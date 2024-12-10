@@ -68,9 +68,10 @@ const JoinRoom = () => {
         onPress={onOpen}
         radius="sm"
         color="secondary"
-        startContent={<Plus size={20} />}
+        startContent={<Plus size={20} className="mr-1" />}
+        className="gap-0"
       >
-        Join Room
+        Join <span className="ml-1 max-sm:hidden">Room</span>
       </Button>
       <Modal
         isOpen={isOpen}

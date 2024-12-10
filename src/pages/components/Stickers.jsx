@@ -291,8 +291,15 @@ const Stickers = ({ stickers = [], ownedStickers = [], onRefetch }) => {
 
   return (
     <>
-      <Button onClick={onOpen} radius="sm" size="lg" color="secondary">
-        <Sparkles size={20} /> Stickers Collection
+      <Button
+        onClick={onOpen}
+        radius="sm"
+        size="lg"
+        color="secondary"
+        className="gap-0"
+      >
+        <Sparkles size={20} className="mr-2" /> Stickers
+        <span className="ml-1 max-sm:hidden">Collection</span>
       </Button>
       <Modal
         isOpen={isOpen}
