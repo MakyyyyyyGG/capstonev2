@@ -4,7 +4,7 @@ import { Chip } from "@nextui-org/react";
 import FourPicsOneWord from "@/pages/components/FourPicsOneWord";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
-import { Pencil, ChevronLeft } from "lucide-react";
+import { Pencil, ArrowLeft } from "lucide-react";
 import Loader from "@/pages/components/Loader";
 const Index = () => {
   const router = useRouter();
@@ -59,14 +59,21 @@ const Index = () => {
 
   return (
     <div className="w-full flex flex-col gap-2 p-4 max-w-[50rem] mx-auto">
-      <div className="w-full flex justify-between items-center">
-        <div className="flex gap-4 items-center">
+      <div
+        className="flex w-full max-w-[50rem] mx-auto justify-center items-center bg-white border-4 border-purple-300 rounded-md p-4"
+        style={{
+          filter: "drop-shadow(4px 4px 0px #7828C8",
+        }}
+      >
+        <div className="flex w-full gap-4 items-center">
           <div
             className="flex items-center gap-2"
             onClick={() => router.back()}
           >
-            <ChevronLeft size={25} />
-            <h1 className="text-2xl font-extrabold">{cards[0]?.title}</h1>
+            <ArrowLeft size={24} className="text-purple-700" />
+            <span className="text-2xl font-bold text-purple-700">
+              {cards[0]?.title}
+            </span>
           </div>
           {cards && cards.length > 0 && (
             <div className="text-lg font-bold ">
@@ -87,7 +94,13 @@ const Index = () => {
             pathname: `/teacher-dashboard/rooms/${room_code}/4pics1word/${game_id}/edit`,
           }}
         >
-          <Button radius="sm" color="secondary">
+          <Button
+            radius="sm"
+            className="justify-center text-purple-700 bg-white border-4 border-purple-300"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
             <Pencil size={20} /> Edit
           </Button>
         </Link>

@@ -11,7 +11,7 @@ import {
 import { Chip } from "@nextui-org/react";
 import SequenceGame from "@/pages/components/SequenceGame";
 import Link from "next/link";
-import { Pencil, ChevronLeft } from "lucide-react";
+import { Pencil, ArrowLeft } from "lucide-react";
 
 const index = () => {
   const router = useRouter();
@@ -76,16 +76,21 @@ const index = () => {
 
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
-      <div className="w-full flex justify-between items-center">
+      <div
+        className="flex w-full max-w-[80rem] mx-auto justify-between items-center bg-white border-4 border-purple-300 rounded-md p-4"
+        style={{
+          filter: "drop-shadow(4px 4px 0px #7828C8",
+        }}
+      >
         <div className="flex gap-4 items-center">
           <div
             className="flex items-center gap-2"
             onClick={() => router.back()}
           >
-            <ChevronLeft size={25} />
-            <h1 className="text-2xl font-extrabold">
+            <ArrowLeft size={24} className="text-purple-700" />
+            <span className="text-2xl font-bold text-purple-700">
               {sequenceGame[0]?.title}
-            </h1>
+            </span>
           </div>
           {difficulty && (
             <div className="text-lg font-bold">
@@ -105,7 +110,13 @@ const index = () => {
             pathname: `/teacher-dashboard/rooms/${room_code}/sequence_game/${game_id}/edit`,
           }}
         >
-          <Button radius="sm" color="secondary">
+          <Button
+            radius="sm"
+            className="justify-center text-purple-700 bg-white border-4 border-purple-300"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
             <Pencil size={20} /> Edit
           </Button>
         </Link>

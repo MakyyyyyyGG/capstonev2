@@ -478,7 +478,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                 <motion.input
                                   key={idx}
                                   type="text"
-                                  className={`w-12 h-12 text-center text-xl font-bold rounded-lg border-4 uppercase focus:outline-none ${
+                                  className={`w-12 h-12 text-center text-purple-700 text-xl font-bold rounded-lg border-4 uppercase focus:outline-none ${
                                     feedback[index]?.includes("Correct") ||
                                     attempts[index] >= 3
                                       ? "border-purple-200 text-gray-500" // Disabled state

@@ -153,8 +153,13 @@ const SequenceGame = ({ sequenceGame }) => {
     <div className="w-full flex flex-col gap-4 max-w-[80rem] mx-auto">
       {gameData && gameData.length > 0 && gameData[0].video && (
         <>
-          <div className="flex w-full justify-center">
-            <div className="aspect-video w-full max-w-[80rem] max-h-[300px] rounded-lg overflow-hidden 'bg-black'">
+          <div
+            className="flex w-full max-w-[80rem] mx-auto justify-between items-center bg-white border-4 border-purple-300 rounded-md p-1 mb-4"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
+            <div className="aspect-video w-full max-w-[80rem] max-h-[300px] rounded-md overflow-hidden 'bg-black'">
               {gameData[0].video.includes("youtube") ? (
                 <iframe
                   src={gameData[0].video}
@@ -177,11 +182,18 @@ const SequenceGame = ({ sequenceGame }) => {
       )}
       <div className="flex justify-center items-center">
         <div className="w-full max-w-[80rem] grid md:grid-cols-2 gap-3">
-          <Card className="p-4 max-md:h-96">
+          <Card
+            className="bg-white border-4 border-purple-300 rounded-md p-4 max-md:h-96"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
             <CardHeader>
-              <h1 className="text-xl font-bold">Available Steps</h1>
+              <h1 className="text-xl text-purple-700 font-bold">
+                Available Steps
+              </h1>
             </CardHeader>
-            <CardBody className="relative border rounded-lg shadow-inner">
+            <CardBody className="relative border-2 border-purple-300 rounded-md shadow-inner">
               {sequenceGame.map(
                 (item, index) =>
                   !selectedImages.includes(item.image) && (
@@ -191,7 +203,7 @@ const SequenceGame = ({ sequenceGame }) => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleImageSelect(item.image)}
-                      className="absolute w-24 h-24 m-4 aspect-square rounded-lg overflow-hidden border"
+                      className="absolute w-24 h-24 m-4 aspect-square rounded-md overflow-hidden border border-purple-300"
                     >
                       <img
                         src={item.image}
@@ -203,15 +215,22 @@ const SequenceGame = ({ sequenceGame }) => {
               )}
             </CardBody>
           </Card>
-          <Card className="p-4">
+          <Card
+            className="bg-white border-4 border-purple-300 p-4 rounded-md"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
+          >
             <CardHeader>
-              <h1 className="text-xl font-bold">Arrange the Sequence</h1>
+              <h1 className="text-xl text-purple-700 font-bold">
+                Arrange the Sequence
+              </h1>
             </CardHeader>
             <CardBody className="flex flex-col gap-3">
               {sequenceGame.map((item, index) => (
                 <Card
                   key={index}
-                  className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg border shadow-sm"
+                  className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg border shadow-sm border-4 border-purple-300"
                 >
                   <div className="flex w-full gap-4 justify-between items-center">
                     <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
@@ -232,10 +251,10 @@ const SequenceGame = ({ sequenceGame }) => {
                     </div>
 
                     <div className="flex-1">
-                      <h3 className="font-medium">Step {index + 1}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {item.step}
-                      </p>
+                      <h3 className="font-semibold text-purple-700">
+                        Step {index + 1}
+                      </h3>
+                      <p className="text-sm text-purple-500">{item.step}</p>
                     </div>
 
                     {item.audio && (
@@ -270,12 +289,16 @@ const SequenceGame = ({ sequenceGame }) => {
 
                     {selectedImages[index] && (
                       <>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button
                             isIconOnly
                             radius="sm"
                             variant="flat"
                             onClick={() => handleRemoveImage(index)}
+                            className="w-full justify-center text-gray-700 bg-white border-4 border-gray-300"
+                            style={{
+                              filter: "drop-shadow(4px 4px 0px #6b7280",
+                            }}
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -285,6 +308,10 @@ const SequenceGame = ({ sequenceGame }) => {
                             variant="flat"
                             color="success"
                             onClick={() => handleCheckStep(index)}
+                            className="w-full justify-center text-green-700 bg-white border-4 border-green-300"
+                            style={{
+                              filter: "drop-shadow(4px 4px 0px #22c55e",
+                            }}
                           >
                             <Check className="h-4 w-4" />
                           </Button>
@@ -315,7 +342,15 @@ const SequenceGame = ({ sequenceGame }) => {
             </CardBody>
 
             <CardFooter className="flex justify-between items-center py-4">
-              <Button onClick={handleReset} variant="bordered" radius="sm">
+              <Button
+                onClick={handleReset}
+                variant="bordered"
+                radius="sm"
+                className="justify-center text-purple-700 bg-white border-4 border-purple-300"
+                style={{
+                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                }}
+              >
                 <RefreshCw className="h-4 w-4 mr-2" /> Reset
               </Button>
             </CardFooter>
