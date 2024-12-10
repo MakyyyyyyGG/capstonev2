@@ -4,7 +4,7 @@ import Flashcards from "@/pages/components/Flashcards";
 import Link from "next/link";
 import { Chip } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import { Pencil, ChevronLeft } from "lucide-react";
+import { Pencil, ArrowLeft } from "lucide-react";
 import DecisionMaker from "@/pages/components/DecisionMaker";
 const index = () => {
   const router = useRouter();
@@ -47,7 +47,7 @@ const index = () => {
     ) {
       case "easy":
         return "success";
-      case "moderate":
+      case "medium":
         return "warning";
       case "hard":
         return "danger";
@@ -58,14 +58,21 @@ const index = () => {
 
   return (
     <div className="w-full flex flex-col gap-2 p-4 max-w-[50rem] mx-auto">
-      <div className="flex items-center justify-between">
+      <div
+        className="flex w-full max-w-[50rem] mx-auto justify-between items-center bg-white border-4 border-purple-300 rounded-md p-4"
+        style={{
+          filter: "drop-shadow(4px 4px 0px #7828C8",
+        }}
+      >
         <div className="flex gap-4 items-center">
           <div
             className="flex items-center gap-2"
             onClick={() => router.back()}
           >
-            <ChevronLeft size={25} />
-            <h1 className="text-2xl font-extrabold">{cards[0]?.title}</h1>
+            <ArrowLeft size={24} className="text-purple-700" />
+            <span className="text-2xl font-bold text-purple-700">
+              {cards[0]?.title}
+            </span>
           </div>
           {cards && cards.length > 0 && (
             <div className="text-lg font-bold ">
@@ -80,7 +87,13 @@ const index = () => {
             </div>
           )}
         </div>
-        <Button radius="sm" color="secondary">
+        <Button
+          radius="sm"
+          className="justify-center text-purple-700 bg-white border-4 border-purple-300"
+          style={{
+            filter: "drop-shadow(4px 4px 0px #7828C8",
+          }}
+        >
           <Link
             href={{
               pathname: `/teacher-dashboard/rooms/${room_code}/decision_maker/${game_id}/edit`,

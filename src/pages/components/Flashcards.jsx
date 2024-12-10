@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardBody, CardFooter, Button, Switch } from "@nextui-org/react";
-import { RotateCw, RotateCcw, VolumeX, Play, Pause } from "lucide-react";
+import {
+  RotateCw,
+  RotateCcw,
+  VolumeX,
+  Play,
+  Pause,
+  Volume2,
+} from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -95,9 +102,9 @@ const Flashcards = ({ flashcards, isLoading }) => {
         <>
           <div className="flex flex-wrap gap-4">
             <Swiper
-              pagination={{
-                type: "progressbar",
-              }}
+              // pagination={{
+              //   type: "progressbar",
+              // }}
               grabCursor={true}
               effect={"creative"}
               creativeEffect={{
@@ -111,7 +118,10 @@ const Flashcards = ({ flashcards, isLoading }) => {
               }}
               navigation={true}
               modules={[Pagination, Navigation, EffectCreative]}
-              className="mySwiper w-full drop-shadow-lg rounded-md items"
+              className="mySwiper w-full drop-shadow-lg rounded-md"
+              style={{
+                filter: "drop-shadow(4px 4px 0px #7828C8",
+              }}
             >
               {flashcards.map((flashcard) => (
                 <SwiperSlide key={flashcard.flashcard_id}>
@@ -125,10 +135,10 @@ const Flashcards = ({ flashcards, isLoading }) => {
                     className="relative w-full h-full"
                     style={{ perspective: 1000 }}
                   >
-                    <Card className="w-full h-[500px] rounded-md">
+                    <Card className="w-full h-[500px] border-4 border-purple-300 rounded-md">
                       {!showDescription[flashcard.flashcard_id] && (
                         <CardBody className="flex flex-col justify-center items-center gap-4">
-                          <div className="flex text-6xl font-extrabold">
+                          <div className="flex text-6xl text-purple-700 font-extrabold">
                             <p>{flashcard.term}</p>
                           </div>
                         </CardBody>
@@ -137,16 +147,29 @@ const Flashcards = ({ flashcards, isLoading }) => {
                       {showDescription[flashcard.flashcard_id] && (
                         <CardBody className="w-full flex px-8 justify-center items-center flex-row gap-4 scale-x-[-1] max-sm:flex-col max-sm:justify-center max-sm:py-4">
                           {flashcard.image && (
-                            <div className="flex max-w-96 justify-center items-center rounded-md">
+                            <div className="flex flex-col max-w-96 justify-center items-center rounded-md relative">
+                              {flashcard.audio && (
+                                <div
+                                  className="absolute top-4 left-4 z-10 bg-purple-600 p-2 rounded-full"
+                                  onClick={() =>
+                                    handleAudioPlay(flashcard.flashcard_id)
+                                  }
+                                >
+                                  <Volume2 className="h-5 w-5 text-white" />
+                                </div>
+                              )}
                               <img
                                 src={flashcard.image}
                                 alt={flashcard.term}
-                                className={`w-full border-2 border-[#7469B6] rounded-md aspect-square object-cover cursor-pointer ${
+                                className={`w-full border-4 border-purple-300 bg-white rounded-md aspect-square object-cover cursor-pointer ${
                                   flashcard.audio &&
                                   audioPlaying === flashcard.flashcard_id
                                     ? "opacity-80"
                                     : "opacity-100"
                                 }`}
+                                style={{
+                                  filter: "drop-shadow(4px 4px 0px #7828C8)",
+                                }}
                                 onClick={() =>
                                   handleAudioPlay(flashcard.flashcard_id)
                                 }
@@ -215,8 +238,11 @@ const Flashcards = ({ flashcards, isLoading }) => {
                       >
                         <Button
                           radius="sm"
-                          color="secondary"
                           onClick={() => toggleCardBody(flashcard.flashcard_id)}
+                          className="justify-center text-purple-700 bg-white border-4 border-purple-300 mb-2"
+                          style={{
+                            filter: "drop-shadow(4px 4px 0px #7828C8",
+                          }}
                         >
                           {showDescription[flashcard.flashcard_id] ? (
                             <RotateCcw size={20} />

@@ -492,7 +492,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     ) : (
       <div className="absolute flex flex-col items-center justify-center w-full rounded-lg p-4 h-[700px] ">
         <img
-          src="/no-game.svg"
+          src="/no-room.svg"
           alt="empty-game"
           className="object-cover h-full"
         />

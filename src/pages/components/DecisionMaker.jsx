@@ -116,35 +116,45 @@ const DecisionMaker = ({ cards }) => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+    <div className="w-full flex flex-col gap-2 max-w-[50rem] mx-auto">
       <div className="flex w-full max-w-[50rem] items-center justify-between items-center">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Button
-              radius="sm"
-              isIconOnly
-              color="secondary"
-              variant="flat"
-              startContent={hideWord ? <EyeOff /> : <Eye />}
-              onClick={() => setHideWord(!hideWord)}
-            ></Button>
-            {hideWord ? (
-              <span className="text-sm text-default-500">Hide Word</span>
-            ) : (
-              <span className="text-sm text-default-500">Show Word</span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              radius="sm"
-              isIconOnly
-              variant="flat"
-              color="secondary"
-              onPress={changeIconPair}
-            >
-              <ArrowLeftRight className="h-4 w-4" />
-            </Button>
-            <span className="text-sm text-default-500">Change Icons</span>
+        <div
+          className="flex w-full max-w-[50rem] mx-auto justify-end items-center bg-white border-4 border-purple-300 rounded-md p-4 "
+          style={{
+            filter: "drop-shadow(4px 4px 0px #7828C8",
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Button
+                radius="sm"
+                className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
+                style={{
+                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                }}
+                startContent={hideWord ? <EyeOff /> : <Eye />}
+                onClick={() => setHideWord(!hideWord)}
+              >
+                {hideWord ? (
+                  <span className="text-sm text-purple-700">Hide Word</span>
+                ) : (
+                  <span className="text-sm text-purple-700">Show Word</span>
+                )}
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                radius="sm"
+                className="w-full justify-center text-purple-700 bg-white border-4 border-purple-300"
+                style={{
+                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                }}
+                onPress={changeIconPair}
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+                <span className="text-sm text-purple-700">Change Icons</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -169,6 +179,9 @@ const DecisionMaker = ({ cards }) => {
             }}
             modules={[EffectCreative]}
             className="mySwiper w-full drop-shadow-lg rounded-md"
+            style={{
+              filter: "drop-shadow(4px 4px 0px #7828C8",
+            }}
           >
             {cards.map((card) => (
               <SwiperSlide key={card.decision_maker_id}>
@@ -176,11 +189,11 @@ const DecisionMaker = ({ cards }) => {
                   required
                   isRequired
                   key={card.decision_maker_id}
-                  className="mx-auto w-full h-[40rem] gap-2 aspect-square overflow-hidden rounded-xl bg-white shadow-lg"
+                  className="mx-auto w-full h-[40rem] gap-2 aspect-square overflow-hidden rounded-md bg-white shadow-lg border-4 border-purple-300 p-4"
                 >
                   <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
                     {!hideWord ? (
-                      <h1 className="text-4xl font-extrabold mb-5 capitalize">
+                      <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize">
                         {card.word}
                       </h1>
                     ) : (
@@ -229,8 +242,10 @@ const DecisionMaker = ({ cards }) => {
                           radius="sm"
                           onPress={() => handleVote(card, "positive")}
                           color="success"
-                          variant="flat"
-                          className="w-full h-16 text-lg"
+                          className="w-full h-16 justify-center text-green-700 text-lg bg-white border-4 border-green-300"
+                          style={{
+                            filter: "drop-shadow(4px 4px 0px #22c55e",
+                          }}
                         >
                           {buttonPairs[currentPairIndex].positive}
                         </Button>
@@ -244,8 +259,10 @@ const DecisionMaker = ({ cards }) => {
                           radius="sm"
                           onPress={() => handleVote(card, "negative")}
                           color="danger"
-                          variant="flat"
-                          className="w-full h-16 text-lg"
+                          className="w-full h-16 justify-center text-red-700 text-lg bg-white border-4 border-red-300"
+                          style={{
+                            filter: "drop-shadow(4px 4px 0px #ef4444",
+                          }}
                         >
                           {buttonPairs[currentPairIndex].negative}
                         </Button>
