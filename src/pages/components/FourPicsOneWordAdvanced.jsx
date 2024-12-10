@@ -177,20 +177,23 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
           }}
           modules={[EffectCreative]}
           className="mySwiper w-full drop-shadow-lg rounded-md"
+          style={{
+            filter: "drop-shadow(4px 4px 0px #7828C8",
+          }}
         >
           {cards.map((card, index) => (
             <SwiperSlide key={index} className="w-[500px]">
-              <Card className="w-full flex flex-col h-[40rem] aspect-square mx-auto">
-                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
-                  <div className="flex justify-center items-center gap-2 mb-4">
-                    <div className="text-4xl font-extrabold">
+              <Card className="w-full rounded-md border-4 border-purple-300 bg-white shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
+                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center py-0">
+                  <div className="flex justify-center items-center gap-2">
+                    <div className="text-4xl text-purple-700 font-extrabold">
                       <h1>{card.word}</h1>
                     </div>
                     <div className="flex justify-center items-center">
                       {card.word && (
                         <Button
                           isIconOnly
-                          className="text-[#7469B6]"
+                          className="text-purple-700"
                           variant="light"
                           onPress={() => handleTextToSpeech(card.word)}
                         >
@@ -206,7 +209,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         : card.difficulty === "medium"
                         ? "grid-cols-3 justify-center max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                         : "grid-cols-2 justify-center max-w-[24rem]"
-                    } gap-2`}
+                    } gap-4`}
                   >
                     {card.image1 && (
                       <motion.div
@@ -216,12 +219,15 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(0)
-                            ? "border-4 border-[#9353D3]"
-                            : "border-4 border-transparent"
+                            ? "border-4 border-purple-300 bg-white"
+                            : "border-4 border-transparent bg-white"
                         }`}
                         style={{
                           transition:
                             "border-color 0.3s ease, transform 0.3s ease",
+                          filter: selectedImages[index]?.includes(0)
+                            ? "drop-shadow(4px 4px 0px #7828C8)"
+                            : "none", // Apply shadow only when the image is selected
                         }}
                         onClick={() => handleImageSelect(0, index)}
                       >
@@ -250,12 +256,15 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(1)
-                            ? "border-4 border-[#9353D3]"
-                            : "border-4 border-transparent"
+                            ? "border-4 border-purple-300 bg-white"
+                            : "border-4 border-transparent bg-white"
                         }`}
                         style={{
                           transition:
                             "border-color 0.3s ease, transform 0.3s ease",
+                          filter: selectedImages[index]?.includes(1)
+                            ? "drop-shadow(4px 4px 0px #7828C8)"
+                            : "none", // Apply shadow only when the image is selected
                         }}
                         onClick={() => handleImageSelect(1, index)}
                       >
@@ -284,12 +293,15 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(2)
-                            ? "border-4 border-[#9353D3]"
-                            : "border-4 border-transparent"
+                            ? "border-4 border-purple-300 bg-white"
+                            : "border-4 border-transparent bg-white"
                         }`}
                         style={{
                           transition:
                             "border-color 0.3s ease, transform 0.3s ease",
+                          filter: selectedImages[index]?.includes(2)
+                            ? "drop-shadow(4px 4px 0px #7828C8)"
+                            : "none", // Apply shadow only when the image is selected
                         }}
                         onClick={() => handleImageSelect(2, index)}
                       >
@@ -318,12 +330,15 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                         className={`relative hover:cursor-pointer rounded-md ${
                           selectedImages[index] &&
                           selectedImages[index].includes(3)
-                            ? "border-4 border-[#9353D3]"
-                            : "border-4 border-transparent"
+                            ? "border-4 border-purple-300 bg-white"
+                            : "border-4 border-transparent bg-white"
                         }`}
                         style={{
                           transition:
                             "border-color 0.3s ease, transform 0.3s ease",
+                          filter: selectedImages[index]?.includes(3)
+                            ? "drop-shadow(4px 4px 0px #7828C8)"
+                            : "none", // Apply shadow only when the image is selected
                         }}
                         onClick={() => handleImageSelect(3, index)}
                       >
@@ -346,7 +361,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                     )}
                   </div>
                 </CardBody>
-                <CardFooter className="w-full flex flex-col gap-2">
+                <CardFooter className="w-full flex flex-col gap-2 py-2">
                   <AnimatePresence>
                     {feedback[index] && (
                       <motion.div
@@ -373,9 +388,11 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                   </AnimatePresence>
                   <Button
                     radius="sm"
-                    color="secondary"
                     onClick={handleCheckAnswers}
-                    className="w-full h-16 justify-center text-lg"
+                    className="w-full h-16 justify-center text-purple-700 text-lg bg-white border-4 border-purple-300"
+                    style={{
+                      filter: "drop-shadow(4px 4px 0px #7828C8",
+                    }}
                   >
                     Check Answer
                   </Button>

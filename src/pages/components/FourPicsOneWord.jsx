@@ -154,6 +154,9 @@ const FourPicsOneWord = ({ cards = [] }) => {
           }}
           modules={[EffectCreative]}
           className="mySwiper w-full drop-shadow-lg rounded-md"
+          style={{
+            filter: "drop-shadow(4px 4px 0px #7828C8",
+          }}
         >
           {cards &&
             cards.map(
@@ -162,7 +165,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                 index // Add null check
               ) => (
                 <SwiperSlide key={index}>
-                  <Card className="w-full flex flex-col gap-2 max-w-[50rem] mx-auto">
+                  <Card className="w-full flex flex-col gap-2 max-w-[50rem] mx-auto border-4 border-purple-300 rounded-md p-4">
                     <CardBody className="flex flex-col gap-4 px-auto items-center justify-center">
                       <div
                         className={`grid ${
@@ -181,7 +184,7 @@ const FourPicsOneWord = ({ cards = [] }) => {
                               ].filter(Boolean).length === 3
                             ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
                             : "grid-cols-2"
-                        } gap-2 justify-center`}
+                        } gap-4 justify-center`}
                       >
                         {[
                           card.image1,
@@ -195,7 +198,10 @@ const FourPicsOneWord = ({ cards = [] }) => {
                                 key={idx}
                                 src={`${image}`}
                                 alt={`Image ${idx + 1}`}
-                                className="w-full aspect-square border-2 border-[#9353d3] object-cover rounded-md"
+                                className="w-full aspect-square border-4 border-purple-300 bg-white object-cover rounded-md"
+                                style={{
+                                  filter: "drop-shadow(4px 4px 0px #7828C8",
+                                }}
                               />
                             )
                         )}
@@ -204,7 +210,9 @@ const FourPicsOneWord = ({ cards = [] }) => {
                     <div className="flex justify-center flex-col gap-2 items-center">
                       <div className="flex justify-center flex-col gap-2 items-center">
                         <header>
-                          <h1 className="text-xl font-bold mb-1">Answer</h1>
+                          <h1 className="text-xl font-bold text-purple-700 mb-1">
+                            Answer
+                          </h1>
                         </header>
                         <form id="otp-form">
                           <div className="flex items-center justify-center gap-3">
@@ -221,7 +229,11 @@ const FourPicsOneWord = ({ cards = [] }) => {
                                       <React.Fragment key={idx}>
                                         <InputOTPSlot
                                           index={idx}
-                                          className="w-12 h-12 text-center text-xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                          className="w-12 h-12 text-center text-purple-700 text-xl font-bold rounded-lg border-4 border-purple-300 uppercase bg-white"
+                                          style={{
+                                            filter:
+                                              "drop-shadow(4px 4px 0px #7828C8)",
+                                          }}
                                           maxLength="1"
                                           value={
                                             userAnswers[index]?.[idx] || ""
@@ -255,13 +267,10 @@ const FourPicsOneWord = ({ cards = [] }) => {
                         </form>
                       </div>
                       <CardFooter className="flex flex-col items-center text-center gap-2">
-                        <header className="mb-4">
-                          <h1 className="text-xl font-bold mb-1">
-                            Enter Your Answer
+                        <header>
+                          <h1 className="text-xl font-bold text-purple-700 mb-1">
+                            Enter Your Answer!
                           </h1>
-                          <p className="text-xs text-slate-500">
-                            Enter the answer based on the images above.
-                          </p>
                         </header>
                         <form id="otp-form">
                           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -277,7 +286,11 @@ const FourPicsOneWord = ({ cards = [] }) => {
                                       }
                                       inputRefs.current[index][slotIndex] = el;
                                     }}
-                                    className="w-12 h-12 text-center text-xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded py-4 px-1 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                    className="w-12 h-12 text-center text-xl text-purple-700 font-bold rounded-lg border-4 border-purple-300 uppercase bg-white"
+                                    style={{
+                                      filter:
+                                        "drop-shadow(4px 4px 0px #7828C8)",
+                                    }}
                                     maxLength="1"
                                     value={
                                       userAnswers[index]?.[slotIndex] || ""
@@ -326,7 +339,10 @@ const FourPicsOneWord = ({ cards = [] }) => {
                             radius="sm"
                             size="lg"
                             color="secondary"
-                            className="w-full h-16 justify-center text-lg"
+                            className="w-full h-16 justify-center text-purple-700 text-lg bg-white border-4 border-purple-300"
+                            style={{
+                              filter: "drop-shadow(4px 4px 0px #7828C8",
+                            }}
                             onClick={() => checkAnswer(index)}
                           >
                             Check Answer
