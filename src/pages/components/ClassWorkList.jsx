@@ -490,7 +490,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
         </li>
       ))
     ) : (
-      <div className="flex flex-col items-center justify-center w-full rounded-lg p-4  h-[700px] ">
+      <div className="absolute flex flex-col items-center justify-center w-full rounded-lg p-4 h-[700px] ">
         <img
           src="/no-game.svg"
           alt="empty-game"
@@ -554,7 +554,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
         </div>
       </div>
 
-      <div className="flex w-full">
+      <div className="relative flex w-full">
         <ul
           className={`w-full gap-4 ${
             session?.user?.role === "teacher"

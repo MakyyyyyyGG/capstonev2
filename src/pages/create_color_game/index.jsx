@@ -153,6 +153,24 @@ const Index = ({ images }) => {
       return;
     }
 
+    // Check if selected images match the card color
+    for (const card of cards) {
+      const cardColor = card.color;
+      const hasCorrectImage = card.images.some((img) => {
+        if (!img) return false;
+        const imageColor = img.split("/").pop().split("-")[0];
+        return imageColor === cardColor;
+      });
+
+      if (!hasCorrectImage) {
+        toast.error(
+          `Each card must have at least one image matching its selected color`
+        );
+        setIsLoading(false);
+        return;
+      }
+    }
+
     const toastId = toast.loading("Creating color game...");
 
     try {
@@ -421,6 +439,12 @@ const Index = ({ images }) => {
                       </div>
                     ))}
                   </div>
+                  {card.color && (
+                    <p className="text-md text-gray-600 mt-2 text-center">
+                      Please select at least one {card.color} image for this
+                      card
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
