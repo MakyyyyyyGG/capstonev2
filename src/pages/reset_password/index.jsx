@@ -53,7 +53,7 @@ export default function Component() {
   };
 
   const checkAdminPassword = () => {
-    if (adminPassword === "admin") {
+    if (adminPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
       return true;
     } else {
       toast.error("Incorrect password");

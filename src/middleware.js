@@ -7,14 +7,14 @@ export async function middleware(request) {
 
   // Allow access to static assets and root without authentication
   if (
-    path.startsWith('/_next/') ||
-    path.startsWith('/api/') ||
-    path.startsWith('/static/') ||
-    path.startsWith('/images/') ||
-    path.startsWith('/assets/') ||
-    path.startsWith('/auth/') ||
-    path === '/' ||
-    path === '/favicon.ico'
+    path.startsWith("/_next/") ||
+    path.startsWith("/api/") ||
+    path.startsWith("/static/") ||
+    path.startsWith("/images/") ||
+    path.startsWith("/assets/") ||
+    path.startsWith("/auth/") ||
+    path === "/" ||
+    path === "/favicon.ico"
   ) {
     return NextResponse.next();
   }
@@ -33,7 +33,16 @@ export async function middleware(request) {
     return NextResponse.next();
   }
 
-  // For other roles (like teachers), allow access to all protected routes
+  // If user is a teacher
+  if (token.role === "teacher") {
+    // Only allow access to teacher routes, prevent access to homepage
+    if (path.startsWith("/homepage")) {
+      return NextResponse.redirect(new URL("/teacher-dashboard", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // For other roles, allow access to all protected routes
   return NextResponse.next();
 }
 
