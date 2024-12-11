@@ -152,7 +152,16 @@ const Rooms = ({ rooms = [], onRoomDeleted }) => {
                       <div className="block w-full">
                         <Card
                           isPressable
-                          className="relative w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
+                          className={`relative w-full h-[300px] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer ${
+                            room.room_difficulty?.toLowerCase() === "easy"
+                              ? "bg-gradient-to-br from-emerald-400 to-emerald-600"
+                              : room.room_difficulty?.toLowerCase() ===
+                                "moderate"
+                              ? "bg-gradient-to-br from-yellow-400 to-yellow-600"
+                              : room.room_difficulty?.toLowerCase() === "hard"
+                              ? "bg-gradient-to-br from-red-400 to-red-600"
+                              : "bg-gradient-to-br from-purple-400 to-purple-600"
+                          }`}
                           onClick={() =>
                             router.push(
                               `/teacher-dashboard/rooms/${room.room_code}`
@@ -161,9 +170,8 @@ const Rooms = ({ rooms = [], onRoomDeleted }) => {
                         >
                           <CardHeader className="absolute w-full items-center text-center flex justify-between">
                             <Chip
-                              color={getChipColor(room.room_difficulty)}
                               radius="xl"
-                              className="text-base text-white py-4"
+                              className={`text-base py-4 border-1 border-white/50 bg-white/20 backdrop-blur-sm text-white`}
                             >
                               {room.room_difficulty}
                             </Chip>

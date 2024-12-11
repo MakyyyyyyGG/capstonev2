@@ -351,7 +351,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
     return filteredGames.length ? (
       filteredGames.map((game) => (
         <li key={game.game_id} className="w-full">
-          {session?.user?.role === "teacher" ? (
+          {/* {session?.user?.role === "teacher" ? (
             <div className="flex w-full items-center">
               <Card
                 isPressable
@@ -400,59 +400,64 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                 </div>
               </Card>
             </div>
-          ) : session?.user?.role === "student" ? (
-            <div className="w-full">
-              <Card
-                key={game.game_id}
-                isPressable
-                radius="sm"
-                className={`shadow-lg min-h-[210px] border-gray-300 border flex flex-col items-center w-full hover:bg-gray-200 hover:border-purple-700 max-sm:px-6 max-sm:py-5 p-2 ${
-                  game.difficulty?.toLowerCase() === "easy"
-                    ? "bg-gradient-to-br from-white to-emerald-100"
-                    : game.difficulty?.toLowerCase() === "medium"
-                    ? "bg-gradient-to-br from-white to-yellow-100"
-                    : game.difficulty?.toLowerCase() === "hard"
-                    ? "bg-gradient-to-br from-white to-red-100"
-                    : "bg-gradient-to-br from-white to-gray-100"
-                }`}
-              >
-                <CardBody className="w-full">
-                  <div className="flex flex-col w-full gap-4 z-20 ">
-                    <div className="flex items-center gap-2 ">
-                      <div className="flex justify-between  w-full ">
-                        <div className="flex">
-                          <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
-                            {getGameTypeIconStudent(game.game_type)}
-                          </div>
-                          <div className="text-left ml-2">
-                            <div className="text-lg font-bold flex items-center gap-2">
-                              <div>
-                                <h1>{game.title}</h1>
-                              </div>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-600">
-                                {game.game_type}
-                              </p>
-                            </div>
-                          </div>
+          ) : session?.user?.role === "student" ? ( */}
+          <div className="w-full">
+            <Card
+              key={game.game_id}
+              isPressable
+              radius="sm"
+              className={`shadow-lg ${
+                session?.user?.role === "student"
+                  ? "min-h-[210px]"
+                  : "min-h-[180px]"
+              } border-gray-300 border flex flex-col items-center w-full hover:bg-gray-200 hover:border-purple-700 max-sm:px-6 max-sm:py-5 p-2 ${
+                game.difficulty?.toLowerCase() === "easy"
+                  ? "bg-gradient-to-br from-white to-emerald-100"
+                  : game.difficulty?.toLowerCase() === "medium"
+                  ? "bg-gradient-to-br from-white to-yellow-100"
+                  : game.difficulty?.toLowerCase() === "hard"
+                  ? "bg-gradient-to-br from-white to-red-100"
+                  : "bg-gradient-to-br from-white to-gray-100"
+              }`}
+            >
+              <CardBody className="w-full">
+                <div className="flex flex-col w-full gap-4 z-20 ">
+                  <div className="flex items-center gap-2 ">
+                    <div className="flex justify-between  w-full ">
+                      <div className="flex">
+                        <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
+                          {getGameTypeIconStudent(game.game_type)}
                         </div>
-
-                        <div>
-                          {game.difficulty && (
-                            <Chip
-                              variant="flat"
-                              size="sm"
-                              color={getChipColor(game.difficulty)}
-                              className="capitalize px-2"
-                            >
-                              {game.difficulty}
-                            </Chip>
-                          )}
+                        <div className="text-left ml-2">
+                          <div className="text-lg font-bold flex items-center gap-2">
+                            <div>
+                              <h1>{game.title}</h1>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              {game.game_type}
+                            </p>
+                          </div>
                         </div>
                       </div>
+
+                      <div>
+                        {game.difficulty && (
+                          <Chip
+                            variant="flat"
+                            size="sm"
+                            color={getChipColor(game.difficulty)}
+                            className="capitalize px-2"
+                          >
+                            {game.difficulty}
+                          </Chip>
+                        )}
+                      </div>
                     </div>
-                    {game.game_type !== "Flashcard" && (
+                  </div>
+                  {session?.user?.role === "student" &&
+                    game.game_type !== "Flashcard" && (
                       <div className="flex gap-4 items-center justify-between">
                         <div className="flex items-center mr-2 gap-4">
                           <div className="flex gap-4 text-sm text-gray-600">
@@ -472,21 +477,35 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                         </div>
                       </div>
                     )}
-                  </div>
-                </CardBody>
-                <CardFooter className="w-full justify-end">
-                  <Link href={getRedirectUrl(game)} className="w-full">
-                    <Button className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg w-full">
-                      <Play className="h-4 w-4 text-white" />
-                      <span className="text-sm font-semibold text-white">
-                        Play
-                      </span>
+                </div>
+              </CardBody>
+              <CardFooter className="w-full justify-end">
+                <Link href={getRedirectUrl(game)} className="w-full">
+                  <Button className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg w-full">
+                    <Play className="h-4 w-4 text-white" />
+                    <span className="text-sm font-semibold text-white">
+                      {session?.user?.role === "student" ? "Play" : "Preview"}
+                    </span>
+                  </Button>
+                </Link>
+                <div>
+                  {session.user.role === "teacher" && (
+                    <Button
+                      isIconOnly
+                      color="danger"
+                      className="ml-2"
+                      onPress={() =>
+                        handleDeleteGame(game.game_id, game.game_type)
+                      }
+                    >
+                      <Trash2 size={22} />
                     </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            </div>
-          ) : null}
+                  )}
+                </div>
+              </CardFooter>
+            </Card>
+          </div>
+          {/* // ) : null} */}
         </li>
       ))
     ) : (
@@ -556,20 +575,16 @@ const ClassWorkList = ({ room_code, games = [] }) => {
 
       <div className="relative flex w-full">
         <ul
-          className={`w-full gap-4 ${
-            session?.user?.role === "teacher"
-              ? "flex flex-col"
-              : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-          }`}
+          className={`w-full gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}
         >
           {loading
             ? Array.from({ length: games.length }).map((_, index) => (
                 <Skeleton
                   key={index}
                   className={`w-full rounded-md ${
-                    session?.user?.role === "teacher"
-                      ? "h-[100px]"
-                      : "h-[160px]"
+                    session?.user?.role === "student"
+                      ? "min-h-[210px]"
+                      : "min-h-[180px]"
                   }`}
                 />
               ))
