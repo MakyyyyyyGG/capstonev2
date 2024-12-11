@@ -22,6 +22,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
+import { useDateFormatter } from "@react-aria/i18n";
 
 const AssignmentList = ({ assignments, onDelete }) => {
   // console.log("assignments", assignments);
@@ -29,6 +31,14 @@ const AssignmentList = ({ assignments, onDelete }) => {
   const [roleRedirect, setRoleRedirect] = useState("");
   const [alertStates, setAlertStates] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [dueDates, setDueDates] = useState({});
+  const [isPastDue, setIsPastDue] = useState({});
+  console.log(assignments);
+
+  const formatter = useDateFormatter({
+    dateStyle: "long",
+    timeStyle: "short",
+  });
 
   // Handle case where assignments is not an array
   const assignmentArray = Array.isArray(assignments) ? assignments : [];
@@ -39,6 +49,25 @@ const AssignmentList = ({ assignments, onDelete }) => {
       assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       assignment.instruction.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  useEffect(() => {
+    const newDueDates = {};
+    const newIsPastDue = {};
+
+    assignmentArray.forEach((assignment) => {
+      if (assignment.due_date) {
+        const parsedDate = parseZonedDateTime(assignment.due_date);
+        newDueDates[assignment.assignment_id] = parsedDate;
+
+        const now = new Date();
+        const dueDateTime = parsedDate.toDate(getLocalTimeZone());
+        newIsPastDue[assignment.assignment_id] = now > dueDateTime;
+      }
+    });
+
+    setDueDates(newDueDates);
+    setIsPastDue(newIsPastDue);
+  }, [assignments]);
 
   useEffect(() => {
     if (session) {
@@ -118,12 +147,22 @@ const AssignmentList = ({ assignments, onDelete }) => {
                 </p>
               </div>
               <div className="text-xs text-gray-500">
-                Created:{" "}
-                {new Date(assignment.created_at).toLocaleString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+                <p
+                  className={`${
+                    isPastDue[assignment.assignment_id]
+                      ? "text-red-500"
+                      : "text-gray-500"
+                  }`}
+                >
+                  Due:{" "}
+                  {dueDates[assignment.assignment_id]
+                    ? formatter.format(
+                        dueDates[assignment.assignment_id].toDate(
+                          getLocalTimeZone()
+                        )
+                      )
+                    : "No due date"}
+                </p>
               </div>
             </div>
           </Link>

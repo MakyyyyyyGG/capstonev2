@@ -312,7 +312,7 @@ const ColorGames = ({ cards = [] }) => {
 
       const result = await response.json();
       if (response.status === 200) {
-        alert("Game record created successfully");
+        // alert("Game record created successfully");
         // Update gameRecord after finishing the game
         await getStudentTries();
       }
@@ -610,7 +610,9 @@ const ColorGames = ({ cards = [] }) => {
                               isDisabled={
                                 (attempts[index] || 0) >= 3 ||
                                 !(selectedImages[card.color_game_id] || [])
-                                  .length
+                                  .length ||
+                                submissionResults[card.color_game_id] ===
+                                  "Correct!"
                               }
                               aria-label="Check answers"
                             >

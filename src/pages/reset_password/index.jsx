@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Input, Button } from "@nextui-org/react";
+import { Input, Button, Checkbox } from "@nextui-org/react";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -13,6 +13,10 @@ export default function Component() {
   const [adminPassword, setAdminPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLength, setPasswordLength] = useState(false);
+  const [passwordSpecial, setPasswordSpecial] = useState(false);
+  const [passwordUpper, setPasswordUpper] = useState(false);
+  const [passwordNumber, setPasswordNumber] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -101,6 +105,23 @@ export default function Component() {
       }
     );
   };
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    // setPassword(newPassword);
+
+    // Update password conditions
+    setPasswordLength(newPassword.length >= 8);
+    setPasswordSpecial(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword));
+    setPasswordUpper(/[A-Z]/.test(newPassword));
+    setPasswordNumber(/\d/.test(newPassword));
+  };
+
+  const isFormValid =
+    passwordLength &&
+    passwordUpper &&
+    passwordNumber &&
+    passwordSpecial &&
+    newPassword === confirmPassword;
 
   return (
     <div className="flex min-h-screen bg-white dark:bg-gray-900">
@@ -264,7 +285,10 @@ export default function Component() {
                     color="secondary"
                     placeholder="Enter new password"
                     value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    onChange={(e) => {
+                      setNewPassword(e.target.value);
+                      handlePasswordChange(e);
+                    }}
                     required
                   />
                 </div>
@@ -289,6 +313,48 @@ export default function Component() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                   />
+                  <div className="w-full rounded-lg flex flex-col  py-2 hover:cursor-default mt-4">
+                    <Checkbox
+                      size="sm"
+                      isSelected={passwordLength}
+                      className=" hover:cursor-default"
+                    >
+                      At least 8 characters long.
+                    </Checkbox>
+                    <Checkbox
+                      size="sm"
+                      isSelected={passwordUpper}
+                      className=" hover:cursor-default"
+                    >
+                      Contains uppercase letter.
+                    </Checkbox>
+                    <Checkbox
+                      size="sm"
+                      isSelected={passwordNumber}
+                      className=" hover:cursor-default"
+                    >
+                      Contains number.
+                    </Checkbox>
+                    <Checkbox
+                      size="sm"
+                      isSelected={passwordSpecial}
+                      className=" hover:cursor-default"
+                    >
+                      Contains special character.
+                    </Checkbox>
+
+                    <Checkbox
+                      size="sm"
+                      isSelected={
+                        newPassword &&
+                        confirmPassword &&
+                        newPassword === confirmPassword
+                      }
+                      className="hover:cursor-default"
+                    >
+                      Passwords match.
+                    </Checkbox>
+                  </div>
                 </div>
               </div>
             )}
@@ -303,6 +369,7 @@ export default function Component() {
                 label: "text-white",
                 inputWrapper: "bg-[#6B4DE6] hover:bg-[#5B3DD6] ",
               }}
+              disabled={step === 3 ? !isFormValid : false}
               onClick={handleSubmit}
             >
               {step === 3 ? "Reset Password" : "Next"}

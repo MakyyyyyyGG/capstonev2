@@ -151,9 +151,9 @@ const index = () => {
   };
 
   const handleRemoveCard = (cardIndex) => {
-    const updatedCards = cards.filter((_, index) => index !== cardIndex);
+    // const updatedCards = cards.filter((_, index) => index !== cardIndex);
     handleDeleteCard(cardIndex);
-    setCards(updatedCards);
+    // setCards(updatedCards);
   };
 
   const handleEdit = (cardIndex, imageIndex) => {
@@ -290,8 +290,13 @@ const index = () => {
   };
 
   const handleDeleteCard = async (cardIndex) => {
+    if (cards.length <= 1) {
+      alert("You cannot delete the last remaining card.");
+      return;
+    }
+
     const userConfirmed = confirm(
-      "Are you sure you want to delete this color game card?"
+      "Are you sure you want to delete this card? This will be deleted permanently"
     );
     if (userConfirmed) {
       const updatedCards = [...cards];

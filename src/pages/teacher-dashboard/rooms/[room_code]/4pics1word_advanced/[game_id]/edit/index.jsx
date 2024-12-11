@@ -200,8 +200,13 @@ const Index = () => {
 
   //remove card
   const handleRemoveCard = async (cardIndex) => {
+    if (cards.length <= 1) {
+      alert("You cannot delete the last remaining card.");
+      return;
+    }
+
     const userConfirmed = confirm(
-      "Are you sure you want to delete this 4pics1word card?"
+      "Are you sure you want to delete this card? This will be deleted permanently"
     );
     if (userConfirmed) {
       const updatedCards = [...cards];

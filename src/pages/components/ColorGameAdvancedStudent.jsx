@@ -250,11 +250,11 @@ const ColorGamesAdvancedStudent = ({ cards = [] }) => {
 
       const result = await response.json();
       if (response.ok) {
-        alert("Game Recorded Successfully");
+        // alert("Game Recorded Successfully");
         await getStudentTries();
       }
       if (response.status === 403) {
-        alert(result.message);
+        // alert(result.message);
       } else {
         console.log(result);
       }
