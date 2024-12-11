@@ -307,7 +307,7 @@ const index = () => {
                         <div className="bg-black object-contain w-[200px] h-[100px]">
                           <img
                             src={media.content}
-                            alt={media.name}
+                            // alt={media.name}
                             className="object-contain w-[200px] h-[100px]"
                           />
                         </div>

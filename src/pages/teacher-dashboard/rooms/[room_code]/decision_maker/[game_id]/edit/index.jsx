@@ -161,8 +161,13 @@ const index = () => {
   };
 
   const removeCard = async (index) => {
+    if (cards.length <= 1) {
+      alert("You cannot delete the last remaining card.");
+      return;
+    }
+
     const userConfirmed = confirm(
-      "Are you sure you want to delete this color game advanced card?"
+      "Are you sure you want to delete this card? This will be deleted permanently"
     );
     if (userConfirmed) {
       const newCards = cards.filter((_, i) => i !== index);

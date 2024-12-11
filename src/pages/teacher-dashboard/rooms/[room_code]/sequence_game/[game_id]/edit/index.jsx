@@ -417,8 +417,13 @@ const Index = () => {
   };
 
   const removeFlashcard = async (index) => {
+    if (flashcardData.length <= 2) {
+      alert("You cannot delete the last remaining sequence.");
+      return;
+    }
+
     const userConfirmed = confirm(
-      "Are you sure you want to delete this flashcard?"
+      "Are you sure you want to delete this card? This will be deleted permanently"
     );
     if (userConfirmed) {
       console.log("Removing flashcard at index:", index);

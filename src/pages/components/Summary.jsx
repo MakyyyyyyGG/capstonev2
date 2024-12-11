@@ -515,7 +515,7 @@ const Summary = ({
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(e.target.value)}
                     >
-                      <SelectItem value="All">All</SelectItem>
+                      {/* <SelectItem value="All">All</SelectItem> */}
                       {uniqueMonths.map((month) => (
                         <SelectItem key={month} value={month}>
                           {month}
@@ -538,7 +538,7 @@ const Summary = ({
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(e.target.value)}
                     >
-                      <SelectItem value="All">All</SelectItem>
+                      {/* <SelectItem value="All">All</SelectItem> */}
                       {uniqueYears.map((year) => (
                         <SelectItem key={year} value={year}>
                           {year}

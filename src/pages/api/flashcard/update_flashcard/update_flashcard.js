@@ -59,6 +59,7 @@ const deleteFromFirebase = async (filePath) => {
 
 export default async function handler(req, res) {
   if (req.method === "DELETE") {
+    console.log("im reacged");
     const { flashcard_id } = req.query;
     console.log("Flashcard ID:", flashcard_id);
 
@@ -69,19 +70,19 @@ export default async function handler(req, res) {
         values: [flashcard_id],
       });
 
-      if (flashcard) {
-        // Delete files from Firebase if they exist
-        if (flashcard.image) {
-          await deleteFromFirebase(
-            `public/flashcards/images/${path.basename(flashcard.image)}`
-          );
-        }
-        if (flashcard.audio) {
-          await deleteFromFirebase(
-            `public/flashcards/audio/${path.basename(flashcard.audio)}`
-          );
-        }
-      }
+      // if (flashcard) {
+      //   // Delete files from Firebase if they exist
+      //   if (flashcard.image) {
+      //     await deleteFromFirebase(
+      //       `public/flashcards/images/${path.basename(flashcard.image)}`
+      //     );
+      //   }
+      //   if (flashcard.audio) {
+      //     await deleteFromFirebase(
+      //       `public/flashcards/audio/${path.basename(flashcard.audio)}`
+      //     );
+      //   }
+      // }
 
       const flashcardResults = await query({
         query: "DELETE FROM flashcards WHERE flashcard_id = ?",

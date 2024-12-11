@@ -253,10 +253,10 @@ const handleDeleteRequest = async (req, res) => {
     });
 
     // Delete files from Firebase
-    for (const flashcard of flashcards) {
-      if (flashcard.image) await deleteFromFirebase(flashcard.image);
-      if (flashcard.audio) await deleteFromFirebase(flashcard.audio);
-    }
+    // for (const flashcard of flashcards) {
+    //   if (flashcard.image) await deleteFromFirebase(flashcard.image);
+    //   if (flashcard.audio) await deleteFromFirebase(flashcard.audio);
+    // }
 
     const flashcardResults = await query({
       query: "DELETE FROM games WHERE game_id = ?",

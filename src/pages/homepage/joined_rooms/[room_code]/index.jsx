@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Tabs, Tab } from "@nextui-org/react";
@@ -9,6 +9,7 @@ import ScoresIndiv from "@/pages/components/ScoresIndiv";
 import Loader from "@/pages/components/Loader";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import JoinRoomModal from "@/pages/components/JoinRoomModal";
 const fetchRoomDetails = async (room_code, setRoomData, setLoading) => {
   try {
     const res = await fetch(
@@ -28,6 +29,7 @@ const IndividualRoom = () => {
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [loading, setLoading] = useState(true);
   const [assignments, setAssignments] = useState([]);
+  const [studentExists, setStudentExists] = useState(true);
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
   }
@@ -52,6 +54,7 @@ const IndividualRoom = () => {
 
   useEffect(() => {
     if (room_code) {
+      checkStudentExist();
       setLoading(true); // Ensure loading state is set to true when room_code changes
       fetchRoomDetails(room_code, setRoomData, setLoading);
       fetchGames();
@@ -60,37 +63,71 @@ const IndividualRoom = () => {
     }
   }, [room_code]);
 
+  const driverObj = useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#classworks",
+          popover: {
+            title: "Classworks",
+            description:
+              "Access your teacher's uploaded classwork materials and assignments",
+            side: "left",
+          },
+        },
+        {
+          element: "#scores",
+          popover: {
+            title: "Scores",
+            description:
+              "View your performance and scores from completed classworks and games",
+            side: "left",
+          },
+        },
+        {
+          element: "#assignments",
+          popover: {
+            title: "Assignments",
+            description: "View and complete assignments given by your teacher",
+            side: "left",
+          },
+        },
+      ],
+    })
+  );
+
   useEffect(() => {
     const isFirstRoomJoin = !localStorage.getItem("roomJoined");
     if (isFirstRoomJoin) {
-      const timer = setTimeout(() => {
-        const driverObj = driver({
-          steps: [
-            {
-              element: "#classworks",
-              popover: {
-                title: "Classworks",
-                description:
-                  "Access your teacher's uploaded classwork materials and assignments",
-                side: "left",
-              },
-            },
-            {
-              element: "#scores",
-              popover: {
-                title: "Scores",
-                description:
-                  "View your performance and scores from completed classworks and games",
-                side: "left",
-              },
-            },
-          ],
-        });
-        driverObj.drive();
-      }, 500);
-      localStorage.setItem("roomJoined", "true");
+      setTimeout(() => {
+        driverObj.current.drive();
+        localStorage.setItem("roomJoined", "true");
+      }, 1000);
     }
   }, []);
+
+  const checkStudentExist = async () => {
+    if (session) {
+      try {
+        const response = await fetch(
+          `/api/accounts_student/room/student_exist?account_id=${session.user.id}&room_code=${room_code}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("student exist?", data);
+        setStudentExists(data.exists);
+      } catch (error) {
+        console.error("Error checking if student exists:", error);
+        setStudentExists(false);
+      }
+    }
+  };
 
   const fetchStudentRecord = async () => {
     if (session) {
@@ -135,6 +172,11 @@ const IndividualRoom = () => {
         <div className="flex justify-center items-center h-screen opacity-50">
           <Loader />
         </div>
+      ) : !studentExists ? (
+        <JoinRoomModal
+          room_code={room_code}
+          pageReload={() => router.reload()}
+        />
       ) : (
         <div className="flex">
           <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
@@ -180,7 +222,7 @@ const IndividualRoom = () => {
                     }
                   ></Tab>
                   <Tab
-                    id="assigment"
+                    id="assignments"
                     key="assigment"
                     title={
                       <div className="flex items-center space-x-2">

@@ -28,7 +28,7 @@ export default function Signup() {
     if (signInResponse && !signInResponse.error) {
       setError("");
     } else {
-      setError("Invalid email or password");
+      setError("Invalid username or password");
       console.log(signInResponse.error);
     }
 

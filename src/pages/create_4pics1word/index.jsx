@@ -33,7 +33,7 @@ import {
   Link,
   Upload,
 } from "lucide-react";
-import PreviewThinkpic from "@/pages/components/PreviewThinkpic";
+// import PreviewThinkpic from "@/pages/components/PreviewThinkpic";
 const Index = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -363,7 +363,7 @@ const Index = () => {
           element: "#title",
           popover: {
             title: "Set Title",
-            description: "Enter a title for your flashcard set",
+            description: "Enter a title for your card set",
           },
         },
         {
@@ -392,7 +392,7 @@ const Index = () => {
           element: "#upload-image-btn",
           popover: {
             title: "Upload Image",
-            description: "Add an image to your flashcard",
+            description: "Add an image to your card",
           },
         },
         {
@@ -405,7 +405,7 @@ const Index = () => {
         {
           element: "#create-btn",
           popover: {
-            title: "Create Flashcard Set",
+            title: "Create card Set",
             description: "When you're done, click here to create your card set",
           },
         },
@@ -433,7 +433,7 @@ const Index = () => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1 className="">Create a new ThinkPic Set (4 Pics 1 Word)</h1>
         <div className="flex gap-2 items-center">
-          <PreviewThinkpic />
+          {/* <PreviewThinkpic /> */}
           <div>
             {isLoading ? (
               <Button

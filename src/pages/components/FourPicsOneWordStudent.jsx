@@ -8,28 +8,15 @@ import {
   Progress,
   Input,
 } from "@nextui-org/react";
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  Navigation,
-  Pagination,
-  Scrollbar,
-  A11y,
-  EffectCreative,
-} from "swiper/modules";
+import { EffectCreative } from "swiper/modules";
 import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator,
-} from "@/components/ui/input-otp";
+
 import GameHistory from "./GameHistory";
-import Shop from "./Shop";
 import { ArrowLeft, CircleCheck } from "lucide-react";
 
 const FourPicsOneWordStudent = ({ cards = [] }) => {

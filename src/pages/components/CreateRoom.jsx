@@ -22,19 +22,32 @@ const CreateRoom = () => {
   const [roomName, setRoomName] = useState("");
   const [difficulty, setDifficulty] = useState("");
 
-  // Function to generate a unique 4-digit room code
+  // Function to generate a unique room code with adaptive length
   const generateRoomCode = async () => {
     let code;
     let unique = false;
+    let digitLength = 4; // Start with 4 digits
+    let attempts = 0;
+    const maxAttemptsPerLength = 50; // Number of attempts before increasing digits
 
     while (!unique) {
-      code = Math.floor(1000 + Math.random() * 9000);
+      // If we've tried too many times with current length, increase digits
+      if (attempts >= maxAttemptsPerLength) {
+        digitLength++;
+        attempts = 0;
+      }
+
+      // Generate code with current digit length
+      const min = Math.pow(10, digitLength - 1);
+      const max = Math.pow(10, digitLength) - 1;
+      code = Math.floor(min + Math.random() * (max - min + 1));
 
       const response = await fetch(
         `/api/accounts_teacher/room/check-room-code?code=${code}`
       );
       const result = await response.json();
       unique = !result.exists;
+      attempts++;
     }
 
     return code;

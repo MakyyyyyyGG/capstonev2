@@ -29,7 +29,7 @@ import {
 } from "@nextui-org/react";
 import { getImages } from "@/pages/api/getImages";
 import toast, { Toaster } from "react-hot-toast";
-import PreviewColorGame from "@/pages/components/PreviewColorGame";
+// import PreviewColorGame from "@/pages/components/PreviewColorGame";
 
 export async function getStaticProps() {
   const images = getImages();
@@ -151,6 +151,24 @@ const Index = ({ images }) => {
       toast.error("Please select a difficulty");
       setIsLoading(false);
       return;
+    }
+
+    // Check if selected images match the card color
+    for (const card of cards) {
+      const cardColor = card.color;
+      const hasCorrectImage = card.images.some((img) => {
+        if (!img) return false;
+        const imageColor = img.split("/").pop().split("-")[0];
+        return imageColor === cardColor;
+      });
+
+      if (!hasCorrectImage) {
+        toast.error(
+          `Each card must have at least one image matching its selected color`
+        );
+        setIsLoading(false);
+        return;
+      }
     }
 
     const toastId = toast.loading("Creating color game...");
@@ -316,7 +334,7 @@ const Index = ({ images }) => {
       <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
         <h1>Create Color Game</h1>
         <div className="flex gap-2 items-center">
-          <PreviewColorGame />
+          {/* <PreviewColorGame /> */}
           <div>
             {isLoading ? (
               <Button isDisabled isLoading color="secondary">
@@ -421,6 +439,12 @@ const Index = ({ images }) => {
                       </div>
                     ))}
                   </div>
+                  {card.color && (
+                    <p className="text-md text-gray-600 mt-2 text-center">
+                      Please select at least one {card.color} image for this
+                      card
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

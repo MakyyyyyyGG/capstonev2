@@ -17,6 +17,7 @@ import {
   Play,
   Pause,
   ArrowLeft,
+  Volume2,
 } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -25,7 +26,7 @@ import "swiper/css/navigation";
 import "swiper/css/effect-creative";
 import { Pagination, Navigation, EffectCreative } from "swiper/modules";
 import "swiper/swiper-bundle.css";
-import Shop from "./Shop";
+import Loader from "./Loader";
 import { useRouter } from "next/router";
 const handleTextToSpeech = (text) => {
   const utterance = new SpeechSynthesisUtterance(text);
@@ -82,10 +83,7 @@ const FlashcardsStudent = ({ flashcards }) => {
   if (!flashcards) {
     return (
       <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
-        <div className="flex my-5 justify-between items-center text-3xl font-extrabold">
-          <h1>Flashcards</h1>
-        </div>
-        <p>No flashcards available</p>
+        <Loader />
       </div>
     );
   }
@@ -124,7 +122,10 @@ const FlashcardsStudent = ({ flashcards }) => {
           filter: "drop-shadow(4px 4px 0px #7828C8",
         }}
       >
-        <div className="flex items-center gap-2" onClick={() => router.back()}>
+        <div
+          className="flex items-center gap-2 hover:cursor-pointer"
+          onClick={() => router.back()}
+        >
           <ArrowLeft size={24} className="text-purple-700" />
           <span className="text-2xl font-bold text-purple-700">
             {flashcards[0]?.title}
@@ -176,7 +177,17 @@ const FlashcardsStudent = ({ flashcards }) => {
                   {showDescription[flashcard.flashcard_id] && (
                     <CardBody className="w-full flex px-8 justify-center items-center flex-row gap-4 scale-x-[-1] max-sm:flex-col max-sm:justify-center max-sm:py-4">
                       {flashcard.image && (
-                        <div className="flex max-w-96 justify-center items-center rounded-md">
+                        <div className="flex flex-col max-w-96 justify-center items-center rounded-md relative">
+                          {flashcard.audio && (
+                            <div
+                              className="absolute top-4 left-4 z-10 bg-purple-600 p-2 rounded-full"
+                              onClick={() =>
+                                handleAudioPlay(flashcard.flashcard_id)
+                              }
+                            >
+                              <Volume2 className="h-5 w-5 text-white" />
+                            </div>
+                          )}
                           <img
                             src={flashcard.image}
                             alt={flashcard.term}
@@ -247,6 +258,7 @@ const FlashcardsStudent = ({ flashcards }) => {
                       </AnimatePresence>
                     </CardBody>
                   )}
+
                   <CardFooter
                     className={`flex justify-center items-center pt-1 ${
                       showDescription[flashcard.flashcard_id]

@@ -70,7 +70,7 @@ const Rooms = ({ rooms = [], onRoomDeleted }) => {
         <div className="flex flex-col items-center justify-center min-h-screen">
           <Loader />
         </div>
-      ) : filteredRooms.length === 0 ? (
+      ) : filteredRooms.length === 0 && rooms.length === 0 ? (
         // No rooms case
         <div className="flex flex-col items-center justify-center min-h-screen">
           <img
@@ -78,136 +78,140 @@ const Rooms = ({ rooms = [], onRoomDeleted }) => {
             alt="No rooms available"
             className="w-[40%] h-[40%] m-auto object-cover"
           />
-          <p className="text-lg font-medium text-gray-600 mt-4">
-            No rooms available. Create a new room to get started!
-          </p>
-          <Button
-            className="mt-4"
-            color="primary"
-            onClick={() => router.push("/teacher-dashboard/create-room")}
-          >
-            Create Room
-          </Button>
         </div>
       ) : (
         // Render rooms
         <>
-          <div className="flex gap-4 w-full">
-            <Input
-              classNames={{
-                label: "text-white",
-                inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
-              }}
-              isClearable
-              onClear={() => setSearchQuery("")}
-              startContent={<Search size={22} color="#6B7280" />}
-              type="text"
-              placeholder="Search Room"
-              radius="sm"
-              size="lg"
-              color="secondary"
-              variant="bordered"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search Room"
-            />
-            <div className="w-full max-w-[300px]">
-              <Select
-                placeholder="Filter by Difficulty"
-                size="lg"
-                radius="sm"
+          {rooms.length > 0 && (
+            <div className="flex gap-4 w-full">
+              <Input
                 classNames={{
                   label: "text-white",
-                  mainWrapper:
-                    "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
+                  inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
                 }}
+                isClearable
+                onClear={() => setSearchQuery("")}
+                startContent={<Search size={22} color="#6B7280" />}
+                type="text"
+                placeholder="Search Room"
+                radius="sm"
+                size="lg"
                 color="secondary"
                 variant="bordered"
-                value={difficultyFilter}
-                onChange={(e) => setDifficultyFilter(e.target.value)}
-                aria-label="Filter by Difficulty"
-              >
-                <SelectItem key="all" value="all">
-                  All Difficulties
-                </SelectItem>
-                <SelectItem key="easy" value="easy">
-                  Easy
-                </SelectItem>
-                <SelectItem key="moderate" value="moderate">
-                  Moderate
-                </SelectItem>
-                <SelectItem key="hard" value="hard">
-                  Hard
-                </SelectItem>
-              </Select>
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search Room"
+              />
+              <div className="w-full max-w-[300px]">
+                <Select
+                  placeholder="Filter by Difficulty"
+                  size="lg"
+                  radius="sm"
+                  classNames={{
+                    label: "text-white",
+                    mainWrapper:
+                      "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
+                  }}
+                  color="secondary"
+                  variant="bordered"
+                  value={difficultyFilter}
+                  onChange={(e) => setDifficultyFilter(e.target.value)}
+                  aria-label="Filter by Difficulty"
+                >
+                  <SelectItem key="all" value="all">
+                    All Difficulties
+                  </SelectItem>
+                  <SelectItem key="easy" value="easy">
+                    Easy
+                  </SelectItem>
+                  <SelectItem key="moderate" value="moderate">
+                    Moderate
+                  </SelectItem>
+                  <SelectItem key="hard" value="hard">
+                    Hard
+                  </SelectItem>
+                </Select>
+              </div>
             </div>
-          </div>
-          <h1 className="text-4xl my-6 font-bold">Your Rooms</h1>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 rounded-lg mr-4 auto-cols-auto">
-            {filteredRooms.map((room) => (
-              <li key={room.room_id}>
-                <div className="relative">
-                  <div className="block w-full">
-                    <Card
-                      isPressable
-                      className="relative w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
-                      onClick={() =>
-                        router.push(
-                          `/teacher-dashboard/rooms/${room.room_code}`
-                        )
-                      }
-                    >
-                      <CardHeader className="absolute w-full items-center text-center flex justify-between">
-                        <Chip
-                          color={getChipColor(room.room_difficulty)}
-                          radius="xl"
-                          className="text-base text-white py-4"
+          )}
+          {filteredRooms.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+              <img
+                src="/no-room.svg"
+                alt="No rooms available"
+                className="w-[40%] h-[40%] m-auto object-cover"
+              />
+            </div>
+          ) : (
+            <>
+              <h1 className="text-4xl my-6 font-bold">Your Rooms</h1>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 rounded-lg mr-4 auto-cols-auto">
+                {filteredRooms.map((room) => (
+                  <li key={room.room_id}>
+                    <div className="relative">
+                      <div className="block w-full">
+                        <Card
+                          isPressable
+                          className="relative w-full h-[300px] bg-[#7469B6] flex flex-col justify-between hover:shadow-gray-400 shadow-lg rounded-lg cursor-pointer"
+                          onClick={() =>
+                            router.push(
+                              `/teacher-dashboard/rooms/${room.room_code}`
+                            )
+                          }
                         >
-                          {room.room_difficulty}
-                        </Chip>
-                        <div onClick={(e) => e.stopPropagation()}>
-                          <DeleteRoom
-                            room={room}
-                            onRoomDeleted={onRoomDeleted}
-                          />
-                        </div>
-                      </CardHeader>
-                      <CardBody className="flex h-2/4 flex-col justify-center items-center w-full">
-                        <h1 className="text-2xl text-bold text-white font-bold">
-                          {room.room_name}
-                        </h1>
-                      </CardBody>
-                      <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
-                        <div className="p-2 text-[#7469B6] flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <div>
-                              <Button
-                                color="transparent"
-                                isIconOnly
-                                aria-label="Copy Room Code"
-                                onClick={(e) => {
-                                  copyToClipboard(room.room_code, e);
-                                }}
-                              >
-                                <Copy size={22} />
-                              </Button>
+                          <CardHeader className="absolute w-full items-center text-center flex justify-between">
+                            <Chip
+                              color={getChipColor(room.room_difficulty)}
+                              radius="xl"
+                              className="text-base text-white py-4"
+                            >
+                              {room.room_difficulty}
+                            </Chip>
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <DeleteRoom
+                                room={room}
+                                onRoomDeleted={onRoomDeleted}
+                              />
                             </div>
-                            <h1 className="font-bold">
-                              Code: {room.room_code}
+                          </CardHeader>
+                          <CardBody className="flex h-2/4 flex-col justify-center items-center w-full">
+                            <h1 className="text-2xl text-bold text-white font-bold">
+                              {room.room_name}
                             </h1>
-                          </div>
-                          <Avatar
-                            src={room.profile_image}
-                            className="w-10 h-10"
-                          />
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                          </CardBody>
+                          <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
+                            <div className="p-2 text-[#7469B6] flex items-center justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <div>
+                                  <Button
+                                    color="transparent"
+                                    isIconOnly
+                                    aria-label="Copy Room Code"
+                                    onClick={(e) => {
+                                      copyToClipboard(room.room_code, e);
+                                    }}
+                                  >
+                                    <Copy size={22} />
+                                  </Button>
+                                </div>
+                                <h1 className="font-bold">
+                                  Code: {room.room_code}
+                                </h1>
+                              </div>
+                              <Avatar
+                                src={room.profile_image}
+                                className="w-10 h-10"
+                              />
+                            </div>
+                          </CardFooter>
+                        </Card>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </>
       )}
     </div>

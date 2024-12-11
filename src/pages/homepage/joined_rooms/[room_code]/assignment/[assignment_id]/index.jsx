@@ -593,6 +593,7 @@ const index = () => {
                 size="lg"
                 type="submit"
                 color="secondary"
+                isDisabled={mediaList.length === 0}
                 className="mt-4 w-full"
               >
                 Submit
