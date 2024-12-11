@@ -36,53 +36,55 @@ const Index = () => {
     image: false,
   });
 
-  const driverObj = driver({
-    showProgress: true,
-    steps: [
-      {
-        element: "#assignment-title",
-        popover: {
-          title: "Assignment Title",
-          description: "Enter a title for your assignment",
+  const driverObj = React.useRef(
+    driver({
+      showProgress: true,
+      steps: [
+        {
+          element: "#assignment-title",
+          popover: {
+            title: "Assignment Title",
+            description: "Enter a title for your assignment",
+          },
         },
-      },
-      {
-        element: "#assignment-instruction",
-        popover: {
-          title: "Instructions",
-          description: "Add instructions for your students (optional)",
+        {
+          element: "#assignment-instruction",
+          popover: {
+            title: "Instructions",
+            description: "Add instructions for your students (optional)",
+          },
         },
-      },
-      {
-        element: "#due-date",
-        popover: {
-          title: "Due Date",
-          description: "Set a due date for the assignment",
+        {
+          element: "#due-date",
+          popover: {
+            title: "Due Date",
+            description: "Set a due date for the assignment",
+          },
         },
-      },
-      {
-        element: "#add-video-btn",
-        popover: {
-          title: "Add Video",
-          description: "Click to add a video from YouTube or upload one",
+        {
+          element: "#add-video-btn",
+          popover: {
+            title: "Add Video",
+            description: "Click to add a video from YouTube or upload one",
+          },
         },
-      },
-      {
-        element: "#add-image-btn",
-        popover: {
-          title: "Upload Image",
-          description: "Click to add an image from URL or upload one",
+        {
+          element: "#add-image-btn",
+          popover: {
+            title: "Upload Image",
+            description: "Click to add an image from URL or upload one",
+          },
         },
-      },
-      {
-        element: "#create-assignment-btn",
-        popover: {
-          title: "Create Assignment",
-          description: "Click to create and save your assignment",
+        {
+          element: "#create-assignment-btn",
+          popover: {
+            title: "Create Assignment",
+            description: "Click to create and save your assignment",
+          },
         },
-      },
-    ],
-  });
+      ],
+    })
+  );
 
   useEffect(() => {
     const isTutorialShown = !localStorage.getItem("create-assignment-tutorial");
