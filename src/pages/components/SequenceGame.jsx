@@ -329,7 +329,9 @@ const SequenceGame = ({ sequenceGame }) => {
                       >
                         <p
                           className={`text-white w-full p-2 rounded-md ${
-                            stepResults[index] ? "bg-green-500" : "bg-red-500"
+                            stepResults[index]
+                              ? "bg-green-500"
+                              : "bg-yellow-500"
                           }`}
                         >
                           {stepResults[index] ? "Correct!" : "Incorrect!"}
