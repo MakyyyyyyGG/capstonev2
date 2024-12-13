@@ -5,21 +5,30 @@ import { Pencil, ArrowLeft } from "lucide-react";
 import { Chip } from "@nextui-org/react";
 import ColorGames from "@/pages/components/ColorGames";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
   const [cards, setCards] = useState([]);
+  const { data: session } = useSession();
 
   const fetchCards = async () => {
     try {
-      const res = await fetch(`/api/color_game/color_game?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/color_game/color_game?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       setCards(data);
       if (res.ok) {
         console.log("Cards fetched successfully");

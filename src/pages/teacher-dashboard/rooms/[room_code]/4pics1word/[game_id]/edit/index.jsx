@@ -23,8 +23,7 @@ import {
 } from "@nextui-org/react";
 import { Image, Pencil, Plus, Trash2, ScanSearch, Upload } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
-import Loader from "@/pages/components/Loader";
-
+import { useSession } from "next-auth/react";
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -48,6 +47,7 @@ const index = () => {
     y: 25,
   });
   const imgRef = useRef(null);
+  const { data: session } = useSession();
 
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -246,13 +246,20 @@ const index = () => {
   const fetchCards = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/4pics1word/4pics1word?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/4pics1word/4pics1word?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
 
       if (Array.isArray(data) && data.length > 0) {
         const formattedCards = data.map((card) => ({

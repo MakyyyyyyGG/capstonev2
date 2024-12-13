@@ -127,8 +127,11 @@ const handlePostRequest = async (req, res) => {
 };
 
 const handleGetRequest = async (req, res) => {
-  const { game_id } = req.query;
+  const { game_id, account_id } = req.query;
+  console.log(req.query);
   try {
+    // Check if account_id is provided before checking ownership
+
     const gameResults = await query({
       query:
         "SELECT * FROM flashcard_sets JOIN games ON flashcard_sets.game_id = games.game_id WHERE flashcard_sets.game_id = ?",
@@ -157,6 +160,19 @@ const handleGetRequest = async (req, res) => {
       ...flashcard,
       imageUrl: flashcard.image,
     }));
+
+    if (account_id) {
+      const ownerResults = await query({
+        query:
+          "SELECT * FROM flashcard_sets JOIN teachers ON flashcard_sets.account_id = teachers.account_id WHERE flashcard_sets.account_id = ?",
+        values: [account_id],
+      });
+
+      if (!ownerResults.length) {
+        res.status(403).json({ error: "Unauthorized access" });
+        return;
+      }
+    }
 
     res.status(200).json(flashcardsWithImageUrl);
   } catch (error) {

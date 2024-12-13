@@ -6,13 +6,14 @@ import Flashcards from "@/pages/components/Flashcards";
 import Link from "next/link";
 import { Button } from "@nextui-org/react";
 import { Pencil, ArrowLeft } from "lucide-react";
-
+import { useSession } from "next-auth/react";
 const Index = () => {
   const router = useRouter();
   const { game_id } = router.query;
   const [flashcards, setFlashcards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { room_code } = router.query;
+  const { data: session } = useSession();
 
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
 
@@ -23,13 +24,21 @@ const Index = () => {
   const fetchFlashcards = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/flashcard/flashcard?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/flashcard/flashcard?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
+
       setFlashcards(data);
       setIsLoading(false);
       if (res.ok) {

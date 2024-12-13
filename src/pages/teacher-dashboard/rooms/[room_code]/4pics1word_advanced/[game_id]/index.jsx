@@ -5,16 +5,18 @@ import { Chip } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Pencil, ArrowLeft } from "lucide-react";
 import FourPicsOneWordAdvanced from "@/pages/components/FourPicsOneWordAdvanced";
+import { useSession } from "next-auth/react";
 
 const index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
   const [cards, setCards] = useState([]);
+  const { data: session } = useSession();
 
   const fetchCards = async () => {
     try {
       const res = await fetch(
-        `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}`,
+        `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}&account_id=${session.user.id}`,
         {
           method: "GET",
           headers: {
@@ -23,6 +25,10 @@ const index = () => {
         }
       );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       setCards(data);
       if (res.ok) {
         console.log("Cards fetched successfully ");

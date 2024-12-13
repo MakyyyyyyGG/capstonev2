@@ -110,9 +110,21 @@ const handlePost = async (req, res) => {
 };
 
 const handleGet = async (req, res) => {
-  const { game_id } = req.query;
+  const { game_id, account_id } = req.query;
 
   try {
+    // Check if the user is authorized to access the game
+    const ownerResults = await query({
+      query:
+        "SELECT * FROM four_pics_one_word_sets JOIN teachers ON four_pics_one_word_sets.account_id = teachers.account_id WHERE teachers.account_id = ?",
+      values: [account_id],
+    });
+
+    if (!ownerResults.length) {
+      res.status(403).json({ error: "Unauthorized access" });
+      return;
+    }
+
     const gameResults = await query({
       query: `SELECT * FROM four_pics_one_word_sets JOIN games ON four_pics_one_word_sets.game_id = games.game_id WHERE four_pics_one_word_sets.game_id = ?`,
       values: [game_id],

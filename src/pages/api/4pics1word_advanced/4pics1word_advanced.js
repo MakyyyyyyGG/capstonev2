@@ -109,9 +109,23 @@ export default async function handler(req, res) {
       res.status(500).json({ error: "Error creating game or group" });
     }
   } else if (req.method === "GET") {
-    const { game_id } = req.query;
+    const { game_id, account_id } = req.query;
+    console.log(req.query);
 
     try {
+      // Check if account_id is provided before checking ownership
+      if (account_id) {
+        const ownerResults = await query({
+          query:
+            "SELECT * FROM four_pics_advanced_sets JOIN teachers ON four_pics_advanced_sets.account_id = teachers.account_id WHERE four_pics_advanced_sets.account_id = ?",
+          values: [account_id],
+        });
+
+        if (!ownerResults.length) {
+          return res.status(403).json({ error: "Unauthorized access" });
+        }
+      }
+
       const gameResults = await query({
         query: `SELECT * FROM four_pics_advanced_sets JOIN games ON four_pics_advanced_sets.game_id = games.game_id WHERE four_pics_advanced_sets.game_id = ?`,
         values: [game_id],

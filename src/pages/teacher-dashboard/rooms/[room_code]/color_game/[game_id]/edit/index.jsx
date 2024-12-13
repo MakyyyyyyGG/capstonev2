@@ -65,14 +65,21 @@ const index = () => {
   const fetchCards = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/color_game/color_game?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/color_game/color_game?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
 
       // Map over the data and transform image1, image2, and image3 into an array
       const transformedData = data.map((item) => ({

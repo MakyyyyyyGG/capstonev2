@@ -6,22 +6,34 @@ import Link from "next/link";
 import { Button } from "@nextui-org/react";
 import { Pencil, ArrowLeft } from "lucide-react";
 import Loader from "@/pages/components/Loader";
+import { useSession } from "next-auth/react";
+
 const Index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
   const [cards, setCards] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { data: session } = useSession();
 
   const fetchCards = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch(`/api/4pics1word/4pics1word?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/4pics1word/4pics1word?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
+
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
+
       setCards(data);
       if (res.ok) {
         console.log("Cards fetched successfully");
