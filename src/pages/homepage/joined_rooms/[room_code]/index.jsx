@@ -9,6 +9,7 @@ import ScoresIndiv from "@/pages/components/ScoresIndiv";
 import Loader from "@/pages/components/Loader";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import JoinRoomModal from "@/pages/components/JoinRoomModal";
 const fetchRoomDetails = async (room_code, setRoomData, setLoading) => {
   try {
     const res = await fetch(
@@ -28,6 +29,7 @@ const IndividualRoom = () => {
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
   const [loading, setLoading] = useState(true);
   const [assignments, setAssignments] = useState([]);
+  const [studentExists, setStudentExists] = useState(true);
   function toggleSidebarCollapseHandler() {
     setIsCollapsedSidebar((prev) => !prev);
   }
@@ -52,6 +54,7 @@ const IndividualRoom = () => {
 
   useEffect(() => {
     if (room_code) {
+      checkStudentExist();
       setLoading(true); // Ensure loading state is set to true when room_code changes
       fetchRoomDetails(room_code, setRoomData, setLoading);
       fetchGames();
@@ -104,6 +107,28 @@ const IndividualRoom = () => {
     }
   }, []);
 
+  const checkStudentExist = async () => {
+    if (session) {
+      try {
+        const response = await fetch(
+          `/api/accounts_student/room/student_exist?account_id=${session.user.id}&room_code=${room_code}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("student exist?", data);
+        setStudentExists(data.exists);
+      } catch (error) {
+        console.error("Error checking if student exists:", error);
+        setStudentExists(false);
+      }
+    }
+  };
+
   const fetchStudentRecord = async () => {
     if (session) {
       try {
@@ -147,6 +172,11 @@ const IndividualRoom = () => {
         <div className="flex justify-center items-center h-screen opacity-50">
           <Loader />
         </div>
+      ) : !studentExists ? (
+        <JoinRoomModal
+          room_code={room_code}
+          pageReload={() => router.reload()}
+        />
       ) : (
         <div className="flex">
           <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">

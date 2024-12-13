@@ -161,8 +161,13 @@ const index = () => {
   };
 
   const removeCard = async (index) => {
+    if (cards.length <= 1) {
+      alert("You cannot delete the last remaining card.");
+      return;
+    }
+
     const userConfirmed = confirm(
-      "Are you sure you want to delete this color game advanced card?"
+      "Are you sure you want to delete this card? This will be deleted permanently"
     );
     if (userConfirmed) {
       const newCards = cards.filter((_, i) => i !== index);
@@ -323,7 +328,7 @@ const index = () => {
     setIsLoading(true);
     try {
       const res = await fetch(
-        `/api/decision_maker/decision_maker?game_id=${game_id}`,
+        `/api/decision_maker/decision_maker?game_id=${game_id}&account_id=${session.user.id}`,
         {
           method: "GET",
           headers: {
@@ -332,6 +337,10 @@ const index = () => {
         }
       );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       const transformedData = data.map((item) => ({
         ...item, // Spread the existing properties
       }));

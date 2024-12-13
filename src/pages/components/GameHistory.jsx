@@ -236,7 +236,7 @@ const GameHistory = ({ gameRecord = [], cards }) => {
                 </Card>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" variant="light" onClick={onClose}>
                   Close
                 </Button>
               </ModalFooter>

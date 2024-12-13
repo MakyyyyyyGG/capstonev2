@@ -46,7 +46,11 @@ import toast, { Toaster } from "react-hot-toast";
 // import PreviewSequenceGame from "@/pages/components/PreviewSequenceGame";
 
 const Index = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isVideoModalOpen,
+    onOpen: onVideoOpen,
+    onOpenChange: onVideoOpenChange,
+  } = useDisclosure();
   const {
     isOpen: isRecordingOpen,
     onOpen: onRecordingOpen,
@@ -113,15 +117,15 @@ const Index = () => {
       return;
     }
     if (sequence.length < 2) {
-      toast.error("You need to add at least 2 flashcards");
+      toast.error("You need to add at least 2 sequence");
       return;
     }
     if (sequence.some((flashcard) => !flashcard.step)) {
-      toast.error("All flashcards must have a step");
+      toast.error("All card must have a step");
       return;
     }
     if (sequence.some((flashcard) => !flashcard.image)) {
-      toast.error("All flashcards must have an image");
+      toast.error("All card must have an image");
       return;
     }
     setIsLoading(true);
@@ -147,14 +151,14 @@ const Index = () => {
       }
 
       const data = await response.json();
-      console.log("Flashcard created successfully:", data);
+      console.log("Game created successfully:", data);
       router.push(
         `/teacher-dashboard/rooms/${room_code}/sequence_game/${data.gameId}`
       );
-      toast.success("Flashcard created successfully", { id: toastId });
+      toast.success("Game created successfully", { id: toastId });
     } catch (error) {
-      console.error("Error creating flashcard:", error.message);
-      toast.error("Error creating flashcard", { id: toastId });
+      console.error("Error creating game:", error.message);
+      toast.error("Error creating game", { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -441,7 +445,7 @@ const Index = () => {
         newSequence[currentIndex].image = base64data;
         setSequence(newSequence);
         setTempImage(null);
-        onOpenChange(false);
+        // onOpenChange(false);
       };
     }, "image/jpeg");
   };
@@ -616,7 +620,7 @@ const Index = () => {
                   radius="sm"
                   size="lg"
                   color="secondary"
-                  onClick={onOpen}
+                  onClick={onVideoOpen}
                 >
                   <div className="flex gap-2 items-center">
                     <Video size={20} />
@@ -626,7 +630,11 @@ const Index = () => {
               )} */}
             </div>
             <div className="flex gap-2"></div>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+            <Modal
+              isOpen={isVideoModalOpen}
+              onOpenChange={onVideoOpenChange}
+              size="lg"
+            >
               <ModalContent>
                 {(onClose) => (
                   <>
@@ -742,7 +750,7 @@ const Index = () => {
                       radius="sm"
                       size="lg"
                       color="secondary"
-                      onClick={onOpen}
+                      onClick={onVideoOpen}
                     >
                       <div className="flex gap-2 items-center">
                         <Video size={20} />

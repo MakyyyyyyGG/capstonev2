@@ -9,15 +9,17 @@ export default async function handler(req, res) {
       // Get students who submitted based on assignment id
       const students = await query({
         query: `
-          SELECT 
+            SELECT 
             students.first_name,
             students.last_name,
             students.account_id,
+            assignment.title,
             submitted_assignment.*
           FROM students 
           JOIN submitted_assignment 
             ON students.account_id = submitted_assignment.account_id
-          WHERE submitted_assignment.assignment_id = ?
+		JOIN assignment on submitted_assignment.assignment_id = assignment.assignment_id
+          WHERE submitted_assignment.assignment_id = ?;
         `,
         values: [assignment_id],
       });
@@ -46,6 +48,7 @@ export default async function handler(req, res) {
             account_id: student.account_id,
             grade: student.grade,
             submitted_at: student.created_at,
+            assignment_title: student.title,
             media: media.reduce((acc, m, i) => {
               acc[i] = m.url;
               return acc;

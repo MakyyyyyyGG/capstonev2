@@ -823,10 +823,10 @@ const Index = () => {
                             <Mic size={20} />
                             Record Audio
                           </Button>
-                          <span className="text-xs text-gray-500 ">
+                          {/* <span className="text-xs text-gray-500 ">
                             Record an audio to help with pronunciation
                             (optional)
-                          </span>
+                          </span> */}
                         </>
                       )}
                     </div>{" "}
@@ -849,7 +849,7 @@ const Index = () => {
                         }
                       />
                     </div>
-                    <div className="flex w-full gap-2">
+                    {/* <div className="flex w-full gap-2">
                       <Textarea
                         id="description-input"
                         rows={5}
@@ -872,7 +872,7 @@ const Index = () => {
                           )
                         }
                       />
-                    </div>
+                    </div> */}
                   </div>
                 </CardBody>
                 <div>

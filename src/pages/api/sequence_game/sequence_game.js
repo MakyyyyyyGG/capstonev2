@@ -105,7 +105,9 @@ const handlePostRequest = async (req, res) => {
             imageFileName,
             "sequence_game/images"
           );
-        } else if (!sequenceItem.image.startsWith("http")) {
+        } else if (sequenceItem.image.startsWith("http")) {
+          imageUrl = sequenceItem.image; // Just use the URL directly
+        } else {
           throw new Error("Invalid image format");
         }
       }
@@ -135,9 +137,24 @@ const handlePostRequest = async (req, res) => {
 };
 
 const handleGetRequest = async (req, res) => {
-  const { game_id } = req.query;
+  const { game_id, account_id } = req.query;
+  console.log(req.query);
 
   try {
+    // Check if the user is authorized to access the game
+    if (account_id) {
+      const ownerResults = await query({
+        query:
+          "SELECT * FROM sequence_game_sets JOIN teachers ON sequence_game_sets.account_id = teachers.account_id WHERE sequence_game_sets.account_id = ?",
+        values: [account_id],
+      });
+
+      if (!ownerResults.length) {
+        res.status(403).json({ error: "Unauthorized access" });
+        return;
+      }
+    }
+
     const gameResults = await query({
       query:
         "SELECT * FROM sequence_game_sets JOIN games ON sequence_game_sets.game_id = games.game_id WHERE games.game_id = ?",
@@ -207,7 +224,9 @@ const handlePutRequest = async (req, res) => {
           imageFileName,
           "sequence_game/images"
         );
-      } else if (!sequence.image.startsWith("http")) {
+      } else if (sequence.image.startsWith("http")) {
+        imageUrl = sequence.image; // Just use the URL directly
+      } else {
         imageUrl = currentSequence.image;
       }
     }

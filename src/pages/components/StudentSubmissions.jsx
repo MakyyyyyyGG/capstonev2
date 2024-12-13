@@ -24,7 +24,6 @@ import { Checkbox } from "@nextui-org/react";
 import { ScanSearch } from "lucide-react";
 
 const StudentSubmissions = ({ submittedStudents = [] }) => {
-  console.log("submittedStudents", submittedStudents);
   const router = useRouter();
   const { assignment_id } = router.query;
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -34,7 +33,6 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   useEffect(() => {
-    // Initialize grades with existing grades from submittedStudents
     if (submittedStudents?.students?.length > 0) {
       const initialGrades = {};
       const initialSelected = {};
@@ -42,7 +40,7 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
         if (student.grade) {
           initialGrades[student.account_id] = student.grade;
         }
-        initialSelected[student.account_id] = false; // Initialize all as unselected
+        initialSelected[student.account_id] = false;
       });
       setGrades(initialGrades);
       setSelectedForExport(initialSelected);
@@ -95,7 +93,6 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
       return;
     }
 
-    // Get only the selected students
     const selectedStudents = submittedStudents.students.filter(
       (student) => selectedForExport[student.account_id] === true
     );
@@ -106,6 +103,7 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
     }
 
     const exportData = selectedStudents.map((student) => ({
+      "Assignment Title": student.assignment_title,
       "Student Name": `${student.first_name} ${student.last_name}`,
       Grade: grades[student.account_id] || "Not graded",
       "Submission Date": new Date(student.submitted_at).toLocaleString(),
@@ -131,14 +129,16 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
     <div className="">
       <div className="grid grid-cols-6 gap-4 max-md:grid-cols-1">
         <div className="col-span-4 max-md:col-span-1">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Students Grades</h2>
-            <button
-              onClick={exportToExcel}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-            >
-              Export Selected Grades
-            </button>
+          <div className="flex flex-col gap-2 mb-4">
+            {/* <h1 className="text-3xl font-bold">
+              {submittedStudents?.students?.[0]?.assignment_title}
+            </h1> */}
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Students Grades</h2>
+              <Button color="secondary" radius="sm" onClick={exportToExcel}>
+                Export to Excel
+              </Button>
+            </div>
           </div>
           <Card>
             <CardContent className="p-1">
@@ -147,6 +147,7 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
                   <TableRow>
                     <TableHead className="w-[50px]">Export</TableHead>
                     <TableHead>Student Name</TableHead>
+                    <TableHead>Assignment Title</TableHead>
                     <TableHead>Grade</TableHead>
                     <TableHead>Actions</TableHead>
                     <TableHead>Submission Date</TableHead>
@@ -176,6 +177,7 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
                       >
                         {student.first_name} {student.last_name}
                       </TableCell>
+                      <TableCell>{student.assignment_title}</TableCell>
                       <TableCell>
                         <Input
                           type="number"
@@ -191,12 +193,13 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
                         />
                       </TableCell>
                       <TableCell>
-                        <button
+                        <Button
                           onClick={() => handleGradeSubmit(student.account_id)}
                           className="px-3 py-1 bg-primary text-white rounded-lg text-sm"
+                          isDisabled={!grades[student.account_id]}
                         >
                           Save Grade
-                        </button>
+                        </Button>
                       </TableCell>
                       <TableCell>
                         {new Date(student.submitted_at).toLocaleString()}

@@ -363,7 +363,7 @@ const Index = () => {
           element: "#title",
           popover: {
             title: "Set Title",
-            description: "Enter a title for your flashcard set",
+            description: "Enter a title for your card set",
           },
         },
         {
@@ -392,7 +392,7 @@ const Index = () => {
           element: "#upload-image-btn",
           popover: {
             title: "Upload Image",
-            description: "Add an image to your flashcard",
+            description: "Add an image to your card",
           },
         },
         {
@@ -405,7 +405,7 @@ const Index = () => {
         {
           element: "#create-btn",
           popover: {
-            title: "Create Flashcard Set",
+            title: "Create card Set",
             description: "When you're done, click here to create your card set",
           },
         },

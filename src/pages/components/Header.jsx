@@ -900,7 +900,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                               <Select
                                 name="gender"
                                 id="gender"
-                                label="Choose your Gender"
+                                label="Choose your sex"
                                 placeholder="Select Gender"
                                 size="sm"
                                 variant="bordered"

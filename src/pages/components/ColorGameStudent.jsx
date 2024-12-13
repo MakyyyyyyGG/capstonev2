@@ -26,8 +26,7 @@ import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
 import Shop from "./Shop";
 import { ArrowLeft, CircleCheck } from "lucide-react";
-import { Arrow } from "@radix-ui/react-select";
-
+import Loader from "./Loader";
 const ColorGames = ({ cards = [] }) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
@@ -312,7 +311,7 @@ const ColorGames = ({ cards = [] }) => {
 
       const result = await response.json();
       if (response.status === 200) {
-        alert("Game record created successfully");
+        // alert("Game record created successfully");
         // Update gameRecord after finishing the game
         await getStudentTries();
       }
@@ -341,6 +340,13 @@ const ColorGames = ({ cards = [] }) => {
     }
   };
 
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
   return (
     <div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}
@@ -610,7 +616,9 @@ const ColorGames = ({ cards = [] }) => {
                               isDisabled={
                                 (attempts[index] || 0) >= 3 ||
                                 !(selectedImages[card.color_game_id] || [])
-                                  .length
+                                  .length ||
+                                submissionResults[card.color_game_id] ===
+                                  "Correct!"
                               }
                               aria-label="Check answers"
                             >

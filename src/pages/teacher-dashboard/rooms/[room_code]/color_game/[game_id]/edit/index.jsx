@@ -65,14 +65,21 @@ const index = () => {
   const fetchCards = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/color_game/color_game?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/color_game/color_game?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
 
       // Map over the data and transform image1, image2, and image3 into an array
       const transformedData = data.map((item) => ({
@@ -151,9 +158,9 @@ const index = () => {
   };
 
   const handleRemoveCard = (cardIndex) => {
-    const updatedCards = cards.filter((_, index) => index !== cardIndex);
+    // const updatedCards = cards.filter((_, index) => index !== cardIndex);
     handleDeleteCard(cardIndex);
-    setCards(updatedCards);
+    // setCards(updatedCards);
   };
 
   const handleEdit = (cardIndex, imageIndex) => {
@@ -290,8 +297,13 @@ const index = () => {
   };
 
   const handleDeleteCard = async (cardIndex) => {
+    if (cards.length <= 1) {
+      alert("You cannot delete the last remaining card.");
+      return;
+    }
+
     const userConfirmed = confirm(
-      "Are you sure you want to delete this color game card?"
+      "Are you sure you want to delete this card? This will be deleted permanently"
     );
     if (userConfirmed) {
       const updatedCards = [...cards];

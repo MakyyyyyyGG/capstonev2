@@ -13,6 +13,7 @@ import { LiaListOlSolid } from "react-icons/lia";
 import PreviewFlashcard from "./PreviewFlashcard";
 import PreviewDecisionMaker from "./PreviewDecisionMaker";
 import PreviewSequenceGame from "./PreviewSequenceGame";
+import PreviewThinkpic from "./PreviewThinkpic";
 import PreviewThinkpicPlus from "./PreviewThinkpicPlus";
 import PreviewColorGame from "./PreviewColorGame";
 import {
@@ -51,7 +52,7 @@ const CreateClassWork = ({ room_code }) => {
       path: "create_4pics1word",
       icon: <Grid2x2 size={25} className="text-[#7C3AED]" />,
       iconBg: "bg-[#7C3AED]/10",
-      preview: <PreviewThinkpicPlus />,
+      preview: <PreviewThinkpic />,
       description:
         "Challenge students to guess the word that connects to the images. Test the students' problem solving skills and their vocabulary.",
     },
@@ -62,7 +63,7 @@ const CreateClassWork = ({ room_code }) => {
       iconBg: "bg-[#7C3AED]/10",
       preview: <PreviewThinkpicPlus />,
       description:
-        "Challenge students to guess the word using the images as the options. This will further test the student's skills in problem solving.",
+        "Choose the correct images that match the given word. This helps students understand word meanings through visual associations.",
     },
     {
       title: "Color Game",

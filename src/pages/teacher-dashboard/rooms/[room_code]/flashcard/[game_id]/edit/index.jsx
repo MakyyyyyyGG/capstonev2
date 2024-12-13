@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Header from "@/pages/components/Header";
-import Sidebar from "@/pages/components/Sidebar";
+
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import toast, { Toaster } from "react-hot-toast";
@@ -77,13 +76,22 @@ const Index = () => {
   const fetchFlashcards = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/flashcard/flashcard?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/flashcard/flashcard?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
+
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
+
       setFlashcardData(data);
       console.log(data);
       if (res.ok) {
@@ -396,8 +404,13 @@ const Index = () => {
   };
 
   const removeFlashcard = async (index) => {
+    if (flashcardData.length <= 1) {
+      alert("You cannot delete the last remaining flashcard.");
+      return;
+    }
+
     const userConfirmed = confirm(
-      "Are you sure you want to delete this flashcard?"
+      "Are you sure you want to delete this card? This will be deleted permanently"
     );
     if (userConfirmed) {
       console.log("Removing flashcard at index:", index);
@@ -406,16 +419,16 @@ const Index = () => {
       console.log("removed flashcard id:", flashcardData[index].flashcard_id);
       try {
         const response = await fetch(
-          `/api/flashcard/flashcard?flashcard_id=${flashcardData[index].flashcard_id}`,
+          `/api/flashcard/update_flashcard/update_flashcard?flashcard_id=${flashcardData[index].flashcard_id}`,
           {
             method: "DELETE",
           }
         );
         if (response.ok) {
           console.log("Flashcard deleted successfully");
-          if (flashcardData.length + 1 >= 10) {
+          if (newFlashcards.length >= 10) {
             setDifficulty("hard");
-          } else if (flashcardData.length + 1 >= 5) {
+          } else if (newFlashcards.length >= 5) {
             setDifficulty("medium");
           } else {
             setDifficulty("easy");
@@ -854,7 +867,7 @@ const Index = () => {
                             }
                           />
                         </div>
-                        <div className="flex w-full gap-2">
+                        {/* <div className="flex w-full gap-2">
                           <Textarea
                             rows={5}
                             radius="sm"
@@ -876,7 +889,7 @@ const Index = () => {
                               )
                             }
                           />
-                        </div>
+                        </div> */}
                       </div>
                       <Modal
                         isOpen={isAudioModalOpen && currentIndex === index}
@@ -972,47 +985,6 @@ const Index = () => {
                         </ModalContent>
                       </Modal>
                     </CardBody>
-
-                    {/* <CardFooter className="flex px-3 gap-2 items-center justify-between">
-                      <div className="flex gap-2 w-full items-center max-sm:flex-col">
-                        {flashcard.audio ? (
-                          <div className="flex gap-2">
-                            <Button
-                              className="bg-[#7469B6] text-white border-0"
-                              onPress={() => {
-                                setIsAudioModalOpen(true);
-                                setCurrentIndex(index);
-                              }}
-                            >
-                              <Mic size={22} /> Edit Audio
-                            </Button>
-                            <Button
-                              color="danger"
-                              onPress={() => {
-                                removeAudio(index);
-                              }}
-                            >
-                              <Trash2 size={22} /> Delete Audio
-                            </Button>
-                            <audio
-                              src={flashcard.audio}
-                              controls
-                              className="w-full"
-                            />
-                          </div>
-                        ) : (
-                          <Button
-                            className="bg-[#7469B6] text-white border-0"
-                            onPress={() => {
-                              setIsAudioModalOpen(true);
-                              setCurrentIndex(index);
-                            }}
-                          >
-                            <Mic size={22} /> Record Audio
-                          </Button>
-                        )}
-                      </div>
-                    </CardFooter> */}
                   </Card>
                 </div>
               ))}

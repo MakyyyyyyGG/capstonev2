@@ -46,8 +46,7 @@ import {
   CircleCheck,
 } from "lucide-react";
 import GameHistory from "./GameHistory";
-import Shop from "./Shop";
-
+import Loader from "./Loader";
 const DecisionMakerStudent = ({ cards = [] }) => {
   // Add default empty array
   const [firstCard, setFirstCard] = useState(null);
@@ -178,7 +177,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
   const endGame = async () => {
     if (gameCompleted) {
       await handleResult();
-      alert("You have completed the game!");
+      // alert("You have completed the game!");
     }
   };
 
@@ -267,7 +266,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
       const result = await response.json();
 
       if (response.status === 403) {
-        alert(result.message); // Show the limit message
+        // alert(result.message); // Show the limit message
         await getStudentTries();
       } else {
         console.log(result);
@@ -293,6 +292,13 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     }
   };
 
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
   return (
     <div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}
@@ -311,7 +317,11 @@ const DecisionMakerStudent = ({ cards = [] }) => {
           {gameRecord &&
             gameRecord.length > 0 &&
             cards && ( // Add null checks
-              <Summary gameRecord={gameRecord} questions={cards.length} />
+              <Summary
+                gameRecord={gameRecord}
+                questions={cards.length}
+                rewards={rewards}
+              />
             )}
         </>
       ) : (
@@ -537,7 +547,12 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                   onPress={() => handleVote(card, "positive")}
                                   color="success"
                                   variant="flat"
-                                  isDisabled={feedback[card.decision_maker_id]}
+                                  isDisabled={
+                                    feedback[card.decision_maker_id] ===
+                                      "Correct!" ||
+                                    feedback[card.decision_maker_id] ===
+                                      "Incorrect."
+                                  }
                                   className="w-full h-16 justify-center text-green-700 text-lg bg-white border-4 border-green-300"
                                   style={{
                                     filter: "drop-shadow(4px 4px 0px #22c55e",
@@ -556,7 +571,12 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                   onPress={() => handleVote(card, "negative")}
                                   color="danger"
                                   variant="flat"
-                                  isDisabled={feedback[card.decision_maker_id]}
+                                  isDisabled={
+                                    feedback[card.decision_maker_id] ===
+                                      "Correct!" ||
+                                    feedback[card.decision_maker_id] ===
+                                      "Incorrect."
+                                  }
                                   className="w-full h-16 justify-center text-red-700 text-lg bg-white border-4 border-red-300"
                                   style={{
                                     filter: "drop-shadow(4px 4px 0px #ef4444",
