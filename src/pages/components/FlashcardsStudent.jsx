@@ -28,6 +28,7 @@ import { Pagination, Navigation, EffectCreative } from "swiper/modules";
 import "swiper/swiper-bundle.css";
 import Loader from "./Loader";
 import { useRouter } from "next/router";
+
 const handleTextToSpeech = (text) => {
   const utterance = new SpeechSynthesisUtterance(text);
   const synth = window.speechSynthesis;
@@ -80,7 +81,7 @@ const FlashcardsStudent = ({ flashcards }) => {
   };
 
   // Handle case where flashcards is undefined
-  if (!flashcards) {
+  if (!flashcards || flashcards.length === 0) {
     return (
       <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
         <Loader />

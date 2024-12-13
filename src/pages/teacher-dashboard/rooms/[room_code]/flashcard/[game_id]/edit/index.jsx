@@ -76,13 +76,22 @@ const Index = () => {
   const fetchFlashcards = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/flashcard/flashcard?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/flashcard/flashcard?game_id=${game_id}&account_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
+
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
+
       setFlashcardData(data);
       console.log(data);
       if (res.ok) {
@@ -858,7 +867,7 @@ const Index = () => {
                             }
                           />
                         </div>
-                        <div className="flex w-full gap-2">
+                        {/* <div className="flex w-full gap-2">
                           <Textarea
                             rows={5}
                             radius="sm"
@@ -880,7 +889,7 @@ const Index = () => {
                               )
                             }
                           />
-                        </div>
+                        </div> */}
                       </div>
                       <Modal
                         isOpen={isAudioModalOpen && currentIndex === index}

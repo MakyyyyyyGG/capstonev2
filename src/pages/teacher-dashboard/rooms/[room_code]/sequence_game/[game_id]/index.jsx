@@ -12,6 +12,7 @@ import { Chip } from "@nextui-org/react";
 import SequenceGame from "@/pages/components/SequenceGame";
 import Link from "next/link";
 import { Pencil, ArrowLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const index = () => {
   const router = useRouter();
@@ -21,12 +22,13 @@ const index = () => {
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session } = useSession();
 
   const fetchSequenceGame = async () => {
     setIsLoading(true);
     try {
       const res = await fetch(
-        `/api/sequence_game/sequence_game?game_id=${game_id}`,
+        `/api/sequence_game/sequence_game?game_id=${game_id}&account_id=${session.user.id}`,
         {
           method: "GET",
           headers: {
@@ -35,6 +37,10 @@ const index = () => {
         }
       );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       setSequenceGame(data);
       // setVideo(data[0].video);
       // setTitle(data[0].title);

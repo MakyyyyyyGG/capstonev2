@@ -22,7 +22,7 @@ import {
   Tabs,
   Tab,
 } from "@nextui-org/react";
-import Loader from "@/pages/components/Loader";
+import { useSession } from "next-auth/react";
 const Index = () => {
   const router = useRouter();
   const { game_id, room_code } = router.query;
@@ -46,7 +46,7 @@ const Index = () => {
     y: 25,
   });
   const imgRef = useRef(null);
-
+  const { data: session } = useSession();
   // Track dragging state
   const [draggingIndex, setDraggingIndex] = useState(null);
   const [loading, setLoading] = useState(true); // State to track loading
@@ -234,7 +234,7 @@ const Index = () => {
   const fetchCards = async () => {
     try {
       const res = await fetch(
-        `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}`,
+        `/api/4pics1word_advanced/4pics1word_advanced?game_id=${game_id}&account_id=${session.user.id}`,
         {
           method: "GET",
           headers: {
@@ -243,6 +243,10 @@ const Index = () => {
         }
       );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       console.log("data", data);
       if (Array.isArray(data) && data.length > 0) {
         const formattedCards = data.map((card) => ({

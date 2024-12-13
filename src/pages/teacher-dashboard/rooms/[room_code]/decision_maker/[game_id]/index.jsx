@@ -6,15 +6,19 @@ import { Chip } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Pencil, ArrowLeft } from "lucide-react";
 import DecisionMaker from "@/pages/components/DecisionMaker";
+import { useSession } from "next-auth/react";
+
 const index = () => {
   const router = useRouter();
   const { game_id } = router.query;
   const [cards, setCards] = useState([]);
   const { room_code } = router.query;
+  const { data: session } = useSession();
+
   const fetchCards = async () => {
     try {
       const res = await fetch(
-        `/api/decision_maker/decision_maker?game_id=${game_id}`,
+        `/api/decision_maker/decision_maker?game_id=${game_id}&account_id=${session.user.id}`,
         {
           method: "GET",
           headers: {
@@ -23,6 +27,10 @@ const index = () => {
         }
       );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       setCards(data);
       if (res.ok) {
         // console.log("Flashcards fetched successfully");

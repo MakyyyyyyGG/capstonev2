@@ -102,8 +102,20 @@ const handlePostRequest = async (req, res) => {
 };
 
 const handleGetRequest = async (req, res) => {
-  const { game_id } = req.query;
+  const { game_id, account_id } = req.query;
   try {
+    if (account_id) {
+      const ownerResults = await query({
+        query:
+          "SELECT * FROM decision_maker_sets JOIN teachers ON decision_maker_sets.account_id = teachers.account_id WHERE decision_maker_sets.account_id = ? AND decision_maker_sets.game_id = ?",
+        values: [account_id, game_id],
+      });
+
+      if (!ownerResults.length) {
+        return res.status(403).json({ error: "Unauthorized access" });
+      }
+    }
+
     const gameResults = await query({
       query:
         "SELECT * FROM decision_maker_sets JOIN games ON decision_maker_sets.game_id = games.game_id WHERE decision_maker_sets.game_id = ?",

@@ -328,7 +328,7 @@ const index = () => {
     setIsLoading(true);
     try {
       const res = await fetch(
-        `/api/decision_maker/decision_maker?game_id=${game_id}`,
+        `/api/decision_maker/decision_maker?game_id=${game_id}&account_id=${session.user.id}`,
         {
           method: "GET",
           headers: {
@@ -337,6 +337,10 @@ const index = () => {
         }
       );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       const transformedData = data.map((item) => ({
         ...item, // Spread the existing properties
       }));

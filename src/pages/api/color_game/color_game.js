@@ -47,8 +47,21 @@ export default async function handler(req, res) {
       res.status(500).json({ error: "Error creating game" });
     }
   } else if (req.method === "GET") {
-    const { game_id } = req.query;
+    const { game_id, account_id } = req.query;
     try {
+      // Check if account_id is provided before checking ownership
+      if (account_id) {
+        const ownerResults = await query({
+          query:
+            "SELECT * FROM color_game_sets JOIN teachers ON color_game_sets.account_id = teachers.account_id WHERE color_game_sets.account_id = ?",
+          values: [account_id],
+        });
+
+        if (!ownerResults.length) {
+          return res.status(403).json({ error: "Unauthorized access" });
+        }
+      }
+
       const gameResults = await query({
         query:
           "SELECT * FROM color_game_sets JOIN games ON color_game_sets.game_id = games.game_id WHERE color_game_sets.game_id = ?",
@@ -80,7 +93,6 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error("Error fetching game:", error);
       res.status(500).json({ error: "Error fetching game" });
-      28;
     }
   } else if (req.method === "PUT") {
     const { color_game_id } = req.query;
