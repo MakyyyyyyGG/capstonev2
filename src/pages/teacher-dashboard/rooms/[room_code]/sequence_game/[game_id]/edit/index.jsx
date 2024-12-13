@@ -93,10 +93,11 @@ const Index = () => {
     setIsCollapsedSidebar((prev) => !prev);
   }
   const fetchFlashcards = async () => {
+    console.log("hello");
     setIsLoading(true);
     try {
       const res = await fetch(
-        `/api/sequence_game/sequence_game?game_id=${game_id}`,
+        `/api/sequence_game/sequence_game?game_id=${game_id}&account_id=${session.user.id}`,
         {
           method: "GET",
           headers: {
@@ -105,6 +106,10 @@ const Index = () => {
         }
       );
       const data = await res.json();
+      if (data.error === "Unauthorized access") {
+        router.push("/unauthorized");
+        return;
+      }
       // Add imageUrl property to each flashcard, initialized with the image value
       const flashcardsWithImageUrl = data.map((flashcard) => ({
         ...flashcard,
@@ -797,7 +802,7 @@ const Index = () => {
                         size="sm"
                         color="danger"
                         className="absolute top-2 right-2"
-                        // onClick={() => setVideoURL(null)}
+                        onClick={() => setVideo(null)}
                       >
                         <Trash2 size={18} />
                       </Button>
