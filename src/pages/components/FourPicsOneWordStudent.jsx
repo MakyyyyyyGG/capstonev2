@@ -15,7 +15,7 @@ import { EffectCreative } from "swiper/modules";
 import Summary from "./Summary";
 import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
-
+import Loader from "./Loader";
 import GameHistory from "./GameHistory";
 import { ArrowLeft, CircleCheck } from "lucide-react";
 
@@ -291,6 +291,14 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
     });
     setHintsUsed((prevHints) => prevHints + 1);
   };
+  // Handle case where flashcards is undefined
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex flex-col justify-center px-4 pt-4">
