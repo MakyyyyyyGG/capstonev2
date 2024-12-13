@@ -217,9 +217,9 @@ const AssignmentList = ({ assignments, onDelete }) => {
                           "submitted" && (
                           <Chip
                             size="sm"
-                            className="flex items-center justify-center bg-green-100 rounded-full pt-[1px] px-2"
+                            className="flex items-center justify-center bg-blue-100 rounded-full pt-[1px] px-2"
                           >
-                            <span className="text-xs text-green-500">
+                            <span className="text-xs text-blue-500">
                               Submitted
                             </span>
                           </Chip>
@@ -228,9 +228,9 @@ const AssignmentList = ({ assignments, onDelete }) => {
                           "graded" && (
                           <Chip
                             size="sm"
-                            className="flex items-center justify-center bg-blue-100 rounded-full pt-[1px] px-2"
+                            className="flex items-center justify-center bg-green-100 rounded-full pt-[1px] px-2"
                           >
-                            <span className="text-xs text-blue-500 ">
+                            <span className="text-xs text-green-500 ">
                               Graded
                             </span>
                           </Chip>
