@@ -236,14 +236,13 @@ const index = () => {
     getSubmittedAssignment();
   }, [assignment_id]);
 
+  const isGraded = submittedAssignment?.assignmentResult?.grade;
+
   if (!assignment) return null;
 
   return (
     <div className="w-full flex flex-col gap-4 p-4 max-w-[80rem] mx-auto">
       <Toaster />
-      {/* <h1 className="text-3xl font-bold mb-8">
-        Assignment id: {assignment_id}
-      </h1> */}
       <Card className="w-full mb-2 p-4">
         <CardHeader className="flex flex-col gap-2">
           <div className="flex w-full items-center">
@@ -341,7 +340,10 @@ const index = () => {
                               isIconOnly
                               color="danger"
                               startContent={<Trash2 size={22} />}
-                              className="absolute top-2 right-2"
+                              className={`absolute top-2 right-2 ${
+                                isGraded ? "opacity-50 cursor-not-allowed" : ""
+                              }`}
+                              disabled={isGraded}
                             />
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -382,7 +384,10 @@ const index = () => {
                               isIconOnly
                               color="danger"
                               startContent={<Trash2 size={22} />}
-                              className="absolute top-2 right-2"
+                              className={`absolute top-2 right-2 ${
+                                isGraded ? "opacity-50 cursor-not-allowed" : ""
+                              }`}
+                              disabled={isGraded}
                             />
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -424,7 +429,10 @@ const index = () => {
                               isIconOnly
                               color="danger"
                               startContent={<Trash2 size={22} />}
-                              className="absolute top-2 right-2"
+                              className={`absolute top-2 right-2 ${
+                                isGraded ? "opacity-50 cursor-not-allowed" : ""
+                              }`}
+                              disabled={isGraded}
                             />
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -480,6 +488,7 @@ const index = () => {
                 className="border-1 border-[#7469B6]"
                 startContent={<Youtube />}
                 onClick={() => setShowModal({ ...showModal, video: true })}
+                disabled={isGraded}
               />
               <Button
                 auto
@@ -491,6 +500,7 @@ const index = () => {
                 className="border-1 border-[#7469B6]"
                 startContent={<Upload />}
                 onClick={() => setShowModal({ ...showModal, image: true })}
+                disabled={isGraded}
               />
             </div>
           </div>
@@ -503,7 +513,6 @@ const index = () => {
             }}
             className=""
           >
-            {/* <h3>Uploaded Media:</h3> */}
             <ul className="flex flex-col gap-2">
               {mediaList.map((media, index) => (
                 <li
@@ -569,7 +578,10 @@ const index = () => {
                     color="danger"
                     startContent={<Trash2 />}
                     onClick={() => handleDeleteMedia(index)}
-                    className="absolute right-4"
+                    className={`absolute right-4 ${
+                      isGraded ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    disabled={isGraded}
                   />
                 </li>
               ))}
@@ -583,7 +595,7 @@ const index = () => {
                 <p className="text-sm text-gray-500">
                   Assignment has already been graded
                 </p>
-                <h1 className="text-lg font-bold">
+                <h1 className="text-2xl font-bold text-green-500">
                   Grade: {submittedAssignment?.assignmentResult?.grade}
                 </h1>
               </div>
