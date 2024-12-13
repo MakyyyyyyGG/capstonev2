@@ -26,8 +26,7 @@ import "swiper/css/effect-creative";
 import GameHistory from "./GameHistory";
 import Shop from "./Shop";
 import { ArrowLeft, CircleCheck } from "lucide-react";
-import { Arrow } from "@radix-ui/react-select";
-
+import Loader from "./Loader";
 const ColorGames = ({ cards = [] }) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [correctSelections, setCorrectSelections] = useState({});
