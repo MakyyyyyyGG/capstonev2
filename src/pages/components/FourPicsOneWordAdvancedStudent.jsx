@@ -20,8 +20,7 @@ import "swiper/swiper-bundle.css";
 import "swiper/css/effect-creative";
 import Summary from "./Summary";
 import GameHistory from "./GameHistory";
-import Shop from "./Shop";
-
+import Loader from "./Loader";
 const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
   const [shuffledCards, setShuffledCards] = useState([]);
   const [feedback, setFeedback] = useState([]);
@@ -301,6 +300,14 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
       setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
     }
   };
+
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex flex-col justify-center px-4 pt-4">

@@ -46,8 +46,7 @@ import {
   CircleCheck,
 } from "lucide-react";
 import GameHistory from "./GameHistory";
-import Shop from "./Shop";
-
+import Loader from "./Loader";
 const DecisionMakerStudent = ({ cards = [] }) => {
   // Add default empty array
   const [firstCard, setFirstCard] = useState(null);
@@ -293,6 +292,13 @@ const DecisionMakerStudent = ({ cards = [] }) => {
     }
   };
 
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
   return (
     <div className="relative flex flex-col justify-center px-4 pt-4">
       {/* Audio elements */}

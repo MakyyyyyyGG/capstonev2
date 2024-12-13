@@ -21,7 +21,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import GameHistory from "./GameHistory";
 import Summary from "./Summary";
-import Shop from "./Shop";
+import Loader from "./Loader";
 const SequenceGameStudent = ({ sequenceGame }) => {
   const [gameData, setGameData] = useState([]); // Initialize as empty array
   const [selectedImages, setSelectedImages] = useState([]);
@@ -311,6 +311,14 @@ const SequenceGameStudent = ({ sequenceGame }) => {
       setRewards({ coins: 40, exp: 40, bonus: calculateBonus(40) });
     }
   };
+
+  if (!gameData || gameData.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div div className="relative flex flex-col justify-center px-4 pt-4">
