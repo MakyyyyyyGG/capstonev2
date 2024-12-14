@@ -23,8 +23,16 @@ import { MoreVertical, Trash2, Search } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import Stickers from "@/pages/components/Stickers";
 import { useSession } from "next-auth/react";
+import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
+import { useDateFormatter } from "@react-aria/i18n";
 
 const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
+  console.log("assignbments", assignments);
+  const formatter = useDateFormatter({
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+
   const { data: session } = useSession();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,6 +40,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [ownedStickers, setOwnedStickers] = useState([]);
   const [stickers, setStickers] = useState([]);
+  const [dueDate, setDueDate] = useState(null); // Initialize dueDate state
 
   const filteredRooms = (rooms || []).filter(
     (room) =>
@@ -50,6 +59,14 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (assignments.length > 0) {
+      const assignmentDueDate = assignments[0].due_date; // Assuming you want the due date of the first assignment
+      const parsedDate = parseZonedDateTime(assignmentDueDate);
+      setDueDate(parsedDate);
+    }
+  }, [assignments]);
 
   async function unEnroll(joined_room_id) {
     const unEnrollData = {
@@ -162,17 +179,46 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
       {assignments.length > 0 && (
         <>
           <h1 className="text-black">Assignments:</h1>
-          <ul>
-            {assignments.map((assignment) => (
-              <li key={assignment.assignment_id}>
-                <Link
-                  href={`/homepage/joined_rooms/${assignment.room_code}/assignment/${assignment.assignment_id}`}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {assignments.map((assignment) => {
+              const assignmentDueDate = parseZonedDateTime(assignment.due_date);
+              const now = new Date();
+              const isPastDue =
+                now > assignmentDueDate.toDate(getLocalTimeZone());
+              return (
+                <Card
+                  key={assignment.assignment_id}
+                  className="p-4 shadow-lg rounded-lg"
                 >
-                  {assignment.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
+                  <CardHeader>
+                    <Link
+                      href={`/homepage/joined_rooms/${assignment.room_code}/assignment/${assignment.assignment_id}`}
+                      className="text-lg font-bold text-blue-600 hover:underline"
+                    >
+                      {assignment.title}
+                    </Link>
+                    {isPastDue ? (
+                      <span className="text-red-500 font-semibold">
+                        Past Due
+                      </span>
+                    ) : (
+                      <span className="text-yellow-500 font-semibold">
+                        Pending
+                      </span>
+                    )}
+                  </CardHeader>
+                  <CardBody>
+                    <p>
+                      Due:{" "}
+                      {dueDate
+                        ? formatter.format(dueDate.toDate(getLocalTimeZone()))
+                        : "No due date"}
+                    </p>
+                  </CardBody>
+                </Card>
+              );
+            })}
+          </div>
         </>
       )}
       {isLoading ? (

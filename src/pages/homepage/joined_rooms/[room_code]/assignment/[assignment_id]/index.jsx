@@ -586,11 +586,12 @@ const index = () => {
                 </li>
               ))}
             </ul>
-            {isPastDue ? (
-              <div className="w-full text-center text-sm text-red-500 mt-4">
-                Assignment submission is closed as the due date has passed.
-              </div>
-            ) : submittedAssignment?.assignmentResult?.grade ? (
+            <div className="w-full text-center text-sm text-red-500 mt-4">
+              {isPastDue && (
+                <p>Please note: You are submitting after the due date.</p>
+              )}
+            </div>
+            {submittedAssignment?.assignmentResult?.grade ? (
               <div className="mt-4 flex justify-between">
                 <p className="text-sm text-gray-500">
                   Assignment has already been graded
