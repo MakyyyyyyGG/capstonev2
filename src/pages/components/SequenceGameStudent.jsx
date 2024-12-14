@@ -286,12 +286,12 @@ const SequenceGameStudent = ({ sequenceGame }) => {
       const result = await response.json();
 
       if (response.status === 403) {
-        alert(result.message); // Show the limit message
+        // alert(result.message); // Show the limit message
       } else {
         console.log(result);
         await getStudentTries();
 
-        alert("Game finished! Your score: " + score);
+        // alert("Game finished! Your score: " + score);
       }
     } catch (error) {
       console.log(error);
