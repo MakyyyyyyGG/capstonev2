@@ -46,36 +46,48 @@ export default async function handler(req, res) {
   } else if (req.method === "GET") {
     const { student_id } = req.query;
     const roomData = await query({
-      query: `select 
-     student_room.student_room_id,
-	rooms.room_name,
-	rooms.room_difficulty,
-    rooms.room_code,
-    student_room.student_id,
-    teachers.email,
-
-    teachers.profile_image
-from student_room
-join
-	rooms on student_room.room_id = rooms.room_id
-join 
-	teachers on rooms.account_id = teachers.account_id
-join
-	students on student_room.student_id = students.account_id	
-where students.account_id = ? ORDER BY rooms.created_at DESC`,
+      query: `SELECT 
+        student_room.student_room_id,
+        rooms.room_name,
+        rooms.room_difficulty,
+        rooms.room_code,
+        student_room.student_id,
+        teachers.email,
+        teachers.profile_image
+      FROM student_room
+      JOIN rooms ON student_room.room_id = rooms.room_id
+      JOIN teachers ON rooms.account_id = teachers.account_id
+      JOIN students ON student_room.student_id = students.account_id	
+      WHERE students.account_id = ? ORDER BY rooms.created_at DESC`,
       values: [student_id],
     });
-    res.status(200).json({ roomData });
+
+    // Fetch assignments that the student hasn't submitted yet in the room
+    const assignments = await query({
+      query: `
+        SELECT a.title, a.room_code, a.assignment_id, a.due_date
+        FROM capstone.assignment AS a
+        LEFT JOIN capstone.submitted_assignment AS sa 
+          ON a.assignment_id = sa.assignment_id 
+          AND sa.account_id = ? 
+        WHERE a.room_code IN (SELECT room_code FROM rooms WHERE room_id IN (SELECT room_id FROM student_room WHERE student_id = ?))
+          AND sa.submitted_assignment_id IS NULL
+        ORDER BY a.due_date DESC;
+      `,
+      values: [student_id, student_id],
+    });
+
+    res.status(200).json({ roomData, assignments });
   } else if (req.method === "DELETE") {
     const { student_room_id } = req.query;
-    console.log("Styudent_room_id: ", student_room_id);
+    console.log("Student_room_id: ", student_room_id);
     const roomData = await query({
       query: `DELETE FROM student_room WHERE student_room_id = ?`,
       values: [student_room_id],
     });
     res.status(200).json({ roomData });
   } else {
-    res.setHeader("Allow", ["POST"]);
+    res.setHeader("Allow", ["POST", "GET"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
