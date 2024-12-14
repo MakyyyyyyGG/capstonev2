@@ -480,7 +480,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                             feedback[card.decision_maker_id] === "Correct!"
                               ? "#22c55e"
                               : feedback[card.decision_maker_id]
-                              ? "#ef4444"
+                              ? "#eab308"
                               : "#d8b4fe",
                         }}
                         transition={{ duration: 0.5 }}
@@ -529,7 +529,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                       feedback[card.decision_maker_id] ===
                                       "Correct!"
                                         ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                        : "text-white w-full bg-red-500 p-2 rounded-lg"
+                                        : "text-white w-full bg-yellow-500 p-2 rounded-lg"
                                     }
                                   >
                                     {feedback[card.decision_maker_id]}

@@ -378,7 +378,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                           className={
                             feedback[index].includes("Correct")
                               ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                              : "text-white w-full bg-red-500 p-2 rounded-lg"
+                              : "text-white w-full bg-yellow-500 p-2 rounded-lg"
                           }
                         >
                           {feedback[index]}
