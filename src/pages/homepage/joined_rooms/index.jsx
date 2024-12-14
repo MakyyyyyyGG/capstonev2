@@ -19,44 +19,37 @@ import {
 } from "@nextui-org/react";
 import Loader from "@/pages/components/Loader";
 import { useRouter } from "next/router";
-import { MoreVertical, Trash2, Search, Copy } from "lucide-react";
+import { MoreVertical, Trash2, Search } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import Stickers from "@/pages/components/Stickers";
 import { useSession } from "next-auth/react";
-const JoinedRoom = ({ rooms = [], onUnenroll }) => {
+import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
+import { useDateFormatter } from "@react-aria/i18n";
+
+const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
+  console.log("assignbments", assignments);
+  const formatter = useDateFormatter({
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+
   const { data: session } = useSession();
-  // Add default empty array for rooms prop
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [ownedStickers, setOwnedStickers] = useState([]);
   const [stickers, setStickers] = useState([]);
-  // Function to filter rooms based on the search query and difficulty
+  const [dueDate, setDueDate] = useState(null); // Initialize dueDate state
+
   const filteredRooms = (rooms || []).filter(
-    // Add null check with empty array fallback
     (room) =>
       room.room_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
       (difficultyFilter === "all" ||
         room.room_difficulty.toLowerCase() === difficultyFilter)
   );
 
-  // Function to dynamically set Chip color based on room difficulty
-  const getChipColor = (difficulty) => {
-    switch (difficulty.toLowerCase()) {
-      case "easy":
-        return "success";
-      case "moderate":
-        return "warning";
-      case "hard":
-        return "danger";
-      default:
-        return "default"; // fallback if the difficulty is not recognized
-    }
-  };
-
   useEffect(() => {
-    // Simulate loading
     fetchStickers();
     fetchOwnedStickers();
 
@@ -66,6 +59,14 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (assignments.length > 0) {
+      const assignmentDueDate = assignments[0].due_date; // Assuming you want the due date of the first assignment
+      const parsedDate = parseZonedDateTime(assignmentDueDate);
+      setDueDate(parsedDate);
+    }
+  }, [assignments]);
 
   async function unEnroll(joined_room_id) {
     const unEnrollData = {
@@ -82,9 +83,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
       )
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           onUnenroll();
-          console.log("Room unenrolled successfully");
         }),
       {
         loading: "Unenrolling...",
@@ -94,29 +93,19 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
     );
   }
 
-  // Function to copy room code to clipboard
-  const copyToClipboard = (roomCode) => {
-    navigator.clipboard.writeText(roomCode);
-    toast.success("Room code copied to clipboard!");
-  };
-
-  //fetchs stickers
   const fetchStickers = async () => {
     try {
       const response = await fetch(`/api/stickers/stickers`, {
         method: "GET",
       });
       const data = await response.json();
-      // console.log("stickers:", data);
       setStickers(data);
     } catch (error) {
       console.error("Error fetching stickers:", error);
     }
   };
 
-  // Function to fetch owned stickers
   const fetchOwnedStickers = async () => {
-    console.log("fetching owned stickers");
     try {
       const response = await fetch(
         `/api/stickers/owned_sticker?account_id=${session?.user?.id}`,
@@ -129,22 +118,17 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
       }
       const data = await response.json();
       setOwnedStickers(data);
-      // console.log("sticker data from joined rooms:", data);
-      return data;
     } catch (error) {
       console.error("Error fetching stickers:", error);
     }
   };
 
   return (
-    <div className=" m-auto">
+    <div className="m-auto">
       <Toaster />
+
       <div className="flex gap-4 w-full">
         <Input
-          classNames={{
-            label: "text-white",
-            inputWrapper: "bg-[#ffffff] border-1 border-[#7469B6]",
-          }}
           isClearable
           onClear={() => setSearchQuery("")}
           startContent={<Search size={22} color="#6B7280" />}
@@ -156,22 +140,18 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
           variant="bordered"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          aria-label="Search Room" // Add aria-label
+          aria-label="Search Room"
         />
         <div className="w-full max-w-[300px]">
           <Select
             placeholder="Filter by Difficulty"
             size="lg"
             radius="sm"
-            classNames={{
-              label: "text-white",
-              mainWrapper: "bg-[#ffffff] border-1 border-[#7469B6]  rounded-lg",
-            }}
             color="secondary"
             variant="bordered"
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
-            aria-label="Filter by Difficulty" // Add aria-label
+            aria-label="Filter by Difficulty"
           >
             <SelectItem key="all" value="all">
               All Difficulties
@@ -196,7 +176,51 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
           onRefetch={fetchOwnedStickers}
         />
       </div>
-
+      {assignments.length > 0 && (
+        <>
+          <h1 className="text-black">Assignments:</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {assignments.map((assignment) => {
+              const assignmentDueDate = parseZonedDateTime(assignment.due_date);
+              const now = new Date();
+              const isPastDue =
+                now > assignmentDueDate.toDate(getLocalTimeZone());
+              return (
+                <Card
+                  key={assignment.assignment_id}
+                  className="p-4 shadow-lg rounded-lg"
+                >
+                  <CardHeader>
+                    <Link
+                      href={`/homepage/joined_rooms/${assignment.room_code}/assignment/${assignment.assignment_id}`}
+                      className="text-lg font-bold text-blue-600 hover:underline"
+                    >
+                      {assignment.title}
+                    </Link>
+                    {isPastDue ? (
+                      <span className="text-red-500 font-semibold">
+                        Past Due
+                      </span>
+                    ) : (
+                      <span className="text-yellow-500 font-semibold">
+                        Pending
+                      </span>
+                    )}
+                  </CardHeader>
+                  <CardBody>
+                    <p>
+                      Due:{" "}
+                      {dueDate
+                        ? formatter.format(dueDate.toDate(getLocalTimeZone()))
+                        : "No due date"}
+                    </p>
+                  </CardBody>
+                </Card>
+              );
+            })}
+          </div>
+        </>
+      )}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <Loader />
@@ -272,7 +296,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll }) => {
                     <CardFooter className="rounded-b justify-between bg-white mt-auto flex-1">
                       <div className="p-2 text-[#7469B6] flex items-center justify-between w-full">
                         <div className="flex items-center gap-2">
-                          <h1 className="font-bold">Code: {room.room_code}</h1>
+                          <h1 className="font-bold">Code: {room.room_code} </h1>
                         </div>
                         <div className="flex items-center gap-6">
                           <h1>{room.email}</h1>

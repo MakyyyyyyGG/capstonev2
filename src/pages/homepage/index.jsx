@@ -6,6 +6,7 @@ import JoinedRoom from "./joined_rooms";
 const Index = () => {
   const { data: session, status } = useSession();
   const [rooms, setRooms] = useState([]);
+  const [assignments, setAssignments] = useState([]); // Added state for assignments
   const [isCollapsedSidebar, setIsCollapsedSidebar] = useState(true);
 
   function toggleSidebarCollapseHandler() {
@@ -21,12 +22,13 @@ const Index = () => {
         );
         const data = await res.json();
         setRooms(data.roomData);
-        console.log("room data: ", data);
+        setAssignments(data.assignments); // Set assignments from the fetched data
       } catch (error) {
         console.error("Error fetching joined rooms:", error);
       }
     }
   };
+
   useEffect(() => {
     if (status === "authenticated") {
       fetchJoinedRoom();
@@ -37,8 +39,12 @@ const Index = () => {
     <div className="p-4 w-full">
       <div className=" w-full">
         {/* <JoinRoom onRoomJoin={fetchJoinedRoom} /> */}
-
-        <JoinedRoom rooms={rooms} onUnenroll={fetchJoinedRoom} />
+        <JoinedRoom
+          rooms={rooms}
+          assignments={assignments}
+          onUnenroll={fetchJoinedRoom}
+        />{" "}
+        {/* Pass assignments to JoinedRoom */}
       </div>
     </div>
   );

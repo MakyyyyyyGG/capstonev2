@@ -247,16 +247,20 @@ const AssignmentList = ({ assignments, onDelete }) => {
                               </span>
                             </Chip>
                           )}
-                        {isPastDue[assignment.assignment_id] && (
-                          <Chip
-                            size="sm"
-                            className="flex items-center justify-center bg-red-100 rounded-full pt-[1px] px-2"
-                          >
-                            <span className="text-xs text-red-500">
-                              Past Due
-                            </span>
-                          </Chip>
-                        )}
+                        {isPastDue[assignment.assignment_id] &&
+                          submittedAssignments[assignment.assignment_id] !==
+                            "submitted" &&
+                          submittedAssignments[assignment.assignment_id] !==
+                            "graded" && (
+                            <Chip
+                              size="sm"
+                              className="flex items-center justify-center bg-red-100 rounded-full pt-[1px] px-2"
+                            >
+                              <span className="text-xs text-red-500">
+                                Past Due
+                              </span>
+                            </Chip>
+                          )}
                       </div>
                     )}
                   </div>

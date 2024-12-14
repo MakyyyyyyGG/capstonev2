@@ -123,7 +123,7 @@ const handleGetRequest = async (req, res) => {
   try {
     const assignments = await query({
       query:
-        "SELECT * FROM assignment WHERE room_code = ? ORDER BY created_at DESC",
+        "SELECT * FROM assignment WHERE room_code = ? ORDER BY due_date DESC",
       values: [room_code],
     });
 

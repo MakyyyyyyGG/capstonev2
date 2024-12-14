@@ -68,6 +68,22 @@ const index = () => {
     getStudentSubmissions();
   }, [assignment_id]);
 
+  const formatDueDate = (date) => {
+    if (!date) return "No due date";
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    };
+    return new Intl.DateTimeFormat("en-US", options).format(
+      date.toDate(getLocalTimeZone())
+    );
+  };
+
   if (!assignment) return null;
 
   return (
@@ -100,12 +116,7 @@ const index = () => {
 
               <div className="flex w-full items-center text-sm text-left text-gray-500">
                 <CalendarDays className="mr-2 h-4 w-4" />
-                <p>
-                  Due:{" "}
-                  {dueDate
-                    ? formatter.format(dueDate.toDate(getLocalTimeZone()))
-                    : "No due date"}
-                </p>
+                <p>Due: {formatDueDate(dueDate)}</p>
               </div>
             </CardHeader>
             <Divider className="my-4 mx-3" />
@@ -170,7 +181,10 @@ const index = () => {
           </Card>
         </Tab>
         <Tab key="submissions" title="Student Submissions">
-          <StudentSubmissions submittedStudents={submittedStudents} />
+          <StudentSubmissions
+            submittedStudents={submittedStudents}
+            dueDate={formatDueDate(dueDate)}
+          />
         </Tab>
       </Tabs>
 
