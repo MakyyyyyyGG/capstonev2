@@ -26,24 +26,23 @@ import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
 
 const AssignmentList = ({ assignments, onDelete }) => {
-  // console.log("assignments", assignments);
+  // Removed setPendingCount from props
   const { data: session } = useSession();
   const [roleRedirect, setRoleRedirect] = useState("");
   const [alertStates, setAlertStates] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [dueDates, setDueDates] = useState({});
   const [isPastDue, setIsPastDue] = useState({});
-  console.log(assignments);
+  const [submittedAssignments, setSubmittedAssignments] = useState({});
+  const [pendingCount, setPendingCount] = useState(0); // Added local state for pending count
 
   const formatter = useDateFormatter({
     dateStyle: "long",
     timeStyle: "short",
   });
 
-  // Handle case where assignments is not an array
   const assignmentArray = Array.isArray(assignments) ? assignments : [];
 
-  // Filter assignments based on search query
   const filteredAssignments = assignmentArray.filter(
     (assignment) =>
       assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,8 +50,10 @@ const AssignmentList = ({ assignments, onDelete }) => {
   );
 
   useEffect(() => {
+    getSubmittedAssignments();
     const newDueDates = {};
     const newIsPastDue = {};
+    let count = 0; // Initialize local pending count
 
     assignmentArray.forEach((assignment) => {
       if (assignment.due_date) {
@@ -67,6 +68,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
 
     setDueDates(newDueDates);
     setIsPastDue(newIsPastDue);
+    console.log(`Pending assignments count: ${count}`); // Log the pending assignment count
   }, [assignments]);
 
   useEffect(() => {
@@ -80,7 +82,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
   }, [session]);
 
   const handleDeleteAssignment = async (assignmentId, e) => {
-    e.preventDefault(); // Prevent Link navigation
+    e.preventDefault();
 
     return toast.promise(
       (async () => {
@@ -103,6 +105,71 @@ const AssignmentList = ({ assignments, onDelete }) => {
         error: "Failed to delete assignment",
       }
     );
+  };
+
+  const getSubmittedAssignments = async () => {
+    const promises = assignmentArray.map(async (assignment) => {
+      const res = await fetch(
+        `/api/assignment/submitAssignment?assignment_id=${assignment.assignment_id}&account_id=${session.user.id}`
+      );
+      if (!res.ok) {
+        // Instead of throwing an error, set status to "pending"
+        return {
+          assignmentId: assignment.assignment_id,
+          status: "pending",
+        };
+      }
+      const data = await res.json();
+
+      const hasSubmittedMedia = data.assignmentResult?.media;
+      const grade = data.assignmentResult?.grade;
+
+      const status =
+        grade && hasSubmittedMedia
+          ? "graded"
+          : hasSubmittedMedia
+          ? "submitted"
+          : "pending";
+
+      console.log(
+        `Assignment ID: ${assignment.assignment_id}, Status: ${status}`
+      );
+
+      // Set pending status for assignments that are pending and not past due
+      if (status === "pending" && !isPastDue[assignment.assignment_id]) {
+        setPending((prev) => ({
+          ...prev,
+          [assignment.assignment_id]: true,
+        }));
+      }
+
+      return {
+        assignmentId: assignment.assignment_id,
+        status: status,
+      };
+    });
+
+    try {
+      const results = await Promise.all(promises);
+      const submittedStatus = results.reduce(
+        (acc, { assignmentId, status }) => {
+          acc[assignmentId] = status;
+          return acc;
+        },
+        {}
+      );
+
+      setSubmittedAssignments(submittedStatus);
+
+      // Log the number of pending assignments
+      const pendingCount = results.filter(
+        (result) =>
+          result.status === "pending" && !isPastDue[result.assignmentId]
+      ).length;
+      console.log(`Number of pending assignments: ${pendingCount}`);
+    } catch (error) {
+      console.error("Error fetching submitted assignments:", error);
+    }
   };
 
   return (
@@ -142,6 +209,24 @@ const AssignmentList = ({ assignments, onDelete }) => {
                   </div>
                   <div className="flex flex-col text-left ml-4">
                     <div className="font-bold mb-1">{assignment.title}</div>
+                    <div className="text-xs">
+                      {submittedAssignments[assignment.assignment_id] ===
+                        "submitted" && (
+                        <span className="text-green-500">Submitted</span>
+                      )}
+                      {submittedAssignments[assignment.assignment_id] ===
+                        "graded" && (
+                        <span className="text-blue-500">Graded</span>
+                      )}
+                      {!isPastDue[assignment.assignment_id] &&
+                        submittedAssignments[assignment.assignment_id] ===
+                          "pending" && (
+                          <span className="text-yellow-500">Pending</span>
+                        )}
+                      {isPastDue[assignment.assignment_id] && (
+                        <span className="text-red-500">Past Due</span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="text-sm text-left my-4">
