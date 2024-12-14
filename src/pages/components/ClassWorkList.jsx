@@ -420,24 +420,20 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                   : "bg-gradient-to-br from-white to-gray-100"
               }`}
             >
-              <CardBody className="w-full">
+              <CardBody className="w-full pb-0">
                 <div className="flex flex-col w-full gap-4 z-20 ">
                   <div className="flex items-center gap-2 ">
                     <div className="flex justify-between  w-full ">
-                      <div className="flex">
+                      <div className="flex items-center">
                         <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
                           {getGameTypeIconStudent(game.game_type)}
                         </div>
-                        <div className="text-left ml-2">
-                          <div className="text-lg font-bold flex items-center gap-2">
-                            <div>
-                              <h1>{game.title}</h1>
-                            </div>
+                        <div className="flex flex-col items-center text-left ml-4">
+                          <div className="w-full text-xl font-bold flex items-center text-left">
+                            <h1>{game.title}</h1>
                           </div>
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              {game.game_type}
-                            </p>
+                          <div className="w-full text-md text-gray-600 text-left">
+                            <p>{game.game_type}</p>
                           </div>
                         </div>
                       </div>
@@ -481,9 +477,15 @@ const ClassWorkList = ({ room_code, games = [] }) => {
               </CardBody>
               <CardFooter className="w-full justify-end">
                 <Link href={getRedirectUrl(game)} className="w-full">
-                  <Button className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg w-full">
-                    <Play className="h-4 w-4 text-white" />
-                    <span className="text-sm font-semibold text-white">
+                  <Button
+                    size="lg"
+                    className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg w-full"
+                  >
+                    <Play
+                      strokeWidth={3}
+                      className="h-5 w-5 text-bold text-white"
+                    />
+                    <span className="text-lg font-semibold text-white">
                       {session?.user?.role === "student" ? "Play" : "Preview"}
                     </span>
                   </Button>

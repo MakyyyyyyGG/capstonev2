@@ -210,7 +210,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
                     </div>
                   </div>
                   <div className="flex w-full items-center justify-between text-left ml-4">
-                    <div className="font-bold">{assignment.title}</div>
+                    <div className="text-xl font-bold">{assignment.title}</div>
                     {session?.user?.role === "student" && (
                       <div className="text-xs">
                         {submittedAssignments[assignment.assignment_id] ===
@@ -266,14 +266,14 @@ const AssignmentList = ({ assignments, onDelete }) => {
                   </div>
                 </div>
               </CardHeader>
-              <CardBody className="text-sm text-left px-5">
+              <CardBody className="text-md text-left px-5">
                 <p>{assignment.instruction}</p>
               </CardBody>
 
               <Divider className="my-1" />
 
               <CardFooter className="w-full flex text-left px-5 pb-5">
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-sm text-gray-500 mt-1">
                   <p
                     className={`${
                       isPastDue[assignment.assignment_id]
