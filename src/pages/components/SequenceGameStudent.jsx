@@ -286,12 +286,12 @@ const SequenceGameStudent = ({ sequenceGame }) => {
       const result = await response.json();
 
       if (response.status === 403) {
-        alert(result.message); // Show the limit message
+        // alert(result.message); // Show the limit message
       } else {
         console.log(result);
         await getStudentTries();
 
-        alert("Game finished! Your score: " + score);
+        // alert("Game finished! Your score: " + score);
       }
     } catch (error) {
       console.log(error);
@@ -482,7 +482,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                             ? feedback[index].includes("Correct")
                               ? "#22c55e" // green for correct
                               : attempts[index] >= 3
-                              ? "#ef4444" // red for out of attempts
+                              ? "#eab308" // yellow for out of attempts
                               : "#d8b4fe" // keep transparent if no feedback or attempts
                             : "#d8b4fe", // no border if feedback is empty
                         }}
@@ -631,7 +631,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                                   className={
                                     feedback[index].includes("Correct")
                                       ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                      : "text-white w-full bg-red-500 p-2 rounded-md"
+                                      : "text-white w-full bg-yellow-500 p-2 rounded-md"
                                   }
                                 >
                                   {feedback[index]}

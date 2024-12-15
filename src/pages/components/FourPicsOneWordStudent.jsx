@@ -417,7 +417,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                       borderColor: feedback[index]?.includes("Correct")
                         ? "#22c55e" // green for correct
                         : attempts[index] >= 3
-                        ? "#ef4444" // red for out of attempts, default for others
+                        ? "#eab308" // yellow for out of attempts, default for others
                         : "#d8b4fe",
                     }}
                     transition={{ duration: 0.5 }}
@@ -551,7 +551,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                       className={
                                         feedback[index].includes("Correct")
                                           ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                          : "text-white w-full bg-red-500 p-2 rounded-lg"
+                                          : "text-white w-full bg-yellow-500 p-2 rounded-lg"
                                       }
                                     >
                                       {/* <motion.div

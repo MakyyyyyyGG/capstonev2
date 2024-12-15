@@ -19,12 +19,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@nextui-org/react";
 import { ScanSearch } from "lucide-react";
 
-const StudentSubmissions = ({ submittedStudents = [] }) => {
+const StudentSubmissions = ({ submittedStudents = [], dueDate }) => {
   const router = useRouter();
+  // console.log("due date", dueDate); // Updated console log message
   const { assignment_id } = router.query;
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [grades, setGrades] = useState({});
@@ -102,12 +103,17 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
       return;
     }
 
-    const exportData = selectedStudents.map((student) => ({
-      "Assignment Title": student.assignment_title,
-      "Student Name": `${student.first_name} ${student.last_name}`,
-      Grade: grades[student.account_id] || "Not graded",
-      "Submission Date": new Date(student.submitted_at).toLocaleString(),
-    }));
+    const exportData = selectedStudents.map((student) => {
+      const submissionDate = new Date(student.submitted_at);
+      const isPastDue = submissionDate > new Date(dueDate);
+      return {
+        "Assignment Title": student.assignment_title,
+        "Student Name": `${student.first_name} ${student.last_name}`,
+        Grade: grades[student.account_id] || "Not graded",
+        "Submission Date": submissionDate.toLocaleString(),
+        "Submission Status": isPastDue ? "Past Due" : "On Time", // Updated logic for submission status
+      };
+    });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
@@ -130,9 +136,6 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
       <div className="grid grid-cols-6 gap-4 max-md:grid-cols-1">
         <div className="col-span-4 max-md:col-span-1">
           <div className="flex flex-col gap-2 mb-4">
-            {/* <h1 className="text-3xl font-bold">
-              {submittedStudents?.students?.[0]?.assignment_title}
-            </h1> */}
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Students Grades</h2>
               <Button color="secondary" radius="sm" onClick={exportToExcel}>
@@ -147,10 +150,11 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
                   <TableRow>
                     <TableHead className="w-[50px]">Export</TableHead>
                     <TableHead>Student Name</TableHead>
-                    <TableHead>Assignment Title</TableHead>
+                    <TableHead> Title</TableHead>
                     <TableHead>Grade</TableHead>
                     <TableHead>Actions</TableHead>
                     <TableHead>Submission Date</TableHead>
+                    <TableHead>Submission Status</TableHead>{" "}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -181,12 +185,12 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
                       <TableCell>
                         <Input
                           type="number"
-                          placeholder="Grade / 100"
+                          placeholder="0-100"
                           value={grades[student.account_id] || ""}
                           onChange={(e) =>
                             handleGradeChange(
                               student.account_id,
-                              e.target.value
+                              e.target.value.slice(0, 3) // Limit to 3 digits
                             )
                           }
                           className="w-24"
@@ -203,6 +207,17 @@ const StudentSubmissions = ({ submittedStudents = [] }) => {
                       </TableCell>
                       <TableCell>
                         {new Date(student.submitted_at).toLocaleString()}
+                      </TableCell>
+                      <TableCell
+                        className={
+                          new Date(student.submitted_at) > new Date(dueDate)
+                            ? "text-red-500"
+                            : "text-green-500"
+                        }
+                      >
+                        {new Date(student.submitted_at) > new Date(dueDate)
+                          ? "Past Due"
+                          : "On Time"}{" "}
                       </TableCell>
                     </TableRow>
                   ))}

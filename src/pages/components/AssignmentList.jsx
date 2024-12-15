@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
+  Chip,
   Card,
   CardHeader,
   CardBody,
   CardFooter,
   Button,
+  Divider,
 } from "@nextui-org/react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -193,48 +195,85 @@ const AssignmentList = ({ assignments, onDelete }) => {
             key={assignment.assignment_id}
             isPressable
             radius="sm"
-            className="shadow-lg min-h-[210px] border-gray-300 border flex flex-col items-center w-full hover:bg-gray-200 hover:border-purple-700 p-2"
+            className="relative shadow-lg min-h-[210px] border-gray-300 border flex flex-col items-center w-full hover:bg-gray-200 hover:border-purple-700"
             shadow="sm"
           >
             <Link
               href={`${roleRedirect}/${assignment.room_code}/assignment/${assignment.assignment_id}`}
-              className="w-full flex items-center gap-4 flex-col p-4 justify-between grow"
+              className="w-full flex items-center flex-col justify-between grow"
             >
-              <div className="w-full">
+              <CardHeader className="w-full px-5 pt-5">
                 <div className="font-bold text-xl flex justify-start items-center w-full">
                   <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
                     <div className="flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full">
                       <NotebookPen className="text-3xl text-white" />
                     </div>
                   </div>
-                  <div className="flex flex-col text-left ml-4">
-                    <div className="font-bold mb-1">{assignment.title}</div>
-                    <div className="text-xs">
-                      {submittedAssignments[assignment.assignment_id] ===
-                        "submitted" && (
-                        <span className="text-green-500">Submitted</span>
-                      )}
-                      {submittedAssignments[assignment.assignment_id] ===
-                        "graded" && (
-                        <span className="text-blue-500">Graded</span>
-                      )}
-                      {!isPastDue[assignment.assignment_id] &&
-                        submittedAssignments[assignment.assignment_id] ===
-                          "pending" && (
-                          <span className="text-yellow-500">Pending</span>
+                  <div className="flex w-full items-center justify-between text-left ml-4">
+                    <div className="text-xl font-bold">{assignment.title}</div>
+                    {session?.user?.role === "student" && (
+                      <div className="text-xs">
+                        {submittedAssignments[assignment.assignment_id] ===
+                          "submitted" && (
+                          <Chip
+                            size="sm"
+                            className="flex items-center justify-center bg-blue-100 rounded-full pt-[1px] px-2"
+                          >
+                            <span className="text-xs text-blue-500">
+                              Submitted
+                            </span>
+                          </Chip>
                         )}
-                      {isPastDue[assignment.assignment_id] && (
-                        <span className="text-red-500">Past Due</span>
-                      )}
-                    </div>
+                        {submittedAssignments[assignment.assignment_id] ===
+                          "graded" && (
+                          <Chip
+                            size="sm"
+                            className="flex items-center justify-center bg-green-100 rounded-full pt-[1px] px-2"
+                          >
+                            <span className="text-xs text-green-500 ">
+                              Graded
+                            </span>
+                          </Chip>
+                        )}
+                        {!isPastDue[assignment.assignment_id] &&
+                          submittedAssignments[assignment.assignment_id] ===
+                            "pending" && (
+                            <Chip
+                              size="sm"
+                              className="flex items-center justify-center bg-yellow-100 rounded-full pt-[1px] px-2"
+                            >
+                              <span className="text-xs text-yellow-500">
+                                Pending
+                              </span>
+                            </Chip>
+                          )}
+                        {isPastDue[assignment.assignment_id] &&
+                          submittedAssignments[assignment.assignment_id] !==
+                            "submitted" &&
+                          submittedAssignments[assignment.assignment_id] !==
+                            "graded" && (
+                            <Chip
+                              size="sm"
+                              className="flex items-center justify-center bg-red-100 rounded-full pt-[1px] px-2"
+                            >
+                              <span className="text-xs text-red-500">
+                                Past Due
+                              </span>
+                            </Chip>
+                          )}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="text-sm text-left my-4">
-                  <p>{assignment.instruction}</p>
-                </div>
-              </div>
-              <div className="w-full flex flex-col justify-between text-left ">
-                <div className="text-xs text-gray-500">
+              </CardHeader>
+              <CardBody className="text-md text-left px-5">
+                <p>{assignment.instruction}</p>
+              </CardBody>
+
+              <Divider className="my-1" />
+
+              <CardFooter className="w-full flex text-left px-5 pb-5">
+                <div className="text-sm text-gray-500 mt-1">
                   <p
                     className={`${
                       isPastDue[assignment.assignment_id]
@@ -252,10 +291,10 @@ const AssignmentList = ({ assignments, onDelete }) => {
                       : "No due date"}
                   </p>
                 </div>
-              </div>
+              </CardFooter>
             </Link>
             {session?.user?.role === "teacher" && (
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 right-4 z-10">
                 <AlertDialog
                   open={alertStates[assignment.assignment_id]}
                   onOpenChange={(isOpen) => {
