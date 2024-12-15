@@ -165,7 +165,14 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
             title={
               <div className="flex items-center space-x-2">
                 <ClipboardList className="max-sm:w-4 max-sm:h-4" />
-                <span>To-Do</span>
+                <span className="flex items-center">
+                  To-Do
+                  {assignments.length > 0 && (
+                    <span className="ml-2 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center">
+                      {assignments.length}
+                    </span>
+                  )}
+                </span>
               </div>
             }
           ></Tab>
@@ -353,8 +360,11 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
                             </div>
                           </div>
                           <div className="flex w-full items-center justify-between text-left ml-4">
-                            <div className="text-xl font-bold hover:underline">
-                              {assignment.title}
+                            <div className="text-xl font-bold hover:underline flex flex-col">
+                              <h1>{assignment.room_name}</h1>
+                              <h1 className="text-sm text-slate-600">
+                                {assignment.title}
+                              </h1>
                             </div>
 
                             {isPastDue ? (
@@ -381,7 +391,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
                         <Divider className="my-1" />
                         <CardFooter className="w-full flex text-left px-5 pb-5">
                           <div className="text-sm text-gray-500 mt-1">
-                            <p>
+                            <p className={isPastDue ? "text-red-500" : ""}>
                               Due:{" "}
                               {dueDate
                                 ? formatter.format(

@@ -65,15 +65,15 @@ export default async function handler(req, res) {
     // Fetch assignments that the student hasn't submitted yet in the room
     const assignments = await query({
       query: `
-        SELECT a.title, a.room_code, a.assignment_id, a.due_date
+        SELECT a.title, a.room_code, a.assignment_id, a.due_date, r.room_name
         FROM capstone.assignment AS a
         LEFT JOIN capstone.submitted_assignment AS sa 
           ON a.assignment_id = sa.assignment_id 
           AND sa.account_id = ? 
-        WHERE a.room_code IN (SELECT room_code FROM rooms WHERE room_id IN (SELECT room_id FROM student_room WHERE student_id = ?))
+        JOIN rooms AS r ON a.room_code = r.room_code
+        WHERE r.room_id IN (SELECT room_id FROM student_room WHERE student_id = ?)
           AND sa.submitted_assignment_id IS NULL
-        ORDER BY a.due_date DESC;
-      `,
+        ORDER BY a.due_date DESC;`,
       values: [student_id, student_id],
     });
 
