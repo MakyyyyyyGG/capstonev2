@@ -120,34 +120,34 @@ const handlePostRequest = async (req, res) => {
 
     console.log("Assignment ID:", assignmentId);
 
-    // Process each media item
-    const mediaPromises = mediaList.map(async (media) => {
-      let finalUrl = media.content;
+    // Process each media item and wait for uploads to complete
+    const mediaResults = await Promise.all(
+      mediaList.map(async (media) => {
+        let finalUrl = media.content;
 
-      // Only upload to Firebase if it's a base64 data URI
-      if (media.content.startsWith("data:")) {
-        const extension = media.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random()
-          .toString(36)
-          .substr(2, 9)}.${extension}`;
-        finalUrl = await uploadToFirebase(
-          media.content,
-          fileName,
-          "submitted_assignment/media"
-        );
-      }
+        // Only upload to Firebase if it's a base64 data URI
+        if (media.content.startsWith("data:")) {
+          const extension = media.name.split(".").pop();
+          const fileName = `${Date.now()}-${Math.random()
+            .toString(36)
+            .substr(2, 9)}.${extension}`;
+          finalUrl = await uploadToFirebase(
+            media.content,
+            fileName,
+            "submitted_assignment/media"
+          );
+        }
 
-      // Insert media record
-      await query({
-        query:
-          "INSERT INTO submitted_assignment_media (assignment_id, url, account_id) VALUES (?, ?, ?)",
-        values: [assignmentId, finalUrl, account_id], // Changed assignment_id to assignmentId
-      });
+        // Insert media record
+        await query({
+          query:
+            "INSERT INTO submitted_assignment_media (assignment_id, url, account_id) VALUES (?, ?, ?)",
+          values: [assignmentId, finalUrl, account_id],
+        });
 
-      return finalUrl;
-    });
-
-    const mediaResults = await Promise.all(mediaPromises);
+        return finalUrl;
+      })
+    );
 
     res.status(200).json({
       success: true,
