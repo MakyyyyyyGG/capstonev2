@@ -83,7 +83,7 @@ const FlashcardsStudent = ({ flashcards }) => {
   // Handle case where flashcards is undefined
   if (!flashcards || flashcards.length === 0) {
     return (
-      <div className="w-full flex flex-col gap-4 max-w-[50rem] mx-auto">
+      <div className="w-full flex items-center justify-center h-full">
         <Loader />
       </div>
     );

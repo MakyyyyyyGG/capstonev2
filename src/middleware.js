@@ -26,6 +26,34 @@ export async function middleware(request) {
 
   // If user is a student
   if (token.role === "student") {
+    // Check if the path matches the flashcard route
+    const roomCodeMatch = path.match(
+      /\/homepage\/joined_rooms\/(\w+)\/(flashcard|4pics1word|4pics1word_advanced|color_game|sequence_game|decision_maker|assignment)\/\d+/
+    );
+    if (roomCodeMatch) {
+      const roomCode = roomCodeMatch[1];
+      const studentId = token.sub; // Use token.sub for student ID
+
+      // Check if studentId is defined before making the API call
+      if (studentId) {
+        // Check if the student is in the room using API
+        const response = await fetch(
+          new URL(
+            `/api/accounts_student/room/student_exist?account_id=${studentId}&room_code=${roomCode}`,
+            request.url
+          )
+        );
+        const data = await response.json();
+
+        if (!data.exists) {
+          return NextResponse.redirect(new URL("/unauthorized", request.url)); // Redirect to unauthorized page
+        }
+      } else {
+        console.error("Student ID is undefined");
+        return NextResponse.redirect(new URL("/unauthorized", request.url)); // Redirect to unauthorized page
+      }
+    }
+
     // Only allow access to homepage and its sub-routes
     if (!path.startsWith("/homepage")) {
       return NextResponse.redirect(new URL("/homepage", request.url));

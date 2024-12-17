@@ -127,7 +127,7 @@ const handlePostRequest = async (req, res) => {
 };
 
 const handleGetRequest = async (req, res) => {
-  const { game_id, account_id } = req.query;
+  const { game_id, account_id, student_id } = req.query;
   console.log(req.query);
   try {
     // Check if account_id is provided before checking ownership
