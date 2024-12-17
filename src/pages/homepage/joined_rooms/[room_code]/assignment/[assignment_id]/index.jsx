@@ -172,25 +172,19 @@ const index = () => {
   const handleSubmit = async () => {
     return toast.promise(
       (async () => {
-        const res = await fetch(
-          `/api/assignment/submitAssignment?assignment_id=${assignment_id}`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              account_id: session?.user?.id,
-              mediaList: mediaList,
-              account_id: session?.user?.id,
-              assignment_id: assignment_id,
-            }),
-          }
-        );
+        const res = await fetch(`/api/assignment/submitAssignment`, {
+          method: "POST",
+          body: JSON.stringify({
+            account_id: session?.user?.id,
+            mediaList: mediaList,
+            account_id: session?.user?.id,
+            assignment_id: assignment_id,
+          }),
+        });
 
         if (!res.ok) {
           const data = await res.json();
-          if (res.status === 400) {
-            // Handle case where student already submitted
-            throw data.error;
-          }
+
           throw "Failed to submit assignment";
         }
 
@@ -206,12 +200,27 @@ const index = () => {
   };
 
   const getSubmittedAssignment = async () => {
-    const res = await fetch(
-      `/api/assignment/submitAssignment?assignment_id=${assignment_id}&account_id=${session?.user?.id}  `
-    );
-    const data = await res.json();
-    setSubmittedAssignment(data);
-    console.log("Submitted Assignment:", data);
+    console.log("triggered get");
+    if (!assignment_id || !session?.user?.id) {
+      console.error("Assignment ID or User ID is undefined");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `/api/assignment/submitAssignment?assignment_id=${assignment_id}&account_id=${session.user.id}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch submitted assignment");
+      }
+
+      const data = await res.json();
+      setSubmittedAssignment(data);
+      console.log("Submitted Assignment:", data);
+    } catch (error) {
+      console.error("Error fetching submitted assignment:", error);
+    }
   };
 
   useEffect(() => {
