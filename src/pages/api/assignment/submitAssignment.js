@@ -109,20 +109,72 @@ const handlePostRequest = async (req, res) => {
   }
 
   try {
-    // First insert the assignment record
-    const assignmentResult = await query({
-      query:
-        "INSERT INTO submitted_assignment (account_id, assignment_id, created_at) VALUES (?, ?, NOW())",
+    // Check if the assignment_id and account_id already exist
+    const existingSubmission = await query({
+      query: `
+        SELECT * FROM submitted_assignment 
+        WHERE account_id = ? AND assignment_id = ?;
+      `,
       values: [account_id, assignment_id],
     });
 
-    const assignmentId = assignmentResult.insertId;
+    // If it exists, update media records
+    if (existingSubmission.length > 0) {
+      // Get existing media
+      const existingMedia = await query({
+        query: `
+          SELECT * FROM submitted_assignment_media 
+          WHERE assignment_id = ? AND account_id = ?;
+        `,
+        values: [assignment_id, account_id],
+      });
 
-    console.log("Assignment ID:", assignmentId);
+      // Create a set of existing media URLs for easy lookup
+      const existingMediaUrls = new Set(
+        existingMedia.map((media) => media.url)
+      );
 
-    // Process each media item and wait for uploads to complete
-    const mediaResults = await Promise.all(
-      mediaList.map(async (media) => {
+      // Process each media item
+      const mediaPromises = mediaList.map(async (media) => {
+        let finalUrl = media.content;
+
+        // Only upload to Firebase if it's a base64 data URI
+        if (media.content.startsWith("data:")) {
+          const extension = media.name.split(".").pop();
+          const fileName = `${Date.now()}-${Math.random()
+            .toString(36)
+            .substr(2, 9)}.${extension}`;
+          finalUrl = await uploadToFirebase(
+            media.content,
+            fileName,
+            "submitted_assignment/media"
+          );
+        }
+
+        // If the media URL already exists, skip insertion
+        if (!existingMediaUrls.has(finalUrl)) {
+          // Insert media record
+          await query({
+            query:
+              "INSERT INTO submitted_assignment_media (assignment_id, url, account_id) VALUES (?, ?, ?)",
+            values: [assignment_id, finalUrl, account_id],
+          });
+        }
+
+        return finalUrl;
+      });
+
+      await Promise.all(mediaPromises);
+    } else {
+      // First insert the assignment record
+      await query({
+        query:
+          "INSERT INTO submitted_assignment (account_id, assignment_id, created_at) VALUES (?, ?, NOW())",
+        values: [account_id, assignment_id],
+      });
+
+      // Process each media item
+      const mediaPromises = mediaList.map(async (media) => {
         let finalUrl = media.content;
 
         // Only upload to Firebase if it's a base64 data URI
@@ -142,17 +194,18 @@ const handlePostRequest = async (req, res) => {
         await query({
           query:
             "INSERT INTO submitted_assignment_media (assignment_id, url, account_id) VALUES (?, ?, ?)",
-          values: [assignmentId, finalUrl, account_id],
+          values: [assignment_id, finalUrl, account_id],
         });
 
         return finalUrl;
-      })
-    );
+      });
+
+      await Promise.all(mediaPromises);
+    }
 
     res.status(200).json({
       success: true,
-      assignmentId,
-      mediaResults,
+      mediaResults: mediaList.map((media) => media.content),
     });
   } catch (error) {
     console.error("Error in handlePostRequest:", error);

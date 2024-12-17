@@ -200,12 +200,27 @@ const index = () => {
   };
 
   const getSubmittedAssignment = async () => {
-    const res = await fetch(
-      `/api/assignment/submitAssignment?assignment_id=${assignment_id}&account_id=${session?.user?.id}  `
-    );
-    const data = await res.json();
-    setSubmittedAssignment(data);
-    console.log("Submitted Assignment:", data);
+    console.log("triggered get");
+    if (!assignment_id || !session?.user?.id) {
+      console.error("Assignment ID or User ID is undefined");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `/api/assignment/submitAssignment?assignment_id=${assignment_id}&account_id=${session.user.id}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch submitted assignment");
+      }
+
+      const data = await res.json();
+      setSubmittedAssignment(data);
+      console.log("Submitted Assignment:", data);
+    } catch (error) {
+      console.error("Error fetching submitted assignment:", error);
+    }
   };
 
   useEffect(() => {
