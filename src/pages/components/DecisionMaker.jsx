@@ -117,7 +117,7 @@ const DecisionMaker = ({ cards }) => {
 
   return (
     <div className="w-full flex flex-col gap-2 max-w-[50rem] mx-auto">
-      <div className="flex w-full max-w-[50rem] items-center justify-between items-center">
+      <div className="flex w-full max-w-[50rem] items-center justify-between">
         <div
           className="flex w-full max-w-[50rem] mx-auto justify-end items-center bg-white border-4 border-purple-300 rounded-md p-4 "
           style={{
@@ -224,7 +224,7 @@ const DecisionMaker = ({ cards }) => {
                                 <h1 className="w-full">Correct</h1>
                               </div>
                             ) : (
-                              <div className="text-white w-full bg-yellow-500 p-2 rounded-lg">
+                              <div className="text-white w-full bg-pink-300 p-2 rounded-lg">
                                 <h1 className="w-full">Incorrect</h1>
                               </div>
                             )}

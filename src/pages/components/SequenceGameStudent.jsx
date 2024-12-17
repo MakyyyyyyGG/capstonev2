@@ -347,7 +347,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
               filter: "drop-shadow(4px 4px 0px #7828C8",
             }}
           >
-            <div className="flex w-full items-center justify-between items-center">
+            <div className="flex w-full items-center justify-between">
               <div>
                 <div
                   className="flex items-center gap-2 cursor-pointer"
@@ -482,7 +482,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                             ? feedback[index].includes("Correct")
                               ? "#22c55e" // green for correct
                               : attempts[index] >= 3
-                              ? "#eab308" // yellow for out of attempts
+                              ? "#f9a8d4" // pink for out of attempts
                               : "#d8b4fe" // keep transparent if no feedback or attempts
                             : "#d8b4fe", // no border if feedback is empty
                         }}
@@ -631,7 +631,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                                   className={
                                     feedback[index].includes("Correct")
                                       ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                      : "text-white w-full bg-yellow-500 p-2 rounded-md"
+                                      : "text-white w-full bg-pink-300 p-2 rounded-md"
                                   }
                                 >
                                   {feedback[index]}
