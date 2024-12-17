@@ -50,7 +50,6 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [ownedStickers, setOwnedStickers] = useState([]);
   const [stickers, setStickers] = useState([]);
-  const [dueDate, setDueDate] = useState(null); // Initialize dueDate state
 
   const [selectedTab, setSelectedTab] = useState("rooms");
 
@@ -71,14 +70,6 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
 
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    if (assignments.length > 0) {
-      const assignmentDueDate = assignments[0].due_date; // Assuming you want the due date of the first assignment
-      const parsedDate = parseZonedDateTime(assignmentDueDate);
-      setDueDate(parsedDate);
-    }
-  }, [assignments]);
 
   async function unEnroll(joined_room_id) {
     const unEnrollData = {
@@ -361,9 +352,9 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
                           </div>
                           <div className="flex w-full items-center justify-between text-left ml-4">
                             <div className="text-xl font-bold hover:underline flex flex-col">
-                              <h1>{assignment.room_name}</h1>
+                              <h1>{assignment.title}</h1>
                               <h1 className="text-sm text-slate-600">
-                                {assignment.title}
+                                {assignment.room_name}
                               </h1>
                             </div>
 
@@ -393,11 +384,9 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
                           <div className="text-sm text-gray-500 mt-1">
                             <p className={isPastDue ? "text-red-500" : ""}>
                               Due:{" "}
-                              {dueDate
-                                ? formatter.format(
-                                    dueDate.toDate(getLocalTimeZone())
-                                  )
-                                : "No due date"}
+                              {formatter.format(
+                                assignmentDueDate.toDate(getLocalTimeZone())
+                              )}
                             </p>
                           </div>
                         </CardFooter>

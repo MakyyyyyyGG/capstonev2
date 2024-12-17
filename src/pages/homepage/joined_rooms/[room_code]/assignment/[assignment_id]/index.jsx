@@ -177,9 +177,9 @@ const index = () => {
           {
             method: "POST",
             body: JSON.stringify({
-              account_id: session?.user?.id,
+              account_id: session.user.id,
               mediaList: mediaList,
-              account_id: session?.user?.id,
+              account_id: session.user.id,
               assignment_id: assignment_id,
             }),
           }
