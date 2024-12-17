@@ -230,7 +230,7 @@ const SequenceGame = ({ sequenceGame }) => {
               {sequenceGame.map((item, index) => (
                 <Card
                   key={index}
-                  className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg border shadow-sm border-4 border-purple-300"
+                  className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg  shadow-sm border-4 border-purple-300"
                 >
                   <div className="flex w-full gap-4 justify-between items-center">
                     <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
@@ -329,9 +329,7 @@ const SequenceGame = ({ sequenceGame }) => {
                       >
                         <p
                           className={`text-white w-full p-2 rounded-md ${
-                            stepResults[index]
-                              ? "bg-green-500"
-                              : "bg-yellow-500"
+                            stepResults[index] ? "bg-green-500" : "bg-pink-300"
                           }`}
                         >
                           {stepResults[index] ? "Correct!" : "Incorrect!"}

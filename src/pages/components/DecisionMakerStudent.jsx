@@ -332,7 +332,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
               filter: "drop-shadow(4px 4px 0px #7828C8",
             }}
           >
-            <div className="flex w-full max-w-[50rem] items-center justify-between items-center">
+            <div className="flex w-full max-w-[50rem] items-center justify-between">
               <div className="flex gap-4 items-center cursor-pointer">
                 <ArrowLeft
                   size={24}
@@ -480,7 +480,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                             feedback[card.decision_maker_id] === "Correct!"
                               ? "#22c55e"
                               : feedback[card.decision_maker_id]
-                              ? "#eab308"
+                              ? "#f9a8d4"
                               : "#d8b4fe",
                         }}
                         transition={{ duration: 0.5 }}
@@ -529,7 +529,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                       feedback[card.decision_maker_id] ===
                                       "Correct!"
                                         ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                        : "text-white w-full bg-yellow-500 p-2 rounded-lg"
+                                        : "text-white w-full bg-pink-300 p-2 rounded-lg"
                                     }
                                   >
                                     {feedback[card.decision_maker_id]}
