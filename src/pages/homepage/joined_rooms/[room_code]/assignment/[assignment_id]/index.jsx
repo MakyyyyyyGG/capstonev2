@@ -170,33 +170,21 @@ const index = () => {
   };
 
   const handleSubmit = async () => {
-    // Ensure that mediaList does not contain undefined values
-    const filteredMediaList = mediaList.map((media) => ({
-      type: media.type,
-      content: media.content || null, // Set to null if undefined
-      name: media.name || null, // Set to null if undefined
-    }));
-
     return toast.promise(
       (async () => {
-        const res = await fetch(
-          `/api/assignment/submitAssignment?assignment_id=${assignment_id}`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              account_id: session.user.id,
-              mediaList: filteredMediaList,
-              assignment_id: assignment_id,
-            }),
-          }
-        );
+        const res = await fetch(`/api/assignment/submitAssignment`, {
+          method: "POST",
+          body: JSON.stringify({
+            account_id: session?.user?.id,
+            mediaList: mediaList,
+            account_id: session?.user?.id,
+            assignment_id: assignment_id,
+          }),
+        });
 
         if (!res.ok) {
           const data = await res.json();
-          if (res.status === 400) {
-            // Handle case where student already submitted
-            throw data.error;
-          }
+
           throw "Failed to submit assignment";
         }
 
