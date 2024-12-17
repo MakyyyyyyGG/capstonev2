@@ -141,7 +141,7 @@ const handlePostRequest = async (req, res) => {
       await query({
         query:
           "INSERT INTO submitted_assignment_media (assignment_id, url, account_id) VALUES (?, ?, ?)",
-        values: [assignment_id, finalUrl, account_id],
+        values: [assignmentId, finalUrl, account_id], // Changed assignment_id to assignmentId
       });
 
       return finalUrl;
