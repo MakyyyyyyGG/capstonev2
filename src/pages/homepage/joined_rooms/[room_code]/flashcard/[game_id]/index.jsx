@@ -2,23 +2,24 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Flashcards from "@/pages/components/Flashcards";
 import FlashcardsStudent from "@/pages/components/FlashcardsStudent";
-import Link from "next/link";
-import { Button } from "@nextui-org/react";
+import { useSession } from "next-auth/react";
 
 const Index = () => {
   const router = useRouter();
   const { game_id } = router.query;
   const [flashcards, setFlashcards] = useState([]);
-  const { room_code } = router.query;
-
+  const { data: session } = useSession();
   const fetchFlashcards = async () => {
     try {
-      const res = await fetch(`/api/flashcard/flashcard?game_id=${game_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `/api/flashcard/flashcard?game_id=${game_id}&student_id=${session.user.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
       setFlashcards(data);
       if (res.ok) {
