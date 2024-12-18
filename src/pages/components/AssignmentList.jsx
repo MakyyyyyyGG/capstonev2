@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { parseZonedDateTime, getLocalTimeZone } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
+import Loader from "./Loader";
 
 const AssignmentList = ({ assignments, onDelete }) => {
   // Removed setPendingCount from props
@@ -37,7 +38,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
   const [isPastDue, setIsPastDue] = useState({});
   const [submittedAssignments, setSubmittedAssignments] = useState({});
   const [pendingCount, setPendingCount] = useState(0); // Added local state for pending count
-
+  const [loading, setLoading] = useState(false);
   const formatter = useDateFormatter({
     dateStyle: "long",
     timeStyle: "short",
@@ -110,6 +111,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
   };
 
   const getSubmittedAssignments = async () => {
+    setLoading(true);
     const promises = assignmentArray.map(async (assignment) => {
       const res = await fetch(
         `/api/assignment/submitAssignment?assignment_id=${assignment.assignment_id}&account_id=${session.user.id}`
@@ -169,194 +171,217 @@ const AssignmentList = ({ assignments, onDelete }) => {
           result.status === "pending" && !isPastDue[result.assignmentId]
       ).length;
       console.log(`Number of pending assignments: ${pendingCount}`);
+
+      // Update the pending count state
+      setPendingCount(pendingCount);
     } catch (error) {
       console.error("Error fetching submitted assignments:", error);
+    } finally {
+      setLoading(false); // Ensure loading state is reset
     }
   };
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      <div className="flex justify-between items-center">
-        <div className="w-full z-0">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground mx-2" />
-            <Input
-              placeholder="Search Assignments"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white h-[50px] border-gray-300"
-            />
-          </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-full ">
+          <Loader />
         </div>
-      </div>
-      <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filteredAssignments.map((assignment) => (
-          <Card
-            key={assignment.assignment_id}
-            isPressable
-            radius="sm"
-            className="relative shadow-lg min-h-[210px] border-gray-300 border flex flex-col items-center w-full hover:bg-gray-200 hover:border-purple-700"
-            shadow="sm"
-          >
-            <Link
-              href={`${roleRedirect}/${assignment.room_code}/assignment/${assignment.assignment_id}`}
-              className="w-full flex items-center flex-col justify-between grow"
-            >
-              <CardHeader className="w-full px-5 pt-5">
-                <div className="font-bold text-xl flex justify-start items-center w-full">
-                  <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
-                    <div className="flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full">
-                      <NotebookPen className="text-3xl text-white" />
-                    </div>
-                  </div>
-                  <div className="flex w-full items-center justify-between text-left ml-4">
-                    <div className="text-xl font-bold">{assignment.title}</div>
-                    {session?.user?.role === "student" && (
-                      <div className="text-xs">
-                        {submittedAssignments[assignment.assignment_id] ===
-                          "submitted" && (
-                          <Chip
-                            size="sm"
-                            className="flex items-center justify-center bg-blue-100 rounded-full pt-[1px] px-2"
-                          >
-                            <span className="text-xs text-blue-500">
-                              Submitted
-                            </span>
-                          </Chip>
-                        )}
-                        {submittedAssignments[assignment.assignment_id] ===
-                          "graded" && (
-                          <Chip
-                            size="sm"
-                            className="flex items-center justify-center bg-green-100 rounded-full pt-[1px] px-2"
-                          >
-                            <span className="text-xs text-green-500 ">
-                              Graded
-                            </span>
-                          </Chip>
-                        )}
-                        {!isPastDue[assignment.assignment_id] &&
-                          submittedAssignments[assignment.assignment_id] ===
-                            "pending" && (
-                            <Chip
-                              size="sm"
-                              className="flex items-center justify-center bg-yellow-100 rounded-full pt-[1px] px-2"
-                            >
-                              <span className="text-xs text-yellow-500">
-                                Pending
-                              </span>
-                            </Chip>
-                          )}
-                        {isPastDue[assignment.assignment_id] &&
-                          submittedAssignments[assignment.assignment_id] !==
-                            "submitted" &&
-                          submittedAssignments[assignment.assignment_id] !==
-                            "graded" && (
-                            <Chip
-                              size="sm"
-                              className="flex items-center justify-center bg-red-100 rounded-full pt-[1px] px-2"
-                            >
-                              <span className="text-xs text-red-500">
-                                Past Due
-                              </span>
-                            </Chip>
-                          )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardBody className="text-md text-left px-5">
-                <p>{assignment.instruction}</p>
-              </CardBody>
-
-              <Divider className="my-1" />
-
-              <CardFooter className="w-full flex text-left px-5 pb-5">
-                <div className="text-sm text-gray-500 mt-1">
-                  <p
-                    className={`${
-                      isPastDue[assignment.assignment_id]
-                        ? "text-red-500"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    Due:{" "}
-                    {dueDates[assignment.assignment_id]
-                      ? formatter.format(
-                          dueDates[assignment.assignment_id].toDate(
-                            getLocalTimeZone()
-                          )
-                        )
-                      : "No due date"}
-                  </p>
-                </div>
-              </CardFooter>
-            </Link>
-            {session?.user?.role === "teacher" && (
-              <div className="absolute top-4 right-4 z-10">
-                <AlertDialog
-                  open={alertStates[assignment.assignment_id]}
-                  onOpenChange={(isOpen) => {
-                    setAlertStates((prev) => ({
-                      ...prev,
-                      [assignment.assignment_id]: isOpen,
-                    }));
-                  }}
+      ) : (
+        <>
+          <div className="flex justify-between items-center">
+            <div className="w-full z-0">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground mx-2" />
+                <Input
+                  placeholder="Search Assignments"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-white h-[50px] border-gray-300"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {filteredAssignments.map((assignment) => (
+              <Card
+                key={assignment.assignment_id}
+                isPressable
+                radius="sm"
+                className="relative shadow-lg min-h-[210px] border-gray-300 border flex flex-col items-center w-full hover:bg-gray-200 hover:border-purple-700"
+                shadow="sm"
+              >
+                <Link
+                  href={`${roleRedirect}/${assignment.room_code}/assignment/${assignment.assignment_id}`}
+                  className="w-full flex items-center flex-col justify-between grow"
                 >
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      isIconOnly
-                      startContent={<Trash2 size={20} />}
-                      color="danger"
-                      variant="light"
-                      onClick={(e) => {
-                        e.preventDefault();
+                  <CardHeader className="w-full px-5 pt-5">
+                    <div className="font-bold text-xl flex justify-start items-center w-full">
+                      <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl">
+                        <div className="flex items-center justify-center w-[60px] h-[60px] bg-gradient-to-r from-purple-400 to-purple-600 rounded-full">
+                          <NotebookPen className="text-3xl text-white" />
+                        </div>
+                      </div>
+                      <div className="flex w-full items-center justify-between text-left ml-4">
+                        <div className="text-xl font-bold">
+                          <h1>{assignment.title}</h1>
+                        </div>
+                        {session?.user?.role === "student" && (
+                          <div className="text-xs">
+                            {submittedAssignments[assignment.assignment_id] ===
+                              "submitted" && (
+                              <Chip
+                                size="sm"
+                                className="flex items-center justify-center bg-blue-100 rounded-full pt-[1px] px-2"
+                              >
+                                <span className="text-xs text-blue-500">
+                                  Submitted
+                                </span>
+                              </Chip>
+                            )}
+                            {submittedAssignments[assignment.assignment_id] ===
+                              "graded" && (
+                              <Chip
+                                size="sm"
+                                className="flex items-center justify-center bg-green-100 rounded-full pt-[1px] px-2"
+                              >
+                                <span className="text-xs text-green-500 ">
+                                  Graded
+                                </span>
+                              </Chip>
+                            )}
+                            {!isPastDue[assignment.assignment_id] &&
+                              submittedAssignments[assignment.assignment_id] ===
+                                "pending" && (
+                                <Chip
+                                  size="sm"
+                                  className="flex items-center justify-center bg-yellow-100 rounded-full pt-[1px] px-2"
+                                >
+                                  <span className="text-xs text-yellow-500">
+                                    Pending
+                                  </span>
+                                </Chip>
+                              )}
+                            {isPastDue[assignment.assignment_id] &&
+                              submittedAssignments[assignment.assignment_id] !==
+                                "submitted" &&
+                              submittedAssignments[assignment.assignment_id] !==
+                                "graded" && (
+                                <Chip
+                                  size="sm"
+                                  className="flex items-center justify-center bg-red-100 rounded-full pt-[1px] px-2"
+                                >
+                                  <span className="text-xs text-red-500">
+                                    Past Due
+                                  </span>
+                                </Chip>
+                              )}
+                          </div>
+                        )}
+                      </div>
+                      {session?.user?.role === "teacher" && (
+                        <div className="flex justify-center min-w-[32px] h-[60px] rounded-full">
+                          <Trash2 className="text-slate-50/0" />
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardBody className="text-md text-left px-5">
+                    <p>{assignment.instruction}</p>
+                  </CardBody>
+                  <div className="w-full">
+                    <Divider className="my-1" />
+                    <CardFooter className="w-full flex text-left px-5 pb-5">
+                      <div className="text-sm text-gray-500 mt-1">
+                        <p
+                          className={`${
+                            isPastDue[assignment.assignment_id]
+                              ? "text-red-500"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          Due:{" "}
+                          {dueDates[assignment.assignment_id]
+                            ? formatter.format(
+                                dueDates[assignment.assignment_id].toDate(
+                                  getLocalTimeZone()
+                                )
+                              )
+                            : "No due date"}
+                        </p>
+                      </div>
+                    </CardFooter>
+                  </div>
+                </Link>
+                {session?.user?.role === "teacher" && (
+                  <div className="absolute top-4 right-4 z-10">
+                    <AlertDialog
+                      open={alertStates[assignment.assignment_id]}
+                      onOpenChange={(isOpen) => {
                         setAlertStates((prev) => ({
                           ...prev,
-                          [assignment.assignment_id]: true,
+                          [assignment.assignment_id]: isOpen,
                         }));
                       }}
-                    />
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the assignment.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel
-                        onClick={() => {
-                          setAlertStates((prev) => ({
-                            ...prev,
-                            [assignment.assignment_id]: false,
-                          }));
-                        }}
-                      >
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={(e) => {
-                          handleDeleteAssignment(assignment.assignment_id, e);
-                          setAlertStates((prev) => ({
-                            ...prev,
-                            [assignment.assignment_id]: false,
-                          }));
-                        }}
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            )}
-          </Card>
-        ))}
-      </div>
+                    >
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          isIconOnly
+                          startContent={<Trash2 size={20} />}
+                          color="danger"
+                          variant="light"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setAlertStates((prev) => ({
+                              ...prev,
+                              [assignment.assignment_id]: true,
+                            }));
+                          }}
+                        />
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete the assignment.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel
+                            onClick={() => {
+                              setAlertStates((prev) => ({
+                                ...prev,
+                                [assignment.assignment_id]: false,
+                              }));
+                            }}
+                          >
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={(e) => {
+                              handleDeleteAssignment(
+                                assignment.assignment_id,
+                                e
+                              );
+                              setAlertStates((prev) => ({
+                                ...prev,
+                                [assignment.assignment_id]: false,
+                              }));
+                            }}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

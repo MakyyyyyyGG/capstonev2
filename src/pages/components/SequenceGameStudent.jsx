@@ -536,9 +536,9 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                                     className="p-2 bg-transparent text-purple-500 hover:text-purple-700"
                                   >
                                     {isPlaying[index] ? (
-                                      <Pause className="h-4 w-4" />
+                                      <Pause className="h-[22px] w-[22px]" />
                                     ) : (
-                                      <Volume2 className="h-4 w-4" />
+                                      <Volume2 className="h-[22px] w-[22px]" />
                                     )}
                                   </Button>
                                   <audio
