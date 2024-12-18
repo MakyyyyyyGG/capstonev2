@@ -153,7 +153,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
             }
           }, 2500); // 2.5-second delay
         } else if (newAttempts[cardIndex] >= 3) {
-          newFeedback[cardIndex] = "Incorrect. Moving to next question.";
+          newFeedback[cardIndex] = "Out of attemps. Moving to next question.";
+
           // Play incorrect sound
           incorrectSound.current.play();
 
