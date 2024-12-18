@@ -224,7 +224,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
                       </div>
                       <div className="flex w-full items-center justify-between text-left ml-4">
                         <div className="text-xl font-bold">
-                          {assignment.title}
+                          <h1>{assignment.title}</h1>
                         </div>
                         {session?.user?.role === "student" && (
                           <div className="text-xs">
@@ -279,34 +279,39 @@ const AssignmentList = ({ assignments, onDelete }) => {
                           </div>
                         )}
                       </div>
+                      {session?.user?.role === "teacher" && (
+                        <div className="flex justify-center min-w-[32px] h-[60px] rounded-full">
+                          <Trash2 className="text-slate-50/0" />
+                        </div>
+                      )}
                     </div>
                   </CardHeader>
                   <CardBody className="text-md text-left px-5">
                     <p>{assignment.instruction}</p>
                   </CardBody>
-
-                  <Divider className="my-1" />
-
-                  <CardFooter className="w-full flex text-left px-5 pb-5">
-                    <div className="text-sm text-gray-500 mt-1">
-                      <p
-                        className={`${
-                          isPastDue[assignment.assignment_id]
-                            ? "text-red-500"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        Due:{" "}
-                        {dueDates[assignment.assignment_id]
-                          ? formatter.format(
-                              dueDates[assignment.assignment_id].toDate(
-                                getLocalTimeZone()
+                  <div className="w-full">
+                    <Divider className="my-1" />
+                    <CardFooter className="w-full flex text-left px-5 pb-5">
+                      <div className="text-sm text-gray-500 mt-1">
+                        <p
+                          className={`${
+                            isPastDue[assignment.assignment_id]
+                              ? "text-red-500"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          Due:{" "}
+                          {dueDates[assignment.assignment_id]
+                            ? formatter.format(
+                                dueDates[assignment.assignment_id].toDate(
+                                  getLocalTimeZone()
+                                )
                               )
-                            )
-                          : "No due date"}
-                      </p>
-                    </div>
-                  </CardFooter>
+                            : "No due date"}
+                        </p>
+                      </div>
+                    </CardFooter>
+                  </div>
                 </Link>
                 {session?.user?.role === "teacher" && (
                   <div className="absolute top-4 right-4 z-10">

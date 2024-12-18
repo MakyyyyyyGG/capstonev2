@@ -184,22 +184,27 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
           {cards.map((card, index) => (
             <SwiperSlide key={index} className="w-[500px]">
               <Card className="w-full rounded-md border-4 border-purple-300 bg-white shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
-                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center py-0">
-                  <div className="flex justify-center items-center gap-2">
-                    <div className="text-4xl text-purple-700 font-extrabold">
-                      <h1>{card.word}</h1>
-                    </div>
-                    <div className="flex justify-center items-center">
-                      {card.word && (
-                        <Button
-                          isIconOnly
-                          className="text-purple-700"
-                          variant="light"
-                          onPress={() => handleTextToSpeech(card.word)}
-                        >
-                          <Volume2 />
-                        </Button>
-                      )}
+                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center overflow-hidden">
+                  <div>
+                    <h1 className="text-2xl text-purple-700 font-bold text-center">
+                      Choose the correct image(s)
+                    </h1>
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="text-4xl text-purple-700 font-extrabold">
+                        <h1>{card.word}</h1>
+                      </div>
+                      <div className="flex justify-center items-center">
+                        {card.word && (
+                          <Button
+                            isIconOnly
+                            className="text-purple-700"
+                            variant="light"
+                            onPress={() => handleTextToSpeech(card.word)}
+                          >
+                            <Volume2 />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div
@@ -207,9 +212,9 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                       card.difficulty === "easy"
                         ? "grid-cols-2 w-full justify-center"
                         : card.difficulty === "medium"
-                        ? "grid-cols-3 justify-center max-sm:grid-cols-2 max-sm:max-w-[24rem]"
-                        : "grid-cols-2 justify-center max-w-[24rem]"
-                    } gap-4`}
+                        ? "grid-cols-3 justify-center max-sm:grid-cols-2 max-sm:max-w-[23rem]"
+                        : "grid-cols-2 justify-center max-w-[23rem]"
+                    } gap-2`}
                   >
                     {card.image1 && (
                       <motion.div
@@ -361,7 +366,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                     )}
                   </div>
                 </CardBody>
-                <CardFooter className="w-full flex flex-col gap-2 py-2">
+                <CardFooter className="w-full flex flex-col gap-2 pt-0">
                   <AnimatePresence>
                     {feedback[index] && (
                       <motion.div
@@ -378,7 +383,7 @@ const FourPicsOneWordAdvanced = ({ cards = [] }) => {
                           className={
                             feedback[index].includes("Correct")
                               ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                              : "text-white w-full bg-yellow-500 p-2 rounded-lg"
+                              : "text-white w-full bg-pink-300 p-2 rounded-lg"
                           }
                         >
                           {feedback[index]}
