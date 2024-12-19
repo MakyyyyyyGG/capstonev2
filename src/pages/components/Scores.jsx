@@ -148,9 +148,9 @@ const Scores = ({ studentRecords, students, height }) => {
         .map((r) =>
           r.score !== undefined ? (r.score / r.set_length) * 100 : "TBA"
         )
-        .slice(0, 8);
+        .slice(0, 13);
 
-      while (scores.length < 8) {
+      while (scores.length < 13) {
         scores.push("TBA");
       }
 
@@ -161,6 +161,13 @@ const Scores = ({ studentRecords, students, height }) => {
               0
             ) / scores.filter((score) => score !== "TBA").length
           : 0;
+
+      const status =
+        average >= 90
+          ? "Outstanding Progress"
+          : average >= 75
+          ? "Satisfactory Progress"
+          : "Needs Improvement";
 
       return {
         name: student
@@ -181,6 +188,7 @@ const Scores = ({ studentRecords, students, height }) => {
           score === "TBA" ? "TBA" : parseFloat(score.toFixed(2))
         ),
         average: parseFloat(average.toFixed(2)),
+        status: status,
       };
     });
   };
@@ -264,8 +272,9 @@ const Scores = ({ studentRecords, students, height }) => {
           "Difficulty",
           "Date",
           "Title",
-          ...Array.from({ length: 8 }, (_, i) => `Attempt ${i + 1}`),
+          ...Array.from({ length: 13 }, (_, i) => `Attempt ${i + 1}`),
           "Average",
+          "Remarks", // Added Status column
         ],
         ...selectedRecords.map((index) => {
           const record = sortedData[index];
@@ -278,6 +287,7 @@ const Scores = ({ studentRecords, students, height }) => {
             record.title,
             ...record.scores.map((score) => (score === null ? "TBA" : score)),
             record.average,
+            record.status, // Added Status to the row
           ];
           return row;
         }),
@@ -432,7 +442,6 @@ const Scores = ({ studentRecords, students, height }) => {
                 <TableHead onClick={() => sortData("title")}>
                   Title {renderSortIcon("title")}
                 </TableHead>
-
                 <TableHead onClick={() => sortData("gameType")}>
                   Game Type {renderSortIcon("gameType")}
                 </TableHead>
@@ -456,6 +465,8 @@ const Scores = ({ studentRecords, students, height }) => {
                 >
                   Average {renderSortIcon("average")}
                 </TableHead>
+                <TableHead className="text-center">Remarks</TableHead>{" "}
+                {/* Added Status Head */}
                 <TableHead className="text-center">Teacher</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
@@ -492,6 +503,9 @@ const Scores = ({ studentRecords, students, height }) => {
                       {parseFloat(row.average).toFixed(2)}%
                     </TableCell>
                     <TableCell className="text-center">
+                      {row.status} {/* Added Status Display */}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {session.user.first_name} {session.user.last_name}
                     </TableCell>
                     <TableCell className="text-center">
@@ -507,16 +521,18 @@ const Scores = ({ studentRecords, students, height }) => {
                   </TableRow>
                   {viewChart[index] && (
                     <TableRow>
-                      <TableCell colSpan={hasRoomData ? 10 : 8}>
+                      <TableCell colSpan={hasRoomData ? 13 : 13}>
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
-                            data={row.scores.map((score, i) => ({
-                              name: `Attempt ${i + 1}`,
-                              score:
-                                score === "TBA"
-                                  ? null
-                                  : parseFloat(score.toFixed(2)),
-                            }))}
+                            data={row.scores
+                              .map((score, i) => ({
+                                name: `Try ${i + 1}`,
+                                score:
+                                  score === "TBA"
+                                    ? null
+                                    : parseFloat(score.toFixed(2)),
+                              }))
+                              .slice(0, 13)} // Ensure only 13 attempts are shown
                             margin={{ top: 30, right: 20, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />

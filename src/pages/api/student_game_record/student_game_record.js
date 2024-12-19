@@ -18,10 +18,10 @@ export default async function handler(req, res) {
 
       const gamesPlayedThisMonth = countResult[0].count;
 
-      if (gamesPlayedThisMonth >= 8) {
+      if (gamesPlayedThisMonth >= 13) {
         return res
           .status(403)
-          .json({ message: "You can only play 8 times per month." });
+          .json({ message: "You can only play 13 times per month." });
       }
 
       // If under the limit, proceed to insert the new record

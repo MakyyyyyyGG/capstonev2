@@ -111,7 +111,7 @@ const ScoresIndiv = ({ studentRecords }) => {
       const scores = records
         .filter((r) => r && r.score !== undefined)
         .map((r) => (r.score !== undefined ? r.score : "TBA"))
-        .slice(0, 8)
+        .slice(0, 13)
         .reverse();
 
       const average =
@@ -301,7 +301,7 @@ const ScoresIndiv = ({ studentRecords }) => {
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
                             data={row.scores.map((score, i) => ({
-                              name: `Attempt ${i + 1}`,
+                              name: `Try ${i + 1}`,
                               score: score === "TBA" ? null : parseFloat(score),
                             }))}
                             margin={{ top: 30, right: 20, left: 20, bottom: 5 }}

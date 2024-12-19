@@ -81,6 +81,23 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
     fetchRegions();
   }, []);
 
+  useEffect(() => {
+    if (bday) {
+      const birthDate = new Date(bday);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        setAge(age - 1);
+      } else {
+        setAge(age);
+      }
+    }
+  }, [bday]);
+
   const checkPasswordsMatch = () => {
     if (newPassword === confirmNewPassword) {
       return true;
@@ -598,9 +615,8 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
       if (user) {
         setFirstName(user.first_name || "");
         setLastName(user.last_name || "");
-        setAge(user.age || "");
-        setGender(user.gender || "");
         setBday(user.bday || "");
+        setGender(user.gender || "");
         setProfileImage(
           user.profile_image
             ? `${user.profile_image}?${new Date().getTime()}`
@@ -889,14 +905,14 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                 value={lastName || ""}
                                 onChange={(e) => setLastName(e.target.value)}
                               />
-                              <Input
+                              {/* <Input
                                 type="number"
                                 label="Age"
                                 size="sm"
                                 variant="bordered"
                                 value={age || ""}
                                 onChange={(e) => setAge(e.target.value)}
-                              />
+                              /> */}
                               <Select
                                 name="gender"
                                 id="gender"
