@@ -250,7 +250,7 @@ const ColorGames = ({ cards = [] }) => {
       );
 
       // Keep only the latest 8 attempts
-      latestAttempts[month] = sortedAttempts.slice(0, 8);
+      latestAttempts[month] = sortedAttempts.slice(0, 13);
     });
 
     return latestAttempts;
@@ -410,7 +410,7 @@ const ColorGames = ({ cards = [] }) => {
               </div>
             </div>
           </div>
-          {attemptsUsed >= 8 && (
+          {attemptsUsed >= 13 && (
             <div className="flex w-full justify-center items-center">
               <div className="w-full max-w-[50rem] bg-red-400 rounded-lg mt-3 p-3">
                 <p className="text-sm text-white text-center">
@@ -477,8 +477,15 @@ const ColorGames = ({ cards = [] }) => {
                     >
                       <Card className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
                         <CardBody className="flex py-0 flex-col gap-2 px-auto items-center justify-center">
-                          <div className="text-4xl text-purple-700 font-extrabold mb-5 capitalize">
-                            <p>{card.color}</p>
+                          <div>
+                            <h1 className="text-2xl text-purple-700 font-bold text-center">
+                              Choose the correct image(s)
+                            </h1>
+                            <div className="flex justify-center items-center gap-2">
+                              <div className="text-4xl text-purple-700 font-extrabold capitalize">
+                                <h1>{card.color}</h1>
+                              </div>
+                            </div>
                           </div>
                           <div
                             className={`grid ${
@@ -488,7 +495,7 @@ const ColorGames = ({ cards = [] }) => {
                                 card.image3,
                                 card.image4,
                               ].filter((image) => image !== null).length === 4
-                                ? "grid-cols-2 max-w-[24rem]"
+                                ? "grid-cols-2 max-w-[23rem]"
                                 : [
                                     card.image1,
                                     card.image2,
@@ -496,9 +503,9 @@ const ColorGames = ({ cards = [] }) => {
                                     card.image4,
                                   ].filter((image) => image !== null).length ===
                                   3
-                                ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
+                                ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[23rem]"
                                 : "grid-cols-2"
-                            } gap-4 justify-center`}
+                            } gap-2 justify-center`}
                           >
                             {[
                               card.image1,
@@ -570,7 +577,7 @@ const ColorGames = ({ cards = [] }) => {
                             )}
                           </div>
                         </CardBody>
-                        <CardFooter className="w-full flex flex-col gap-2">
+                        <CardFooter className="w-full flex flex-col gap-2 pt-0">
                           <AnimatePresence>
                             {submissionResults[card.color_game_id] && (
                               <motion.div

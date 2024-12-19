@@ -192,15 +192,20 @@ const DecisionMaker = ({ cards }) => {
                   className="mx-auto w-full h-[40rem] gap-2 aspect-square overflow-hidden rounded-md bg-white shadow-lg border-4 border-purple-300 p-4"
                 >
                   <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
-                    {!hideWord ? (
-                      <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize">
-                        {card.word}
+                    <div className="flex flex-col text-center">
+                      <h1 className="text-2xl text-purple-700 font-bold text-center">
+                        Click that correct image
                       </h1>
-                    ) : (
-                      <h1 className="text-4xl font-extrabold mb-5 capitalize opacity-0">
-                        {card.word}
-                      </h1>
-                    )}
+                      {!hideWord ? (
+                        <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize">
+                          {card.word}
+                        </h1>
+                      ) : (
+                        <h1 className="text-4xl font-extrabold mb-5 capitalize opacity-0">
+                          {card.word}
+                        </h1>
+                      )}
+                    </div>
                     <div className="max-w-[22rem]">
                       <Image
                         src={card.image}
@@ -209,7 +214,7 @@ const DecisionMaker = ({ cards }) => {
                       />
                     </div>
                   </CardBody>
-                  <CardFooter className="w-full flex flex-col gap-2">
+                  <CardFooter className="w-full flex flex-col gap-2 pt-0">
                     <AnimatePresence>
                       {selectedCards[card.decision_maker_id] && (
                         <motion.div

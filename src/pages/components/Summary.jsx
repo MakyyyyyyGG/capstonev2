@@ -568,7 +568,7 @@ const Summary = ({
                       type="monotone"
                       dataKey="Score"
                       stroke="#8884d8"
-                      activeDot={{ r: 8 }}
+                      activeDot={{ r: 13 }}
                       label={{
                         position: "top",
                         offset: 10,

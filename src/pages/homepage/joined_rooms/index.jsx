@@ -351,7 +351,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
                             </div>
                           </div>
                           <div className="flex w-full items-center justify-between text-left ml-4">
-                            <div className="text-xl font-bold hover:underline flex flex-col">
+                            <div className="flex flex-col gap-2 text-xl font-bold hover:underline">
                               <h1>{assignment.title}</h1>
                               <h1 className="text-sm text-slate-600">
                                 {assignment.room_name}
@@ -379,17 +379,19 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
                             )}
                           </div>
                         </CardHeader>
-                        <Divider className="my-1" />
-                        <CardFooter className="w-full flex text-left px-5 pb-5">
-                          <div className="text-sm text-gray-500 mt-1">
-                            <p className={isPastDue ? "text-red-500" : ""}>
-                              Due:{" "}
-                              {formatter.format(
-                                assignmentDueDate.toDate(getLocalTimeZone())
-                              )}
-                            </p>
-                          </div>
-                        </CardFooter>
+                        <div className="w-full">
+                          <Divider className="my-1" />
+                          <CardFooter className="w-full flex text-left px-5 pb-5">
+                            <div className="text-sm text-gray-500 mt-1">
+                              <p className={isPastDue ? "text-red-500" : ""}>
+                                Due:{" "}
+                                {formatter.format(
+                                  assignmentDueDate.toDate(getLocalTimeZone())
+                                )}
+                              </p>
+                            </div>
+                          </CardFooter>{" "}
+                        </div>
                       </Link>
                     </Card>
                   );

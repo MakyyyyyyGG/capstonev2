@@ -153,7 +153,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
             }
           }, 2500); // 2.5-second delay
         } else if (newAttempts[cardIndex] >= 3) {
-          newFeedback[cardIndex] = "Incorrect. Moving to next question.";
+          newFeedback[cardIndex] = "Out of attemps. Moving to next question.";
+
           // Play incorrect sound
           incorrectSound.current.play();
 
@@ -250,7 +251,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
 
-      latestAttempts[month] = sortedAttempts.slice(0, 8);
+      latestAttempts[month] = sortedAttempts.slice(0, 13);
     });
 
     return latestAttempts;
@@ -361,7 +362,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                     </span>
                   </div>
                   <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
-                    Monthly Tries: {attemptsUsed}/8
+                    Monthly Tries: {attemptsUsed}/13
                   </div>
                 </div>
                 {/* <Shop /> */}
@@ -436,7 +437,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                       borderColor: feedback[index]?.includes("Correct")
                         ? "#22c55e" // green for correct
                         : attempts[index] >= 3
-                        ? "#eab308" // yellow for out of attempts, default for others
+                        ? "#f9a8d4" // pink for out of attempts, default for others
                         : "#d8b4fe",
                     }}
                     transition={{ duration: 0.5 }}
@@ -445,21 +446,26 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                     <Card className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4">
                       <CardBody className="flex flex-col gap-4 px-auto items-center justify-center overflow-hidden">
                         {/* <p>Attempts left: {3 - (attempts[index] || 0)}</p> */}
-                        <div className="flex justify-center items-center gap-2 mb-4">
-                          <div className="text-4xl text-purple-700 font-extrabold">
-                            <h1>{card.word}</h1>
-                          </div>
-                          <div className="flex justify-center items-center">
-                            {card.word && (
-                              <Button
-                                isIconOnly
-                                className="text-purple-700"
-                                variant="light"
-                                onPress={() => handleTextToSpeech(card.word)}
-                              >
-                                <Volume2 />
-                              </Button>
-                            )}
+                        <div>
+                          <h1 className="text-2xl text-purple-700 font-bold text-center">
+                            Choose the correct image(s)
+                          </h1>
+                          <div className="flex justify-center items-center gap-2">
+                            <div className="text-4xl text-purple-700 font-extrabold">
+                              <h1>{card.word}</h1>
+                            </div>
+                            <div className="flex justify-center items-center">
+                              {card.word && (
+                                <Button
+                                  isIconOnly
+                                  className="text-purple-700"
+                                  variant="light"
+                                  onPress={() => handleTextToSpeech(card.word)}
+                                >
+                                  <Volume2 />
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div
@@ -470,16 +476,16 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                               card.image3,
                               card.image4,
                             ].filter((image) => image !== null).length === 4
-                              ? "grid-cols-2 max-w-[24rem]"
+                              ? "grid-cols-2 max-w-[23rem]"
                               : [
                                   card.image1,
                                   card.image2,
                                   card.image3,
                                   card.image4,
                                 ].filter((image) => image !== null).length === 3
-                              ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
+                              ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[23rem]"
                               : "grid-cols-2 w-full"
-                          } gap-4 justify-center`}
+                          } gap-2 justify-center`}
                         >
                           {[
                             card.image1,
@@ -549,7 +555,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                           )}
                         </div>
                       </CardBody>
-                      <CardFooter className="w-full flex flex-col gap-2">
+                      <CardFooter className="w-full flex flex-col gap-2 pt-0">
                         <AnimatePresence>
                           {feedback[index] && (
                             <motion.div
@@ -566,7 +572,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                                 className={
                                   feedback[index].includes("Correct")
                                     ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                    : "text-white w-full bg-yellow-500 p-2 rounded-lg"
+                                    : "text-white w-full bg-pink-300 p-2 rounded-lg"
                                 }
                               >
                                 {feedback[index]}

@@ -479,6 +479,7 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                 <Link href={getRedirectUrl(game)} className="w-full">
                   <Button
                     size="lg"
+                    radius="sm"
                     className="flex items-center gap-1.5 bg-purple-600 px-4 py-2 rounded-lg w-full"
                   >
                     <Play
@@ -494,13 +495,15 @@ const ClassWorkList = ({ room_code, games = [] }) => {
                   {session.user.role === "teacher" && (
                     <Button
                       isIconOnly
+                      size="lg"
+                      radius="sm"
                       color="danger"
                       className="ml-2"
                       onPress={() =>
                         handleDeleteGame(game.game_id, game.game_type)
                       }
                     >
-                      <Trash2 size={22} />
+                      <Trash2 size={24} />
                     </Button>
                   )}
                 </div>

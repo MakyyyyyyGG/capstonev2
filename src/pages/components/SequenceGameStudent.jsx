@@ -257,7 +257,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
       );
 
       // Keep only the latest 8 attempts
-      latestAttempts[month] = sortedAttempts.slice(0, 8);
+      latestAttempts[month] = sortedAttempts.slice(0, 13);
     });
 
     // setLatestAttempts(latestAttempts);
@@ -368,7 +368,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                     </span>
                   </div>
                   <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
-                    Monthly Tries: {attemptsUsed}/8
+                    Monthly Tries: {attemptsUsed}/13
                   </div>
                 </div>
                 {/* <Shop /> */}
@@ -536,9 +536,9 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                                     className="p-2 bg-transparent text-purple-500 hover:text-purple-700"
                                   >
                                     {isPlaying[index] ? (
-                                      <Pause className="h-4 w-4" />
+                                      <Pause className="h-[22px] w-[22px]" />
                                     ) : (
-                                      <Volume2 className="h-4 w-4" />
+                                      <Volume2 className="h-[22px] w-[22px]" />
                                     )}
                                   </Button>
                                   <audio

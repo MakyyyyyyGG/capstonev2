@@ -218,7 +218,7 @@ const ColorGamesAdvancedStudent = ({ cards = [] }) => {
       );
 
       // Keep only the latest 8 attempts
-      latestAttempts[month] = sortedAttempts.slice(0, 8);
+      latestAttempts[month] = sortedAttempts.slice(0, 13);
     });
 
     // setLatestAttempts(latestAttempts);
@@ -288,8 +288,8 @@ const ColorGamesAdvancedStudent = ({ cards = [] }) => {
             Score: {score} / {shuffledCards.length}
           </h1>
           <GameHistory gameRecord={gameRecord} cards={cards.length} />
-          <h1>Attempts used this month: {attemptsUsed} / 8</h1>
-          {attemptsUsed >= 8 && (
+          <h1>Attempts used this month: {attemptsUsed} / 13</h1>
+          {attemptsUsed >= 13 && (
             <div className="w-1/2 bg-red-400 rounded-md p-4">
               <p className="text-white">
                 You have used all your attempts for this month. Your score wont

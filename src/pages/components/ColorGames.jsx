@@ -148,10 +148,15 @@ const ColorGames = ({ cards }) => {
           {cards?.map((card) => (
             <SwiperSlide key={card.color_game_id}>
               <Card className="w-full flex flex-col gap-4 h-[40rem] border-4 border-purple-300 bg-white aspect-square mx-auto p-4">
-                <CardBody className="flex flex-col gap-2 px-auto items-center justify-center py-0">
-                  <div className="flex justify-center items-center gap-2">
-                    <div className="text-4xl text-purple-700 font-extrabold mb-1 capitalize">
-                      <h1>{card.color}</h1>
+                <CardBody className="flex flex-col gap-4 px-auto items-center justify-center overflow-hidden">
+                  <div>
+                    <h1 className="text-2xl text-purple-700 font-bold text-center">
+                      Choose the correct image(s)
+                    </h1>
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="text-4xl text-purple-700 font-extrabold capitalize">
+                        <h1>{card.color}</h1>
+                      </div>
                     </div>
                   </div>
                   <div
@@ -162,16 +167,16 @@ const ColorGames = ({ cards }) => {
                         card.image3,
                         card.image4,
                       ].filter((image) => image !== null).length === 4
-                        ? "grid-cols-2 max-w-[24rem]"
+                        ? "grid-cols-2 max-w-[23rem]"
                         : [
                             card.image1,
                             card.image2,
                             card.image3,
                             card.image4,
                           ].filter((image) => image !== null).length === 3
-                        ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[24rem]"
+                        ? "grid-cols-3 max-sm:grid-cols-2 max-sm:max-w-[23rem]"
                         : "grid-cols-2"
-                    } gap-4 justify-center`}
+                    } gap-2 justify-center`}
                   >
                     {[card.image1, card.image2, card.image3, card.image4]?.map(
                       (image, imageIndex) =>
@@ -230,7 +235,7 @@ const ColorGames = ({ cards }) => {
                     )}
                   </div>
                 </CardBody>
-                <CardFooter className="w-full flex flex-col gap-2 py-2">
+                <CardFooter className="w-full flex flex-col gap-2 pt-0">
                   <AnimatePresence>
                     {submissionResults[card.color_game_id] && (
                       <motion.div

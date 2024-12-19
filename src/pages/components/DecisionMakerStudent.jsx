@@ -237,7 +237,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
       );
 
       // Keep only the latest 8 attempts
-      latestAttempts[month] = sortedAttempts.slice(0, 8);
+      latestAttempts[month] = sortedAttempts.slice(0, 13);
     });
 
     // setLatestAttempts(latestAttempts);
@@ -353,7 +353,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                     </span>
                   </div>
                   <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
-                    Monthly Tries: {attemptsUsed}/8
+                    Monthly Tries: {attemptsUsed}/13
                   </div>
                 </div>
                 {/* <Button
@@ -373,7 +373,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
               </div>
             </div>
           </div>
-          {attemptsUsed >= 8 && (
+          {attemptsUsed >= 13 && (
             <div className="flex w-full justify-center items-center">
               <div className="w-full max-w-[50rem] bg-red-400 rounded-lg mt-3 p-3">
                 <p className="text-sm text-white text-center">
@@ -491,15 +491,20 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                           className="w-full rounded-md shadow-xl flex flex-col gap-2 h-[40rem] aspect-square mx-auto p-4"
                         >
                           <CardBody className="flex flex-col gap-2 px-auto items-center justify-center">
-                            {!hideWord ? (
-                              <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize">
-                                {card.word}
+                            <div className="flex flex-col text-center">
+                              <h1 className="text-2xl text-purple-700 font-bold text-center">
+                                Click that correct image
                               </h1>
-                            ) : (
-                              <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize opacity-0">
-                                {card.word}
-                              </h1>
-                            )}
+                              {!hideWord ? (
+                                <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize">
+                                  {card.word}
+                                </h1>
+                              ) : (
+                                <h1 className="text-4xl font-extrabold mb-5 text-purple-700 capitalize opacity-0">
+                                  {card.word}
+                                </h1>
+                              )}
+                            </div>
                             <div className="max-w-[22rem]">
                               <Image
                                 src={card.image}
@@ -511,7 +516,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                               />
                             </div>
                           </CardBody>
-                          <CardFooter className="w-full flex flex-col gap-2">
+                          <CardFooter className="w-full flex flex-col gap-2 pt-0">
                             <AnimatePresence>
                               {feedback[card.decision_maker_id] && (
                                 <motion.div
