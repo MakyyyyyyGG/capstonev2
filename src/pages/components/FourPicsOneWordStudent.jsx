@@ -124,7 +124,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
       );
 
       // Keep only the latest 8 attempts
-      latestAttempts[month] = sortedAttempts.slice(0, 8);
+      latestAttempts[month] = sortedAttempts.slice(0, 13);
     });
 
     // setLatestAttempts(latestAttempts);
@@ -352,7 +352,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                     </span>
                   </div>
                   <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
-                    Monthly Tries: {attemptsUsed}/8
+                    Monthly Tries: {attemptsUsed}/13
                   </div>
                 </div>
                 {/* <Shop /> */}
@@ -362,7 +362,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
               </div>
             </div>
           </div>
-          {attemptsUsed >= 8 && (
+          {attemptsUsed >= 13 && (
             <div className="flex w-full justify-center items-center">
               <div className="w-full max-w-[50rem] bg-red-400 rounded-lg mt-3 p-3">
                 <p className="text-sm text-white text-center">

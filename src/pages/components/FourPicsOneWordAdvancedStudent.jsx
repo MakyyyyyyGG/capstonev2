@@ -153,7 +153,8 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
             }
           }, 2500); // 2.5-second delay
         } else if (newAttempts[cardIndex] >= 3) {
-          newFeedback[cardIndex] = "Incorrect. Moving to next question.";
+          newFeedback[cardIndex] = "Out of attemps. Moving to next question.";
+
           // Play incorrect sound
           incorrectSound.current.play();
 
@@ -250,7 +251,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
 
-      latestAttempts[month] = sortedAttempts.slice(0, 8);
+      latestAttempts[month] = sortedAttempts.slice(0, 13);
     });
 
     return latestAttempts;
@@ -361,7 +362,7 @@ const FourPicsOneWordAdvancedStudent = ({ cards = [] }) => {
                     </span>
                   </div>
                   <div className="text-sm font-medium bg-purple-100 px-3 py-1 rounded-full text-purple-600">
-                    Monthly Tries: {attemptsUsed}/8
+                    Monthly Tries: {attemptsUsed}/13
                   </div>
                 </div>
                 {/* <Shop /> */}

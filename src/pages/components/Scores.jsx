@@ -18,6 +18,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -28,24 +29,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ArrowUp,
-  ArrowDown,
-  ChevronsUpDown,
-} from "lucide-react";
+import { ArrowUp, ArrowDown, ChevronsUpDown } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { CSVLink } from "react-csv";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 const Scores = ({ studentRecords, students, height }) => {
-  // console.log("Student Records", studentRecords);
   const { data: session } = useSession();
   const [processedData, setProcessedData] = useState([]);
   const [viewChart, setViewChart] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: "ascending",
@@ -63,8 +55,7 @@ const Scores = ({ studentRecords, students, height }) => {
     to: undefined,
   });
   const [selectedRecords, setSelectedRecords] = useState([]);
-
-  const recordsPerPage = 10;
+  const [searchName, setSearchName] = useState("");
 
   useEffect(() => {
     if (studentRecords && students) {
@@ -157,9 +148,9 @@ const Scores = ({ studentRecords, students, height }) => {
         .map((r) =>
           r.score !== undefined ? (r.score / r.set_length) * 100 : "TBA"
         )
-        .slice(0, 8);
+        .slice(0, 13);
 
-      while (scores.length < 8) {
+      while (scores.length < 13) {
         scores.push("TBA");
       }
 
@@ -170,6 +161,13 @@ const Scores = ({ studentRecords, students, height }) => {
               0
             ) / scores.filter((score) => score !== "TBA").length
           : 0;
+
+      const status =
+        average >= 90
+          ? "Outstanding Progress"
+          : average >= 75
+          ? "Satisfactory Progress"
+          : "Needs Improvement";
 
       return {
         name: student
@@ -190,6 +188,7 @@ const Scores = ({ studentRecords, students, height }) => {
           score === "TBA" ? "TBA" : parseFloat(score.toFixed(2))
         ),
         average: parseFloat(average.toFixed(2)),
+        status: status,
       };
     });
   };
@@ -226,14 +225,9 @@ const Scores = ({ studentRecords, students, height }) => {
     return sortableData;
   };
 
-  const sortedData = getSortedData();
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = sortedData.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
+  const sortedData = getSortedData().filter((row) =>
+    row.name.toLowerCase().includes(searchName.toLowerCase())
   );
-  const totalPages = Math.ceil(sortedData.length / recordsPerPage);
 
   const hasRoomData = processedData.some(
     (data) => data.roomName !== "N/A" || data.roomDifficulty !== "N/A"
@@ -257,7 +251,7 @@ const Scores = ({ studentRecords, students, height }) => {
       // Calculate the overall average of all averages
       const overallAverage =
         selectedRecords.reduce(
-          (acc, index) => acc + currentRecords[index].average,
+          (acc, index) => acc + sortedData[index].average,
           0
         ) / selectedRecords.length;
 
@@ -278,11 +272,12 @@ const Scores = ({ studentRecords, students, height }) => {
           "Difficulty",
           "Date",
           "Title",
-          ...Array.from({ length: 8 }, (_, i) => `Attempt ${i + 1}`),
+          ...Array.from({ length: 13 }, (_, i) => `Attempt ${i + 1}`),
           "Average",
+          "Remarks", // Added Status column
         ],
         ...selectedRecords.map((index) => {
-          const record = currentRecords[index];
+          const record = sortedData[index];
           const row = [
             record.name,
             record.gameType,
@@ -292,6 +287,7 @@ const Scores = ({ studentRecords, students, height }) => {
             record.title,
             ...record.scores.map((score) => (score === null ? "TBA" : score)),
             record.average,
+            record.status, // Added Status to the row
           ];
           return row;
         }),
@@ -336,10 +332,17 @@ const Scores = ({ studentRecords, students, height }) => {
   };
 
   return (
-    <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white   ">
+    <Card className="shadow-none border-gray-300 w-full rounded-lg bg-white">
       <CardContent className="p-6">
         <div className="flex items-center gap-4 pb-4 flex-wrap justify-between">
           <div className="flex gap-4 items-center">
+            <Input
+              type="text"
+              placeholder="Search by name"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              className="border rounded p-2"
+            />
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
               <SelectTrigger className="w-[180px] bg-white">
                 <SelectValue placeholder="Select Month" />
@@ -406,7 +409,7 @@ const Scores = ({ studentRecords, students, height }) => {
           <div>
             <Button
               variant="outline"
-              className=" bg-purple-700 text-white  "
+              className="bg-purple-700 text-white"
               color="secondary"
               size="lg"
               onClick={exportToExcel}
@@ -425,12 +428,12 @@ const Scores = ({ studentRecords, students, height }) => {
                     type="checkbox"
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedRecords(currentRecords.map((_, i) => i));
+                        setSelectedRecords(sortedData.map((_, i) => i));
                       } else {
                         setSelectedRecords([]);
                       }
                     }}
-                    checked={selectedRecords.length === currentRecords.length}
+                    checked={selectedRecords.length === sortedData.length}
                   />
                 </TableHead>
                 <TableHead onClick={() => sortData("name")}>
@@ -439,7 +442,6 @@ const Scores = ({ studentRecords, students, height }) => {
                 <TableHead onClick={() => sortData("title")}>
                   Title {renderSortIcon("title")}
                 </TableHead>
-
                 <TableHead onClick={() => sortData("gameType")}>
                   Game Type {renderSortIcon("gameType")}
                 </TableHead>
@@ -463,12 +465,14 @@ const Scores = ({ studentRecords, students, height }) => {
                 >
                   Average {renderSortIcon("average")}
                 </TableHead>
+                <TableHead className="text-center">Remarks</TableHead>{" "}
+                {/* Added Status Head */}
                 <TableHead className="text-center">Teacher</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentRecords.map((row, index) => (
+              {sortedData.map((row, index) => (
                 <React.Fragment key={index}>
                   <TableRow className="group hover:bg-gray-100">
                     <TableCell>
@@ -499,13 +503,16 @@ const Scores = ({ studentRecords, students, height }) => {
                       {parseFloat(row.average).toFixed(2)}%
                     </TableCell>
                     <TableCell className="text-center">
+                      {row.status} {/* Added Status Display */}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {session.user.first_name} {session.user.last_name}
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className=" group-hover:opacity-100"
+                        className="group-hover:opacity-100"
                         onClick={() => toggleViewChart(index)}
                       >
                         {viewChart[index] ? "View Less" : "View More"}
@@ -514,16 +521,18 @@ const Scores = ({ studentRecords, students, height }) => {
                   </TableRow>
                   {viewChart[index] && (
                     <TableRow>
-                      <TableCell colSpan={hasRoomData ? 10 : 8}>
+                      <TableCell colSpan={hasRoomData ? 13 : 13}>
                         <ResponsiveContainer width="100%" height={300}>
                           <LineChart
-                            data={row.scores.map((score, i) => ({
-                              name: `Attempt ${i + 1}`,
-                              score:
-                                score === "TBA"
-                                  ? null
-                                  : parseFloat(score.toFixed(2)),
-                            }))}
+                            data={row.scores
+                              .map((score, i) => ({
+                                name: `Try ${i + 1}`,
+                                score:
+                                  score === "TBA"
+                                    ? null
+                                    : parseFloat(score.toFixed(2)),
+                              }))
+                              .slice(0, 13)} // Ensure only 13 attempts are shown
                             margin={{ top: 30, right: 20, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
@@ -554,42 +563,7 @@ const Scores = ({ studentRecords, students, height }) => {
 
         <div className="flex items-center justify-between pt-4">
           <div className="text-sm text-muted-foreground">
-            Showing {currentRecords.length} of {processedData.length} entries
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
-              <Button
-                key={i + 1}
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(i + 1)}
-                className={
-                  currentPage === i + 1
-                    ? "bg-secondary text-primary-foreground"
-                    : ""
-                }
-              >
-                {i + 1}
-              </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            Showing {sortedData.length} entries
           </div>
         </div>
       </CardContent>
