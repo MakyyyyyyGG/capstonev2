@@ -113,7 +113,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
 
       setScore((prevScore) => prevScore + 1);
     } else {
-      newFeedback[card.decision_maker_id] = "Incorrect.";
+      newFeedback[card.decision_maker_id] = "Incorrect";
 
       // Play incorrect sound
       incorrectSound.current.play();
@@ -534,7 +534,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                       feedback[card.decision_maker_id] ===
                                       "Correct!"
                                         ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                        : "text-white w-full bg-pink-300 p-2 rounded-lg"
+                                        : "text-purple-900 w-full bg-pink-300 p-2 rounded-lg"
                                     }
                                   >
                                     {feedback[card.decision_maker_id]}
@@ -556,7 +556,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                     feedback[card.decision_maker_id] ===
                                       "Correct!" ||
                                     feedback[card.decision_maker_id] ===
-                                      "Incorrect."
+                                      "Incorrect"
                                   }
                                   className="w-full h-16 justify-center text-green-700 text-lg bg-white border-4 border-green-300"
                                   style={{
@@ -580,7 +580,7 @@ const DecisionMakerStudent = ({ cards = [] }) => {
                                     feedback[card.decision_maker_id] ===
                                       "Correct!" ||
                                     feedback[card.decision_maker_id] ===
-                                      "Incorrect."
+                                      "Incorrect"
                                   }
                                   className="w-full h-16 justify-center text-red-700 text-lg bg-white border-4 border-red-300"
                                   style={{

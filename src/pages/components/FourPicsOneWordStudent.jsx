@@ -551,7 +551,7 @@ const FourPicsOneWordStudent = ({ cards = [] }) => {
                                       className={
                                         feedback[index].includes("Correct")
                                           ? "text-white w-full bg-green-500 p-2 rounded-lg"
-                                          : "text-white w-full bg-pink-300 p-2 rounded-lg"
+                                          : "text-purple-900 w-full bg-pink-300 p-2 rounded-lg"
                                       }
                                     >
                                       {/* <motion.div
