@@ -251,7 +251,7 @@ const ColorGames = ({ cards }) => {
                               : submissionResults[card.color_game_id] ===
                                 "Almost there!"
                               ? "text-white w-full bg-yellow-400 p-2 rounded-lg"
-                              : "text-white w-full bg-pink-300 p-2 rounded-lg"
+                              : "text-purple-900 w-full bg-pink-300 p-2 rounded-lg"
                           }
                         >
                           {submissionResults[card.color_game_id]}

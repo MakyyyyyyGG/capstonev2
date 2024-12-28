@@ -202,7 +202,7 @@ const AssignmentList = ({ assignments, onDelete }) => {
               </div>
             </div>
           </div>
-          <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="w-full gap-4 grid grid-cols-1">
             {filteredAssignments.map((assignment) => (
               <Card
                 key={assignment.assignment_id}

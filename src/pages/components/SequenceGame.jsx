@@ -328,7 +328,7 @@ const SequenceGame = ({ sequenceGame }) => {
                         className="flex w-full text-center justify-center rounded-md"
                       >
                         <p
-                          className={`text-white w-full p-2 rounded-md ${
+                          className={`text-purple-900 w-full p-2 rounded-md ${
                             stepResults[index] ? "bg-green-500" : "bg-pink-300"
                           }`}
                         >

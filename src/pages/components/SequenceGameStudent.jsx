@@ -631,7 +631,7 @@ const SequenceGameStudent = ({ sequenceGame }) => {
                                   className={
                                     feedback[index].includes("Correct")
                                       ? "text-white w-full bg-green-500 p-2 rounded-md"
-                                      : "text-white w-full bg-pink-300 p-2 rounded-md"
+                                      : "text-purple-900 w-full bg-pink-300 p-2 rounded-md"
                                   }
                                 >
                                   {feedback[index]}

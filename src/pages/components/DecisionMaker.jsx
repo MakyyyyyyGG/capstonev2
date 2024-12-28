@@ -229,7 +229,7 @@ const DecisionMaker = ({ cards }) => {
                                 <h1 className="w-full">Correct</h1>
                               </div>
                             ) : (
-                              <div className="text-white w-full bg-pink-300 p-2 rounded-lg">
+                              <div className="text-purple-900 w-full bg-pink-300 p-2 rounded-lg">
                                 <h1 className="w-full">Incorrect</h1>
                               </div>
                             )}

@@ -894,6 +894,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                 label="First Name"
                                 size="sm"
                                 variant="bordered"
+                                className="col-span-2 max-sm:col-span-1"
                                 value={firstName || ""}
                                 onChange={(e) => setFirstName(e.target.value)}
                               />
@@ -902,6 +903,7 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                 label="Last Name"
                                 size="sm"
                                 variant="bordered"
+                                className="col-span-2 max-sm:col-span-1"
                                 value={lastName || ""}
                                 onChange={(e) => setLastName(e.target.value)}
                               />
@@ -928,7 +930,6 @@ const Header = ({ isCollapsed, toggleCollapse }) => {
                                 <SelectItem key="Other">Other</SelectItem>
                               </Select>
                               <Input
-                                className="col-span-2 max-sm:col-span-1"
                                 type="date"
                                 label="Enter Your Birth Date"
                                 size="sm"
