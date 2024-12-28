@@ -326,7 +326,7 @@ const JoinedRoom = ({ rooms = [], onUnenroll, assignments = [] }) => {
           {assignments.length > 0 && (
             <>
               <h1 className="text-4xl my-6 font-bold">Assignments</h1>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 rounded-lg auto-cols-fr">
+              <div className="grid grid-cols-1 gap-5 rounded-lg auto-cols-fr">
                 {assignments.map((assignment) => {
                   const assignmentDueDate = parseZonedDateTime(
                     assignment.due_date
